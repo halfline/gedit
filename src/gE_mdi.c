@@ -223,11 +223,14 @@ GTK_SIGNAL_FUNC(gE_document_popup_cb), GTK_OBJECT((gE_window *)(mdi->active_wind
 	gtk_widget_show(vscrollbar);
 	gtk_widget_show (vbox);
 
+/*	I'm not even sure why these are here.. i'm sure there are much easier ways
+	of implementing undo/redo... 
+	
 	gtk_signal_connect (GTK_OBJECT (doc->text), "insert_text",
 		GTK_SIGNAL_FUNC(doc_insert_text_cb), (gpointer) doc);
 	gtk_signal_connect (GTK_OBJECT (doc->text), "delete_text",
 		GTK_SIGNAL_FUNC(doc_delete_text_cb), (gpointer) doc);
-
+*/
 	/* Create the bottom split screen */
 	table = gtk_table_new(2, 2, FALSE);
 	gtk_table_set_row_spacing(GTK_TABLE(table), 0, 2);

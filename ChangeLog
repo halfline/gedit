@@ -1,3 +1,10 @@
+1999-04-03 (15:30) Alex Roberts  <bse@gedit.pn.org>
+	
+	* gE_mdi.c:  (gE_document_create_view) Removed the signal connections
+	  that connect doc_insert_text_cb and doc_delete_text_cb.. It seems
+	  they were for Undo/Redo, but i'm sure there are easier/better ways
+	  to implement this. So there are no more Gtk-CRITCAL errors anymore!
+	
 1999-04-03 (14:47) Alex Roberts  <bse@gedit.pn.org>
 	
 	* gE_mdi.c: Commented out the view_menu.. the Add View and Remove
