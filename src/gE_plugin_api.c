@@ -92,7 +92,7 @@ start_plugin(GtkWidget * widget, gE_data * data)
 }
 
 void 
-add_plugin_to_menu(gE_window * window, plugin_info * info)
+add_plugin_to_menu(GnomeApp *app, plugin_info * info)
 {
    gE_data *data = g_malloc0(sizeof(gE_data));
 
@@ -101,7 +101,7 @@ add_plugin_to_menu(gE_window * window, plugin_info * info)
 
    data->temp1 = g_strdup(info->plugin_name);
    data->temp2 = info;
-   data->window = window;
+ /*  data->window = app;*/
    path = g_new(gchar, strlen(_("_Plugins")) + 2);
    sprintf(path, "%s/", _("_Plugins"));
    menu->label = g_strdup(info->menu_location);
@@ -116,14 +116,14 @@ add_plugin_to_menu(gE_window * window, plugin_info * info)
 
    (menu + 1)->type = GNOME_APP_UI_ENDOFINFO;
 
-   gnome_app_insert_menus_with_data(GNOME_APP(window->window), path, menu, data);
+   gnome_app_insert_menus_with_data(app, path, menu, data);
 
 }
 
 void 
-add_plugins_to_window(plugin_info * info, gE_window * window)
+add_plugins_to_window(plugin_info * info, GnomeApp *app)
 {
-   add_plugin_to_menu(window, info);
+   add_plugin_to_menu(app, info);
 }
 
 /* --- Direct interface to the plugins API --- */

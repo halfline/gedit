@@ -170,15 +170,15 @@ gE_window_new(GnomeMDI *mdi, GnomeApp *app)
 */
 	gE_get_settings ();
 
-/*	gE_set_menu_toggle_states(w);
-*/
-	g_list_foreach(plugins, (GFunc) add_plugins_to_window, w);
+	gE_set_menu_toggle_states();
 
-	recent_update(w);
+	g_list_foreach(plugins, (GFunc) add_plugins_to_window, app);
+
+/*	recent_update(w);*/
 	window_list = g_list_append(window_list, (gpointer) w);
 
-	gE_window_refresh (w);
-	
+/*	gE_window_refresh (w);
+	*/
 	gtk_drag_dest_set (GTK_WIDGET(app),
 		GTK_DEST_DEFAULT_ALL,
 		drag_types, n_drag_types,
@@ -253,12 +253,16 @@ gchar *fname;
 	
 	if(read_only)
 	{
-	  sprintf(RO_label, "RO - %s", GTK_LABEL(doc->tab_label)->label);
-	  gtk_label_set(GTK_LABEL(doc->tab_label), RO_label);
+	  sprintf(RO_label, "RO - %s", GNOME_MDI_CHILD(doc)->name);
+	  gnome_mdi_child_set_name (GNOME_MDI_CHILD (doc), RO_label);
 	}
 	else
 	{
-	 gtk_label_set(GTK_LABEL(doc->tab_label), (const char *)g_basename(doc->filename));
+	 if (doc->filename)
+	   gnome_mdi_child_set_name (GNOME_MDI_CHILD(doc),
+	   					     g_basename(doc->filename));
+	 else
+	   gnome_mdi_child_set_name (GNOME_MDI_CHILD(doc), _(UNTITLED));
 	}
 	 if (doc->split_screen)
 		gtk_text_set_editable

@@ -1,3 +1,29 @@
+1999-03-14 (18:02) Alex Roberts  <bse@dial.pipex.com>
+
+	* gE_document: (gE_document_set_read_only) Use gnome_mdi_child_set_name
+	  instead of setting the old (now defunct) tab label. 
+	  Read Only documents are BACK! yay!
+
+1999-03-14 (00:02) Alex Roberts  <bse@dial.pipex.com>
+
+	* gedit.c: (main) Doh.. open the toplevel first, before makeing a new
+	  document.. Now we don't get two windows open on startup (if we specify
+	  a file to open, or just have a plain file on startup).. Yippee!
+
+1999-03-13 (23:46) Alex Roberts  <bse@dial.pipex.com>
+
+	* menus.c:
+	  commands.[ch]: Document tab positioning is back.. Kinda.. If you change
+	  the tab position, you need to make a new MDI window.
+	
+	* gE_document.c: (gE_window_new) I've commented out the Recent_Document list
+	  update call, until i get that fixed with MDI. This stops most of the
+	  menus warnings on startup.
+	
+	* gE_plugin_api.[ch]: (add_plugins_to_window) Send a "GnomeApp" to this
+	  and the functions after this. This sort of fixes the startup menu 
+	  warnings (well.. atleast they're different ones now ;).
+
 1999-03-13 (19:37) Alex Roberts  <bse@dial.pipex.com>
 
 	* gE_mdi.c: (remove_doc_cb) Now we ask the user if they want to save the

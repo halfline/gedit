@@ -237,7 +237,19 @@ int main (int argc, char **argv)
 
 	data->window = window;*/
 	window = g_malloc (sizeof (gE_window));
+
+	/* Init plugins... */
+	plugins = NULL;
 	
+	setup_callbacks (&pl_callbacks);
+	
+	/*plugin_query_all (&pl_callbacks);*/
+	/*custom_plugin_query_all ( "/usr/gnome/libexec/plugins", &pl_callbacks);*/
+	/*custom_plugin_query ( "/usr/gnome/libexec", "print-plugin", &pl_callbacks);*/
+	plugin_load_list("gEdit");
+
+	gnome_mdi_set_mode (mdi, mdiMode);
+		
     /* connect signals -- FIXME -- We'll do the rest later */
     gtk_signal_connect(GTK_OBJECT(mdi), "remove_child", GTK_SIGNAL_FUNC(remove_doc_cb), NULL);
     gtk_signal_connect(GTK_OBJECT(mdi), "destroy", GTK_SIGNAL_FUNC(file_quit_cb), NULL);
@@ -246,15 +258,8 @@ int main (int argc, char **argv)
 	
 	gtk_signal_connect(GTK_OBJECT(mdi), "app_created", GTK_SIGNAL_FUNC(gE_window_new), NULL);
 	
-	gnome_mdi_set_mode (mdi, mdiMode);
-
-/*	if ((doc = gE_document_new()))
-	  {
-	    gnome_mdi_add_child (mdi, GNOME_MDI_CHILD (doc));
-	    gnome_mdi_add_view (mdi, GNOME_MDI_CHILD (doc));
-	    
-	  }
-*/	
+	gnome_mdi_open_toplevel(mdi);
+	
 	if (file_list){
 
 
@@ -271,23 +276,24 @@ int main (int argc, char **argv)
 			gE_document_new_with_file (file_list->data);
 		}
 	}
-
+	else
+	{
+	  if ((doc = gE_document_new()))
+	    {
+	      gnome_mdi_add_child (mdi, GNOME_MDI_CHILD (doc));
+	      gnome_mdi_add_view (mdi, GNOME_MDI_CHILD (doc));
+	    }
+	}
+	
 	g_free (data);
-	/* Init plugins... */
-	plugins = NULL;
+
 	
-	setup_callbacks (&pl_callbacks);
-	
-	/*plugin_query_all (&pl_callbacks);*/
-	/*custom_plugin_query_all ( "/usr/gnome/libexec/plugins", &pl_callbacks);*/
-	/*custom_plugin_query ( "/usr/gnome/libexec", "print-plugin", &pl_callbacks);*/
-	plugin_load_list("gEdit");
       
 #ifdef WITH_GMODULE_PLUGINS
 	gE_Plugin_Query_All ();
 #endif
 	
-	gnome_mdi_open_toplevel(mdi);
+
 	
 	gtk_main ();
 	return 0;

@@ -109,7 +109,7 @@ FIXME	  file_close_all_cb, (gpointer) GE_DATA, NULL,
 };
 
 
-/*
+
 GnomeUIInfo gedit_tab_menu []= {
 	{ GNOME_APP_UI_ITEM, N_("_Top"),
 	  N_("Put the document tabs at the top"),
@@ -127,14 +127,14 @@ GnomeUIInfo gedit_tab_menu []= {
 	  N_("Put the document tabs on the right"),
 	  tab_rgt_cb, (gpointer) GE_WINDOW, NULL },
 
-	GNOMEUIINFO_SEPARATOR,
+/*	GNOMEUIINFO_SEPARATOR,
 
 	GNOMEUIINFO_TOGGLEITEM_DATA(GE_TOGGLE_LABEL_SHOWTABS,
 			    N_("Toggle the presence of the document tabs"),
-				    tab_toggle_cb, (gpointer) GE_WINDOW, NULL),
+				    tab_toggle_cb, (gpointer) GE_WINDOW, NULL),*/
 	
 	GNOMEUIINFO_END
-};*/
+};
 
 
 
@@ -148,33 +148,33 @@ GnomeUIInfo gedit_settings_menu []= {
 	GNOMEUIINFO_TOGGLEITEM_DATA(GE_TOGGLE_LABEL_STATUSBAR,
 				    N_("Toggle statusbar"),
 				    options_toggle_status_bar_cb,
-				    (gpointer) GE_WINDOW, NULL),
+				    NULL, NULL),
 
 	GNOMEUIINFO_TOGGLEITEM_DATA(GE_TOGGLE_LABEL_WORDWRAP,
 				    N_("Toggle Wordwrap"),
 				    options_toggle_word_wrap_cb,
-				    (gpointer) GE_WINDOW, NULL),
+				    NULL, NULL),
 
 	GNOMEUIINFO_TOGGLEITEM_DATA(GE_TOGGLE_LABEL_LINEWRAP,
 				    N_("Toggle Linewrap"),
 				    options_toggle_line_wrap_cb,
-				    (gpointer) GE_WINDOW, NULL),
+				    NULL, NULL),
 
 	GNOMEUIINFO_TOGGLEITEM_DATA(GE_TOGGLE_LABEL_READONLY,
 				    N_("Toggle Readonly"),
 				    options_toggle_read_only_cb,
-				    (gpointer) GE_WINDOW, NULL),
+				    NULL, NULL),
 
 	GNOMEUIINFO_TOGGLEITEM_DATA(GE_TOGGLE_LABEL_SPLITSCREEN,
 				    N_("Toggle Split Screen"),
 				    options_toggle_split_screen_cb,
-				    (gpointer) GE_WINDOW, NULL),
+				    NULL, NULL),
 
 	GNOMEUIINFO_SEPARATOR,
 
-/*BORKED	{ GNOME_APP_UI_SUBTREE, N_("_Document Tabs"),
+	{ GNOME_APP_UI_SUBTREE, N_("_Document Tabs"),
 	  N_("Change the placement of the document tabs"), &gedit_tab_menu },
-*/
+
 	GNOMEUIINFO_SEPARATOR,
 
 	{ GNOME_APP_UI_ITEM, N_("Sa_ve Settings"),
@@ -269,9 +269,9 @@ GnomeUIInfo * gE_menus_init (gE_window *window, gE_data *data)
  * It is called from gE_window_nwe after the settings have been loaded.
  */
 void
-gE_set_menu_toggle_states(gE_window *w)
+gE_set_menu_toggle_states()
 {
-  gE_document *doc = gE_document_current ();
+  gE_document *doc;
   int i;
 
 #define GE_SET_TOGGLE_STATE(item, l, boolean)                            \
@@ -288,7 +288,7 @@ gE_set_menu_toggle_states(gE_window *w)
       if (gedit_tab_menu[i].label)
 	{
 	  GE_SET_TOGGLE_STATE(gedit_tab_menu[i], GE_TOGGLE_LABEL_SHOWTABS,
-			      w->show_tabs);
+			      settings->show_tabs);
 	  
 	}
     }*/
@@ -309,6 +309,8 @@ gE_set_menu_toggle_states(gE_window *w)
 			      _(GE_TOGGLE_LABEL_STATUSBAR),
 			      settings->show_status);
 
+      if ((doc = gE_document_current ()))
+        {
 	  GE_SET_TOGGLE_STATE(gedit_settings_menu[i],
 			      _(GE_TOGGLE_LABEL_WORDWRAP),
 			      doc->word_wrap);
@@ -325,6 +327,7 @@ gE_set_menu_toggle_states(gE_window *w)
 			      _(GE_TOGGLE_LABEL_SPLITSCREEN),
 			      doc->splitscreen);
 
+	 }
 	}
     }
 }

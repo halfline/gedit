@@ -29,6 +29,7 @@ typedef struct _gE_preference {
 
 	guint auto_indent;
 	gint show_tabs;
+	gint tab_pos;
 	guint show_status;
 	gint show_tooltips;
 	gint have_toolbar;

@@ -298,16 +298,15 @@ file_sel_destroy (GtkWidget *w, GtkFileSelection *fs)
 
 
 /* --- Notebook Tab Stuff --- */
-/* No longer needed.. kinda.. this sort of stuff needs to be elsewhere..
-   It's all handled by GnomeMDI now..#
+
    
 void
 tab_top_cb(GtkWidget *widget, gpointer cbwindow)
 {
 	gE_window *w = (gE_window *)cbwindow;
 
-	gtk_notebook_set_tab_pos(GTK_NOTEBOOK(w->notebook), GTK_POS_TOP);
-	w->tab_pos = GTK_POS_TOP;
+	mdi->tab_pos = GTK_POS_TOP;
+	settings->tab_pos = GTK_POS_TOP;
 }
 
 
@@ -316,8 +315,8 @@ tab_bot_cb(GtkWidget *widget, gpointer cbwindow)
 {
 	gE_window *w = (gE_window *)cbwindow;
 
-	gtk_notebook_set_tab_pos(GTK_NOTEBOOK(w->notebook), GTK_POS_BOTTOM);
-	w->tab_pos = GTK_POS_BOTTOM;
+	mdi->tab_pos =  GTK_POS_BOTTOM;
+	settings->tab_pos = GTK_POS_BOTTOM;
 }
 
 void
@@ -325,8 +324,8 @@ tab_lef_cb(GtkWidget *widget, gpointer cbwindow)
 {
 	gE_window *w = (gE_window *)cbwindow;
 
-	gtk_notebook_set_tab_pos(GTK_NOTEBOOK(w->notebook), GTK_POS_LEFT);
-	w->tab_pos = GTK_POS_LEFT;
+	mdi->tab_pos =  GTK_POS_LEFT;
+	settings->tab_pos = GTK_POS_LEFT;
 }
 
 void
@@ -334,10 +333,10 @@ tab_rgt_cb(GtkWidget *widget, gpointer cbwindow)
 {
 	gE_window *w = (gE_window *)cbwindow;
 
-	gtk_notebook_set_tab_pos(GTK_NOTEBOOK(w->notebook), GTK_POS_RIGHT);
-	w->tab_pos = GTK_POS_RIGHT;
+	mdi->tab_pos =  GTK_POS_RIGHT;
+	settings->tab_pos = GTK_POS_RIGHT;
 }
-
+/*
 void
 tab_toggle_cb(GtkWidget *widget, gpointer cbwindow)
 {
@@ -370,8 +369,8 @@ auto_indent_cb(GtkWidget *text, char *insertion_text, int length,
 	
 	data = g_malloc0 (sizeof (gE_data));
 	data->temp2 = text;
-	/*data->window = window;*/
-	line_pos_cb(NULL, data);
+	/*data->window = window;
+	line_pos_cb(NULL, data);*/
 
 	if ((length != 1) || (insertion_text[0] != '\n'))
 		return FALSE;
@@ -430,7 +429,7 @@ auto_indent_cb(GtkWidget *text, char *insertion_text, int length,
 	
 	g_free (whitespace);
 	data->temp2 = text;
-	line_pos_cb(NULL, data);
+	/*line_pos_cb(NULL, data);*/
 	return TRUE;
 }
 
@@ -1097,7 +1096,7 @@ doc_delete_text_cb(GtkWidget *editable, int start_pos, int end_pos,
 	gtk_text_thaw (GTK_TEXT (significant_other));
 }
 
-void options_toggle_split_screen_cb (GtkWidget *widget, gE_window *window)
+void options_toggle_split_screen_cb (GtkWidget *widget, gpointer data)
 {
 	gE_document *doc = gE_document_current ();
 	gint visible;
@@ -1110,25 +1109,25 @@ void options_toggle_split_screen_cb (GtkWidget *widget, gE_window *window)
 }
 
 
-void options_toggle_read_only_cb (GtkWidget *widget, gE_window *window)
+void options_toggle_read_only_cb (GtkWidget *widget, gpointer data)
 {
 	gE_document *doc = gE_document_current ();
 	gE_document_set_read_only (doc, !doc->read_only);
 }
 
-void options_toggle_word_wrap_cb (GtkWidget *widget, gE_window *window)
+void options_toggle_word_wrap_cb (GtkWidget *widget, gpointer data)
 {
 	gE_document *doc = gE_document_current ();
 	gE_document_set_word_wrap (doc, !doc->word_wrap);
 }
 
-void options_toggle_line_wrap_cb (GtkWidget *widget, gE_window *window)
+void options_toggle_line_wrap_cb (GtkWidget *widget, gpointer data)
 {
 	gE_document *doc = gE_document_current ();
 	gE_document_set_line_wrap (doc, !doc->line_wrap);
 }
 
-void options_toggle_status_bar_cb (GtkWidget *w, gE_window *window)
+void options_toggle_status_bar_cb (GtkWidget *w, gpointer data)
 {
 	gE_window_set_status_bar (!settings->show_status);
 }

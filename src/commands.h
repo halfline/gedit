@@ -49,12 +49,12 @@ extern void edit_selall_cb(GtkWidget *widget, gpointer cbdata);
 extern void doc_changed_cb(GtkWidget *widget, gpointer);
 
 /* Tab positioning */
-/*extern void tab_top_cb(GtkWidget *widget, gpointer cbwindow);
+extern void tab_top_cb(GtkWidget *widget, gpointer cbwindow);
 extern void tab_bot_cb(GtkWidget *widget, gpointer cbwindow);
 extern void tab_lef_cb(GtkWidget *widget, gpointer cbwindow);
 extern void tab_rgt_cb(GtkWidget *widget, gpointer cbwindow);
 extern void tab_toggle_cb(GtkWidget *widget, gpointer cbwindow);
-*/
+
 /* Auto indent */
 extern gint auto_indent_cb(GtkWidget *text, char *insertion_text, int length, int *pos);
 extern void auto_indent_toggle_cb(GtkWidget *w, gpointer cbdata);
@@ -80,11 +80,11 @@ extern void doc_insert_text_cb(GtkWidget *editable,
 extern void doc_delete_text_cb (GtkWidget *editable,
 	int start_pos, int end_pos, gE_document *doc);
 
-extern void options_toggle_split_screen_cb (GtkWidget *widget, gE_window *window);
-extern void options_toggle_status_bar_cb (GtkWidget *widget, gE_window *window);
-extern void options_toggle_word_wrap_cb (GtkWidget *widget, gE_window *window);
-extern void options_toggle_line_wrap_cb (GtkWidget *widget, gE_window *window);
-extern void options_toggle_read_only_cb (GtkWidget *widget, gE_window *window);
+extern void options_toggle_split_screen_cb (GtkWidget *widget, gpointer data);
+extern void options_toggle_status_bar_cb (GtkWidget *widget, gpointer data);
+extern void options_toggle_word_wrap_cb (GtkWidget *widget, gpointer data);
+extern void options_toggle_line_wrap_cb (GtkWidget *widget, gpointer data);
+extern void options_toggle_read_only_cb (GtkWidget *widget, gpointer data);
 
 /* Functions needed to be made external for the plugins api */
 extern void popup_close_verify (gE_document *doc, gE_data *data);

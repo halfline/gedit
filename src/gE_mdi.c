@@ -358,9 +358,9 @@ gE_document *gE_document_new_with_file (gchar *filename)
 	if ((doc = gtk_type_new (gE_document_get_type ())))
 	  {
 
-/*    	    gnome_mdi_child_set_name(GNOME_MDI_CHILD(doc), _(filename));
+   	    gnome_mdi_child_set_name(GNOME_MDI_CHILD(doc), _(filename));
 
-	    nfile = g_malloc(strlen(name)+1);
+/*	    nfile = g_malloc(strlen(name)+1);
 	    strcpy(nfile, name);*/
 
 	    gnome_mdi_add_child (mdi, GNOME_MDI_CHILD (doc));
