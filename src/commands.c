@@ -790,6 +790,8 @@ file_quit_cb(GtkWidget *widget, gpointer cbdata)
 	}*/
 	if (gnome_mdi_remove_all (mdi, FALSE))
 	  gtk_object_destroy (GTK_OBJECT (mdi));
+	else
+	  return;
 	
 	gtk_exit(0);	/* should not reach here */
 }
@@ -971,7 +973,7 @@ recent_update_menus (GnomeApp *app, GList *recent_files)
 	int i;
 
 	if (settings->num_recent)
-	   gnome_app_remove_menu_range (app, "_File/", 5, settings->num_recent + 1);
+	  gnome_app_remove_menu_range (app, "_File/", 5, settings->num_recent + 1);
 
 	if (recent_files == NULL)
 		return;
