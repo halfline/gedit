@@ -1,3 +1,8 @@
+2002-07-03  Federico Mena Quintero  <federico@ximian.com>
+
+	* gedit.schemas: Rewrote the schema file for the new preferences
+	setup.  Should be the last part to fix #84535.
+
 2002-07-03  Paolo Maggi  <maggi@athena.polito.it>
 
 	* configure.in: now gedit depends on eel-2.0 
