@@ -1,3 +1,8 @@
+2002-05-30  James Willcox <jwillcox@cs.indiana.edu>
+
+	* bonobo-mdi.c (child_list_menu_add_item):
+	Assign keyboard accelerators to items in the "Documents" menu.
+
 2002-05-29  Paolo Maggi <maggi@athena.polito.it>
 
 	* bonobo-mdi-session.c: save and restore window role

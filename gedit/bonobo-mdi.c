@@ -556,9 +556,12 @@ child_list_menu_add_item (BonoboMDI *mdi, BonoboMDIChild *child)
 	GList *win_node;
 	gchar *child_name, *escaped_name;
 	gchar* xml, *cmd, *verb_name, *tip;
+	int accel_num;
 	
 	if(mdi->priv->child_list_path == NULL)
 		return;
+
+	accel_num = g_list_length (mdi->priv->children);
 	
 	win_node = mdi->priv->windows;
 
@@ -569,8 +572,15 @@ child_list_menu_add_item (BonoboMDI *mdi, BonoboMDIChild *child)
 	tip = g_strdup_printf (_("Activate %s"), child_name);
 	xml = g_strdup_printf ("<menuitem name=\"%s\" verb=\"%s\""
 				" _label=\"%s\"/>", verb_name, verb_name, escaped_name);
-	cmd =  g_strdup_printf ("<cmd name = \"%s\" _label=\"%s\""
+
+	if (accel_num > 9)
+		cmd =  g_strdup_printf ("<cmd name = \"%s\" _label=\"%s\""
 				" _tip=\"%s\"/>", verb_name, escaped_name, tip);
+	else
+		cmd =  g_strdup_printf ("<cmd name = \"%s\" _label=\"%s\""
+			" _tip=\"%s\" accel=\"*Alt*%d\"/>", verb_name,
+			escaped_name, tip, accel_num);
+
 	
 	while (win_node) 
 	{
