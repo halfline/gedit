@@ -203,9 +203,9 @@ void gE_window_set_status_bar (gint show_status)
 {
 	settings->show_status = show_status;
 	if (show_status)
-		gtk_widget_show (GTK_WIDGET(window->statusbar)->parent);
+	  gtk_widget_show (GTK_WIDGET (GNOME_APP(mdi->active_window)->statusbar));
 	else
-		gtk_widget_hide (GTK_WIDGET (window->statusbar)->parent);
+	  gtk_widget_hide (GTK_WIDGET (GNOME_APP(mdi->active_window)->statusbar));
 }
 
 /* gE_document_new: Relocated to gE_mdi.[ch] */
@@ -292,6 +292,7 @@ child_switch (GnomeMDI *mdi, gE_document *doc)
 		GEDIT_ID);
 	gtk_window_set_title(GTK_WINDOW(window->window), title);
 	g_free(title);*/
+	g_print ("child has changed something..\n");
 
 }
 /*	umm.. FIXME?

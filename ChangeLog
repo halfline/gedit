@@ -1,3 +1,27 @@
+1999-03-20 (19:40) Alex Roberts  <bse@dial.pipex.com>
+
+	* menus.c:
+	  commands.[ch]: (window_new_cb): Use gnome_mdi_open_toplevel() to create a
+	  new window. We now have the "Create new window" feature back! YAY!
+
+	* gE_mdi.[ch]:
+	  gedit.c: (main) Added signal connections for add_view and add_child. They
+	  dont do anything yet, and i'm not sure if they ever will.
+
+1999-03-16 (20:46) Alex Roberts  <bse@dial.pipex.com>
+
+	* gE_mdi.c: (gE_add_view) Duplicate the text from the child into the new
+	  view. They don't simultaineously update tho.. Checking if the document has
+	  changed is working again tho :) 
+
+1999-03-14 (23:46) Alex Roberts  <bse@dial.pipex.com>
+
+	* gE_prefs.c: (get_settings)
+	  gE_document.c: (gE_window_set_status_bar) Use current (mdi)active_window
+	  to access the builtin GnomeApp statusbar member. Statusbar toggle is back!
+	  yay! Window doesnt refresh tho, leaving a gap (until the window is resized
+	  that is).. Ah well..
+	
 1999-03-14 (19:46) Alex Roberts  <bse@dial.pipex.com>
 
 	* commands.c: (file_quit_cb) If user presses cancel on mdi_remove_all, then

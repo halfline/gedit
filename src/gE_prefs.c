@@ -84,7 +84,6 @@ void gE_get_settings()
 
 /*bOrK	gtk_notebook_set_tab_pos(GTK_NOTEBOOK(w->notebook), w->tab_pos);*/
 
-/*BORK	if (settings->show_status == FALSE)
-		gtk_widget_hide(GTK_WIDGET (settings->statusbar)->parent);*/
-
+	if (settings->show_status == FALSE)
+	  gtk_widget_hide (GTK_WIDGET (GNOME_APP(mdi->active_window)->statusbar));
 }

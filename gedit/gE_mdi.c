@@ -88,6 +88,7 @@ GnomeUIInfo doc_menu[] = {
 
 
 enum {
+	DOCUMENT_CHANGED,
 	LAST_SIGNAL
 };
 
@@ -168,10 +169,10 @@ BORK!!	*ptr = ++last_assigned_integer;
 	gtk_text_set_word_wrap(GTK_TEXT(doc->text), doc->word_wrap);
 	gtk_text_set_line_wrap(GTK_TEXT(doc->text), doc->line_wrap);
 
-/*FIXME	gtk_signal_connect_after(GTK_OBJECT(doc->text), "button_press_event",
-		GTK_SIGNAL_FUNC(gE_event_button_press), window);
+	gtk_signal_connect_after(GTK_OBJECT(doc->text), "button_press_event",
+		GTK_SIGNAL_FUNC(gE_event_button_press), NULL);
 
-	gtk_signal_connect_after (GTK_OBJECT(doc->text), "insert_text",
+/*FIXME	gtk_signal_connect_after (GTK_OBJECT(doc->text), "insert_text",
 		GTK_SIGNAL_FUNC(auto_indent_cb), window);
 */
 	gtk_table_attach_defaults(GTK_TABLE(table), doc->text, 0, 1, 0, 1);
@@ -189,6 +190,7 @@ GTK_SIGNAL_FUNC(gE_document_popup_cb), GTK_OBJECT((gE_window *)(mdi->active_wind
 	doc->changed = FALSE;
 	doc->changed_id = gtk_signal_connect(GTK_OBJECT(doc->text), "changed",
 		GTK_SIGNAL_FUNC(doc_changed_cb), doc);
+
 	gtk_widget_show(doc->text);
 	gtk_text_set_point(GTK_TEXT(doc->text), 0);
 
@@ -209,7 +211,7 @@ GTK_SIGNAL_FUNC(gE_document_popup_cb), GTK_OBJECT((gE_window *)(mdi->active_wind
 		GTK_SIGNAL_FUNC(doc_delete_text_cb), (gpointer) doc);
 
 	/* Create the bottom split screen */
-/*FIXME	table = gtk_table_new(2, 2, FALSE);
+	table = gtk_table_new(2, 2, FALSE);
 	gtk_table_set_row_spacing(GTK_TABLE(table), 0, 2);
 	gtk_table_set_col_spacing(GTK_TABLE(table), 0, 2);
 
@@ -221,18 +223,18 @@ GTK_SIGNAL_FUNC(gE_document_popup_cb), GTK_OBJECT((gE_window *)(mdi->active_wind
 	gtk_text_set_word_wrap(GTK_TEXT(doc->split_screen), doc->word_wrap);
 	gtk_text_set_line_wrap(GTK_TEXT(doc->split_screen), doc->line_wrap);
 
-	gtk_signal_connect_after(GTK_OBJECT(doc->split_screen),
+	/*gtk_signal_connect_after(GTK_OBJECT(doc->split_screen),
 		"button_press_event",
 		GTK_SIGNAL_FUNC(gE_event_button_press), window);
 
 	gtk_signal_connect_after(GTK_OBJECT(doc->split_screen),
-		"insert_text", GTK_SIGNAL_FUNC(auto_indent_cb), window);
+		"insert_text", GTK_SIGNAL_FUNC(auto_indent_cb), window);*/
 
 	gtk_table_attach_defaults(GTK_TABLE(table),
 		doc->split_screen, 0, 1, 0, 1);
 
 	doc->split_parent = GTK_WIDGET (doc->split_screen)->parent;
-*/
+
 	style = gtk_style_new();
   	gdk_font_unref (style->font);
  	 style->font = gdk_font_load (doc->font);
@@ -243,13 +245,13 @@ GTK_SIGNAL_FUNC(gE_document_popup_cb), GTK_OBJECT((gE_window *)(mdi->active_wind
   	 } 
   	 
  	 gtk_widget_push_style (style);     
-/*FIXME	 gtk_widget_set_style(GTK_WIDGET(doc->split_screen), style);*/
+	 gtk_widget_set_style(GTK_WIDGET(doc->split_screen), style);
    	 gtk_widget_set_style(GTK_WIDGET(doc->text), style);
    	 gtk_widget_pop_style ();
 
 /*FIXME	gtk_signal_connect_object(GTK_OBJECT(doc->split_screen), "event",
 		GTK_SIGNAL_FUNC(gE_document_popup_cb), GTK_OBJECT(window->popup));
-
+*/
 	gtk_widget_show(doc->split_screen);
 	gtk_text_set_point(GTK_TEXT(doc->split_screen), 0);
 
@@ -266,10 +268,10 @@ GTK_SIGNAL_FUNC(gE_document_popup_cb), GTK_OBJECT((gE_window *)(mdi->active_wind
 	gtk_signal_connect (GTK_OBJECT (doc->split_screen), "delete_text",
 		GTK_SIGNAL_FUNC(doc_delete_text_cb), (gpointer) doc);
 		
-	settings->splitscreen = gE_prefs_get_int("splitscreen");
-	if (settings->splitscreen == FALSE)
+	doc->splitscreen = gE_prefs_get_int("splitscreen");
+	if (doc->splitscreen == FALSE)
 	  gtk_widget_hide (GTK_WIDGET (doc->split_screen)->parent);
-*/
+
 	gtk_widget_show (vpaned);
 
 /*FIXME	gE_documents = g_list_append(gE_documents, doc);*/
@@ -287,8 +289,7 @@ static void gE_document_destroy (GtkObject *obj)
 	doc = GE_DOCUMENT(obj);
 	
 	if (GTK_OBJECT_CLASS (parent_class)->destroy)
-		(* GTK_OBJECT_CLASS (parent_class)->destroy)
-			(GTK_OBJECT (doc));
+	  (* GTK_OBJECT_CLASS (parent_class)->destroy)(GTK_OBJECT (doc));
 }
 
 static void gE_document_class_init (gE_document_class *class)
@@ -323,6 +324,7 @@ static void gE_document_init (gE_document *doc)
 	doc->line_wrap = TRUE;
 	doc->read_only = FALSE;
 	doc->splitscreen = FALSE;
+	doc->changed = FALSE;
 	
 	gnome_mdi_child_set_menu_template (GNOME_MDI_CHILD (doc), doc_menu);
 }
@@ -354,8 +356,8 @@ gE_document *gE_document_new_with_file (gchar *filename)
 	char *nfile, *name;
 
 	name = filename;
-/*	if ((doc = gE_document_new()))*/
-	if ((doc = gtk_type_new (gE_document_get_type ())))
+	if ((doc = gE_document_new()))
+/*	if ((doc = gtk_type_new (gE_document_get_type ())))*/
 	  {
 
    	    gnome_mdi_child_set_name(GNOME_MDI_CHILD(doc), _(filename));
@@ -381,6 +383,7 @@ gE_document *gE_document_new_with_file (gchar *filename)
 static void gE_document_real_changed(gE_document *doc, gpointer change_data)
 {
 	/* FIXME! */
+	g_print ("blarg\n");
 }
 
 gE_document *gE_document_current()
@@ -417,14 +420,45 @@ GnomeMDIChild *gE_document_new_from_config (const gchar *file)
 void gE_add_view (GtkWidget *w, gpointer data)
 {
 	GnomeMDIChild *child = GNOME_MDI_CHILD (data);
+/*	guchar *buf;
+	gint len;
+	gint mod = 0;
 	
-	gnome_mdi_add_view (mdi, child);
+	if (GTK_TEXT(GE_DOCUMENT(child)->text)->text.ch)
+	  {
+	   buf = GTK_TEXT(GE_DOCUMENT(child)->text)->text.ch;
+	  	g_print("hmm.. %s\n",buf);
+	   len = strlen (buf);
+	  }
+	
+	if (GE_DOCUMENT(child)->changed)
+	  mod = GE_DOCUMENT(child)->changed;*/
+	
+	gnome_mdi_add_view (mdi, GNOME_MDI_CHILD(child));
+	
+/*	if (mdi->active_child)
+	  {
+	   if (buf)
+	     {
+	      gtk_text_freeze(GTK_TEXT(GE_DOCUMENT(mdi->active_child)->text));
+              gtk_text_insert(GTK_TEXT(GE_DOCUMENT(mdi->active_child)->text),
+	       					NULL,
+	       					NULL,
+	       					NULL, buf, len);
+	      gtk_text_thaw(GTK_TEXT(GE_DOCUMENT(mdi->active_child)->text));
+	     }
+	     
+	     GE_DOCUMENT(mdi->active_child)->changed = mod;
+	   }*/
+
 }
 
 void gE_remove_view (GtkWidget *w, gpointer data)
 {
-	if (mdi->active_view)
-	  gnome_mdi_remove_view (mdi, mdi->active_view, FALSE);
+	if (mdi->active_view == NULL)
+	  return;
+	  
+	gnome_mdi_remove_view (mdi, mdi->active_view, FALSE);
 }
 
 /* Various MDI Callbacks */
@@ -472,8 +506,6 @@ gint remove_doc_cb (GnomeMDI *mdi, gE_document *doc)
 	          /*file_save_cb (NULL, data);*/
 	          if (gE_document_current()->filename)
 	            file_save_cb (NULL, data);
-	          
-	           
 
 	        }  
 	      else if (ret == 2)
@@ -492,6 +524,8 @@ void view_changed_cb (GnomeMDI *mdi, GtkWidget *old_view)
 	gint group_item, pos;
 	gchar *p, *label;
 	
+	g_print ("It's chnanged!\n");
+	
 	if (mdi->active_view == NULL)
 	  return;
 	  
@@ -508,4 +542,23 @@ void view_changed_cb (GnomeMDI *mdi, GtkWidget *old_view)
    
 	  }
 	g_free (p);
+}
+
+void add_view_cb (GnomeMDI *mdi, gE_document *doc)
+{
+/*      if (doc != NULL)
+	gtk_object_set_data (GTK_OBJECT(GE_DOCUMENT(mdi->active_view)),
+	                     "TEST",
+	                     doc);
+	
+	return;*/
+}
+
+gint add_child_cb (GnomeMDI *mdi, gE_document *doc)
+
+{
+	g_print ("stuff\n");
+	
+	
+	return TRUE;
 }

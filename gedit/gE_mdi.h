@@ -53,8 +53,8 @@ void gE_add_view (GtkWidget *w, gpointer data);
 void gE_remove_view (GtkWidget *w, gpointer data);
 gint remove_doc_cb (GnomeMDI *mdi, gE_document *doc);
 void view_changed_cb (GnomeMDI *mdi, GtkWidget *old_view);
-
-
+void add_view_cb (GnomeMDI *mdi, gE_document *doc);
+gint add_child_cb (GnomeMDI *mdi, gE_document *doc);
 END_GNOME_DECLS
 
 #ifdef __cplusplus

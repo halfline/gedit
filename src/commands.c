@@ -448,13 +448,14 @@ line_pos_cb(GtkWidget *w, gE_data *data)
 }
 
 
-gint gE_event_button_press (GtkWidget *w, GdkEventButton *event, gE_window *window)
+gint gE_event_button_press (GtkWidget *w, GdkEventButton *event)
 {
-	gE_data *data;
+/*	gE_data *data;
 	data = g_malloc0 (sizeof (gE_data));
 	data->temp2 = w;
 	data->window = window;
-	line_pos_cb(NULL, data);
+	line_pos_cb(NULL, data);*/
+	g_print ("you pressed a button\n");
 	return FALSE;
 }
 
@@ -502,10 +503,10 @@ void file_new_cb (GtkWidget *widget, gpointer cbdata)
 	gnome_mdi_add_view (mdi, GNOME_MDI_CHILD(doc));
 }
 
-/* FIXME: Dunno what to do with this right now..
+
 void window_new_cb(GtkWidget *widget, gpointer cbdata)
 {
-	gE_window *window;
+/*	gE_window *window;
 	gE_data *data = (gE_data *)cbdata;
 
 	window = gE_window_new();
@@ -515,9 +516,11 @@ void window_new_cb(GtkWidget *widget, gpointer cbdata)
 	window->tab_pos = data->window->tab_pos;
 	window->have_toolbar = data->window->have_toolbar;
 
-	gE_get_settings (window);
+	gE_get_settings (window);*/
+	gnome_mdi_open_toplevel(mdi);
+	
 }
-*/
+
 
 void file_open_cb(GtkWidget *widget, gpointer cbdata)
 {
@@ -1043,6 +1046,8 @@ doc_insert_text_cb(GtkWidget *editable, char *insertion_text, int length,
 	GtkWidget *significant_other;
 	gchar *buffer;
 	gint position = *pos;
+	
+	g_print ("doc_insert_text_cb()\n");
 	
 	if (!doc->split_screen)
 		return;

@@ -30,7 +30,7 @@ extern "C" {
 /* File Ops */
 extern void file_quit_cb(GtkWidget *widget, gpointer cbdata);
 extern void file_new_cb(GtkWidget *widget, gpointer cbdata);
-/* extern void window_new_cb(GtkWidget *widget, gpointer cbdata); -- FOO! */
+extern void window_new_cb(GtkWidget *widget, gpointer cbdata);
 extern void file_open_cb(GtkWidget *widget, gpointer cbdata);
 extern void file_open_in_new_win_cb(GtkWidget *widget, gpointer data);
 extern gint file_save_cb(GtkWidget *widget, gpointer cbdata);
@@ -58,7 +58,7 @@ extern void tab_toggle_cb(GtkWidget *widget, gpointer cbwindow);
 /* Auto indent */
 extern gint auto_indent_cb(GtkWidget *text, char *insertion_text, int length, int *pos);
 extern void auto_indent_toggle_cb(GtkWidget *w, gpointer cbdata);
-extern gint gE_event_button_press(GtkWidget *w, GdkEventButton *, gE_window *);
+extern gint gE_event_button_press(GtkWidget *w, GdkEventButton *);
 
 /* DND */
 extern void filenames_dropped (GtkWidget * widget,

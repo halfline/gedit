@@ -189,7 +189,7 @@ GnomeUIInfo gedit_settings_menu []= {
 };
 
 GnomeUIInfo gedit_window_menu []={
-/*FIXME GNOMEUIINFO_MENU_NEW_WINDOW_ITEM(window_new_cb, (gpointer) GE_DATA),*/
+ 	GNOMEUIINFO_MENU_NEW_WINDOW_ITEM(window_new_cb, (gpointer) GE_DATA),
 
 /*FIXME        GNOMEUIINFO_MENU_CLOSE_WINDOW_ITEM(window_close_cb,
 					   (gpointer) GE_DATA),*/

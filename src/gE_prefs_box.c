@@ -433,7 +433,7 @@ static void plugins_clist_remove (GtkWidget *w, gpointer data)
   	
   	i  = (g_list_length (plugin_list)) - (GTK_CLIST(data)->focus_row);
   	
-  	gnome_app_remove_menu_range (GNOME_APP (prefs->gData->window->window),
+  	gnome_app_remove_menu_range (GNOME_APP (mdi->active_window),
   						path, i, 1);
 
   	for (i = 0; i < GTK_CLIST(data)->focus_row; i++);
@@ -482,7 +482,7 @@ static void plugins_toggle (GtkWidget *w)
   	path = g_new(gchar, strlen(_("_Plugins")) + 2);
   	sprintf(path, "%s/", _("_Plugins"));
   	
-  	gnome_app_remove_menu_range (GNOME_APP (prefs->gData->window->window),
+  	gnome_app_remove_menu_range (GNOME_APP (mdi->active_window),
   						path, 1, g_list_length (plugin_list));
      	
     }
