@@ -1,3 +1,8 @@
+2002-06-05  Jagadeesh B.G  <jagadeesh.banavara@wipro.com>
+
+	* src/dialogs/gedit-preferences.glade2: Fix some ATK relations.
+	Fixes bug #84108.
+
 2002-05-30  James Willcox <jwillcox@cs.indiana.edu>
 
 	* bonobo-mdi.c (child_list_menu_add_item):
