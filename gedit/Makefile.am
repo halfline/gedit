@@ -94,9 +94,9 @@ gedit_LDADD = $(GNOME_LIBDIR) $(GNOMEUI_LIBS)  \
 testcorba_LDADD = $(GNOME_LIBDIR) $(GNOMEUI_LIBS) $(ORBIT_LIBS) \
 	      $(INTLLIBS) $(GNORBA_LIBS)
 
-$(BUILT_SOURCES): /opt/gnome/share/idl/desktop-editor.idl
-	$(ORBIT_IDL) /opt/gnome/share/idl/desktop-editor.idl
-	$(ORBIT_IDL) /opt/gnome/share/idl/desktop-textviewer.idl
+$(BUILT_SOURCES): $(datadir)/idl/desktop-editor.idl
+	$(ORBIT_IDL) $(datadir)/idl/desktop-editor.idl
+	$(ORBIT_IDL) $(datadir)/idl/desktop-textviewer.idl
 
 EXTRA_DIST = gE-icon-1.xpm gE-icon-2.xpm gE_icon.xpm $(gtkrc_DATA) $(appicon_DATA)
 
