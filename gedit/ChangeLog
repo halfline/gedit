@@ -1,7 +1,23 @@
+2002-06-14  Paolo Maggi <maggi@athena.polito.it>
+
+	* src/gedit-preferences.glade2: fixed a typo
+
+2002-06-11  Federico Mena Quintero  <federico@ximian.com>
+
+	* gedit-mdi.c (gedit_mdi_remove_child_handler):
+	gtk_window_present() the confirmation dialog so that the user sees
+	it even when shutting down the session.  Fixes #84677.
+
 2002-06-05  Jagadeesh B.G  <jagadeesh.banavara@wipro.com>
 
 	* src/dialogs/gedit-preferences.glade2: Fix some ATK relations.
 	Fixes bug #84108.
+
+2002-05-31  Federico Mena Quintero  <federico@ximian.com>
+
+	* Makefile.am (INCLUDES): Patch by Hidetoshi Tajima
+	(hidetoshi.tajima@sun.com) to fix the localedir on Solaris.  Fixes
+	#83614.
 
 2002-05-30  James Willcox <jwillcox@cs.indiana.edu>
 
