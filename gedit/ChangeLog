@@ -1,3 +1,12 @@
+2002-05-28  James Willcox <jwillcox@cs.indiana.edu>
+ 
+	* gedit-application-server.[ch], gedit-document-server.[ch],
+	gedit-window-server.[ch]: new files, provides an implementation for a
+	CORBA interface to gedit.
+ 
+	* gedit2.c: added command line arguments for using the new CORBA
+	interface.  Lets you open files, create new windows, etc.
+ 
 2002-05-27  Paolo Maggi <maggi@athena.polito.it>
 
 	* gedit-file.c (gedit_file_open): display formatted uris

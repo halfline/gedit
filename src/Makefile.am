@@ -29,6 +29,14 @@ gedit_LDADD = 				\
 	dialogs/libdialogs.a		\
 	$(GEDIT_LIBS)			
 
+IDL_FILE = GNOME_Gedit.idl
+
+IDL_SOURCES = \
+	GNOME_Gedit-stubs.c			\
+	GNOME_Gedit-common.c			\
+	GNOME_Gedit-skels.c			\
+	GNOME_Gedit.h		
+
 BUILT_SOURCES = 			\
 	gedit-marshal.c			\
 	gedit-marshal.h			\
@@ -36,6 +44,7 @@ BUILT_SOURCES = 			\
 	gnome-recent-marshal.h
 
 gedit_SOURCES = 			\
+	$(IDL_SOURCES)			\
 	gedit2.c			\
 	gedit2.h			\
 	gedit-mdi.c			\
@@ -88,6 +97,12 @@ gedit_SOURCES = 			\
 	gnome-recent-util.h		\
 	gedit-recent.c			\
 	gedit-recent.h			\
+	gedit-application-server.c	\
+	gedit-application-server.h	\
+	gedit-document-server.c		\
+	gedit-document-server.h		\
+	gedit-window-server.c		\
+	gedit-window-server.h		\
 	$(BUILT_SOURCES)
 
 gedit-marshal.h: gedit-marshal.list $(GLIB_GENMARSHAL)
@@ -104,11 +119,18 @@ gnome-recent-marshal.c: gnome-recent-marshal.list $(GLIB_GENMARSHAL)
 	echo "#include \"gnome-recent-marshal.h\"" > $@ && \
 	$(GLIB_GENMARSHAL) $< --body --prefix=gnome_recent >> $@
 
+$(IDL_SOURCES): $(IDL_FILE)
+	$(ORBIT_IDL) -I $(LIBBONOBO_IDL) -I $(BONOBO_ACTIVATION_IDL) $(IDL_FILE)
+
 ui_DATA = gedit-ui.xml
 
-EXTRA_DIST = \
-	$(ui_DATA)	\
-	gedit-marshal.list	\
-	gnome-recent-marshal.list
+idl_DATA = $(IDL_FILE)
+idldir = $(datadir)/idl
 
-CLEANFILES = $(BUILT_SOURCES)
+EXTRA_DIST = 				\
+	$(ui_DATA)			\
+	gedit-marshal.list		\
+	gnome-recent-marshal.list	\
+	$(IDL_FILE)
+
+CLEANFILES = $(BUILT_SOURCES) $(IDL_SOURCES)

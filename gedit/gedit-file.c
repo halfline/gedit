@@ -50,8 +50,6 @@
 
 static gboolean gedit_file_open_real (const gchar* file_name, GeditMDIChild* child);
 static gboolean gedit_file_save_as_real (const gchar* file_name, GeditMDIChild *child);
-
-
 static gchar* gedit_default_path = NULL;
 
 
@@ -524,6 +522,12 @@ gedit_file_exit (void)
 
 	gedit_debug (DEBUG_FILE, "Unref gedit_mdi: DONE");
 
+	gedit_debug (DEBUG_FILE, "Unref gedit_app_server.");
+
+	bonobo_object_unref (gedit_app_server);
+
+	gedit_debug (DEBUG_FILE, "Unref gedit_app_server: DONE");
+
 	gtk_main_quit ();
 }
 
@@ -583,7 +587,7 @@ gedit_file_revert (GeditMDIChild *child)
 					GTK_WINDOW (gedit_get_active_window ()));
 
 		g_error_free (error);
-		
+
 		gedit_utils_flash_va (_("The document has not been reverted."));
 
 		g_free (uri);

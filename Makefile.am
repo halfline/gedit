@@ -27,6 +27,12 @@ pixmaps_DATA =
 schemadir = $(sysconfdir)/gconf/schemas
 schema_DATA = gedit.schemas
 
+server_DATA = GNOME_Gedit.server
+serverdir = $(libdir)/bonobo/servers
+
+EXTRA_DIST =		\
+	$(server_DATA)
+
 install-data-local:
 	        if test -z "$(DESTDIR)" ; then \
 	                for p in $(schema_DATA) ; do \
