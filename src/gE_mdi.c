@@ -486,9 +486,6 @@ gint remove_doc_cb (GnomeMDI *mdi, gE_document *doc)
 	msg =   (char *)g_malloc(strlen(fname) + 52);
 	sprintf(msg, _(" '%s' has been modified. Do you wish to save it?"), fname);
 	
-	g_print ("remove_doc_cb\n");
-	g_print ("has doc changed? %d\n",doc->changed);
-
 	if (doc->changed)
 	  {
 	    msgbox = GNOME_MESSAGE_BOX (gnome_message_box_new (
