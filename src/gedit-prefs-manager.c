@@ -114,7 +114,7 @@
 #define GPM_DEFAULT_SELECTION_COLOR	(const gchar*) "#000000009c9c"
 
 #define GPM_DEFAULT_CREATE_BACKUP_COPY	1 /* TRUE */
-#define GPM_DEFAULT_BACKUP_COPY_EXTENSION (const gchar*) ".bak"
+#define GPM_DEFAULT_BACKUP_COPY_EXTENSION (const gchar*) "~"
 
 #define GPM_DEFAULT_AUTO_SAVE		0 /* FALSE */
 #define GPM_DEFAULT_AUTO_SAVE_INTERVAL	10 /* minutes */

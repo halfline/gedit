@@ -9,7 +9,7 @@
       <locale name="C">
 	<short>Use Default Font</short>
 	<long>Whether to use the system's default font for editing text
-	instead of a font specific to GEdit.  If this option is turned
+	instead of a font specific to gedit.  If this option is turned
 	off, then the font named in the "Editor Font" option will be
 	used instead of the system font.</long>
       </locale>
@@ -109,7 +109,7 @@
       <default>TRUE</default>
       <locale name="C">
 	<short>Create Backup Copies</short>
-	<long>Whether GEdit should create backup copies for the files
+	<long>Whether gedit should create backup copies for the files
 	it saves.  You can set the backup file extension with the
 	"Backup Copy Extension" option.</long>
       </locale>
@@ -120,7 +120,7 @@
       <applyto>/apps/gedit-2/preferences/editor/save/backup_copy_extension</applyto>
       <owner>gedit</owner>
       <type>string</type>
-      <default>.bak</default>
+      <default>~</default>
       <locale name="C">
 	<short>Backup Copy Extension</short>
 	<long>Extension or suffix to use for backup file names.  This
@@ -137,7 +137,7 @@
       <default>FALSE</default>
       <locale name="C">
 	<short>Auto Save</short>
-	<long>Whether GEdit should automatically save modified files
+	<long>Whether gedit should automatically save modified files
 	after a time interval.  You can set the time interval with the
 	"Auto Save Interval" option.</long>
       </locale>
@@ -151,7 +151,7 @@
       <default>10</default>
       <locale name="C">
 	<short>Auto Save Interval</short>
-	<long>Number of minutes after which GEdit will automatically
+	<long>Number of minutes after which gedit will automatically
 	save modified files.  This will only take effect if the "Auto
 	Save" option is turned on.</long>
       </locale>
@@ -168,7 +168,7 @@
 	<long>The encoding method to use for saving files.  Possible
 	values are "GEDIT_SAVE_ALWAYS_UTF8" for mandatory UTF-8
 	saving, and "GEDIT_SAVE_CURRENT_LOCALE_WHEN_POSSIBLE" if you
-	want GEdit to try to convert the document it is saving to your
+	want gedit to try to convert the document it is saving to your
 	current locale's encoding.  If the conversion is successful,
 	it will be used.  Otherwise, UTF-8 will be used.  Note that
 	the values are case-sensitive, so make sure they appear
@@ -184,7 +184,7 @@
       <default>25</default>
       <locale name="C">
 	<short>Undo Actions Limit</short>
-	<long>Maximum number of actions that GEdit will be able to
+	<long>Maximum number of actions that gedit will be able to
 	undo or redo.</long>
       </locale>
     </schema>
@@ -227,7 +227,7 @@
       <default>FALSE</default>
       <locale name="C">
 	<short>Display Line Numbers</short>
-	<long>Whether GEdit should display line numbers in the editing
+	<long>Whether gedit should display line numbers in the editing
 	area.</long>
       </locale>
     </schema>
@@ -310,7 +310,7 @@
       <default>TRUE</default>
       <locale name="C">
 	<short>Print Header</short>
-	<long>Whether GEdit should include a document header when
+	<long>Whether gedit should include a document header when
 	printing documents.</long>
       </locale>
     </schema>
@@ -341,7 +341,7 @@
       <locale name="C">
 	<short>Print Line Numbers</short>
 	<long>If this value is 0, then no line numbers will be
-	inserted when printing a document.  Otherwise, GEdit will
+	inserted when printing a document.  Otherwise, gedit will
 	print line numbers every such number of lines.</long>
       </locale>
     </schema>

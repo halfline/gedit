@@ -1,3 +1,8 @@
+2002-07-04  Paolo Maggi  <maggi@athena.polito.it>
+
+	* gedit.schemas: s/GEdit/gedit, change the backup_copy_extension
+	default to ~
+
 2002-07-03  Federico Mena Quintero  <federico@ximian.com>
 
 	* gedit.schemas: Rewrote the schema file for the new preferences

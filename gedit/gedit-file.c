@@ -382,7 +382,7 @@ gedit_file_save_as (GeditMDIChild *child)
 	{
 		path = (gedit_default_path != NULL) ? 
 			g_strdup (gedit_default_path) : NULL;
-		fname = uri;
+		fname = g_strdup (uri);
 	}
 	else
 	{

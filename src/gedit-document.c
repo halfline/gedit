@@ -62,10 +62,15 @@
 #define GEDIT_MAX_PATH_LEN  2048
 #endif
 
+#define DEFAULT_ENCODING "ISO-8859-15"
+
 struct _GeditDocumentPrivate
 {
 	gchar		*uri;
 	gint 		 untitled_number;	
+
+
+	gchar		*encoding;
 
 	gchar		*last_searched_text;
 	gchar		*last_replace_text;
@@ -711,9 +716,7 @@ gedit_document_load (GeditDocument* doc, const gchar *uri, GError **error)
 			
 			converted_file_contents = g_locale_to_utf8 (file_contents, file_size,
 					NULL, &bytes_written, &conv_error); 
-			
-			g_free (file_contents);
-
+						
 			if ((conv_error != NULL) || 
 			    !g_utf8_validate (converted_file_contents, bytes_written, NULL))		
 			{
@@ -721,18 +724,64 @@ gedit_document_load (GeditDocument* doc, const gchar *uri, GError **error)
 				if (conv_error != NULL)
 					g_error_free (conv_error);
 
-				g_set_error (error, GEDIT_DOCUMENT_IO_ERROR, 
-					     GEDIT_ERROR_INVALID_UTF8_DATA,
-					     _("Invalid UTF-8 data"));
-				
 				if (converted_file_contents != NULL)
 					g_free (converted_file_contents);
 				
-				return FALSE;
+				/* Try to convert it to UTF-8 from default encoding */
+				converted_file_contents = g_convert (file_contents, file_size, 
+						"UTF-8", DEFAULT_ENCODING,
+						NULL, &bytes_written, &conv_error); 
+							
+				if ((conv_error != NULL) || 
+			    		!g_utf8_validate (converted_file_contents, bytes_written, NULL))		
+				{
+					/* Coversion failed */	
+					if (conv_error != NULL)
+						g_error_free (conv_error);
+
+					g_set_error (error, GEDIT_DOCUMENT_IO_ERROR, 
+						     GEDIT_ERROR_INVALID_UTF8_DATA,
+					     	     _("Invalid UTF-8 data"));
+				
+					if (converted_file_contents != NULL)
+						g_free (converted_file_contents);
+				
+					g_free (file_contents);
+
+					return FALSE;
+				}
+				else
+				{
+					if (doc->priv->encoding != NULL)
+						g_free (doc->priv->encoding);	
+				
+					doc->priv->encoding = g_strdup (DEFAULT_ENCODING);
+				}
+					
 			}
+			else
+			{
+				const gchar *encoding = NULL;
+				g_get_charset(&encoding);
+				
+				if (doc->priv->encoding != NULL)
+					g_free (doc->priv->encoding);	
+				
+				doc->priv->encoding = g_strdup (encoding);
+			}
+			
+			g_free (file_contents);
 
 			file_contents = converted_file_contents;
 			file_size = bytes_written;
+		}
+		else
+		{
+			if (doc->priv->encoding != NULL)
+			{
+				g_free (doc->priv->encoding);	
+				doc->priv->encoding = NULL;
+			}
 		}
 
 		gedit_undo_manager_begin_not_undoable_action (doc->priv->undo_manager);

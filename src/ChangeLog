@@ -1,3 +1,14 @@
+2002-07-04  Paolo Maggi <maggi@athena.polito.it>
+
+	* gedit-document.c: save used encoding while loading a file,
+	try to use "ISO-8859-15" as last resource while loading a file.
+	
+	* gedit-file.c (gedit_file_save_as): fix bug #87276
+
+	* gedit-prefs-manager.c (GPM_DEFAULT_BACKUP_COPY_EXTENSION): Changed
+	the default to ~.  This is also reflected in the new GConf
+	schema file.
+
 2002-07-03  Federico Mena Quintero  <federico@ximian.com>
 
 	* gedit-prefs-manager.c (GPM_DEFAULT_CREATE_BACKUP_COPY): Changed
