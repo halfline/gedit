@@ -1,3 +1,8 @@
+1999-04-03 (13:16) Alex Roberts  <bse@gedit.pn.org>
+	
+	* gedit.c: (main) Don't send a GE_DOCUMENT reference to add_view.. 
+	  Otherwise we get a Gtk-WARNING on startup...
+	
 1999-04-03 (00:25) Alex Roberts  <bse@gedit.pn.org>
 	
 	* commands.[ch]: (auto_indent_cb) Added extra arg to the function, so
