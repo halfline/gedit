@@ -63,8 +63,6 @@ typedef struct _gE_window {
 /*	GList *documents;	Pah.. i dunno.. */
 	GtkWidget *popup;
 	gE_search *search;
-	int num_recent; /* Number of recently accessed documents in the 
-	                         Recent Documents menu */
 
 	GtkPositionType tab_pos;
 

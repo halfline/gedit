@@ -1,3 +1,12 @@
+1999-03-14 (19:01) Alex Roberts  <bse@dial.pipex.com>
+
+	* main.h:
+	  gE_document.c:
+	  gE_files.c:
+	  commands.[ch]: Converted all the respective recent document functions to
+	  using GnomeApp pointers, instead of gE_window's. Recent Documents list
+	  is back! Yay!
+
 1999-03-14 (18:02) Alex Roberts  <bse@dial.pipex.com>
 
 	* gE_document: (gE_document_set_read_only) Use gnome_mdi_child_set_name

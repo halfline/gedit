@@ -39,6 +39,8 @@ typedef struct _gE_preference {
 	gchar *font;
 	gint splitscreen;
 	gchar *print_cmd;
+	int num_recent; /* Number of recently accessed documents in the 
+	                   Recent Documents menu */
 
 } gE_preference;
 

@@ -71,7 +71,7 @@ extern void filenames_dropped (GtkWidget * widget,
 
 /* Recent documents */
 extern void recent_add (char *filename);
-extern void recent_update (gE_window *window);
+extern void recent_update (GnomeApp *app);
 
 /* Insert/delete text callbacks for undo/redo and split screening */
 

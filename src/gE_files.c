@@ -193,10 +193,10 @@ gE_file_open(gE_document *doc, gchar *fname)
 	gtk_window_set_title(GTK_WINDOW (w->window), title);
 	g_free (title);
 
-	gE_msgbar_set(w, MSGBAR_FILE_OPENED);
+	gE_msgbar_set(w, MSGBAR_FILE_OPENED);*/
 	gnome_app_flash (mdi->active_window, _(MSGBAR_FILE_OPENED));
 	recent_add (doc->filename);
-	recent_update (w);*/
+	recent_update (GNOME_APP (mdi->active_window));
 
 	/* Make the document readonly if you can't write to the file. */
 	gE_document_set_read_only (doc, access (fname, W_OK) != 0);

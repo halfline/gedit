@@ -173,8 +173,8 @@ gE_window_new(GnomeMDI *mdi, GnomeApp *app)
 	gE_set_menu_toggle_states();
 
 	g_list_foreach(plugins, (GFunc) add_plugins_to_window, app);
-
-/*	recent_update(w);*/
+	
+	recent_update(app);
 	window_list = g_list_append(window_list, (gpointer) w);
 
 /*	gE_window_refresh (w);

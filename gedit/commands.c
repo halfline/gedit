@@ -52,7 +52,7 @@ static gint file_saveas_destroy(GtkWidget *w, gpointer cbdata);
 static gint file_cancel_sel (GtkWidget *w, GtkFileSelection *fs);
 static gint file_sel_destroy (GtkWidget *w, GtkFileSelection *fs);
 static void line_pos_cb(GtkWidget *w, gE_data *data);
-static void recent_update_menus (gE_window *window, GList *recent_files);
+static void recent_update_menus (GnomeApp *app, GList *recent_files);
 static void recent_cb(GtkWidget *w, gE_data *data);
 
 static GtkWidget *open_fs, *save_fs;
@@ -906,7 +906,7 @@ gnome_app_remove_menu_range (GnomeApp *app,
  * Should be called after each addition to the list 
  */
 
-void recent_update (gE_window *window)
+void recent_update (GnomeApp *app)
 {
 	GList *filelist = NULL;
 	GList *dirlist = NULL;
@@ -957,23 +957,19 @@ void recent_update (gE_window *window)
 	}
 	gnome_history_free_recently_used_list (gnome_recent_list);
 	
-	recent_update_menus (window, filelist);
+	recent_update_menus (app, filelist);
 }
 
 /* Actually updates the recent-used menu... */
 
 static void
-recent_update_menus (gE_window *window, GList *recent_files)
+recent_update_menus (GnomeApp *app, GList *recent_files)
 {
 	GnomeUIInfo *menu;
 	gE_data *data;
 	gchar *path;
 	int i;
 	
-	if (window->num_recent > 0)
-		gnome_app_remove_menu_range (GNOME_APP (window->window), 
-			"_File/", 5, window->num_recent + 1);
-
 	if (recent_files == NULL)
 		return;
 
@@ -986,7 +982,7 @@ recent_update_menus (gE_window *window, GList *recent_files)
 	menu->type = GNOME_APP_UI_SEPARATOR;
 
 	(menu + 1)->type = GNOME_APP_UI_ENDOFINFO;
-	gnome_app_insert_menus (GNOME_APP(window->window), path, menu);
+	gnome_app_insert_menus (GNOME_APP(app), path, menu);
 
 
 	for (i = g_list_length (recent_files) - 1; i >= 0;  i--)
@@ -995,7 +991,7 @@ recent_update_menus (gE_window *window, GList *recent_files)
 	
 		data = g_malloc0 (sizeof (gE_data));
 		data->temp1 = g_strdup (g_list_nth_data (recent_files, i));
-		data->window = window;
+		/*data->window = window;*/
 		menu->label = g_new (gchar, 
 			strlen (g_list_nth_data (recent_files, i)) + 5);
 		sprintf (menu->label, "_%i. %s", i+1, (gchar*)g_list_nth_data (recent_files, i));
@@ -1010,10 +1006,10 @@ recent_update_menus (gE_window *window, GList *recent_files)
 
 		(menu + 1)->type = GNOME_APP_UI_ENDOFINFO;
 	
-		gnome_app_insert_menus_with_data (GNOME_APP(window->window), path, menu, data);
+		gnome_app_insert_menus (GNOME_APP(app), path, menu);
 		g_free (g_list_nth_data (recent_files, i));
 	}
-	window->num_recent = g_list_length (recent_files);
+	settings->num_recent = g_list_length (recent_files);
 	g_list_free (recent_files);
 
 
