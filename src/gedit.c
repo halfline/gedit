@@ -244,26 +244,26 @@ int main (int argc, char **argv)
     gtk_signal_connect(GTK_OBJECT(mdi), "view_changed", GTK_SIGNAL_FUNC(view_changed_cb), NULL);
 	gtk_signal_connect(GTK_OBJECT(mdi), "child_changed", GTK_SIGNAL_FUNC(child_switch), window);
 	
-	gtk_signal_connect(GTK_OBJECT(mdi), "app_created", GTK_SIGNAL_FUNC(gE_window_new), window);
+	gtk_signal_connect(GTK_OBJECT(mdi), "app_created", GTK_SIGNAL_FUNC(gE_window_new), NULL);
 	
 	gnome_mdi_set_mode (mdi, mdiMode);
 
-	if ((doc = gE_document_new()))
+/*	if ((doc = gE_document_new()))
 	  {
 	    gnome_mdi_add_child (mdi, GNOME_MDI_CHILD (doc));
 	    gnome_mdi_add_view (mdi, GNOME_MDI_CHILD (doc));
 	    
 	  }
-	
+*/	
 	if (file_list){
 
 
-		doc = gE_document_current();
+/*		doc = gE_document_current();
 
 		if (doc->filename != NULL)
 			g_free (doc->filename);
 		g_free (doc);
-
+*/
 		for (;file_list; file_list = file_list->next)
 		{
 			/*data->temp2 = file_list->data;*/

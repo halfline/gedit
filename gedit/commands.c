@@ -69,7 +69,7 @@ gchar MOD_label[255];
 	gtk_signal_disconnect (GTK_OBJECT(doc->text), (gint) doc->changed_id);
 	doc->changed_id = FALSE;
 	
-	sprintf(MOD_label, "*%s", (const char *)g_basename(doc->filename));
+	sprintf(MOD_label, "*%s", GNOME_MDI_CHILD(doc)->name);
 	/*gtk_label_set(GTK_LABEL(doc->tab_label), MOD_label);*/
 	gnome_mdi_child_set_name (GNOME_MDI_CHILD (doc), MOD_label);
 }
@@ -216,11 +216,15 @@ file_open_ok_sel(GtkWidget *widget, gE_data *data)
 		}
 			g_print("file_open_ok_sel: filename=%s\n",filename);
 
-		   doc = gE_document_current ();
-		   if (doc->filename || doc->changed)
-		     doc = gE_document_new_with_file (filename);
+		   if ((doc = gE_document_current ()))
+		     {
+		      if (doc->filename || doc->changed)
+		        doc = gE_document_new_with_file (filename);
+		      else
+		        gE_file_open (doc, filename);
+		     }
 		   else
-		      gE_file_open (doc, filename);
+		     doc = gE_document_new_with_file (filename);
 	
 		
 /*..with_file is better		  if ((doc = gE_document_new()))
@@ -584,14 +588,14 @@ file_open_in_new_win_cb(GtkWidget *widget, gpointer cbdata)
 }
 */
 
-void
+gint
 file_save_cb(GtkWidget *widget, gpointer cbdata)
 {
 	gchar *fname;
 	gE_data *data = (gE_data *)cbdata;
 
 	g_assert(data != NULL);
-/*bork!	g_assert(data->window != NULL);*/
+/*	g_assert(data->window != NULL);*/
  	fname = gE_document_current()->filename;
 	if (fname == NULL)
 		file_save_as_cb(NULL, data);
@@ -603,6 +607,8 @@ file_save_cb(GtkWidget *widget, gpointer cbdata)
 	gnome_app_flash (mdi->active_window, _("Read only file!"));
 	file_save_as_cb(NULL, data);
         }
+        
+        return 0;
 
 }
 

@@ -1,3 +1,34 @@
+1999-03-13 (19:37) Alex Roberts  <bse@dial.pipex.com>
+
+	* gE_mdi.c: (remove_doc_cb) Now we ask the user if they want to save the
+	  document if it has been modified. Unfortunatly, if the doc is Untitled,
+	  it won't ask for a filename, it'll just close the file... :(
+	
+1999-03-13 (16:12) Alex Roberts  <bse@dial.pipex.com>
+
+	* commands.c: (doc_changed_cb) Get the name from the actual MDI Child, not
+	  from the document's filename.
+	  (file_open_ok_sel): Check if there is a current document, then check if
+	  that document has been modified. If the doc has been modified, or if there
+	  aren't any current documents, make a new one (w/ file).
+
+1999-03-13 (15:46) Alex Roberts  <bse@dial.pipex.com>
+
+	* menus.c:
+	  gE_mdi.c: Moved Edit menu tree. It gets created when a new document
+	  is made; along with the View tree. This looks a lot neater.
+	
+	* makeconfig.pl: Taken out references to the old 'WITHOUT_GNOME' system
+	  of pre-0.5.0. And removed the old Gtk+ cehcking, its all done by the
+	  Gnome now. Much nicer.. yeah..
+
+1999-03-13 (00:55) Alex Roberts  <bse@dial.pipex.com>
+
+	* gE_document.c: Default window size (630,390) is BACK! yay!
+	
+	* gedit.c: Took out the gE_document_current reference, we can now load files
+	  from the command line again. Yippee!
+
 1999-03-12 (19:09) Alex Roberts  <bse@dial.pipex.com>
 
 	* gE_mdi.c: (gE_document_create_view) The document being created is now

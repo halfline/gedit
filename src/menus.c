@@ -109,31 +109,6 @@ FIXME	  file_close_all_cb, (gpointer) GE_DATA, NULL,
 };
 
 
-GnomeUIInfo gedit_edit_menu [] = {
-        GNOMEUIINFO_MENU_CUT_ITEM(edit_cut_cb, (gpointer) GE_DATA),
-
-        GNOMEUIINFO_MENU_COPY_ITEM(edit_copy_cb, (gpointer) GE_DATA),
-
-	GNOMEUIINFO_MENU_PASTE_ITEM(edit_paste_cb, (gpointer) GE_DATA),
-
-	GNOMEUIINFO_MENU_SELECT_ALL_ITEM(edit_selall_cb, (gpointer) GE_DATA),
-
-
-	GNOMEUIINFO_SEPARATOR,
-
-	{ GNOME_APP_UI_ITEM, N_("Find _Line..."),
-	  N_("Search for a line"),
-	  goto_line_cb, (gpointer) GE_WINDOW, NULL,
-	  GNOME_APP_PIXMAP_STOCK, GNOME_STOCK_MENU_SEARCH },
-
-	GNOMEUIINFO_MENU_FIND_ITEM(search_cb, (gpointer) GE_DATA),
-
-	GNOMEUIINFO_MENU_FIND_AGAIN_ITEM(search_again_cb, (gpointer) GE_DATA),
-
-	GNOMEUIINFO_MENU_REPLACE_ITEM(search_replace_cb, (gpointer) GE_DATA),
-	
-	GNOMEUIINFO_END
-};	
 /*
 GnomeUIInfo gedit_tab_menu []= {
 	{ GNOME_APP_UI_ITEM, N_("_Top"),
@@ -252,9 +227,6 @@ GnomeUIInfo gedit_plugins_menu []= {
 
 GnomeUIInfo gedit_menu [] = {
         GNOMEUIINFO_MENU_FILE_TREE(gedit_file_menu),
-
-	GNOMEUIINFO_MENU_EDIT_TREE(gedit_edit_menu),
-
 
 #if PLUGIN_TEST
 	{ GNOME_APP_UI_SUBTREE, N_("_Plugins"), NULL, &gedit_plugins_menu, NULL, NULL,

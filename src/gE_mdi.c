@@ -30,6 +30,7 @@
 #include "gE_document.h"
 #include "gE_files.h"
 #include "commands.h"
+#include "search.h"
 #include "gE_mdi.h"
 
 
@@ -42,6 +43,35 @@ static gchar *gE_document_get_config_string (GnomeMDIChild *child);
 
 /* MDI Menus Stuff */
 
+#define GE_DATA		1
+#define GE_WINDOW	2
+
+GnomeUIInfo gedit_edit_menu [] = {
+        GNOMEUIINFO_MENU_CUT_ITEM(edit_cut_cb, (gpointer) GE_DATA),
+
+        GNOMEUIINFO_MENU_COPY_ITEM(edit_copy_cb, (gpointer) GE_DATA),
+
+	GNOMEUIINFO_MENU_PASTE_ITEM(edit_paste_cb, (gpointer) GE_DATA),
+
+	GNOMEUIINFO_MENU_SELECT_ALL_ITEM(edit_selall_cb, (gpointer) GE_DATA),
+
+
+	GNOMEUIINFO_SEPARATOR,
+
+	{ GNOME_APP_UI_ITEM, N_("Find _Line..."),
+	  N_("Search for a line"),
+	  goto_line_cb, (gpointer) GE_WINDOW, NULL,
+	  GNOME_APP_PIXMAP_STOCK, GNOME_STOCK_MENU_SEARCH },
+
+	GNOMEUIINFO_MENU_FIND_ITEM(search_cb, (gpointer) GE_DATA),
+
+	GNOMEUIINFO_MENU_FIND_AGAIN_ITEM(search_again_cb, (gpointer) GE_DATA),
+
+	GNOMEUIINFO_MENU_REPLACE_ITEM(search_replace_cb, (gpointer) GE_DATA),
+	
+	GNOMEUIINFO_END
+};
+
 GnomeUIInfo view_menu[] = {
 	GNOMEUIINFO_ITEM_NONE (N_("_Add View"),
 					   N_("Add a new view of the document"), gE_add_view),
@@ -51,6 +81,7 @@ GnomeUIInfo view_menu[] = {
 };
 
 GnomeUIInfo doc_menu[] = {
+	GNOMEUIINFO_MENU_EDIT_TREE(gedit_edit_menu),
 	GNOMEUIINFO_MENU_VIEW_TREE(view_menu),
 	GNOMEUIINFO_END
 };
@@ -327,16 +358,17 @@ gE_document *gE_document_new_with_file (gchar *filename)
 	if ((doc = gtk_type_new (gE_document_get_type ())))
 	  {
 
-    	    gnome_mdi_child_set_name(GNOME_MDI_CHILD(doc), _(filename));
+/*    	    gnome_mdi_child_set_name(GNOME_MDI_CHILD(doc), _(filename));
 
 	    nfile = g_malloc(strlen(name)+1);
-	    strcpy(nfile, name);
+	    strcpy(nfile, name);*/
 
 	    gnome_mdi_add_child (mdi, GNOME_MDI_CHILD (doc));
 	    gnome_mdi_add_view (mdi, GNOME_MDI_CHILD (doc));
 
     	    gE_file_open (GE_DOCUMENT(doc), filename);
-	    	    	    
+
+    	    	    
 	    return doc;
 	  }
 	g_print ("Eeek.. bork!\n");
@@ -396,10 +428,59 @@ void gE_remove_view (GtkWidget *w, gpointer data)
 }
 
 /* Various MDI Callbacks */
+
 gint remove_doc_cb (GnomeMDI *mdi, gE_document *doc)
 {
+	GnomeMessageBox *msgbox;
+	int ret;
+	char *fname, *msg;
+	gE_data *data = g_malloc (sizeof(gE_data));
 
-	return 0;
+
+/*	fname = (doc->filename) ? g_basename(doc->filename) : _(UNTITLED);*/
+	fname = GNOME_MDI_CHILD (doc)->name;
+	msg =   (char *)g_malloc(strlen(fname) + 52);
+	sprintf(msg, _(" '%s' has been modified. Do you wish to save it?"), fname);
+	
+	g_print ("remove_doc_cb\n");
+	g_print ("has doc changed? %d\n",doc->changed);
+
+	if (doc->changed)
+	  {
+	    msgbox = GNOME_MESSAGE_BOX (gnome_message_box_new (
+	    							  msg,
+	    							  GNOME_MESSAGE_BOX_QUESTION,
+	    							  GNOME_STOCK_BUTTON_YES,
+	    							  GNOME_STOCK_BUTTON_NO,
+	    							  GNOME_STOCK_BUTTON_CANCEL,
+	    							  NULL));
+	    gnome_dialog_set_default (GNOME_DIALOG (msgbox), 2);
+	    ret = gnome_dialog_run_and_close (GNOME_DIALOG (msgbox));
+	    	    
+/*	    switch (ret)
+	      {
+	        case 0:
+	                 file_save_cb (NULL, data);
+	                 g_print("blargh\n");
+	        case 1:
+	                 return TRUE;
+	        default:
+	                 return FALSE;
+	      }*/
+	      if (ret == 0)
+	        {
+	          /*file_save_cb (NULL, data);*/
+	          if (gE_document_current()->filename)
+	            file_save_cb (NULL, data);
+	          
+	           
+
+	        }  
+	      else if (ret == 2)
+	       return FALSE;
+	  }
+	  
+	return TRUE;
 }
 
 void view_changed_cb (GnomeMDI *mdi, GtkWidget *old_view)
@@ -413,7 +494,7 @@ void view_changed_cb (GnomeMDI *mdi, GtkWidget *old_view)
 	
 	if (mdi->active_view == NULL)
 	  return;
-	
+	  
 	app = gnome_mdi_get_app_from_view (mdi->active_view);
 	
 	p = g_strconcat (GNOME_MENU_VIEW_PATH, label, NULL);
