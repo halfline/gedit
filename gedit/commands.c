@@ -455,7 +455,9 @@ gint gE_event_button_press (GtkWidget *w, GdkEventButton *event)
 	data->temp2 = w;
 	data->window = window;
 	line_pos_cb(NULL, data);*/
+#ifdef DEBUG
 	g_print ("you pressed a button\n");
+#endif
 	return FALSE;
 }
 

@@ -1,3 +1,8 @@
+1999-04-02 (23:22) Alex Roberts  <bse@gedit.pn.org>
+
+	* commands.c: (gE_event_button_press) Put the debug output of this
+	  function into an #ifdef..
+
 1999-04-02 (23:07) Alex Roberts  <bse@gedit.pn.org>
 
 	* gE_mdi.c: Added replacement to the context popup menu for the text
