@@ -77,7 +77,7 @@ impl_gedit_application_server_newWindow (PortableServer_Servant _servant,
 	BonoboWindow *win;
 	BonoboObject *win_server;
 
-	bonobo_mdi_open_toplevel (BONOBO_MDI (gedit_mdi));
+	bonobo_mdi_open_toplevel (BONOBO_MDI (gedit_mdi), NULL);
 	gedit_file_new ();
 
 	/* let the UI update */
