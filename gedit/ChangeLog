@@ -1,5 +1,9 @@
 2002-07-04  Paolo Maggi <maggi@athena.polito.it>
 
+	* dialogs/gedit-dialog-replace.c: fixed bug #86333
+
+2002-07-04  Paolo Maggi <maggi@athena.polito.it>
+
 	* gedit-document.c: save used encoding while loading a file,
 	try to use "ISO-8859-15" as last resource while loading a file.
 	
