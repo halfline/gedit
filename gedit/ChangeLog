@@ -1,8 +1,224 @@
-2004-11-05  Paolo Borelli  <pborelli@katamail.com>
+2004-12-07  Arvind Samptur  <arvind.samptur@wipro.com>
 
-	* gedit-mdi.c:
+	Patch from Srirama Sharma  <srirama.sharma@wipro.com>
+
+	* gedit/dialogs/gedit-page-setup-dialog.c: Setting the AtkRelation 
+	explicitly for the mnemonic widget is causing gnopernicus to read 
+	the label thrice. Hence removing the explicit declaration will fix the Bug #160322.
+
+2004-12-06  Paolo Borelli  <pborelli@katamail.com>
+
+	* gedit-document.[ch]: store the myme_type in Document->priv.
+	* gedit-mdi-child.c: use the above instead of refetching it.
+
+2004-12-06  Paolo Borelli  <pborelli@katamail.com>
+
+	* gedit-io-error-dialogs.c: add error message for the case were the
+	file we are trying to open is not a regular file.
+
+2004-12-05  Paolo Borelli  <pborelli@katamail.com>
+
+	* gedit-document.c: do not create unwanted backups in autosave mode.
+
+2004-12-05  Paolo Maggi  <paolo@gnome.org>
+
+	* gedit-view.c (gedit_view_update_cursor_position_statusbar): added a comment
+	for translators (see bug #104439 for more info).
+
+2004-12-05  Paolo Borelli  <pborelli@katamail.com>
+
+	* gedit-file.c:
+	* dialogs/gedit-close-confirmation-dialog.c: fix a ngettext string.
+
+2004-12-05  Paolo Borelli  <pborelli@katamail.com>
+
+	* gedit-io-error-dialogs.[ch]:
+	* gedit-utils.[ch]:
+	* gedit-file.c:
 	* Makefile.am:
-	* gedit-search-bar*: search bar experiment.
+
+	Split error dialogs for io operations in a separate file.
+
+2004-12-02  Paolo Borelli  <pborelli@katamail.com>
+
+	* gedit-mdi.c: delay the recent view creation for the toolbar
+	button to the first button press. Should improve startup time.
+
+2004-11-28  Paolo Borelli  <pborelli@katamail.com>
+
+	* gedit-languages-manager.c: mark a global var as static.
+
+2004-11-25  Paolo Borelli  <pborelli@katamail.com>
+
+	* dialogs/gedit-preferences-dialog.c: do not leak tooltips.
+
+2004-11-21  Paolo Borelli  <pborelli@katamail.com>
+
+	dialogs/gedit-encodings-dialog.glade2: remove separator.
+	dialogs/gedit-encodings-dialog.c: use g_slist_find instead of
+	reimplementing it.
+
+2004-11-21  Paolo Borelli  <pborelli@katamail.com>
+
+	dialogs/gedit-plugin-manager.c: use gtk_tree_model_get_iter_first
+	instead of the deprecated gtk_tree_model_get_iter_root.
+
+2004-11-18  Paolo Borelli  <pborelli@katamail.com>
+
+	* GNOME_Gedit.idl:
+	* gedit-document-server.c:
+	* gedit-document.[ch]: remove more unused functions.
+
+2004-11-18  Paolo Borelli  <pborelli@katamail.com>
+
+	* dialogs/gedit-dialog-replace.c: use gtk api to handle selection.
+	* gedit-document.[ch]: remove unused functions.
+
+2004-11-18  Paolo Borelli  <pborelli@katamail.com>
+
+	* GNOME_Gedit.idl:
+	* gedit-document-server.c: remove unused methods from the doc server.
+
+2004-11-17  Paolo Borelli  <pborelli@katamail.com>
+
+	* plugins-engine.c: use gkeyfile instead of deprecated
+	gnome-icon-theme to parse plugin files.
+
+2004-11-17  Paolo Borelli  <pborelli@katamail.com>
+
+	* dialogs/gedit-dialog-goto-line: include stdlib to fix atoi warning.
+
+2004-11-15  Paolo Borelli  <pborelli@katamail.com>
+
+	* dialogs/gedit-close-confirmation-dialog.c: free selected_documents 
+	list in finalize.
+
+2004-11-15  Paolo Maggi  <paolo@gnome.org>
+
+	* gedit-commands.c (gedit_cmd_help_about): updates my email address
+
+	* gedit-file.c (show_loading_dialog): sets skip-taskbar and skip-pager 
+	hints for the "loading" window
+
+	* gedit-print.c (show_printing_dialog): sets skip-taskbar and skip-pager 
+	hints for the "printing" window
+
+	* gedit2.c (main): unrefs program before exiting
+
+2004-11-15  Paolo Borelli  <pborelli@katamail.com>
+
+	* dialogs/gedit-plugin-manager.c: readd plugins info in the about.
+
+2004-11-13  Paolo Borelli  <pborelli@katamail.com>
+
+	* dialogs/*.c:
+	* *.c: use gi18n.h instead of gnome-i18n.h.
+
+2004-11-13  Paolo Maggi  <paolo@gnome.org>
+
+	* gedit-encodings.c (gedit_encoding_get_from_charset)
+	(gedit_encoding_get_name): fixed bug #156422 (bug and critical warnings
+	when adding an encoding). Patch by Loïc Minier <lool+gnome@via.ecp.fr> 
+
+2004-11-13  Paolo Borelli  <pborelli@katamail.com>
+
+	* gedit-prefs-manager.h: typo.
+	* gedit-prefs-manager-app.c: listen to max-recents changes in
+	gconf.
+
+2004-11-11  Paolo Borelli  <pborelli@katamail.com>
+
+	* gedit-file.c: use the new gtk api instead of eel_alert_dialog.
+	* gedit-file-selector-utils.c: ditto.
+
+2004-11-11  Paolo Borelli  <pborelli@katamail.com>
+
+	* gedit-file.c: open children for new files in the proper order.
+
+2004-11-11  Paolo Borelli  <pborelli@katamail.com>
+
+	* gedit-commands.c: use gtk_text_buffer_select_range for select all.
+	* gedit-print.c: use gtk_text_buffer api to get the selection.
+
+2004-11-11  Paolo Borelli  <pborelli@katamail.com>
+
+	* gedit-commands.c: port to the new GtkAboutDialog.
+	* dialogs/gedit-plugin-manager.c: ditto.
+
+2004-11-10  Paolo Maggi  <paolo@gnome.org>
+
+	* gedit-file.c (unref_real) (unref_not_opened_children)
+	(open_files): unref the non opened children in an idle handler (fixes 
+	bug #156992: Crash loading remote file).
+
+	* gedit-mdi.c (gedit_mdi_set_active_window_verbs_sensitivity):
+	added a couple of FIXME comments.
+
+2004-11-09  Paolo Maggi  <paolo@gnome.org>
+
+	* gedit-utils.[ch] (gedit_utils_replace_home_dir_with_tilde): new function
+
+	* gedit-mdi-child.c (gedit_mdi_child_real_state_changed):
+	uses "*doc" instead of "doc*" for changed documents. Does not use
+	"RO" for read only documents.
+	(menu_show) (create_popup_menu): fixes a problem with the sensitivity
+	of the "Save" menu item.
+	(set_tooltip): call gedit_utils_replace_home_dir_with_tilde on the displayed URI.
+
+	* gedit-mdi.c (get_dirname) (gedit_mdi_set_active_window_title): Uses 
+	"filename (dirname) - gedit" as window title. Fixes bug #152803 and bug #149553.
+
+2004-11-09  Paolo Maggi  <paolo@gnome.org>
+
+	* gedit/dialogs/gedit-page-setup-dialog.c (restore_button_clicked)
+	(body_font_button_font_set) (headers_font_button_font_set)
+	(numbers_font_button_font_set) (font_button_new) (setup_font_page):
+	* gedit/gedit-prefs-manager.c (face_and_size_from_full_name)
+	(font_description_from_gnome_font_name)
+	(font_name_from_gnome_font_name) (get_string_without_default)
+	(gedit_prefs_manager_get_font)
+	(gedit_prefs_manager_get_print_font_body)
+	(gedit_prefs_manager_set_print_font_body)
+	(gedit_prefs_manager_print_font_body_can_set)
+	(gedit_prefs_manager_get_default_print_font_body)
+	(gedit_prefs_manager_get_print_font_header)
+	(gedit_prefs_manager_set_print_font_header)
+	(gedit_prefs_manager_print_font_header_can_set)
+	(gedit_prefs_manager_get_default_print_font_header)
+	(gedit_prefs_manager_get_print_font_numbers)
+	(gedit_prefs_manager_set_print_font_numbers)
+	(gedit_prefs_manager_print_font_numbers_can_set)
+	(gedit_prefs_manager_get_default_print_font_numbers):
+	* gedit/gedit-prefs-manager.h:
+	* gedit/gedit-print.c (gedit_print_job_info_new):
+	* gedit/gedit-utils.c (gedit_utils_replace_home_dir_with_tilde): applied patch by
+	Owen Taylor <otaylor@redhat.com> for bug #143877 (Use Pango fonts when printing)
+
+	With the changes from bug #143874, GtkSourceView natively uses Pango
+	fonts for printing and GnomePrint font names are only supported
+	for backwards compatibility.
+	This patch switches gedit over to using GtkFontButton and using
+	Pango font names.
+	The main complexity in the patch is backwards compatibility with 
+	the GConf keys - a new set of GConf keys suffixed with _pango
+	keys are added, and when looking up a font preference, the
+	algorithm:
+	  - If the new key is set explicitely, use that
+	  - If the old key is set explicitely, use that and convert to a 
+	    Pango font name
+	  - Otherwise, use the default value for the new key
+	Setting the key sets the new key only. This system should allow
+	new and old versions of gedit to be used with the same GConf database.
+
+	* dialogs/gnome-print-font-picker.[ch]: removed
+
+	* dialogs/gnome-print-font-dialog.[ch]: ditto
+
+2004-11-08  Marco Pesenti Gritti  <marco@gnome.org>
+
+	* gedit-metadata-manager.c: (load_values):
+
+	Check if the file exists before trying to parse it
 
 2004-11-02  Paolo Borelli  <pborelli@katamail.com>
 

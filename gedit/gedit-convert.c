@@ -30,7 +30,7 @@
 #include <string.h>
 #include <stdio.h>
 
-#include <glib/gi18n.h>
+#include <libgnome/gnome-i18n.h>
 
 #include "gedit-convert.h"
 #include "gedit-encodings.h"
@@ -84,18 +84,19 @@ gedit_convert_to_utf8_from_charset (const gchar  *content,
 			g_propagate_error (error, conv_error);		
 		else
 		{
-			gedit_debug (DEBUG_UTILS, "The file you are trying to open contains "
+			gedit_debug (DEBUG_UTILS, "The file you are trying to open contain "
 					"an invalid byte sequence.");
 			
 			g_set_error (error, GEDIT_CONVERT_ERROR, GEDIT_CONVERT_ERROR_ILLEGAL_SEQUENCE,
-				     _("The file you are trying to open contains an invalid byte sequence."));
+					"The file you are trying to open contain an invalid byte sequence.");
 		}
 	} 
 	else 
 	{
 		g_return_val_if_fail (converted_contents != NULL, NULL);
 
-		gedit_debug (DEBUG_UTILS, "Converted from %s to UTF-8.", charset);
+		gedit_debug (DEBUG_UTILS,
+			     "Converted from %s to UTF-8.", charset);
 	
 		utf8_content = converted_contents;
 	}
@@ -132,12 +133,12 @@ gedit_convert_to_utf8   (const gchar          *content,
 	}
 	else
 	{
-		/* Automatically detect the encoding used */
-
+		/* Automally detect used encoding */
+		
 		GSList *encodings = NULL;
 		GSList *start;
 
-		gedit_debug (DEBUG_UTILS, "Automatically detect the encoding used");
+		gedit_debug (DEBUG_UTILS,  "Automally detect used encoding");
 
 		encodings = gedit_prefs_manager_get_auto_detected_encodings ();
 
@@ -155,10 +156,11 @@ gedit_convert_to_utf8   (const gchar          *content,
 			{
 				gedit_debug (DEBUG_UTILS, "validate failed.");
 
+				/* FIXME: Mark for translation - Paolo */
 				g_set_error (error, GEDIT_CONVERT_ERROR, 
 					     GEDIT_CONVERT_ERROR_AUTO_DETECTION_FAILED,
-				 	     _("gedit was not able to automatically determine "
-					       "the encoding of the file you want to open."));
+				 	     "gedit has not been able to automatically determine "
+					     "the encoding of the file you want to open.");
 
 				return NULL;
 			}
@@ -199,10 +201,11 @@ gedit_convert_to_utf8   (const gchar          *content,
 		gedit_debug (DEBUG_UTILS, "gedit has not been able to automatically determine the encoding of "
 			     "the file you want to open.");
 		
-		g_set_error (error, GEDIT_CONVERT_ERROR,
-			     GEDIT_CONVERT_ERROR_AUTO_DETECTION_FAILED,
-		 	     _("gedit was not able to automatically determine "
-			       "the encoding of the file you want to open."));
+		/* FIXME: Mark for translation - Paolo */
+
+		g_set_error (error, GEDIT_CONVERT_ERROR, GEDIT_CONVERT_ERROR_AUTO_DETECTION_FAILED,
+		 	     "gedit has not been able to automatically determine the encoding of "
+			     "the file you want to open.");
 
 		g_slist_free (start);
 	}

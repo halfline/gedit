@@ -34,16 +34,14 @@
 
 #include <string.h>
 
-#include <libgnome/gnome-i18n.h>
+#include <glib/gi18n.h>
 #include <gdk/gdkkeysyms.h>
-
 #include <gtksourceview/gtksourceview.h>
 
 #include "gedit-view.h"
 #include "gedit-debug.h"
 #include "gedit-menus.h"
 #include "gedit-prefs-manager-app.h"
-
 #include "gedit-marshal.h"
 
 #define MIN_NUMBER_WINDOW_WIDTH 20
@@ -662,6 +660,8 @@ gedit_view_update_cursor_position_statusbar (GtkTextBuffer *buffer, GeditView* v
 		msg = g_strdup_printf (_("  Ln %d, Col %d-%d"), row + 1, chars + 1, col + 1);
 	*/
 
+	/* Translators: "Ln" is an abbreviation for "Line", Col is an abbreviation for "Column". Please,
+	use abbreviations if possible to avoid space problems. */
 	msg = g_strdup_printf (_("  Ln %d, Col %d"), row + 1, col + 1);
 	
 	gtk_statusbar_push (GTK_STATUSBAR (view->priv->cursor_position_statusbar), 

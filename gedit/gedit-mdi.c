@@ -33,6 +33,8 @@
 #include <config.h>
 #endif
 
+#include <glib/gi18n.h>
+
 #include <libgnome/libgnome.h>
 #include <libgnomeui/libgnomeui.h>
 #include <libgnomevfs/gnome-vfs.h>
@@ -244,12 +246,34 @@ menu_position_under_widget (GtkMenu *menu, int *x, int *y,
 	*y = CLAMP (*y, 0, MAX (0, screen_height - requisition.height));
 }
 
+static void
+tooltip_func (GtkTooltips   *tooltips,
+	      GtkWidget     *menu,
+	      EggRecentItem *item,
+	      gpointer       user_data)
+{
+	gchar *tip;
+	gchar *uri_for_display;
+
+	uri_for_display = egg_recent_item_get_uri_for_display (item);
+	g_return_if_fail (uri_for_display != NULL);
+
+	/* Translators: %s is a URI */
+	tip = g_strdup_printf (_("Open '%s'"), uri_for_display);
+
+	g_free (uri_for_display);
+
+	gtk_tooltips_set_tip (tooltips, GTK_WIDGET (menu), tip, NULL);
+
+	g_free (tip);
+}
+
 static gboolean
 open_button_pressed_cb (GtkWidget *widget,
-			      GdkEventButton *event,
-			      gpointer *user_data)
+			GdkEventButton *event,
+			gpointer *user_data)
 {
-	GtkWidget *menu;
+	static GtkWidget *menu;
 	GeditMDI *mdi;
 
 	g_return_val_if_fail (GTK_IS_BUTTON (widget), FALSE);
@@ -259,7 +283,25 @@ open_button_pressed_cb (GtkWidget *widget,
 
 	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (widget), TRUE);
 
-	menu = g_object_get_data (G_OBJECT (widget), "recent-menu");
+	if (menu == NULL)
+	{
+		EggRecentViewGtk *view;
+		EggRecentModel *model;
+
+		model = gedit_recent_get_model ();
+
+		menu = gtk_menu_new ();
+		gtk_widget_show (menu);
+		view = egg_recent_view_gtk_new (menu, NULL);
+		g_signal_connect (view, "activate",
+				  G_CALLBACK (gedit_file_open_recent), NULL);
+		egg_recent_view_gtk_show_icons (view, TRUE);
+		egg_recent_view_gtk_show_numbers (view, FALSE);
+		egg_recent_view_gtk_set_tooltip_func (view, tooltip_func, NULL);
+
+		egg_recent_view_set_model (EGG_RECENT_VIEW (view), model);
+	}
+
 	gnome_popup_menu_do_popup_modal (menu,
 				menu_position_under_widget, widget,
 				event, widget, widget);
@@ -284,35 +326,10 @@ open_button_key_pressed_cb (GtkWidget *widget,
 	return FALSE;
 }
 
-static void
-tooltip_func (GtkTooltips   *tooltips,
-	      GtkWidget     *menu,
-	      EggRecentItem *item,
-	      gpointer       user_data)
-{
-	gchar *tip;
-	gchar *uri_for_display;
-
-	uri_for_display = egg_recent_item_get_uri_for_display (item);
-	g_return_if_fail (uri_for_display != NULL);
-	
-	/* Translators: %s is a URI */
-	tip = g_strdup_printf (_("Open '%s'"), uri_for_display);
-
-	g_free (uri_for_display);
-
-	gtk_tooltips_set_tip (tooltips, GTK_WIDGET (menu), tip, NULL);
-
-	g_free (tip);
-}
-
 static GtkWidget *
 gedit_mdi_add_open_button (GeditMDI *mdi, BonoboUIComponent *ui_component,
 			 const gchar *path, const gchar *tooltip)
 {
-	GtkWidget *menu;
-	EggRecentViewGtk *view;
-	EggRecentModel *model;
 	GtkWidget *button;
 	
 	static GtkTooltips *button_tooltip = NULL;
@@ -330,20 +347,6 @@ gedit_mdi_add_open_button (GeditMDI *mdi, BonoboUIComponent *ui_component,
 
 	gtk_widget_show_all (GTK_WIDGET (button));
 
-	model = gedit_recent_get_model ();
-
-	menu = gtk_menu_new ();
-	gtk_widget_show (menu);
-	view = egg_recent_view_gtk_new (menu, NULL);
-	g_signal_connect (view, "activate",
-			  G_CALLBACK (gedit_file_open_recent), NULL);
-	egg_recent_view_gtk_show_icons (view, TRUE);
-	egg_recent_view_gtk_show_numbers (view, FALSE);
-	egg_recent_view_gtk_set_tooltip_func (view, tooltip_func, NULL);
-	
-	egg_recent_view_set_model (EGG_RECENT_VIEW (view), model);
-	g_object_set_data (G_OBJECT (button), "recent-menu", menu);
-	
 	g_signal_connect_object (button, "key_press_event",
 				 G_CALLBACK (open_button_key_pressed_cb),
 				 mdi, 0);
@@ -1371,14 +1374,40 @@ gedit_mdi_remove_all (GeditMDI *mdi)
 	
 #define MAX_URI_IN_TITLE_LENGTH 75
 
+static gchar *
+get_dirname (const gchar *uri)
+{
+	gchar *res;
+	gchar *str;
+
+	str = g_path_get_dirname (uri);
+	g_return_val_if_fail (str != NULL, ".");
+
+	if ((strlen (str) == 1) && (*str == '.'))
+	{
+		g_free (str);
+		
+		return NULL;
+	}
+
+	res = gedit_utils_replace_home_dir_with_tilde (str);
+
+	g_free (str);
+	
+	return res;
+}
+
 void 
 gedit_mdi_set_active_window_title (BonoboMDI *mdi)
 {
 	BonoboMDIChild *active_child = NULL;
 	GeditDocument *doc = NULL;
-	gchar *docname = NULL;
+	gchar *str;
+	gchar *dirname = NULL;
 	gchar *title = NULL;
 	gchar *uri;
+	gchar *name;
+
 	GtkWidget *active_window;
 	
 	gedit_debug (DEBUG_MDI, "");
@@ -1394,42 +1423,53 @@ gedit_mdi_set_active_window_title (BonoboMDI *mdi)
 	uri = gedit_document_get_uri (doc);
 	g_return_if_fail (uri != NULL);
 
-	/* Truncate the URI so it doesn't get insanely wide. */
-	docname = gedit_utils_str_middle_truncate (uri, MAX_URI_IN_TITLE_LENGTH);
+	str = get_dirname (uri);
 	g_free (uri);
+
+	if (str != NULL)
+	{
+		/* Truncate the URI so it doesn't get insanely wide. */
+		dirname = gedit_utils_str_middle_truncate (str, MAX_URI_IN_TITLE_LENGTH);
+		g_free (str);
+	}
+	else
+	{
+		dirname = NULL;
+	}
+	
+	name = gedit_document_get_short_name (doc);
 
 	if (gedit_document_get_modified (doc))
 	{
-		title = g_strdup_printf ("%s %s - gedit", docname, _("(modified)"));
+		if (dirname != NULL)
+			title = g_strdup_printf ("*%s (%s) - gedit", name, dirname);
+		else
+			title = g_strdup_printf ("*%s - gedit", name);
 	} 
 	else 
 	{
 		if (gedit_document_is_readonly (doc)) 
 		{
-			title = g_strdup_printf ("%s %s - gedit", docname, _("(readonly)"));
+			if (dirname != NULL)
+				title = g_strdup_printf ("%s [%s] (%s) - gedit", name, _("Read Only"), dirname);
+			else
+				title = g_strdup_printf ("%s [%s] - gedit", name, _("Read Only"));
 		} 
 		else 
 		{
-			title = g_strdup_printf ("%s - gedit", docname);
+			if (dirname != NULL)
+				title = g_strdup_printf ("%s (%s) - gedit", name, dirname);
+			else
+				title = g_strdup_printf ("%s - gedit", name);
 		}
-
 	}
 
 	active_window = GTK_WIDGET (gedit_get_active_window ());
 
-	if (GTK_WIDGET_REALIZED (active_window))
-	{	
-		gchar *short_name;
-		
-		short_name = gedit_document_get_short_name (doc);
-		
-		gdk_window_set_icon_name (active_window->window, short_name);
-		g_free (short_name);
-	}
-
 	gtk_window_set_title (GTK_WINDOW (active_window), title);
 	
-	g_free (docname);
+	g_free (dirname);
+	g_free (name);
 	g_free (title);
 }
 
@@ -1595,6 +1635,8 @@ end:
 			
 			bonobo_ui_component_set_prop (ui_component, 
 					"/menu/View/HighlightMode", "sensitive", "0", NULL);
+		
+			/* FIXME: disable the Recent Files menu - Paolo (Nov 10, 2004) */
 
 			break;
 
@@ -1604,6 +1646,8 @@ end:
 
 			bonobo_ui_component_set_prop (ui_component, 
 					"/menu/View/HighlightMode", "sensitive", "0", NULL);
+
+			/* FIXME: disable the Recent Files menu - Paolo (Nov 10, 2004) */
 
 			break;
 		default:

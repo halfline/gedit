@@ -127,6 +127,8 @@ gchar*		gedit_document_get_raw_uri 	(const GeditDocument *doc);
 gchar*		gedit_document_get_uri 		(const GeditDocument *doc);
 gchar*		gedit_document_get_short_name 	(const GeditDocument *doc);
 
+const gchar    *gedit_document_get_mime_type 	(const GeditDocument *doc);
+
 void		gedit_document_load 		(GeditDocument        *doc, 
 						 const gchar          *uri, 
 						 const GeditEncoding  *encoding);
@@ -149,24 +151,11 @@ gboolean	gedit_document_is_untitled 	(const GeditDocument* doc);
 gboolean	gedit_document_get_modified 	(const GeditDocument* doc);
 
 gboolean	gedit_document_get_deleted	(GeditDocument *doc);
-		
+
 void		gedit_document_insert_text	(GeditDocument *doc, 
 						 gint	        pos,
                                                  const gchar   *text,
                                                  gint           len);
-
-void		gedit_document_insert_text_at_cursor (GeditDocument *doc, 
-                                                 const gchar   *text,
-                                                 gint           len);
-
-void 		gedit_document_delete_text 	(GeditDocument *doc, 
-		                                 gint start, gint end);
-
-gchar*		gedit_document_get_chars 	(GeditDocument *doc, 
-					         gint start, gint end);
-
-gboolean	gedit_document_get_selection 	(GeditDocument *doc,
-						 gint* start, gint* end);
 
 /* Multi-level Undo/Redo operations */
 void		gedit_document_set_max_undo_levels (GeditDocument *doc, 
@@ -204,9 +193,6 @@ gboolean	gedit_document_replace_all 	(GeditDocument *doc,
 				            	 const gchar *find, 
 						 const gchar *replace, 
 					    	 gint flags);
-void		gedit_document_set_selection 	(GeditDocument *doc, 
-						 gint start, 
-						 gint end);
 
 void 		gedit_document_set_language 	(GeditDocument *doc,
 						 GtkSourceLanguage *lang);

@@ -225,6 +225,29 @@ gedit_search_bar_new (void)
 	return w;
 }
 
+static gboolean
+get_selected_text (GtkTextBuffer *doc, gchar **selected_text, gint *len)
+{
+	GtkTextIter start, end;
+
+	g_return_val_if_fail (selected_text != NULL, FALSE);
+	g_return_val_if_fail (*selected_text == NULL, FALSE);
+
+	if (!gtk_text_buffer_get_selection_bounds (doc, &start, &end))
+	{
+		if (len != NULL)
+			len = 0;
+
+		return FALSE;
+	}
+
+	*selected_text = gtk_text_buffer_get_slice (doc, &start, &end, TRUE);
+
+	if (len != NULL)
+		*len = g_utf8_strlen (*selected_text, -1);
+
+	return TRUE;
+}
 
 void
 gedit_search_bar_find (void)
@@ -232,9 +255,9 @@ gedit_search_bar_find (void)
 	GtkWidget *bar;
 	BonoboWindow *active_window;
 	GeditDocument *doc;
-	gchar *last_searched_text;
-	gint selection_start, selection_end;
 	gboolean selection_exists;
+	gchar *find_text = NULL;
+	gint sel_len = 0;
 	gboolean was_entire_word;
 	gboolean was_case_sensitive;
 	gpointer data;
@@ -248,27 +271,24 @@ gedit_search_bar_find (void)
 	doc = gedit_get_active_document ();
 	g_return_if_fail (doc != NULL);
 
-	selection_exists = gedit_document_get_selection (doc, &selection_start, &selection_end);
-	if (selection_exists && (selection_end - selection_start < 80)) 
+	selection_exists = get_selected_text (GTK_TEXT_BUFFER (doc), &find_text, &sel_len);
+	if (selection_exists && find_text && sel_len < 80)
 	{
-		gchar *selection_text;
-
-		selection_text = gedit_document_get_chars (doc, selection_start, selection_end);
 		gedit_search_bar_base_set_search_string (GEDIT_SEARCH_BAR_BASE (bar),
-							 selection_text);
-
-		g_free (selection_text);
-	} 
-	else 
-	{
-		last_searched_text = gedit_document_get_last_searched_text (doc);
-		if (last_searched_text != NULL)
-		{
-			gedit_search_bar_base_set_search_string (GEDIT_SEARCH_BAR_BASE (bar),
-								 last_searched_text);
-			g_free (last_searched_text);	
-		}
+							 find_text);
+		g_free (find_text);
 	}
+	else 
+ 	{
+		g_free (find_text);
+		find_text = gedit_document_get_last_searched_text (doc);
+		if (find_text != NULL)
+ 		{
+			gedit_search_bar_base_set_search_string (GEDIT_SEARCH_BAR_BASE (bar),
+								 find_text);
+			g_free (find_text);	
+ 		}
+ 	}
 
 	if (!was_entire_word_id)
 		was_entire_word_id = g_quark_from_static_string ("GeditWasEntireWord");

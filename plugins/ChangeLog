@@ -1,3 +1,63 @@
+2004-12-05  Paolo Maggi  <paolo@gnome.org>
+
+	Fixed bug #160411: Misspelled word in spellchecker dialog
+
+	* spell/gedit-spell-checker-dialog.c
+	(gedit_spell_checker_dialog_init)
+	(gedit_spell_checker_dialog_destroy)
+	(gedit_spell_checker_dialog_set_spell_checker)
+	(gedit_spell_checker_dialog_set_misspelled_word)
+	(add_word_button_clicked_handler) (ignore_button_clicked_handler)
+	(ignore_all_button_clicked_handler) (change_button_clicked_handler)
+	(change_all_button_clicked_handler)
+	(gedit_spell_checker_dialog_set_completed): s/mispelled/misspelled
+
+	* spell/gedit-spell-checker-dialog.h: s/mispelled/misspelled
+
+	* spell/spell-checker.glade2: s/mispelled/misspelled
+
+	* spell/spell.c (get_next_misspelled_word) (ignore_cb) (change_cb)
+	(change_all_cb) (add_word_cb) (show_no_misspelled_words_dialog)
+	(spell_cb): s/mispelled/misspelled
+
+
+2004-11-25  Paolo Borelli  <pborelli@katamail.com>
+
+	* taglist/gedit-taglist-plugin-window.c: do not leak tooltips.
+
+2004-11-18  Paolo Borelli  <pborelli@katamail.com>
+
+	* spell/spell.c: use gtk_text_buffer api.
+
+2004-11-15  Paolo Maggi  <paolo@gnome.org>
+
+	* spell/gedit-spell-checker.c (get_language_from_abrev): rewritten
+	(gedit_language_to_key) (gedit_language_from_key): new methods
+	(lazy_init): implements a better algorithm for selecting the default
+	language
+
+	* spell/gedit-spell-language-dialog.c (get_languages_dialog): adds column to 
+	the tree view before selecting the default item
+
+	* spell/languages-dialog.glade2: removes rules hint
+
+	* spell/spell-checker.glade2: removes rulues hint
+
+	* spell/spell.c (set_spell_language_cb)
+	(get_spell_checker_from_document): uses metadata to store the last selected language
+
+	* time/time.c (create_formats_list):  adds column to 
+	the tree view before selecting the default item
+
+2004-11-13  Paolo Borelli  <pborelli@katamail.com>
+
+	* */*.c: use gi18n.h instead of gnome-i18n.h.
+
+2004-11-11  Paolo Borelli  <pborelli@katamail.com>
+
+	* docinfo/docinfo.c: use gtk_text_buffer api to get the selection.
+	* spell/spell.c: use gtk_text_buffer api to get the selection.
+
 2004-10-28  Paolo Borelli  <pborelli@katamail.com>
 
 	* shell_output/shell_output.c: eel removal.

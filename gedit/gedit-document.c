@@ -33,6 +33,7 @@
 #include <config.h>
 #endif
 
+#include <errno.h>
 #include <unistd.h>  
 #include <stdio.h>
 #include <string.h>
@@ -41,10 +42,9 @@
 #include <sys/param.h>
 #include <fcntl.h>
 
-#include <libgnome/libgnome.h>
+#include <glib/gi18n.h>
 #include <libgnomevfs/gnome-vfs.h>
 #include <eel/eel-vfs-extensions.h>
-
 #include <libgnomevfs/gnome-vfs-mime-utils.h>
 
 #include "gedit-prefs-manager-app.h"
@@ -80,9 +80,11 @@ PROFILE (static GTimer *timer = NULL);
 struct _GeditDocumentPrivate
 {
 	gchar		    *uri;
-	gint 		     untitled_number;	
+	gint 		     untitled_number;
 
 	gchar		    *encoding;
+
+	gchar		    *mime_type;
 
 	gchar		    *last_searched_text;
 	gchar		    *last_replace_text;
@@ -132,8 +134,7 @@ static gboolean	gedit_document_save_as_real (GeditDocument *doc, const gchar *ur
 					     gboolean create_backup_copy, GError **error);
 static void gedit_document_set_uri (GeditDocument* doc, const gchar* uri);
 
-static gboolean gedit_document_auto_save (GeditDocument *doc, GError **error);
-static gboolean gedit_document_auto_save_timeout (GeditDocument *doc);
+static gboolean gedit_document_auto_save (GeditDocument *doc);
 
 static GtkTextBufferClass *parent_class 	= NULL;
 static guint document_signals[LAST_SIGNAL] 	= { 0 };
@@ -308,6 +309,8 @@ gedit_document_init (GeditDocument *document)
 	document->priv->uri = NULL;
 	document->priv->untitled_number = 0;
 
+	document->priv->mime_type = g_strdup ("text/plain");
+
 	document->priv->readonly = FALSE;
 
 	document->priv->last_save_was_manually = TRUE;
@@ -393,6 +396,7 @@ gedit_document_finalize (GObject *object)
 	}
 
 	g_free (document->priv->uri);
+	g_free (document->priv->mime_type);
 	g_free (document->priv->last_searched_text);
 	g_free (document->priv->last_replace_text);
 	g_free (document->priv->encoding);
@@ -498,7 +502,7 @@ gedit_document_set_readonly (GeditDocument *document, gboolean readonly)
 				
 			document->priv->auto_save_timeout = g_timeout_add 
 				(auto_save_interval * 1000 * 60,
-		 		 (GSourceFunc)gedit_document_auto_save_timeout,
+		 		 (GSourceFunc)gedit_document_auto_save,
 		  		 document);		
 		}
 	}
@@ -711,12 +715,15 @@ gedit_document_io_error_quark (void)
 }
 
 static gboolean
-gedit_document_auto_save_timeout (GeditDocument *doc)
+gedit_document_auto_save (GeditDocument *doc)
 {
+	const GeditEncoding *encoding;
+	gboolean create_backup;
 	GError *error = NULL;
 
 	gedit_debug (DEBUG_DOCUMENT, "");
 
+	g_return_val_if_fail (GEDIT_IS_DOCUMENT (doc), FALSE);
 	g_return_val_if_fail (!gedit_document_is_readonly (doc), FALSE);
 
 	/* Remove timeout if now auto_save is FALSE */
@@ -726,7 +733,19 @@ gedit_document_auto_save_timeout (GeditDocument *doc)
 	if (!gedit_document_get_modified (doc))
 		return TRUE;
 
-	gedit_document_auto_save (doc, &error);
+	encoding = gedit_document_get_encoding (doc);
+	create_backup = gedit_prefs_manager_get_create_backup_copy ();
+
+	/* we save a backup just if backups are enabled and if the last
+	 * save was manual.
+	 */
+	if (gedit_document_save_as_real (doc, doc->priv->uri, encoding,
+					 doc->priv->last_save_was_manually && create_backup,
+					 &error))
+	{
+		doc->priv->last_save_was_manually = FALSE;
+		g_get_current_time (&doc->priv->time_of_last_save_or_load);
+	}
 
 	if (error) 
 	{
@@ -734,27 +753,6 @@ gedit_document_auto_save_timeout (GeditDocument *doc)
 		 * the user there was an error? - James */
 		g_error_free (error);
 		return TRUE;
-	}
-
-	return TRUE;
-}
-
-static gboolean
-gedit_document_auto_save (GeditDocument* doc, GError **error)
-{
-	const GeditEncoding *encoding;
-	
-	gedit_debug (DEBUG_DOCUMENT, "");
-	
-	g_return_val_if_fail (doc != NULL, FALSE);
-
-	encoding = gedit_document_get_encoding (doc);
-		
-	if (gedit_document_save_as_real (doc, doc->priv->uri, encoding,
-					 doc->priv->last_save_was_manually, NULL))
-	{
-		doc->priv->last_save_was_manually = FALSE;
-		g_get_current_time (&doc->priv->time_of_last_save_or_load);
 	}
 
 	return TRUE;
@@ -1086,6 +1084,12 @@ get_info_cb (GnomeVFSAsyncHandle *handle,
 		return;
 	}
 
+	/* store the mime type */
+	g_free (doc->priv->mime_type);
+	doc->priv->mime_type = info_result->file_info->mime_type ?
+			       g_strdup (info_result->file_info->mime_type) :
+			       g_strdup ("text/plain");
+
 	if (info_result->file_info->valid_fields & GNOME_VFS_FILE_INFO_FIELDS_SIZE)
 	{
 		doc->priv->temp_size = (gulong)info_result->file_info->size;
@@ -1127,6 +1131,8 @@ load_local (GeditDocument *doc)
 	res = gnome_vfs_get_file_info (doc->priv->temp_uri,
 				       info,
 				       GNOME_VFS_FILE_INFO_DEFAULT |
+				       GNOME_VFS_FILE_INFO_GET_MIME_TYPE |
+				       GNOME_VFS_FILE_INFO_FORCE_SLOW_MIME_TYPE |
 				       GNOME_VFS_FILE_INFO_FOLLOW_LINKS);
 
 	if (res != GNOME_VFS_OK)
@@ -1176,6 +1182,12 @@ load_local (GeditDocument *doc)
 
 		return FALSE;
 	}
+
+	/* store the mime type */
+	g_free (doc->priv->mime_type);
+	doc->priv->mime_type = info->mime_type ?
+			       g_strdup (info->mime_type) :
+			       g_strdup ("text/plain");
 
 	gnome_vfs_file_info_unref (info);
 
@@ -1327,6 +1339,8 @@ gedit_document_load (GeditDocument        *doc,
 		gnome_vfs_async_get_file_info (&doc->priv->info_handle,
 					       uri_list,
 					       GNOME_VFS_FILE_INFO_DEFAULT |
+					       GNOME_VFS_FILE_INFO_GET_MIME_TYPE |
+					       GNOME_VFS_FILE_INFO_FORCE_SLOW_MIME_TYPE |
 					       GNOME_VFS_FILE_INFO_FOLLOW_LINKS,
 					       GNOME_VFS_PRIORITY_MAX,
 					       get_info_cb,
@@ -1444,34 +1458,10 @@ gedit_document_is_untouched (const GeditDocument *doc)
 		(!gtk_text_buffer_get_modified (GTK_TEXT_BUFFER (doc)));
 }
 
-/* FIXME: Remove this function when gnome-vfs will add an equivalent public
-   function - Paolo (Mar 05, 2004) */
-static gchar *
-get_slow_mime_type (const char *text_uri)
-{
-	GnomeVFSFileInfo *info;
-	char *mime_type;
-	GnomeVFSResult result;
-
-	info = gnome_vfs_file_info_new ();
-	result = gnome_vfs_get_file_info (text_uri, info,
-					  GNOME_VFS_FILE_INFO_GET_MIME_TYPE |
-					  GNOME_VFS_FILE_INFO_FORCE_SLOW_MIME_TYPE |
-					  GNOME_VFS_FILE_INFO_FOLLOW_LINKS);
-	if (info->mime_type == NULL || result != GNOME_VFS_OK) {
-		mime_type = NULL;
-	} else {
-		mime_type = g_strdup (info->mime_type);
-	}
-	gnome_vfs_file_info_unref (info);
-
-	return mime_type;
-}
-
 static void
 gedit_document_set_uri (GeditDocument* doc, const gchar* uri)
 {
-	GtkSourceLanguage *language;
+	GtkSourceLanguage *language = NULL;
 	gchar *data;
 	
 	gedit_debug (DEBUG_DOCUMENT, "");
@@ -1499,44 +1489,29 @@ gedit_document_set_uri (GeditDocument* doc, const gchar* uri)
 	{
 		gedit_debug (DEBUG_DOCUMENT, "Language: %s", data);
 
-		if (strcmp (data, "_NORMAL_") == 0)
-			language = NULL;
-		else
+		if (strcmp (data, "_NORMAL_") != 0)
 			language = gedit_languages_manager_get_language_from_id (
 						gedit_get_languages_manager (),
 						data);
-
-		gedit_document_set_language (doc, language);
 
 		g_free (data);
 	}
 	else
 	{
-		gchar *mime_type;
-
-		mime_type = get_slow_mime_type (uri);
-	
-		if (mime_type != NULL)
+		if (doc->priv->mime_type != NULL)
 		{
-			GtkSourceLanguage *language;
-			
-			gedit_debug (DEBUG_DOCUMENT, "MIME-TYPE: %s", mime_type);
-
 			language = gtk_source_languages_manager_get_language_from_mime_type (
 						gedit_get_languages_manager (),
-						mime_type);
-	
-			gedit_document_set_language (doc, language);
-	
-			g_free (mime_type);
+						doc->priv->mime_type);
 		}
 		else
 		{
-			g_warning ("Couldn't get mime type for file `%s'", uri);
+			/* should never happen */
+			g_warning ("gedit document %s has NULL mime_type", uri);
 		}
-
-		
 	}
+
+	gedit_document_set_language (doc, language);
 
 	g_signal_emit (G_OBJECT (doc), document_signals[NAME_CHANGED], 0);
 }
@@ -1603,9 +1578,10 @@ gedit_document_save_as (GeditDocument* doc, const gchar *uri,
 			const GeditEncoding *encoding, GError **error)
 {	
 	gboolean auto_save;
-	
+	gboolean create_backup;
+
 	gboolean ret = FALSE;
-	
+
 	gedit_debug (DEBUG_DOCUMENT, "");
 
 	g_return_val_if_fail (doc != NULL, FALSE);
@@ -1616,10 +1592,10 @@ gedit_document_save_as (GeditDocument* doc, const gchar *uri,
 		encoding = gedit_document_get_encoding (doc);
 
 	auto_save = gedit_prefs_manager_get_auto_save ();
+	create_backup = gedit_prefs_manager_get_create_backup_copy ();
 
 	if (auto_save) 
 	{
-
 		if (doc->priv->auto_save_timeout > 0)
 		{
 			g_source_remove (doc->priv->auto_save_timeout);
@@ -1627,7 +1603,7 @@ gedit_document_save_as (GeditDocument* doc, const gchar *uri,
 		}
 	}
 
-	if (gedit_document_save_as_real (doc, uri, encoding, TRUE, error))
+	if (gedit_document_save_as_real (doc, uri, encoding, create_backup, error))
 	{
 		gedit_document_set_uri (doc, uri);
 		gedit_document_set_readonly (doc, FALSE);
@@ -1638,7 +1614,7 @@ gedit_document_save_as (GeditDocument* doc, const gchar *uri,
 		gedit_document_set_encoding (doc, encoding);
 			
 		ret = TRUE;
-	}		
+	}
 
 	if (auto_save && (doc->priv->auto_save_timeout <= 0)) 
 	{
@@ -1744,10 +1720,33 @@ follow_symlinks (const gchar *filename, GError **error)
 	return NULL;
 }
 
+/* FIXME: Remove this function when gnome-vfs will add an equivalent public
+   function - Paolo (Mar 05, 2004) */
+static gchar *
+get_slow_mime_type (const char *text_uri)
+{
+	GnomeVFSFileInfo *info;
+	char *mime_type;
+	GnomeVFSResult result;
+
+	info = gnome_vfs_file_info_new ();
+	result = gnome_vfs_get_file_info (text_uri, info,
+					  GNOME_VFS_FILE_INFO_GET_MIME_TYPE |
+					  GNOME_VFS_FILE_INFO_FORCE_SLOW_MIME_TYPE |
+					  GNOME_VFS_FILE_INFO_FOLLOW_LINKS);
+	if (info->mime_type == NULL || result != GNOME_VFS_OK) {
+		mime_type = NULL;
+	} else {
+		mime_type = g_strdup (info->mime_type);
+	}
+	gnome_vfs_file_info_unref (info);
+
+	return mime_type;
+}
+
 /* FIXME: define new ERROR_CODE and remove the error 
  * strings from here -- Paolo
  */
-
 static gboolean	
 gedit_document_save_as_real (GeditDocument* doc, const gchar *uri, const GeditEncoding *encoding,
 			     gboolean create_backup_copy, GError **error)
@@ -1768,6 +1767,7 @@ gedit_document_save_as_real (GeditDocument* doc, const gchar *uri, const GeditEn
 	gboolean add_cr;
 	GtkTextIter start_iter;
 	GtkTextIter end_iter;
+	gchar *detected_mime;
 	
 	gedit_debug (DEBUG_DOCUMENT, "");
 
@@ -2013,6 +2013,11 @@ gedit_document_save_as_real (GeditDocument* doc, const gchar *uri, const GeditEn
 
 	gtk_text_buffer_set_modified (GTK_TEXT_BUFFER (doc), FALSE);
 
+	/* update the mime type */
+	detected_mime = get_slow_mime_type (uri);
+	g_free (doc->priv->mime_type);
+	doc->priv->mime_type = detected_mime ? detected_mime : g_strdup ("text/plain");
+
 	retval = TRUE;
 
 	/* Done */
@@ -2027,6 +2032,19 @@ gedit_document_save_as_real (GeditDocument* doc, const gchar *uri, const GeditEn
 	g_free (temp_filename);
 
 	return retval;
+}
+
+const gchar *
+gedit_document_get_mime_type (const GeditDocument* doc)
+{
+	gedit_debug (DEBUG_DOCUMENT, "");
+
+	g_return_val_if_fail (doc != NULL, FALSE);
+	g_return_val_if_fail (doc->priv != NULL, FALSE);
+
+	g_return_val_if_fail (doc->priv->mime_type != NULL, "text/plain");
+
+	return doc->priv->mime_type;
 }
 
 gboolean	
@@ -2101,50 +2119,6 @@ gedit_document_insert_text (GeditDocument *doc, gint pos, const gchar *text, gin
 	gtk_text_buffer_get_iter_at_offset (GTK_TEXT_BUFFER (doc), &iter, pos);
 	
 	gtk_text_buffer_insert (GTK_TEXT_BUFFER (doc), &iter, text, len);
-}
-
-void 
-gedit_document_delete_text (GeditDocument *doc, gint start, gint end)
-{
-	GtkTextIter start_iter;
-	GtkTextIter end_iter;
-
-	gedit_debug (DEBUG_DOCUMENT, "");
-
-	g_return_if_fail (GEDIT_IS_DOCUMENT (doc));
-	g_return_if_fail (start >= 0);
-	g_return_if_fail ((end > start) || end < 0);
-
-	gtk_text_buffer_get_iter_at_offset (GTK_TEXT_BUFFER (doc), &start_iter, start);
-
-	if (end < 0)
-		gtk_text_buffer_get_end_iter (GTK_TEXT_BUFFER (doc), &end_iter);
-	else
-		gtk_text_buffer_get_iter_at_offset (GTK_TEXT_BUFFER (doc), &end_iter, end);
-
-	gtk_text_buffer_delete (GTK_TEXT_BUFFER (doc), &start_iter, &end_iter);
-}
-
-gchar*
-gedit_document_get_chars (GeditDocument *doc, gint start, gint end)
-{
-	GtkTextIter start_iter;
-	GtkTextIter end_iter;
-
-	gedit_debug (DEBUG_DOCUMENT, "");
-
-	g_return_val_if_fail (GEDIT_IS_DOCUMENT (doc), NULL);
-	g_return_val_if_fail (start >= 0, NULL);
-	g_return_val_if_fail ((end > start) || (end < 0), NULL);
-
-	gtk_text_buffer_get_iter_at_offset (GTK_TEXT_BUFFER (doc), &start_iter, start);
-
-	if (end < 0)
-		gtk_text_buffer_get_end_iter (GTK_TEXT_BUFFER (doc), &end_iter);
-	else
-		gtk_text_buffer_get_iter_at_offset (GTK_TEXT_BUFFER (doc), &end_iter, end);
-
-	return gtk_text_buffer_get_slice (GTK_TEXT_BUFFER (doc), &start_iter, &end_iter, TRUE);
 }
 
 void
@@ -2508,32 +2482,6 @@ gedit_document_find_prev (GeditDocument* doc, gint flags)
 	return gedit_document_find_again (doc, flags);
 }
 
-gboolean 
-gedit_document_get_selection (GeditDocument *doc, gint *start, gint *end)
-{
-	gboolean ret;
-	GtkTextIter iter;
-	GtkTextIter sel_bound;
-
-	gedit_debug (DEBUG_DOCUMENT, "");
-
-	g_return_val_if_fail (GEDIT_IS_DOCUMENT (doc), FALSE);
-
-	ret = gtk_text_buffer_get_selection_bounds (GTK_TEXT_BUFFER (doc),			
-						    &iter,
-						    &sel_bound);
-
-	gtk_text_iter_order (&iter, &sel_bound);	
-
-	if (start != NULL)
-		*start = gtk_text_iter_get_offset (&iter); 
-
-	if (end != NULL)
-		*end = gtk_text_iter_get_offset (&sel_bound); 
-
-	return ret;
-}
-
 void
 gedit_document_replace_selected_text (GeditDocument *doc, const gchar *replace)
 {
@@ -2607,31 +2555,6 @@ gedit_document_replace_all (GeditDocument *doc,
 	gedit_document_end_user_action (doc);
 
 	return cont;
-}
-
-void
-gedit_document_set_selection (GeditDocument *doc, gint start, gint end)
-{
- 	GtkTextIter start_iter;
-	GtkTextIter end_iter;
-
-	gedit_debug (DEBUG_DOCUMENT, "");
-
-	g_return_if_fail (GEDIT_IS_DOCUMENT (doc));
-	g_return_if_fail (start >= 0);
-	g_return_if_fail ((end > start) || (end < 0));
-
-	gtk_text_buffer_get_iter_at_offset (GTK_TEXT_BUFFER (doc), &start_iter, start);
-
-	if (end < 0)
-		gtk_text_buffer_get_end_iter (GTK_TEXT_BUFFER (doc), &end_iter);
-	else
-		gtk_text_buffer_get_iter_at_offset (GTK_TEXT_BUFFER (doc), &end_iter, end);
-
-	gtk_text_buffer_place_cursor (GTK_TEXT_BUFFER (doc), &end_iter);
-
-	gtk_text_buffer_move_mark_by_name (GTK_TEXT_BUFFER (doc),
-					"selection_bound", &start_iter);
 }
 
 void 

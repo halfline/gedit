@@ -30,7 +30,7 @@
 #include <config.h>
 #endif
 
-#include <libgnome/gnome-i18n.h>
+#include <glib/gi18n.h>
 
 #include "gedit-close-confirmation-dialog.h"
 #include <gedit/gedit-utils.h>
@@ -185,6 +185,9 @@ gedit_close_confirmation_dialog_finalize (GObject *object)
 	if (priv->unsaved_documents != NULL)
 		g_slist_free (priv->unsaved_documents);
 
+	if (priv->unsaved_documents != NULL)
+		g_slist_free (priv->selected_documents);
+
 	/* Call the parent's destructor */
 	G_OBJECT_CLASS (parent_class)->finalize (object);
 }
@@ -312,7 +315,7 @@ gedit_close_confirmation_dialog_get_selected_documents (GeditCloseConfirmationDi
 
 	priv = GEDIT_CLOSE_CONFIRMATION_DIALOG_GET_PRIVATE (dlg);
 
-	return priv->selected_documents;
+	return g_slist_copy (priv->selected_documents);
 }
 
 GtkWidget *
@@ -422,7 +425,7 @@ get_text_secondary_label (GeditDocument *doc)
 		hours = seconds / 3600;
 
 		secondary_msg = g_strdup_printf (
-					ngettext ("If you don't save, changes from the last %d hour "
+					ngettext ("If you don't save, changes from the last hour "
 					    	  "will be permanently lost.",
 						  "If you don't save, changes from the last %d hours "
 					    	  "will be permanently lost.",
@@ -707,5 +710,4 @@ set_unsaved_document (GeditCloseConfirmationDialog *dlg,
 		build_multiple_docs_dialog (dlg);
 	}	
 }
-
 

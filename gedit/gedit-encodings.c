@@ -31,16 +31,18 @@
 #include <config.h>
 #endif
 
+#include <string.h>
+
+#include <glib/gi18n.h>
+
 #include "gedit-encodings.h"
 
-#include <bonobo/bonobo-i18n.h>
-#include <string.h>
 
 struct _GeditEncoding
 {
-  gint   index;
-  gchar *charset;
-  gchar *name;
+	gint   index;
+	gchar *charset;
+	gchar *name;
 };
 
 /* 
@@ -69,9 +71,13 @@ typedef enum
   GEDIT_ENCODING_ISO_8859_16,
 
   GEDIT_ENCODING_UTF_7,
+
+/* see bug #156423 */
+#if 0
   GEDIT_ENCODING_UTF_16,
   GEDIT_ENCODING_UCS_2,
   GEDIT_ENCODING_UCS_4,
+#endif
 
   GEDIT_ENCODING_ARMSCII_8,
   GEDIT_ENCODING_BIG5,
@@ -132,6 +138,7 @@ static GeditEncoding utf8_encoding =
 	  N_("Unicode") 
 	};
 
+/* initialized in gedit_encoding_lazy_init() */
 static GeditEncoding unknown_encoding = 
 	{ GEDIT_ENCODING_UNKNOWN,
 	  NULL, 
@@ -174,12 +181,15 @@ static GeditEncoding encodings [] = {
 
   { GEDIT_ENCODING_UTF_7,
     "UTF-7", N_("Unicode") },
+
+#if 0
   { GEDIT_ENCODING_UTF_16,
     "UTF-16", N_("Unicode") },
   { GEDIT_ENCODING_UCS_2,
     "UCS-2", N_("Unicode") },
   { GEDIT_ENCODING_UCS_4,
     "UCS-4", N_("Unicode") },
+#endif
 
   { GEDIT_ENCODING_ARMSCII_8,
     "ARMSCII-8", N_("Armenian") },
@@ -314,12 +324,6 @@ gedit_encoding_get_from_charset (const gchar *charset)
 	if (g_ascii_strcasecmp (charset, "UTF-8") == 0)
 		return gedit_encoding_get_utf8 ();
 
-	if (unknown_encoding.charset != NULL)
-	{
-		if (g_ascii_strcasecmp (charset, unknown_encoding.charset) == 0)
-			return &unknown_encoding;
-	}
-
 	i = 0; 
 	while (i < GEDIT_ENCODING_LAST)
 	{
@@ -327,6 +331,12 @@ gedit_encoding_get_from_charset (const gchar *charset)
 			return &encodings[i];
       
 		++i;
+	}
+
+	if (unknown_encoding.charset != NULL)
+	{
+		if (g_ascii_strcasecmp (charset, unknown_encoding.charset) == 0)
+			return &unknown_encoding;
 	}
 
 	return NULL;
@@ -388,7 +398,6 @@ gedit_encoding_get_current (void)
 
 	return locale_encoding;
 }
-	
 
 gchar *
 gedit_encoding_to_string (const GeditEncoding* enc)
@@ -428,7 +437,6 @@ gedit_encoding_get_name (const GeditEncoding* enc)
 
 	gedit_encoding_lazy_init ();
 
-	return enc->name;
+	return (enc->name == NULL) ? _("Unknown") : enc->name;
 }
-
 

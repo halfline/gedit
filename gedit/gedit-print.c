@@ -36,13 +36,13 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <unistd.h>
+#include <string.h>	/* For strlen */
 
-#include <libgnome/libgnome.h>
+#include <glib/gi18n.h>
+#include <libgnome/gnome-util.h>
 #include <libgnomeprintui/gnome-print-dialog.h>
 #include <libgnomeprintui/gnome-print-job-preview.h>
 #include <gtksourceview/gtksourceprintjob.h>
-
-#include <string.h>	/* For strlen */
 
 #include "gedit2.h"
 #include "gedit-print.h"
@@ -203,7 +203,7 @@ get_print_dialog (GeditPrintJobInfo *pji)
 
 	g_return_val_if_fail (pji != NULL, NULL);
 	
-	if (!gedit_document_get_selection (pji->doc, NULL, NULL))
+	if (!gtk_text_buffer_get_selection_bounds (GTK_TEXT_BUFFER (pji->doc), NULL, NULL))
 		selection_flag = GNOME_PRINT_RANGE_SELECTION_UNSENSITIVE;
 	else
 		selection_flag = GNOME_PRINT_RANGE_SELECTION;
@@ -239,57 +239,52 @@ gedit_print_dialog_response (GtkWidget *dialog, int response, GeditPrintJobInfo 
 {
 	GtkTextIter start, end;
 	gint line_start, line_end;
-	gint start_sel, end_sel;
-	
+
 	pji->range_type = gnome_print_dialog_get_range (GNOME_PRINT_DIALOG (dialog));
 	gtk_text_buffer_get_bounds (GTK_TEXT_BUFFER (pji->doc), &start, &end);
 
 	switch (pji->range_type)
 	{
-		case GNOME_PRINT_RANGE_ALL:
-			break;
-			
-		case GNOME_PRINT_RANGE_SELECTION:
-			gedit_document_get_selection (pji->doc, &start_sel, &end_sel);
-			gtk_text_iter_set_offset (&start, start_sel);
-			gtk_text_iter_set_offset (&end, end_sel);
+	case GNOME_PRINT_RANGE_ALL:
+		break;
 
-			break;
+	case GNOME_PRINT_RANGE_SELECTION:
+		gtk_text_buffer_get_selection_bounds (GTK_TEXT_BUFFER (pji->doc),
+						      &start, &end);
+		break;
 
-		case GNOME_PRINT_RANGE_RANGE:
-			gnome_print_dialog_get_range_page (GNOME_PRINT_DIALOG (dialog),
-					&line_start, &line_end);
+	case GNOME_PRINT_RANGE_RANGE:
+		gnome_print_dialog_get_range_page (GNOME_PRINT_DIALOG (dialog),
+						   &line_start, &line_end);
 
-			gtk_text_iter_set_line (&start, line_start - 1);
-			gtk_text_iter_set_line (&end, line_end - 1);
-			gtk_text_iter_forward_to_line_end (&end);
+		gtk_text_iter_set_line (&start, line_start - 1);
+		gtk_text_iter_set_line (&end, line_end - 1);
+		gtk_text_iter_forward_to_line_end (&end);
+		break;
 
-			break;
-		default:
-			g_return_if_fail (FALSE);
+	default:
+		g_return_if_reached ();
 	}
 
 	switch (response)
 	{
-		case GNOME_PRINT_DIALOG_RESPONSE_PRINT:
-			gedit_debug (DEBUG_PRINT, "Print button pressed.");
-			pji->preview = PREVIEW_NO;
-			gedit_print_real (pji, &start, &end, 
-					GTK_WINDOW (gedit_get_active_window ()));
-			gtk_widget_destroy (dialog);
+	case GNOME_PRINT_DIALOG_RESPONSE_PRINT:
+		gedit_debug (DEBUG_PRINT, "Print button pressed.");
+		pji->preview = PREVIEW_NO;
+		gedit_print_real (pji, &start, &end, 
+				  GTK_WINDOW (gedit_get_active_window ()));
+		gtk_widget_destroy (dialog);
+		break;
 
-			break;
-			
-		case GNOME_PRINT_DIALOG_RESPONSE_PREVIEW:
-			gedit_debug (DEBUG_PRINT, "Preview button pressed.");
-			pji->preview = PREVIEW_FROM_DIALOG;
-			gedit_print_preview_real (pji, &start, &end, GTK_WINDOW (dialog));
-			break;
+	case GNOME_PRINT_DIALOG_RESPONSE_PREVIEW:
+		gedit_debug (DEBUG_PRINT, "Preview button pressed.");
+		pji->preview = PREVIEW_FROM_DIALOG;
+		gedit_print_preview_real (pji, &start, &end, GTK_WINDOW (dialog));
+		break;
 
-		default:
-			gtk_widget_destroy (dialog);
-			gedit_print_job_info_destroy (pji, FALSE);
-			return;
+	default:
+		gtk_widget_destroy (dialog);
+		gedit_print_job_info_destroy (pji, FALSE);
         }
 } 
 
@@ -310,7 +305,10 @@ show_printing_dialog (GeditPrintJobInfo *pji, GtkWindow *parent)
 	gtk_window_set_destroy_with_parent (GTK_WINDOW (window), TRUE);
 	gtk_window_set_position (GTK_WINDOW (window), GTK_WIN_POS_CENTER_ON_PARENT);
 		
-	gtk_window_set_decorated (GTK_WINDOW (window), FALSE); 
+	gtk_window_set_decorated (GTK_WINDOW (window), FALSE);
+	gtk_window_set_skip_taskbar_hint (GTK_WINDOW (window), TRUE);
+	gtk_window_set_skip_pager_hint (GTK_WINDOW (window), TRUE);
+ 
 	gtk_window_set_transient_for (GTK_WINDOW (window), parent);
 
 	frame = gtk_frame_new (NULL);
@@ -507,6 +505,10 @@ gedit_print_job_info_new (GeditDocument* doc)
 	gchar *print_font_header;
 	gchar *print_font_numbers;
 	
+	PangoFontDescription *print_font_body_desc;
+	PangoFontDescription *print_font_header_desc;
+	PangoFontDescription *print_font_numbers_desc;
+	
 	gedit_debug (DEBUG_PRINT, "");
 	
 	g_return_val_if_fail (doc != NULL, NULL);
@@ -571,9 +573,21 @@ gedit_print_job_info_new (GeditDocument* doc)
 	gtk_source_print_job_set_numbers_font (pjob, print_font_numbers);
 	gtk_source_print_job_set_header_footer_font (pjob, print_font_header);
 
+	print_font_body_desc = pango_font_description_from_string (print_font_body);
+	print_font_header_desc = pango_font_description_from_string (print_font_header);
+	print_font_numbers_desc = pango_font_description_from_string (print_font_numbers);
+
+	gtk_source_print_job_set_font_desc (pjob, print_font_body_desc);
+	gtk_source_print_job_set_numbers_font_desc (pjob, print_font_numbers_desc);
+	gtk_source_print_job_set_header_footer_font_desc (pjob, print_font_header_desc);
+
 	g_free (print_font_body);
 	g_free (print_font_header);
 	g_free (print_font_numbers);
+
+	pango_font_description_free (print_font_body_desc);
+	pango_font_description_free (print_font_header_desc);
+	pango_font_description_free (print_font_numbers_desc);
 
 	pji = g_new0 (GeditPrintJobInfo, 1);
 
