@@ -1,3 +1,11 @@
+1999-03-27 (20:18) Alex Roberts  <bse@gedit.pn.org>
+
+	* commands.c (doc_insert_text_cb) removed some really annoying debug 
+	  message.
+	
+	* gE_prefs_box.c: (gE_window_refresh) Re-implemented statusbar visibility
+	  refreshing from the prefs box.
+
 1999-03-20 (19:40) Alex Roberts  <bse@dial.pipex.com>
 
 	* menus.c:

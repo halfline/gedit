@@ -5,7 +5,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: gEdit 0.4.8\n"
-"POT-Creation-Date: 1999-03-14 18:16+0000\n"
+"POT-Creation-Date: 1999-03-20 21:37+0000\n"
 "PO-Revision-Date: 1999-01-04 23:40+0100\n"
 "Last-Translator: Kjartan Maraas <kmaraas@fib.hl.no>\n"
 "Language-Team: Norwegian <no@li.org>\n"
@@ -30,20 +30,20 @@ msgstr ""
 msgid "Shell"
 msgstr ""
 
-#: src/commands.c:535
+#: src/commands.c:538
 msgid "Open File..."
 msgstr ""
 
 #. E_msgbar_set(data->window, _("Read only file!"));
-#: src/commands.c:606
+#: src/commands.c:609
 msgid "Read only file!"
 msgstr ""
 
-#: src/commands.c:622
+#: src/commands.c:625
 msgid "Save As..."
 msgstr "Lagre som..."
 
-#: src/commands.c:984 src/commands.c:985
+#: src/commands.c:988 src/commands.c:989
 msgid "_File"
 msgstr "Fil"
 

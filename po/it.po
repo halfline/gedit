@@ -1,6 +1,6 @@
 msgid ""
 msgstr ""
-"POT-Creation-Date: 1999-03-14 18:16+0000\n"
+"POT-Creation-Date: 1999-03-20 21:37+0000\n"
 "Content-Type: text/plain; charset=\n"
 "Date: 1998-10-13 14:49:47+0200\n"
 "From: Martin Baulig,,,, <norwegen@voyager.uni-trier.de>\n"
@@ -30,21 +30,21 @@ msgstr ""
 msgid "Shell"
 msgstr ""
 
-#: src/commands.c:535
+#: src/commands.c:538
 msgid "Open File..."
 msgstr ""
 
 #. E_msgbar_set(data->window, _("Read only file!"));
-#: src/commands.c:606
+#: src/commands.c:609
 msgid "Read only file!"
 msgstr ""
 
-#: src/commands.c:622
+#: src/commands.c:625
 #, fuzzy
 msgid "Save As..."
 msgstr "Salva"
 
-#: src/commands.c:984 src/commands.c:985
+#: src/commands.c:988 src/commands.c:989
 #, fuzzy
 msgid "_File"
 msgstr "Archivio"

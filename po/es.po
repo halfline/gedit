@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: gedit 0.5.0\n"
-"POT-Creation-Date: 1999-03-14 18:16+0000\n"
+"POT-Creation-Date: 1999-03-20 21:37+0000\n"
 "PO-Revision-Date: 1999-01-13 12:44+0100\n"
 "Last-Translator: Pablo Saratxaga <srtxg@chanae.alphanet.ch>\n"
 "Language-Team: Pablo Saratxaga <srtxg@chanae.alphanet.ch>\n"
@@ -36,20 +36,20 @@ msgstr "Docid es %ld.\n"
 msgid "Shell"
 msgstr "Shell"
 
-#: src/commands.c:535
+#: src/commands.c:538
 msgid "Open File..."
 msgstr "Abrir un Archivo..."
 
 #. E_msgbar_set(data->window, _("Read only file!"));
-#: src/commands.c:606
+#: src/commands.c:609
 msgid "Read only file!"
 msgstr "¡Archivo en solo lectura!"
 
-#: src/commands.c:622
+#: src/commands.c:625
 msgid "Save As..."
 msgstr "Guardar Como..."
 
-#: src/commands.c:984 src/commands.c:985
+#: src/commands.c:988 src/commands.c:989
 msgid "_File"
 msgstr "_Archivo"
 

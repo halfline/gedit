@@ -1047,8 +1047,6 @@ doc_insert_text_cb(GtkWidget *editable, char *insertion_text, int length,
 	gchar *buffer;
 	gint position = *pos;
 	
-	g_print ("doc_insert_text_cb()\n");
-	
 	if (!doc->split_screen)
 		return;
 	

@@ -86,6 +86,9 @@ gint i;
      /* if (w->splitscreen == TRUE) */
 /*       gE_document_set_split_screen (gE_document_current(), (gint) w->splitscreen);
   */  
+  
+  	gE_window_set_status_bar (settings->show_status);
+  
 /*  style = gtk_style_new();
   gdk_font_unref (style->font);
   style->font = gdk_font_load (settings->font);
