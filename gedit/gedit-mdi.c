@@ -54,6 +54,8 @@
 #include "gedit-utils.h"
 #include "gedit-plugins-engine.h"
 #include "gedit-output-window.h"
+#include "gedit-search-bar-base.h"
+#include "gedit-search-bar.h"
 #include "recent-files/egg-recent-view-bonobo.h"
 #include "recent-files/egg-recent-view-gtk.h"
 #include "recent-files/egg-recent-model.h"
@@ -66,7 +68,11 @@
 #include <gconf/gconf-client.h>
 
 #define RECENT_KEY 		"GeditRecent"
+
+#define BOTTOM_PANE_KEY		"GeditWindowBottomPane"
 #define OUTPUT_WINDOW_KEY	"GeditOutputWindow"
+#define SEARCH_BAR_KEY		"GeditSearchBar"
+
 
 struct _GeditMDIPrivate
 {
@@ -83,6 +89,7 @@ struct _GeditWindowPrefs
 	gboolean statusbar_visible;
 
 	gboolean output_window_visible;
+	gboolean search_bar_visible;
 };
 
 static void gedit_mdi_class_init 	(GeditMDIClass	*klass);
@@ -131,6 +138,8 @@ static void gedit_mdi_view_menu_item_toggled_handler (
 			BonoboWindow                *win);
 static void add_languages_menu (BonoboMDI *mdi, BonoboWindow *win);
 static void gedit_mdi_update_languages_menu (BonoboMDI *mdi);
+static void gedit_mdi_hide_bottom_pane_if_needed (BonoboWindow *win, GtkWidget *widget_being_hidden);
+static GtkWidget *gedit_mdi_get_bottom_pane (BonoboWindow *win);
 
 static GQuark window_prefs_id = 0;
 
@@ -1714,6 +1723,8 @@ gedit_mdi_show_output_window_cb (GtkWidget *widget, gpointer user_data)
 	gedit_menus_set_verb_state (ui_component, 
 				    "/commands/ViewOutputWindow",
 				    prefs->output_window_visible);
+
+	gtk_widget_show (gedit_mdi_get_bottom_pane (bw));
 }
 
 static void
@@ -1739,12 +1750,113 @@ gedit_mdi_hide_output_window_cb (GtkWidget *widget, gpointer user_data)
 	gedit_menus_set_verb_state (ui_component, 
 				    "/commands/ViewOutputWindow",
 				    prefs->output_window_visible);
+
+	gedit_mdi_hide_bottom_pane_if_needed (bw, widget);
+}
+
+static void
+gedit_mdi_show_search_bar_cb (GtkWidget *widget, gpointer user_data)
+{
+	BonoboWindow *bw;
+	GeditWindowPrefs *prefs;
+	
+	gedit_debug (DEBUG_MDI, "");
+	
+	bw = BONOBO_WINDOW (user_data);
+	g_return_if_fail (bw != NULL);
+	
+	prefs = gedit_window_prefs_get_from_window (bw);
+	g_return_if_fail (prefs != NULL);
+	
+	prefs->search_bar_visible = TRUE;
+	
+	gtk_widget_show (gedit_mdi_get_bottom_pane (bw));
+}
+
+static void
+gedit_mdi_hide_search_bar_cb (GtkWidget *widget, gpointer user_data)
+{
+	BonoboWindow *bw;
+	GeditWindowPrefs *prefs;
+	
+	gedit_debug (DEBUG_MDI, "");
+	
+	bw = BONOBO_WINDOW (user_data);
+	g_return_if_fail (bw != NULL);
+	
+	prefs = gedit_window_prefs_get_from_window (bw);
+	g_return_if_fail (prefs != NULL);
+
+	prefs->search_bar_visible = FALSE;
+
+	gedit_mdi_hide_bottom_pane_if_needed (bw, widget);
+}
+
+static void
+gedit_mdi_hide_bottom_pane_if_needed (BonoboWindow *win, GtkWidget *widget_being_hidden)
+{
+	GtkWidget *bp;
+	GList *children;
+	GList *list;
+
+	bp = gedit_mdi_get_bottom_pane (win);
+
+	children = gtk_container_get_children (GTK_CONTAINER (bp));
+	list = children;
+
+	while (children != NULL)
+	{
+		GtkWidget *w;
+		
+		g_return_if_fail (children->data != NULL);
+
+		w = GTK_WIDGET (children->data);
+		
+		if (GTK_WIDGET_VISIBLE (w) && (w != (widget_being_hidden)))
+		{
+			g_list_free (list);
+			return;
+		}
+
+		children = g_list_next (children);
+	}	
+
+	g_list_free (list);
+
+	gtk_widget_hide (bp);
+}
+
+static GtkWidget *
+gedit_mdi_get_bottom_pane (BonoboWindow *win)
+{
+	GtkWidget *bp;
+	gpointer r;
+
+	gedit_debug (DEBUG_MDI, "");
+
+	r = g_object_get_data (G_OBJECT (win), BOTTOM_PANE_KEY);
+
+	if (r != NULL)
+		return GTK_WIDGET (r);
+	
+	bp = gtk_vbox_new (FALSE, 4);
+
+	bonobo_mdi_set_bottom_pane_for_window (win, bp);
+
+	gtk_widget_show (bp);
+
+	g_object_set_data (G_OBJECT (win), BOTTOM_PANE_KEY, bp);
+
+	return bp;
 }
 
 GtkWidget *
 gedit_mdi_get_output_window_from_window (BonoboWindow *win)
 {
 	gpointer r;
+
+	g_return_val_if_fail (win != NULL, NULL);
+
 	gedit_debug (DEBUG_MDI, "");
 
 	r = g_object_get_data (G_OBJECT (win), OUTPUT_WINDOW_KEY);
@@ -1752,10 +1864,14 @@ gedit_mdi_get_output_window_from_window (BonoboWindow *win)
 	if (r == NULL)
 	{
 		GtkWidget *ow;
+		GtkWidget *bp;
 
+		bp = gedit_mdi_get_bottom_pane (win);
+			
 		/* Add output window */
 		ow = gedit_output_window_new ();
-		bonobo_mdi_set_bottom_pane_for_window (BONOBO_WINDOW (win), ow);
+		gtk_box_pack_end_defaults (GTK_BOX (bp), ow);
+			
 		gtk_widget_show_all (ow);
 		g_signal_connect (G_OBJECT (ow), "close_requested",
 			  G_CALLBACK (gedit_mdi_close_output_window_cb), win);
@@ -1763,6 +1879,7 @@ gedit_mdi_get_output_window_from_window (BonoboWindow *win)
 			  G_CALLBACK (gedit_mdi_show_output_window_cb), win);
 		g_signal_connect (G_OBJECT (ow), "hide",
 			  G_CALLBACK (gedit_mdi_hide_output_window_cb), win);
+
 		g_object_set_data (G_OBJECT (win), OUTPUT_WINDOW_KEY, ow);
 
 		return ow;
@@ -1770,6 +1887,43 @@ gedit_mdi_get_output_window_from_window (BonoboWindow *win)
 	
 	return (r != NULL) ? GTK_WIDGET (r) : NULL;
 }
+
+GtkWidget *
+gedit_mdi_get_search_bar_from_window (BonoboWindow *win)
+{
+	gpointer r;
+
+	g_return_val_if_fail (win != NULL, NULL);
+	
+	gedit_debug (DEBUG_MDI, "");
+
+	r = g_object_get_data (G_OBJECT (win), SEARCH_BAR_KEY);
+
+	if (r == NULL)
+	{
+		GtkWidget *sb;
+		GtkWidget *bp;
+
+		bp = gedit_mdi_get_bottom_pane (win);
+			
+		/* Add search bar */
+		sb = gedit_search_bar_new ();
+		gtk_box_pack_start_defaults (GTK_BOX (bp), sb);
+			
+		gtk_widget_show_all (sb);
+		g_signal_connect (G_OBJECT (sb), "show",
+			  G_CALLBACK (gedit_mdi_show_search_bar_cb), win);
+		g_signal_connect (G_OBJECT (sb), "hide",
+			  G_CALLBACK (gedit_mdi_hide_search_bar_cb), win);
+
+		g_object_set_data (G_OBJECT (win), SEARCH_BAR_KEY, sb);
+
+		return sb;
+	}
+	
+	return (r != NULL) ? GTK_WIDGET (r) : NULL;
+}
+
 
 static GeditWindowPrefs *
 gedit_window_prefs_new (void)
@@ -1786,6 +1940,7 @@ gedit_window_prefs_new (void)
 	prefs->statusbar_visible = gedit_prefs_manager_get_statusbar_visible ();
 
 	prefs->output_window_visible = FALSE;
+	prefs->search_bar_visible = FALSE;
 
 	return prefs;
 }

@@ -90,6 +90,7 @@ void 		gedit_mdi_clear_active_window_statusbar (GeditMDI *mdi);
 
 EggRecentView	*gedit_mdi_get_recent_view_from_window (BonoboWindow* win);
 GtkWidget 	*gedit_mdi_get_output_window_from_window (BonoboWindow *win);
+GtkWidget 	*gedit_mdi_get_search_bar_from_window (BonoboWindow *win);
 
 GtkWidget	*gedit_mdi_get_progress_bar_from_window (BonoboWindow *win);
 void		 gedit_mdi_show_progress_bar_for_window (BonoboWindow *win,

@@ -45,6 +45,7 @@
 #include "gedit-view.h"
 #include "gedit-file.h"
 #include "gedit-print.h"
+#include "gedit-search-bar.h"
 #include "dialogs/gedit-dialogs.h"
 #include "dialogs/gedit-preferences-dialog.h"
 #include "dialogs/gedit-page-setup-dialog.h"
@@ -329,7 +330,7 @@ gedit_cmd_search_find (BonoboUIComponent *uic, gpointer user_data, const gchar* 
 	if (active_view != NULL)
 		gtk_widget_grab_focus (active_view);
 
-	gedit_dialog_find ();
+	gedit_search_bar_find ();
 }
 
 static void 

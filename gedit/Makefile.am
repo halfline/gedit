@@ -49,7 +49,9 @@ NON_INST_H_FILS =			\
 	gedit-languages-manager.h	\
 	gedit-window-server.h		\
 	gedit-encodings-option-menu.h	\
-	gedit-tooltips.h
+	gedit-tooltips.h		\
+	gedit-search-bar-base.h		\
+	gedit-search-bar.h
 
 INST_H_FILES =				\
 	gedit2.h			\
@@ -111,6 +113,8 @@ gedit_SOURCES = 			\
 	gedit-languages-manager.c	\
 	gedit-encodings-option-menu.c	\
 	gedit-tooltips.c		\
+	gedit-search-bar-base.c		\
+	gedit-search-bar.c		\
 	$(NON_INST_H_FILS)		\
 	$(INST_H_FILES)
 
