@@ -43,10 +43,10 @@
 #include "gedit-utils.h"
 #include "gedit-mdi.h"
 #include "gedit-recent.h" 
-#include "gedit-prefs.h"
 #include "gedit-file-selector-util.h"
 #include "gedit-plugins-engine.h"
 #include "gnome-recent-model.h"
+#include "gedit-prefs-manager.h"
 
 static gboolean gedit_file_open_real (const gchar* file_name, GeditMDIChild* child);
 static gboolean gedit_file_save_as_real (const gchar* file_name, GeditMDIChild *child);
@@ -514,8 +514,8 @@ gedit_file_exit (void)
 	
 	gedit_plugins_engine_save_settings ();
 	
-	gedit_prefs_save_settings ();
-
+	gedit_prefs_manager_shutdown ();
+	
 	gedit_debug (DEBUG_FILE, "Unref gedit_mdi.");
 
 	g_object_unref (G_OBJECT (gedit_mdi));

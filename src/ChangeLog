@@ -1,5 +1,23 @@
 2002-06-14  Paolo Maggi <maggi@athena.polito.it>
 
+	* gedit-prefs-manager.[ch]: new files
+
+	* Makefile.am:
+	* gedit-commands.c:
+	* gedit-document.c:
+	* gedit-file.c:
+	* gedit-mdi.[ch]:
+	* gedit-print.c:
+	* gedit-recent.c:
+	* gedit-session.c:
+	* gedit-undo-manager.c:
+	* gedit-view.c:
+	* gedit2.c:
+	* dialogs/gedit-preferences-dialog.[ch]:
+	* dialogs/gedit-preferences.glade2: use gedit-prefs-manager API
+
+2002-06-14  Paolo Maggi <maggi@athena.polito.it>
+
 	* src/gedit-preferences.glade2: fixed a typo
 
 2002-06-11  Federico Mena Quintero  <federico@ximian.com>

@@ -36,7 +36,7 @@
 
 #include "gedit2.h"
 #include "gedit-mdi.h"
-#include "gedit-prefs.h"
+#include "gedit-prefs-manager.h"
 #include "gedit-debug.h"
 #include "gedit-file.h"
 #include "gedit-utils.h"
@@ -305,8 +305,7 @@ main (int argc, char **argv)
 	gedit_set_default_icon ();
 	
 	/* Load user preferences */
-	gedit_prefs_init ();
-	gedit_prefs_load_settings ();
+	gedit_prefs_manager_init ();
 	gedit_recent_init ();
 
 	/* Init plugins engine */
@@ -335,7 +334,7 @@ main (int argc, char **argv)
 	gedit_app_server = gedit_application_server_new ();
 	
 	gtk_main();
-		
+	
 	return 0;
 }
 

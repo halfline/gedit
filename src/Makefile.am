@@ -59,8 +59,6 @@ gedit_SOURCES = 			\
 	gedit-menus.c			\
 	gedit-debug.c 			\
 	gedit-debug.h 			\
-	gedit-prefs.c 			\
-	gedit-prefs.h 			\
 	gedit-utils.c 			\
 	gedit-utils.h 			\
 	gedit-commands.h		\
@@ -87,6 +85,8 @@ gedit_SOURCES = 			\
 	gedit-plugins-engine.c		\
 	gedit-plugin.h			\
 	gedit-plugin.c			\
+	gedit-prefs-manager.c		\
+	gedit-prefs-manager.h		\
 	gnome-recent-model.c		\
 	gnome-recent-model.h		\
 	gnome-recent-view.c		\

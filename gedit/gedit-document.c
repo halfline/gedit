@@ -43,7 +43,7 @@
 #include <libgnome/libgnome.h>
 #include <libgnomevfs/gnome-vfs.h>
 
-#include "gedit-prefs.h"
+#include "gedit-prefs-manager.h"
 #include "gnome-vfs-helpers.h"
 #include "gedit-document.h"
 #include "gedit-debug.h"
@@ -434,14 +434,18 @@ gedit_document_new_with_uri (const gchar *uri, GError **error)
 void 		
 gedit_document_set_readonly (GeditDocument *document, gboolean readonly)
 {
+	gboolean auto_save;
+	
 	gedit_debug (DEBUG_DOCUMENT, "");
 
 	g_return_if_fail (document != NULL);
 	g_return_if_fail (document->priv != NULL);
 
+	auto_save = gedit_prefs_manager_get_auto_save ();
+	
 	if (readonly) 
 	{
-		if (gedit_settings->auto_save && (document->priv->auto_save_timeout > 0))
+		if (auto_save && (document->priv->auto_save_timeout > 0))
 		{
 			gedit_debug (DEBUG_DOCUMENT, "Remove autosave timeout");
 
@@ -451,12 +455,17 @@ gedit_document_set_readonly (GeditDocument *document, gboolean readonly)
 	}
 	else
 	{
-		if (gedit_settings->auto_save && (document->priv->auto_save_timeout <= 0))
+		if (auto_save && (document->priv->auto_save_timeout <= 0))
 		{
+			gint auto_save_interval;
+			
 			gedit_debug (DEBUG_DOCUMENT, "Install autosave timeout");
 
+			auto_save_interval = 
+				gedit_prefs_manager_get_auto_save_interval ();
+				
 			document->priv->auto_save_timeout = g_timeout_add 
-				(gedit_settings->auto_save_interval*1000*60,
+				(auto_save_interval * 1000 * 60,
 		 		 (GSourceFunc)gedit_document_auto_save_timeout,
 		  		 document);		
 		}
@@ -606,8 +615,8 @@ gedit_document_auto_save_timeout (GeditDocument *doc)
 
 	g_return_val_if_fail (!gedit_document_is_readonly (doc), FALSE);
 
-	/* Romove timeout if now gedit_settings->auto_save is FALSE */
-	if (!gedit_settings->auto_save) 
+	/* Remove timeout if now auto_save is FALSE */
+	if (!gedit_prefs_manager_get_auto_save ()) 
 		return FALSE;
 
 	if (!gedit_document_get_modified (doc))
@@ -873,6 +882,9 @@ gedit_document_set_uri (GeditDocument* doc, const gchar* uri)
 gboolean 
 gedit_document_save (GeditDocument* doc, GError **error)
 {	
+	gboolean auto_save;
+	gboolean create_backup_copy;
+
 	gboolean ret;
 	gedit_debug (DEBUG_DOCUMENT, "");
 
@@ -880,7 +892,10 @@ gedit_document_save (GeditDocument* doc, GError **error)
 	g_return_val_if_fail (doc->priv != NULL, FALSE);
 	g_return_val_if_fail (!doc->priv->readonly, FALSE);
 
-	if (gedit_settings->auto_save) 
+	auto_save = gedit_prefs_manager_get_auto_save ();
+	create_backup_copy = gedit_prefs_manager_get_create_backup_copy ();
+		
+	if (auto_save) 
 	{
 		if (doc->priv->auto_save_timeout > 0)
 		{
@@ -889,17 +904,23 @@ gedit_document_save (GeditDocument* doc, GError **error)
 		}
 	}
 	
-	ret = gedit_document_save_as_real (doc, doc->priv->uri, 
-			gedit_settings->create_backup_copy, error);
+	ret = gedit_document_save_as_real (doc, 
+					   doc->priv->uri, 
+					   create_backup_copy, 
+					   error);
 
 	if (ret)
 		doc->priv->last_save_was_manually = TRUE;
 
-	if (gedit_settings->auto_save && (doc->priv->auto_save_timeout <= 0)) 
+	if (auto_save && (doc->priv->auto_save_timeout <= 0)) 
 	{
+		gint auto_save_interval = 
+			gedit_prefs_manager_get_auto_save_interval ();
+
 		doc->priv->auto_save_timeout =
-			g_timeout_add (gedit_settings->auto_save_interval*1000*60,
-				       (GSourceFunc)gedit_document_auto_save, doc);
+			g_timeout_add (auto_save_interval * 1000 * 60,
+				       (GSourceFunc) gedit_document_auto_save, 
+				       doc);
 	}
 
 	return ret;
@@ -908,6 +929,8 @@ gedit_document_save (GeditDocument* doc, GError **error)
 gboolean	
 gedit_document_save_as (GeditDocument* doc, const gchar *uri, GError **error)
 {	
+	gboolean auto_save;
+	
 	gboolean ret = FALSE;
 	
 	gedit_debug (DEBUG_DOCUMENT, "");
@@ -916,7 +939,9 @@ gedit_document_save_as (GeditDocument* doc, const gchar *uri, GError **error)
 	g_return_val_if_fail (doc->priv != NULL, FALSE);
 	g_return_val_if_fail (uri != NULL, FALSE);
 
-	if (gedit_settings->auto_save) 
+	auto_save = gedit_prefs_manager_get_auto_save ();
+
+	if (auto_save) 
 	{
 
 		if (doc->priv->auto_save_timeout > 0)
@@ -935,10 +960,13 @@ gedit_document_save_as (GeditDocument* doc, const gchar *uri, GError **error)
 		ret = TRUE;
 	}		
 
-	if (gedit_settings->auto_save && (doc->priv->auto_save_timeout <= 0)) 
+	if (auto_save && (doc->priv->auto_save_timeout <= 0)) 
 	{
+		gint auto_save_interval =
+			gedit_prefs_manager_get_auto_save_interval ();
+		
 		doc->priv->auto_save_timeout =
-			g_timeout_add (gedit_settings->auto_save_interval*1000*60,
+			g_timeout_add (auto_save_interval * 1000 * 60,
 				       (GSourceFunc)gedit_document_auto_save, doc);
 	}
 
@@ -1168,7 +1196,7 @@ gedit_document_save_as_real (GeditDocument* doc, const gchar *uri,
 
       	chars = gedit_document_get_buffer (doc);
 
-	if (gedit_settings->save_encoding == GEDIT_SAVE_CURRENT_LOCALE_WHEN_POSSIBLE)
+	if (gedit_prefs_manager_get_save_encoding () == GEDIT_SAVE_CURRENT_LOCALE_WHEN_POSSIBLE)
 	{
 		GError *conv_error = NULL;
 		gchar* converted_file_contents = NULL;
@@ -1230,7 +1258,9 @@ gedit_document_save_as_real (GeditDocument* doc, const gchar *uri,
 	{
 		gint result;
 
-		backup_filename = g_strconcat (real_filename, gedit_settings->backup_extension, NULL);
+		backup_filename = g_strconcat (real_filename, 
+				               gedit_prefs_manager_get_backup_extension (), 
+					       NULL);
 
 		result = rename (real_filename, backup_filename);
 
