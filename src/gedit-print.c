@@ -37,6 +37,7 @@
 #include <libgnomeprint/gnome-print-master.h>
 #include <libgnomeprintui/gnome-print-dialog.h>
 #include <libgnomeprintui/gnome-print-master-preview.h>
+#include <eel/eel-string.h>
 
 #include <string.h>	/* For strlen */
 
@@ -352,7 +353,9 @@ gedit_print_header (GeditPrintJobInfo *pji, gint page_number)
 	gdouble y, x, len;
 	gchar* l_text;
 	gchar* r_text;
-
+	gchar* uri;
+	gchar* uri_to_print;
+	
 	gedit_debug (DEBUG_PRINT, "");	
 
 	g_return_if_fail (pji != NULL);
@@ -367,7 +370,13 @@ gedit_print_header (GeditPrintJobInfo *pji, gint page_number)
 	/* Print left text */
 	x = pji->margin_right;
 	
-	l_text = g_strdup_printf (_("File: %s"), gedit_document_get_uri (pji->doc));
+	uri = gedit_document_get_uri (pji->doc);
+	uri_to_print = eel_str_middle_truncate (uri, 60);
+	g_free (uri);
+
+	l_text = g_strdup_printf (_("File: %s"), uri_to_print);
+	g_free (uri_to_print);
+
 	gnome_print_moveto (pji->print_ctx, x, y);
 	gnome_print_show (pji->print_ctx, l_text);
 

@@ -77,8 +77,6 @@ gedit_SOURCES = 			\
 	bonobo-mdi-child.h		\
 	bonobo-mdi-session.c		\
 	bonobo-mdi-session.h		\
-	gnome-vfs-helpers.c		\
-	gnome-vfs-helpers.h		\
 	gedit-file-selector-util.h 	\
 	gedit-file-selector-util.c 	\
 	gedit-plugins-engine.h		\

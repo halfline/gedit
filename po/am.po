@@ -1,42 +1,40 @@
-# Gedit's Spanish translation
-# Copyright (C) 1999-2000,2002 Free Software Foundation, Inc.
-# Pablo Saratxaga <srtxg@chanae.alphanet.ch>, 1999-2000.
-# Carlos Perelló Marín <carlos@gnome-db.org>, 2000-2001.
-# Chema Celorio <chema@celorio.com>, 2000
-# QA by <asan@euskalnet.net>, 2001
-# Pablo Gonzalo del Campo <pablodc@bigfoot.com>,2002
+# Translations into the Amharic Language.
+# Copyright (C) 2002 Free Software Foundation, Inc.
+# This file is distributed under the same license as the gedit package.
+# Ge'ez Frontier Foundation <locales@geez.org>, 2002.
 #
+#
+#, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: gedit 1.2.0\n"
-"POT-Creation-Date: 2002-06-13 17:02+0200\n"
-"PO-Revision-Date: 2002-06-13 17:36GMT-03:00\n"
-"Last-Translator: Pablo del Campo <pablodc@bigfoot.com>\n"
-"Language-Team: Español <traductores@es.gnome.org>\n"
+"Project-Id-Version: gedit VERSION\n"
+"POT-Creation-Date: 2002-06-16 11:58+0200\n"
+"PO-Revision-Date: 2002-06-22 12:58+EST\n"
+"Last-Translator: Ge'ez Frontier Foundation <locales@geez.org>\n"
+"Language-Team: Amharic <locales@geez.org>\n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: KBabel 0.9.6\n"
 
 #: gedit.desktop.in.h:1
 msgid "Edit text files"
-msgstr "Edita archivos de texto"
+msgstr ""
 
 #: gedit.desktop.in.h:2
 msgid "Text Editor"
-msgstr "Editor de Texto"
+msgstr "የጽሑፍ አርትዒ"
 
 #: plugins/ASCII/ascii.c:43
 msgid "_ASCII Table"
-msgstr "Tabla _ASCII"
+msgstr ""
 
 #: plugins/ASCII/ascii.c:46
 msgid "Pop-up a dialog containing an ASCII Table"
-msgstr "Muestra un ventana de diálogo con una tabla ASCII"
+msgstr ""
 
 #: plugins/ASCII/ascii.c:336
 msgid "Char"
-msgstr "Caracter"
+msgstr "ፊደል"
 
 #: plugins/ASCII/ascii.c:343
 msgid "Dec#"
@@ -48,23 +46,23 @@ msgstr "Hex#"
 
 #: plugins/ASCII/ascii.c:357
 msgid "Name"
-msgstr "Nombre"
+msgstr "ስም"
 
 #: plugins/ASCII/ascii.c:402 plugins/ASCII/ascii.c:523
 msgid "ASCII table"
-msgstr "Tabla ASCII"
+msgstr ""
 
 #: plugins/ASCII/ascii.c:415
 msgid "_Insert char"
-msgstr "_Insertar caracter"
+msgstr "ፊደል አስገባ"
 
 #: plugins/ASCII/ascii.c:524
 msgid "This plugin displays a pop-up dialog which contains an ASCII Table."
-msgstr "Esta extensión muestra un diálogo que contiene una tabla ASCII."
+msgstr ""
 
 #: plugins/ASCII/ascii.c:526
 msgid "Copyright (C) 2001-2002 Paolo Maggi"
-msgstr "Copyright (C) 2001-2002 Paolo Maggi"
+msgstr "የቅጂ መብት (C) 2002 - Paolo Maggi"
 
 #: plugins/ASCII/asciitable.glade2.h:1
 msgid ""
@@ -72,65 +70,60 @@ msgid ""
 "document, select the character and click the \"Insert Char\" \n"
 "button or double click the character in the table."
 msgstr ""
-"Si quiere insertar algún caracter en el documento activo, \n"
-"seleccionelo y pulse el botón «Insertar carácter» \n"
-"o pulse dos veces el caracter en la tabla."
 
 #: plugins/ASCII/asciitable.glade2.h:4
 msgid "Insert char"
-msgstr "Insertar caracter"
+msgstr "ፊደል አስገባ"
 
 #: plugins/ASCII/asciitable.glade2.h:5
 msgid "gedit: ASCII table"
-msgstr "gedit: Tabla ASCII"
+msgstr ""
 
 #. AFAIK, all cvs commit messages start with this
 #: plugins/cvschangelog/cvschangelog.c:48
 msgid "Open CVS Chan_geLogs"
-msgstr "Abrir Chan_geLogs del CVS"
+msgstr "የCVS Chan_geLogsን ክፈት"
 
 #: plugins/cvschangelog/cvschangelog.c:51
 msgid "Searches for ChangeLogs in the current document and opens them"
-msgstr "Buscar ChangeLogs en el documento actual y abrirlos"
+msgstr "አሁን ባለው ሰነድ ውስጥ changelogsን ፈልጐ ይከፍታቸዋል"
 
 #: plugins/cvschangelog/cvschangelog.c:263
 msgid "CVS ChangeLog"
-msgstr "ChangeLog del CVS"
+msgstr "የCVS ChangeLog"
 
 #: plugins/cvschangelog/cvschangelog.c:264
 msgid "A plugin that opens ChangeLogs found in CVS commit messages."
-msgstr ""
-"Una extensión que abre ChangeLogs encontrados en los mensajes confirmados "
-"del CVS."
+msgstr "ChangeLogsን የሚከፍተው ተጨማሪው ፕሮግራም መልእክቶችን በሚያቀርበው በ CVS ውስጥ ተገኝቷል።"
 
 #: plugins/cvschangelog/cvschangelog.c:266
 msgid "Copyright (C) 2002 - James Willcox"
-msgstr "Copyright (C) 2002 - James Willcox"
+msgstr "የቅጂው መብት (C) 2002 - James Willcox"
 
 #: plugins/diff/diff.c:61
 msgid "Co_mpare Files..."
-msgstr "Co_mparar archivos..."
+msgstr ""
 
 #: plugins/diff/diff.c:64
 msgid "Makes a diff file from two documents or files"
-msgstr "Crea un archivo de diferencias a partir de dos documentos o archivos"
+msgstr ""
 
 #: plugins/diff/diff.c:66
 msgid "Compare files"
-msgstr "Comparar archivos"
+msgstr ""
 
 #. Create the dialog
 #: plugins/diff/diff.c:267
 msgid "Compare two files..."
-msgstr "Comparar dos archivos..."
+msgstr ""
 
 #: plugins/diff/diff.c:281
 msgid "C_ompare"
-msgstr "C_omparar"
+msgstr ""
 
 #: plugins/diff/diff.c:502
 msgid "The two documents you selected are the same."
-msgstr "Los dos documentos seleccionados son iguales."
+msgstr ""
 
 #: plugins/diff/diff.c:510
 msgid ""
@@ -138,9 +131,6 @@ msgid ""
 "\n"
 "Please provide a valid file."
 msgstr ""
-"El «primer» archivo que ha seleccionado no existe.\n"
-"\n"
-"Por favor proporcione un archivo válido."
 
 #: plugins/diff/diff.c:519
 msgid ""
@@ -148,21 +138,18 @@ msgid ""
 "\n"
 "Please provide a valid file."
 msgstr ""
-"El «segundo» archivo seleccionado no existe.\n"
-"\n"
-"Por favor proporcione un archivo válido."
 
 #: plugins/diff/diff.c:527
 msgid "The two files you selected are the same."
-msgstr "Los dos documentos seleccionados son iguales."
+msgstr ""
 
 #: plugins/diff/diff.c:544
 msgid "The \"first\" document contains no text."
-msgstr "El «primer» documento no contiene texto."
+msgstr ""
 
 #: plugins/diff/diff.c:573
 msgid "The \"second\" document contains no text."
-msgstr "El «segundo» documento no contiene texto."
+msgstr ""
 
 #. FIXME: do better error reporting ... . Chema
 #: plugins/diff/diff.c:594
@@ -171,9 +158,6 @@ msgid ""
 "\n"
 "gedit could not create a temporary file."
 msgstr ""
-"No es posible comparar los documentos seleccionados.\n"
-"\n"
-"gedit no ha podido crear un archivo temporal."
 
 #: plugins/diff/diff.c:612 plugins/diff/diff.c:625
 msgid ""
@@ -181,13 +165,10 @@ msgid ""
 "\n"
 "Error executing the diff command."
 msgstr ""
-"No es posible comparar los documentos seleccionados.\n"
-"\n"
-"Ha ocurrido un error al ejecutar el comando diff."
 
 #: plugins/diff/diff.c:647
 msgid "No differences were found between the selected documents."
-msgstr "No se encontraron diferencias entre los documentos seleccionados."
+msgstr ""
 
 #: plugins/diff/diff.c:688
 msgid ""
@@ -195,9 +176,6 @@ msgid ""
 "\n"
 "The result contains invalid UTF-8 data."
 msgstr ""
-"No es posible comparar los documentos seleccionados.\n"
-"\n"
-"El resultado contiene datos UTF-8 inválidos."
 
 #: plugins/diff/diff.c:912
 msgid ""
@@ -205,78 +183,74 @@ msgid ""
 "\n"
 "For more info on \"diff\" program, type \"man diff\" in a shell prompt.\n"
 msgstr ""
-"Crea un archivo diff a partir de dos documentos o archivos en disco.\n"
-"\n"
-"Para más información sobre el programa «diff», escriba «man diff» en \n"
-"la línea de comandos de una terminal.\n"
 
 #: plugins/diff/diff.c:915
 msgid ""
 "Copyright (C) 2000 - 2001 Chema Celorio \n"
 "Copyright (C) 2002 Paolo Maggi"
 msgstr ""
-"Copyright (C) 2000 - 2001 Chema Celorio \n"
-"Copyright (C) 2002 Paolo Maggi"
+"የቅጂው መብት (C) 2000 - 2001 Chema Celorio- \n"
+"የቅጂው መብት (C) 2002 - Paolo Maggi"
 
 #: plugins/diff/diff.glade2.h:1
 msgid "Choose the files to compare."
-msgstr "Seleccione los archivos a comparar."
+msgstr ""
 
 #: plugins/diff/diff.glade2.h:2
 msgid "Compare files..."
-msgstr "Comparar archivos..."
+msgstr ""
 
 #: plugins/diff/diff.glade2.h:3
 msgid "F_rom document"
-msgstr "D_esde el documento"
+msgstr "ከ_ሰንዱ"
 
 #: plugins/diff/diff.glade2.h:4
 msgid "First"
-msgstr "Primero"
+msgstr "መጀመሪያ"
 
 #: plugins/diff/diff.glade2.h:5
 msgid "From _document"
-msgstr "Desde el _documento"
+msgstr "ከ_ሰንዱ"
 
 #: plugins/diff/diff.glade2.h:6
 msgid "From a _file on disk"
-msgstr "Desde un _archivo en el disco"
+msgstr ""
 
 #: plugins/diff/diff.glade2.h:7
 msgid "From a file o_n disk"
-msgstr "Desde un archivo e_n el disco"
+msgstr ""
 
 #: plugins/diff/diff.glade2.h:8
 msgid "Ignore _blanks (-b option)"
-msgstr "Ignorar _espacios (opción -b)"
+msgstr ""
 
 #: plugins/diff/diff.glade2.h:9
 msgid "Note that this option is only supported by GNU diff"
-msgstr "Tenga en cuenta que esta opción sólo está soportada por GNU diff"
+msgstr ""
 
 #: plugins/diff/diff.glade2.h:10
 msgid "Second"
-msgstr "Segundo"
+msgstr "ሁለተኛ"
 
 #: plugins/diff/diff.glade2.h:11
 msgid "Use the _unified output format (-u option)"
-msgstr "Usar el formato de salida _unificado (opción -u)"
+msgstr ""
 
 #: plugins/docinfo/docinfo.c:46
 msgid "_Word Count"
-msgstr "_Contar palabras"
+msgstr "የ_ቃላት ቆጠራ"
 
 #: plugins/docinfo/docinfo.c:49
 msgid "Get info on current document"
-msgstr "Obtiene información del documento actual"
+msgstr "በአሁኑ ሰንድ ላይ መረጃ አግኙ"
 
 #: plugins/docinfo/docinfo.c:145 plugins/docinfo/docinfo.c:365
 msgid "Word count"
-msgstr "Contar palabras"
+msgstr "የቃላት ቆጠራ"
 
 #: plugins/docinfo/docinfo.c:156
 msgid "_Update"
-msgstr "_Actualizar"
+msgstr "_አሻሽል"
 
 #: plugins/docinfo/docinfo.c:366
 msgid ""
@@ -284,15 +258,15 @@ msgid ""
 "number of words, lines, characters and non-space characters in it and "
 "display the result."
 msgstr ""
-"La extensión contar palabras analiza el documento actual y determina el "
-"número de palabras , líneas, caracteres y caracteres que no son espacio en "
-"él y luego muestra el resultado."
+"የቃላት ቆጠራው ተጨማሪ ፕሮግራም ለተጠቀሰው ሰንድ የቃላቶቹን፥ "
+"የመስ መሮቹን፥ የአኃዞችን እና ልዩ ምልክቶችን ቆጥሮ ወይም መርምሮ "
+"ውጤቱን ያሳያል።"
 
 #: plugins/docinfo/docinfo.c:370 plugins/sample/sample.c:163
 #: plugins/shell_output/shell_output.c:436
 #: plugins/taglist/gedit-taglist-plugin.c:164 plugins/time/time.c:556
 msgid "Copyright (C) 2002 - Paolo Maggi"
-msgstr "Copyright (C) 2002 - Paolo Maggi"
+msgstr "የቅጂ መብት (C) 2002 - Paolo Maggi"
 
 #: plugins/docinfo/docinfo.glade2.h:1
 msgid "0"
@@ -304,74 +278,71 @@ msgstr "Bytes"
 
 #: plugins/docinfo/docinfo.glade2.h:3
 msgid "Characters (no spaces)"
-msgstr "Caracteres (no espacios)"
+msgstr ""
 
 #: plugins/docinfo/docinfo.glade2.h:4
 msgid "Characters (with spaces)"
-msgstr "Caracteres (con espacios)"
+msgstr ""
 
 #: plugins/docinfo/docinfo.glade2.h:5
 msgid "File Name"
-msgstr "Nombre del archivo"
+msgstr "የፋይል ስም"
 
 #: plugins/docinfo/docinfo.glade2.h:6 src/gedit-print.c:301
 msgid "Lines"
-msgstr "Líneas"
+msgstr "መስመሮች"
 
 #: plugins/docinfo/docinfo.glade2.h:7
 msgid "Update"
-msgstr "Actualizar"
+msgstr "አሻሽል"
 
 #: plugins/docinfo/docinfo.glade2.h:8
 msgid "Words"
-msgstr "Palabras"
+msgstr "ቃላት"
 
 #: plugins/docinfo/docinfo.glade2.h:9
 msgid "gedit: Document Info plugin"
-msgstr "gedit: extensión información de documento"
+msgstr ""
 
 #: plugins/sample/sample.c:43
 msgid "Insert User _Name"
-msgstr "Insertar _nombre de usuario"
+msgstr ""
 
 #: plugins/sample/sample.c:46
 msgid "Insert the user name at the cursor position"
-msgstr "Inserta el nombre del usuario en la posición actual del cursor"
+msgstr ""
 
 #: plugins/sample/sample.c:160
 msgid "User name"
-msgstr "Nombre de usuario"
+msgstr ""
 
 #: plugins/sample/sample.c:161
 msgid "Inserts the user name at the cursor position."
-msgstr "Inserta el nombre del usuario en la posición actual del cursor."
+msgstr ""
 
 #: plugins/shell_output/shell_output.c:45
 msgid "Insert Shell _Output"
-msgstr "Inserta la salida del _interprete de comandos"
+msgstr "የውጪአዊው የሼሉ ውጤት ይግባ"
 
 #: plugins/shell_output/shell_output.c:48
 msgid "Insert the shell output in the current document"
-msgstr "Inserta la salida del interprete de comandos en el documento actual"
+msgstr "የውጪአዊው የሼሉን ውጤት አሁን ባለው ሰነድ ውስጥ ይግባ"
 
 #: plugins/shell_output/shell_output.c:163
 #: plugins/shell_output/shell_output.c:432
 msgid "Shell output"
-msgstr "Salida del interprete de comandos"
+msgstr "የሼል ውጤት"
 
 #: plugins/shell_output/shell_output.c:176
 msgid "_Run"
-msgstr "_Ejecutar"
+msgstr "አስጀምር"
 
 #: plugins/shell_output/shell_output.c:264
 msgid ""
 "The shell command entry is empty.\n"
 "\n"
 "Please, insert a valid shell command."
-msgstr ""
-"La entrada del intérprete de comandos está vacía.\n"
-"\n"
-"Por favor introduzca un comando válido para el intérprete de comandos."
+msgstr "የሼሉ ትእዛዝ መስጫ ባዶ ነው እባክዎ ትክክለኛውን የሼሉን ትእዛዝ ያስገቡ"
 
 #: plugins/shell_output/shell_output.c:293
 msgid ""
@@ -379,208 +350,204 @@ msgid ""
 "\n"
 "Please, insert a valid shell command."
 msgstr ""
-"Error al enviar hacia el interprete de comandos.\n"
+"የሼሉን ትእዛዝ መረዳት ስላልቻለ ስህተት ተፈጥሯል።\n"
 "\n"
-"Por favor introduzca un comando válido para el intérprete de comandos."
+"እባክዎ ትክክለኛውን የሼሉን ትእዛዝ ያስገቡ።"
 
 #: plugins/shell_output/shell_output.c:346
 msgid "An error occurs while running the selected command."
-msgstr "Ha ocurrido un error mientras se ejecutaba el comando seleccionado."
+msgstr "የተጠቀሰውን ትእዛዝ በሚያስጀምርበት ጊዜ ስህተት ተከስቷል።"
 
 #: plugins/shell_output/shell_output.c:433
 msgid ""
 "Execute a program and insert its output in the current document at the "
 "current cursor position"
 msgstr ""
-"Ejecuta un programa e inserta su salida en el documento actual en la "
-"posición en que se encuentre el cursor."
+"ፕሮግራሙን አስጀምሩ እና ውጤቱን አሁን ባለው ሰነድ ውስጥ ጠቋሚው "
+"ባለበት ቦታ ላይ አስገቡ"
 
 #: plugins/shell_output/shell_output.glade2.h:1
 msgid "Specify the working directory and the command you want to run."
-msgstr "Indique el directorio de trabajo y el comando que quiere ejecutar."
+msgstr ""
 
 #: plugins/shell_output/shell_output.glade2.h:2
 msgid "_Shell command:"
-msgstr "_Comando a ejecutar:"
+msgstr "_የሼሉን ትእዛዝ"
 
 #: plugins/shell_output/shell_output.glade2.h:3
 msgid "_Working directory:"
-msgstr "_Directorio de trabajo:"
+msgstr ""
 
 #: plugins/shell_output/shell_output.glade2.h:4
 msgid "gedit: Shell Output plugin"
-msgstr "gedit: extensión de salida de interprete de comandos"
+msgstr ""
 
 #: plugins/taglist/gedit-taglist-plugin-window.c:136
 msgid "Tag list plugin"
-msgstr "Extensión de lista de marca"
+msgstr ""
 
 #: plugins/taglist/gedit-taglist-plugin-window.c:154
 msgid "Select the group of tab you want to use"
-msgstr "Seleccione el grupo de pestañas que quiere usar"
+msgstr ""
 
 #: plugins/taglist/gedit-taglist-plugin-window.c:176
 msgid "Tag Groups Combo"
-msgstr "Combo de grupos de marcas"
+msgstr ""
 
 #: plugins/taglist/gedit-taglist-plugin-window.c:178
 msgid "Tags Name List"
-msgstr "Lista de marcas"
+msgstr ""
 
 #: plugins/taglist/gedit-taglist-plugin-window.c:187
 msgid "Double-click on a tag to insert it in the current document"
-msgstr "Haga doble clic en una marca para insertarla en el documento actual"
+msgstr ""
 
 #: plugins/taglist/gedit-taglist-plugin-window.c:198
 msgid "Tags"
-msgstr "Marcas"
+msgstr ""
 
 #: plugins/taglist/gedit-taglist-plugin.c:46
 msgid "Tag _List"
-msgstr "_Lista de marcas"
+msgstr ""
 
 #.
 #. #define MENU_ITEM_NAME		"TagList"
 #.
 #: plugins/taglist/gedit-taglist-plugin.c:51
 msgid "Show the tag list window"
-msgstr "Mostrar la ventana de lista de marcas "
+msgstr ""
 
 #: plugins/taglist/gedit-taglist-plugin.c:160
 msgid "Tag list"
-msgstr "Lista de marca"
+msgstr ""
 
 #: plugins/taglist/gedit-taglist-plugin.c:161
 msgid ""
 "The tag list plugin provides a method to easily insert into a document "
 "commonly used tabs/strings without having to type them."
 msgstr ""
-"La extensión lista de marca provee un método para insertar fácilmente en un "
-"documento tabuladores y cadenas usadas regularmente sin tener que "
-"escribirlas."
 
 #: plugins/time/time.c:45
 msgid "_Insert Date/Time"
-msgstr "_Insertar fecha/hora"
+msgstr "ቀን/ሰዓት _አስገባ"
 
 #: plugins/time/time.c:48
 msgid "Insert current date and time at the cursor position"
-msgstr "Inserta la fecha y hora actual en la posición del cursor"
+msgstr "ጠቋሚው ባለበት ቦታ ላይ የዕለቱ ቀንና ሰዓት አስገባ"
 
 #: plugins/time/time.c:259
 msgid "Available formats"
-msgstr "Formatos disponibles"
+msgstr "የሚገኙ ፎርማቶች"
 
 #: plugins/time/time.c:300 plugins/time/time.glade2.h:1
 msgid "Configure insert date/time plugin"
-msgstr "Configurar la extensión de inserción de fecha/hora"
+msgstr "የቀን/ሰዓት ተጨማሪ ፕሮግራም ተስተካክሎ ይግባ"
 
 #: plugins/time/time.c:553
 msgid "Insert Date/Time"
-msgstr "Insertar fecha/hora"
+msgstr "ቀን ሰዓት አስገባ"
 
 #: plugins/time/time.c:554
 msgid "Inserts current date and time at the cursor position."
-msgstr "Insertar la fecha y hora actual en la posición del cursor."
+msgstr ""
 
 #: plugins/time/time.glade2.h:2
 msgid "Select the format to use when inserting date/time."
-msgstr "Seleccione el formato a usar cuando se inserte la fecha/hora."
+msgstr ""
 
 #: src/bonobo-mdi.c:489 src/bonobo-mdi.c:569 src/bonobo-mdi.c:1721
 #, c-format
 msgid "Activate %s"
-msgstr "Activar %s"
+msgstr "አስጀምር %s"
 
 #: src/dialogs/gedit-dialog-goto-line.c:114
 msgid "Goto line..."
-msgstr "Ir a la línea..."
+msgstr "ወደ መስመር ሂድ..."
 
 #. Add Goto Line button
 #: src/dialogs/gedit-dialog-goto-line.c:124
 msgid "_Goto line"
-msgstr "_Ir a la línea"
+msgstr "ወደ መስመር ሂድ"
 
 #: src/dialogs/gedit-dialog-goto-line.c:140
 msgid "Could not find the required widgets inside goto-line.glade2.\n"
-msgstr "No se pudieron encontrar los controles requeridos dentro de «goto-line.glade2».\n"
+msgstr "ተፈላጊውን ዊድጌቶች goto line glade2 የሚለው ውስጥ ሊገኝ አልተቻለም\n"
 
 #: src/dialogs/gedit-dialog-plugin-manager.c:51
 msgid "Plugin"
-msgstr "Extensiones"
+msgstr "ተጨማሪ ፕሮግራም (ፕላግኢን)"
 
 #: src/dialogs/gedit-dialog-plugin-manager.c:52
 msgid "Load"
-msgstr "Cargar"
+msgstr "ጫን"
 
 #: src/dialogs/gedit-dialog-plugin-manager.c:318
 msgid "Module file name"
-msgstr "Archivo del módulo"
+msgstr "የፋይል ስም አቅድ"
 
 #: src/dialogs/gedit-dialog-plugin-manager.c:319
 msgid "Author(s)"
-msgstr "Autor(es)"
+msgstr "ደራሲ(ዎች)"
 
 #: src/dialogs/gedit-dialog-plugin-manager.c:450
 msgid "Could not find plugin-manager.glade2, reinstall gedit.\n"
-msgstr "No se ha podido encontrar «plugin-manager.glade2», reinstale gedit.\n"
+msgstr "geditን እንደገና ለመጨመር የplugin manager glade2, ሊገኝ አልቻለም\n"
 
 #: src/dialogs/gedit-dialog-plugin-manager.c:458
 msgid "Plugin Manager"
-msgstr "Administrador de extensiones"
+msgstr "ፕላጊን-ማናጀር"
 
 #: src/dialogs/gedit-dialog-plugin-manager.c:485
 msgid "Invalid glade file for plugin manager -- not all widgets found.\n"
-msgstr ""
-"Archivo glade inválido para el administrador de extensiones -- no se "
-"encontraron todos los controles\n"
+msgstr "የማይሰራ የግሌድ ፋይል ለፕላግኢን ማናጀር ሁሉም ዊድጌትስ አልተገኙም\n"
 
 #: src/dialogs/gedit-dialog-plugin-manager.c:582
 msgid "Could not create the Plugin Manager dialog"
-msgstr "No se ha podido crear la ventana del administrador de extensiones"
+msgstr "የፕላግ ኢን ማናጀር ልውውጥን መፍጠር አልተቻለም"
 
 #: src/dialogs/gedit-dialog-replace.c:171 src/dialogs/replace.glade2.h:2
 #: src/gedit-ui.xml.h:56
 msgid "Replace"
-msgstr "Reemplazar"
+msgstr "ተካ"
 
 #: src/dialogs/gedit-dialog-replace.c:182
 msgid "Replace _All"
-msgstr "Reemplazar _todo"
+msgstr "_ሁሉንም ተካ"
 
 #. Add Replace button
 #: src/dialogs/gedit-dialog-replace.c:185 src/gedit-file-selector-util.c:108
 #: src/gedit-ui.xml.h:101
 msgid "_Replace"
-msgstr "_Reemplazar"
+msgstr "_ተካ"
 
 #: src/dialogs/gedit-dialog-replace.c:274 src/gedit-ui.xml.h:24
 msgid "Find"
-msgstr "Buscar"
+msgstr "ፈልግ"
 
 #: src/dialogs/gedit-dialog-replace.c:473
 #: src/dialogs/gedit-dialog-replace.c:544
 #: src/dialogs/gedit-dialog-replace.c:718
 #, c-format
 msgid "The text \"%s\" was not found."
-msgstr "El texto «%s» no fué encontrado."
+msgstr "የ ጽሑፍ \"%s\" አልተገኘም"
 
 #: src/dialogs/gedit-dialog-replace.c:727
 #, c-format
 msgid "Found and replaced %d occurences."
-msgstr "Se encontraron y reemplazaron %d ocurrencias."
+msgstr "የ%d  የተደጋገመ ድርጊት ተገኝቶ ተተክቷል።"
 
 #: src/dialogs/gedit-dialog-uri.c:90 src/dialogs/uri.glade2.h:2
 msgid "Open from URI"
-msgstr "Abrir desde una URI"
+msgstr "ከURI ክፈት"
 
 #: src/dialogs/gedit-plugin-program-location-dialog.c:74
 msgid "Set program location ..."
-msgstr "Configurar la ruta del programa..."
+msgstr ""
 
 #: src/dialogs/gedit-plugin-program-location-dialog.c:96
-msgid "Could not find the required widgets inside program-location-dialog.glade2.\n"
-msgstr "No se han podido encontrar los controles necesarios dentro de «program-location-dialog.glade2».\n"
+msgid ""
+"Could not find the required widgets inside program-location-dialog.glade2.\n"
+msgstr ""
 
 #: src/dialogs/gedit-plugin-program-location-dialog.c:102
 #, c-format
@@ -590,23 +557,19 @@ msgid ""
 "\n"
 "Please, specify the location of the <tt>%s</tt> program."
 msgstr ""
-"La extensión %s utiliza un programa externo llamado <tt>%s</tt>, para "
-"realizar su trabajo.\n"
-"\n"
-"Por favor especifique la ubicación del programa <tt>%s<tt>."
 
 #: src/dialogs/gedit-plugin-program-location-dialog.c:148
 msgid "The selected file is not executable."
-msgstr "El archivo seleccionado no es ejecutable"
+msgstr ""
 
 #: src/dialogs/gedit-preferences-dialog.c:226
 msgid "Toolbar"
-msgstr "Barra de herramientas"
+msgstr "ቱልባር"
 
 #: src/dialogs/gedit-preferences-dialog.c:227
 #: src/dialogs/gedit-preferences.glade2.h:38
 msgid "Status bar"
-msgstr "Barra de estado"
+msgstr "ስታተስ ባር"
 
 #: src/dialogs/gedit-preferences-dialog.c:230
 #: src/dialogs/gedit-preferences.glade2.h:17
@@ -615,241 +578,233 @@ msgstr "MDI"
 
 #: src/dialogs/gedit-preferences-dialog.c:239
 msgid "Font & Colors"
-msgstr "Tipografías y colores"
+msgstr "የፊደል አፃፃፍ ዓይነት እና ቀለሞች"
 
 #: src/dialogs/gedit-preferences-dialog.c:241
 #: src/dialogs/gedit-preferences.glade2.h:39
 msgid "Tabs"
-msgstr "Pestañas"
+msgstr "ህዳጎች"
 
 #: src/dialogs/gedit-preferences-dialog.c:242
 #: src/dialogs/gedit-preferences.glade2.h:62
 msgid "Wrap mode"
-msgstr "Ajuste de línea"
+msgstr "የመሸፈኛ ዘዴ"
 
 #: src/dialogs/gedit-preferences-dialog.c:243
 #: src/dialogs/gedit-preferences.glade2.h:16
 msgid "Line numbers"
-msgstr "Números de línea"
+msgstr "የመስመር ቁጥሮች"
 
 #: src/dialogs/gedit-preferences-dialog.c:245
 #: src/dialogs/gedit-preferences.glade2.h:31 src/gedit-ui.xml.h:61
 msgid "Save"
-msgstr "Guardar"
+msgstr "አስቀምጥ"
 
 #: src/dialogs/gedit-preferences-dialog.c:246
 #: src/dialogs/gedit-preferences.glade2.h:57 src/gedit-ui.xml.h:79
 msgid "Undo"
-msgstr "Deshacer"
+msgstr "ወደ ነበረበት መልስ"
 
 #: src/dialogs/gedit-preferences-dialog.c:254
 msgid "Page"
-msgstr "Página"
+msgstr "ገጽ"
 
 #: src/dialogs/gedit-preferences-dialog.c:256
 msgid "Fonts"
-msgstr "Tipografías"
+msgstr "የፊደል ቅርጾች"
 
 #: src/dialogs/gedit-preferences-dialog.c:263
 msgid "Editor"
-msgstr "Editor"
+msgstr "አርታዒ"
 
 #: src/dialogs/gedit-preferences-dialog.c:264
 #: src/dialogs/gedit-preferences.glade2.h:25 src/gedit-print.c:292
 #: src/gedit-ui.xml.h:45
 msgid "Print"
-msgstr "Imprimir"
+msgstr "አትም"
 
 #: src/dialogs/gedit-preferences-dialog.c:266
 msgid "User interface"
-msgstr "Interfaz de usuario"
+msgstr "የተጠቃሚው እይታ"
 
 #: src/dialogs/gedit-preferences-dialog.c:333
 msgid "Cat_egories:"
-msgstr "Cat_egorías:"
+msgstr "ምድብ"
 
 #: src/dialogs/gedit-preferences-dialog.c:357 src/gedit-ui.xml.h:44
 msgid "Preferences"
-msgstr "Preferencias"
+msgstr "ምርጫዎች"
 
 #: src/dialogs/gedit-preferences-dialog.c:574
 msgid "Categories"
-msgstr "Categorías"
+msgstr "ምድብ"
 
 #: src/dialogs/gedit-preferences-dialog.c:906
 msgid "Push this button to select the font to be used by the editor"
-msgstr "Pulse este botón para seleccionar la tipografía que utilizará el editor"
+msgstr ""
 
 #: src/dialogs/gedit-preferences-dialog.c:909
 msgid "Push this button to configure text color"
-msgstr "Pulse este botón para configurar el color del texto"
+msgstr ""
 
 #: src/dialogs/gedit-preferences-dialog.c:911
 msgid "Push this button to configure background color"
-msgstr "Presione este botón para configurar el color de fondo"
+msgstr ""
 
 #: src/dialogs/gedit-preferences-dialog.c:913
-msgid "Push this button to configure color in which selected text should appear"
+msgid ""
+"Push this button to configure color in which selected text should appear"
 msgstr ""
-"Pulse este botón para configurar el color con el cual aparecerá el texto "
-"seleccionado"
 
 #: src/dialogs/gedit-preferences-dialog.c:915
-msgid "Push this button to configure color in which selected text should be marked"
+msgid ""
+"Push this button to configure color in which selected text should be marked"
 msgstr ""
-"Pulse este botón para configurar el color con el cual aparecerá el texto "
-"marcado"
 
 #: src/dialogs/gedit-preferences-dialog.c:1313
 msgid "Push this button to select the font to be used to print the body"
 msgstr ""
-"Pulse este botón para seleccionar la tipografía a ser usada para imprimir el "
-"cuerpo"
 
 #: src/dialogs/gedit-preferences-dialog.c:1315
 msgid "Push this button to select the font to be used to print the headers"
 msgstr ""
-"Pulse este botón para seleccionar la tipografía a ser usada para imprimir "
-"las cabeceras"
 
 #: src/dialogs/gedit-preferences-dialog.c:1317
 msgid "Push this button to select the font to be used to print line numbers"
 msgstr ""
-"Pulse este botón para seleccionar la tipografía a ser usada para imprimir "
-"los números de línea"
 
 #: src/dialogs/gedit-preferences.glade2.h:1
 msgid " _Wrap lines (at character boundaries)"
-msgstr " _Ajustar líneas (a los bordes del caracter)"
+msgstr ""
 
 #: src/dialogs/gedit-preferences.glade2.h:2
 msgid " character(s)"
-msgstr " caracter(es)"
+msgstr "ፊደል(ሎች)"
 
 #: src/dialogs/gedit-preferences.glade2.h:3
 msgid " line(s)"
-msgstr " línea(s)"
+msgstr "መስመር"
 
 #: src/dialogs/gedit-preferences.glade2.h:4
 msgid "Always use _UTF-8 encoding (faster)"
-msgstr "Usar siempre codificación _UTF-8 (mas rápido)"
+msgstr ""
 
 #: src/dialogs/gedit-preferences.glade2.h:5
 msgid "Bottom"
-msgstr "Abajo"
+msgstr "ወደ ታች"
 
 #: src/dialogs/gedit-preferences.glade2.h:6
 msgid "Button style"
-msgstr "Estilo del botón"
+msgstr ""
 
 #: src/dialogs/gedit-preferences.glade2.h:7
 msgid "Colors"
-msgstr "Colores"
+msgstr "ቀለሞች"
 
 #: src/dialogs/gedit-preferences.glade2.h:8
 msgid "Create a _backup copy of files before saving"
-msgstr "Crear una copia de _seguridad de los archivos antes de guardarlos"
+msgstr ""
 
 #: src/dialogs/gedit-preferences.glade2.h:9
 #: src/dialogs/gnome-print-font-picker.c:1014
 msgid "Font"
-msgstr "Tipografía"
+msgstr "የፊደል ቅርጽ"
 
 #: src/dialogs/gedit-preferences.glade2.h:10
 msgid "Font used to print line _numbers:"
-msgstr "Tipografía usada para imprimir los _números de línea:"
+msgstr ""
 
 #: src/dialogs/gedit-preferences.glade2.h:11
 msgid "Font used to print the _body:"
-msgstr "Tipografía usada para imprimir el _cuerpo:"
+msgstr ""
 
 #: src/dialogs/gedit-preferences.glade2.h:12
 msgid "Fonts & Colors"
-msgstr "Tipografías y colores"
+msgstr "የፊደል ቅርጾችና ቃላማት"
 
 #: src/dialogs/gedit-preferences.glade2.h:13
 msgid "Icon and _text"
-msgstr "_Texto e icono"
+msgstr ""
 
 #: src/dialogs/gedit-preferences.glade2.h:14
 msgid "LOGO"
-msgstr "LOGO"
+msgstr "አርማ"
 
 #: src/dialogs/gedit-preferences.glade2.h:15
 msgid "Left"
-msgstr "Izquierda"
+msgstr "ግራ"
 
 #: src/dialogs/gedit-preferences.glade2.h:18
 msgid "Modal"
-msgstr "Modal"
+msgstr "አዛምድ"
 
 #: src/dialogs/gedit-preferences.glade2.h:19
 msgid "Notebook"
-msgstr "Block de notas"
+msgstr "መስታወሻ ደብተር"
 
 #: src/dialogs/gedit-preferences.glade2.h:20
 msgid "Notebook _tab position:"
-msgstr "Posición de las pestañas del ano_tador:"
+msgstr ""
 
 #: src/dialogs/gedit-preferences.glade2.h:21
 msgid "Pick the background color"
-msgstr "Seleccione un color de fondo"
+msgstr ""
 
 #: src/dialogs/gedit-preferences.glade2.h:22
 msgid "Pick the selected text color"
-msgstr "Elija el color del texto seleccionado"
+msgstr ""
 
 #: src/dialogs/gedit-preferences.glade2.h:23
 msgid "Pick the selection color"
-msgstr "Elija el el color del texto seleccionado"
+msgstr ""
 
 #: src/dialogs/gedit-preferences.glade2.h:24
 msgid "Pick the text color"
-msgstr "Elija el color del texto"
+msgstr ""
 
 #: src/dialogs/gedit-preferences.glade2.h:26
 msgid "Print _line numbers every"
-msgstr "Imprimir números de _línea cada"
+msgstr ""
 
 #: src/dialogs/gedit-preferences.glade2.h:27
 msgid "Print _page headers"
-msgstr "Imprimir cabeceras de _página"
+msgstr ""
 
 #: src/dialogs/gedit-preferences.glade2.h:28
 msgid "Print fonts"
-msgstr "Tipografías de impresión"
+msgstr ""
 
 #: src/dialogs/gedit-preferences.glade2.h:29
 msgid "Right"
-msgstr "Derecha"
+msgstr "ቀኝ"
 
 #: src/dialogs/gedit-preferences.glade2.h:30
 msgid "S_elected text color:"
-msgstr "Color del texto s_eleccionado."
+msgstr ""
 
 #: src/dialogs/gedit-preferences.glade2.h:32
 msgid "Se_lection color:"
-msgstr "Color de la se_lección."
+msgstr ""
 
 #: src/dialogs/gedit-preferences.glade2.h:33
 msgid "Set _tabs width equivalent to  "
-msgstr "Configurar el ancho de las _pestañas a  "
+msgstr ""
 
 #: src/dialogs/gedit-preferences.glade2.h:34
 msgid "Set limit on _undo actions to"
-msgstr "Configurar el límite de acciones deshacer a"
+msgstr ""
 
 #: src/dialogs/gedit-preferences.glade2.h:35
 msgid "Sho_w tooltips"
-msgstr "Mostrar los _consejos"
+msgstr ""
 
 #: src/dialogs/gedit-preferences.glade2.h:36
 msgid "Show cursor _position"
-msgstr "Mostrar la _posición del cursor"
+msgstr ""
 
 #: src/dialogs/gedit-preferences.glade2.h:37
 msgid "Show overwrite _mode"
-msgstr "Mostrar el _modo de sobreescritura"
+msgstr ""
 
 #: src/dialogs/gedit-preferences.glade2.h:40
 msgid ""
@@ -858,202 +813,178 @@ msgid ""
 "If you choose the Notebook mode, you may then decide where you want the tabs "
 "to appear in the gedit window."
 msgstr ""
-"El modo MDI (Interfaz Multi Documento) se refiere al modo en el que se "
-"muestra más de un documento de texto en gedit.\n"
-"Si elige en modo Anotador deberá decidir adonde desea que aparezcan las "
-"pestañas en la ventana de gedit."
 
 #: src/dialogs/gedit-preferences.glade2.h:42
 msgid ""
 "The font & colors settings let you choose the font and the colors to be used "
 "in the editor windows."
 msgstr ""
-"La configuración de tipografías y colores le permite elegir la tipografía y "
-"los colores que serán utilizados en las ventanas del editor."
 
 #: src/dialogs/gedit-preferences.glade2.h:43
 msgid ""
 "The line numbers setting lets you choose to display the line numbers on the "
 "left hand side of the window."
 msgstr ""
-"La configuración de números de línea le permite mostrar o no los números de "
-"línea en la parte izquierda de la ventana."
 
 #: src/dialogs/gedit-preferences.glade2.h:44
 msgid ""
 "The print fonts settings let you choose the fonts to be used to print "
 "documents."
 msgstr ""
-"La configuración de impresión le permite elegir las tipografías que se "
-"usarán para imprimir documentos."
 
 #: src/dialogs/gedit-preferences.glade2.h:45
 msgid "The print page settings let you customize how gedit prints documents."
 msgstr ""
-"Las configuración de página de impresión le permiten personalizar como "
-"imprime documentos gedit."
 
 #: src/dialogs/gedit-preferences.glade2.h:46
 msgid "The save settings let you customize how gedit saves files."
 msgstr ""
-"La configuración de guardar le permite personalizar como gedit debe guardar "
-"los archivos."
 
 #: src/dialogs/gedit-preferences.glade2.h:47
 msgid ""
 "The status bar settings let you show or hide status bar and customize its "
 "appearance."
 msgstr ""
-"La configuración de la barra de estado le permite mostrar o ocultar la barra "
-"de estado y personalizar su apariencia."
 
 #: src/dialogs/gedit-preferences.glade2.h:48
 msgid "The tabs settings let you customize the tabs width."
 msgstr ""
-"La configuración de pestañas le permite personalizar el ancho de las "
-"pestañas."
 
 #: src/dialogs/gedit-preferences.glade2.h:49
 msgid ""
 "The toolbar settings let you show or hide toolbar and customize its "
 "appearance."
 msgstr ""
-"La configuración de la barra de herramientas le permite mostrar o ocultar la "
-"barra de herramientas y personalizar su apariencia."
 
 #: src/dialogs/gedit-preferences.glade2.h:50
 msgid ""
 "The undo settings let you set the maximum number of actions that gedit can "
 "undo."
 msgstr ""
-"La configuración de deshacer le permite elegir el número máximo de acciones "
-"que gedit podrá deshacer."
 
 #: src/dialogs/gedit-preferences.glade2.h:51
 msgid "The wrap mode settings let you customize how lines have to be wrapped."
 msgstr ""
-"La configuración de modo de ajuste le permite personalizar como deberán ser "
-"ajustadas las líneas."
 
 #: src/dialogs/gedit-preferences.glade2.h:52
 msgid "Toolbars"
-msgstr "Barras de herramientas"
+msgstr "ቱልባሮች"
 
 #: src/dialogs/gedit-preferences.glade2.h:53
 msgid "Top"
-msgstr "Arriba"
+msgstr "ወደ ላይ"
 
 #: src/dialogs/gedit-preferences.glade2.h:54
 msgid "Toplevel"
-msgstr "Encima"
+msgstr ""
 
 #: src/dialogs/gedit-preferences.glade2.h:55
 msgid "U_se current locale only if the file already use it"
-msgstr "U_sar la _localización actual sólo si el archivo ya la está utilizando."
+msgstr ""
 
 #: src/dialogs/gedit-preferences.glade2.h:56
 msgid "U_se default theme colors"
-msgstr "U_sar los colores predeterminados del tema"
+msgstr ""
 
 #: src/dialogs/gedit-preferences.glade2.h:58
 msgid "Use current _locale when possible"
-msgstr "Usar la localización actual cuando sea posible"
+msgstr ""
 
 #: src/dialogs/gedit-preferences.glade2.h:59
 msgid "When saving..."
-msgstr "Al guardar..."
+msgstr ""
 
 #: src/dialogs/gedit-preferences.glade2.h:60
 msgid "Wrap lines at _word boundaries"
-msgstr "Ajustar líneas a los límites de la _palabra"
+msgstr ""
 
 #: src/dialogs/gedit-preferences.glade2.h:61
 msgid "Wrap lines at ch_aracter boundaries"
-msgstr "Ajustar líneas a los límites del c_aracter"
+msgstr ""
 
 #: src/dialogs/gedit-preferences.glade2.h:63
 msgid "_According to system settings"
-msgstr "_Ajustarse a la configuración del sistema"
+msgstr ""
 
 #: src/dialogs/gedit-preferences.glade2.h:64
 msgid "_Autosave current file every"
-msgstr "_Auto-guardar el archivo actual cada"
+msgstr ""
 
 #: src/dialogs/gedit-preferences.glade2.h:65
 msgid "_Background color:"
-msgstr "_Color del fondo:"
+msgstr "የመደቡ ቀለም"
 
 #: src/dialogs/gedit-preferences.glade2.h:66
 msgid "_Display line numbers"
-msgstr "_Mostrar números de línea"
+msgstr ""
 
 #: src/dialogs/gedit-preferences.glade2.h:67
 msgid "_Font used by the editor: "
-msgstr "Tipogra_fía utilizada por el editor: "
+msgstr ""
 
 #: src/dialogs/gedit-preferences.glade2.h:68
 msgid "_Font used to print headers:"
-msgstr "Tipogra_fía utilizada para imprimir encabezados:"
+msgstr ""
 
 #: src/dialogs/gedit-preferences.glade2.h:69 src/gedit-ui.xml.h:94
 msgid "_Icon"
-msgstr "_Icono"
+msgstr "_ምልክት"
 
 #: src/dialogs/gedit-preferences.glade2.h:70
 msgid "_MDI Mode:"
-msgstr "_Modo MDI:"
+msgstr ""
 
 #: src/dialogs/gedit-preferences.glade2.h:71
 msgid "_Never wrap lines"
-msgstr "_Nunca ajustar líneas"
+msgstr ""
 
 #: src/dialogs/gedit-preferences.glade2.h:72
 msgid "_Restore default fonts"
-msgstr "_Restaurar tipografías predeterminadas"
+msgstr ""
 
 #: src/dialogs/gedit-preferences.glade2.h:73
 msgid "_Show status bar"
-msgstr "_Mostrar barra de _estado"
+msgstr "_ስታቱስ ባር አሳይ"
 
 #: src/dialogs/gedit-preferences.glade2.h:74
 msgid "_Show toolbar"
-msgstr "M_ostrar barra de herramientas"
+msgstr "_ቱልባር አሳይ"
 
 #: src/dialogs/gedit-preferences.glade2.h:75
 msgid "_Text color:"
-msgstr "Color del _texto:"
+msgstr "የጽሑፍ ቀለም"
 
 #: src/dialogs/gedit-preferences.glade2.h:76
 msgid "_Use default theme font"
-msgstr "_Usar tipografía predeterminada del tema"
+msgstr ""
 
 #: src/dialogs/gedit-preferences.glade2.h:77
 msgid "action(s)"
-msgstr "acción(es)"
+msgstr ""
 
 #: src/dialogs/gedit-preferences.glade2.h:78
 msgid "minutes"
-msgstr "minutos"
+msgstr "ደቂቃዎች"
 
 #: src/dialogs/gnome-print-font-dialog.c:107
 msgid "_Insert a new preview phrase."
-msgstr "_Insertar una nueva frase de vista preliminar."
+msgstr ""
 
 #: src/dialogs/gnome-print-font-dialog.c:113
 msgid "Modify preview phrase..."
-msgstr "Modificar frase de vista preliminar..."
+msgstr ""
 
 #: src/dialogs/gnome-print-font-dialog.c:167
 msgid "Preview"
-msgstr "Vista preliminar"
+msgstr "ቅድመ ዕይታ"
 
 #: src/dialogs/gnome-print-font-dialog.c:180
 msgid "_Modify preview phrase..."
-msgstr "_Modificar frase de vista preliminar..."
+msgstr ""
 
 #: src/dialogs/gnome-print-font-dialog.c:243
 msgid "Font Selection"
-msgstr "Selección de tipografía"
+msgstr ""
 
 #: src/dialogs/gnome-print-font-picker.c:89
 msgid "sans 12"
@@ -1061,80 +992,80 @@ msgstr "sans 12"
 
 #: src/dialogs/gnome-print-font-picker.c:90
 msgid "AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz"
-msgstr "AaBbCcDdEeFfGgHhIiJjKkLlMmNnÑñOoPpQqRrSsTtUuVvWwXxYyZz"
+msgstr "AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz"
 
 #: src/dialogs/gnome-print-font-picker.c:91
 msgid "Pick a Font"
-msgstr "Elija una tipografía"
+msgstr "የፊደል ቅርጽ ምረጥ"
 
 #: src/dialogs/gnome-print-font-picker.c:176
 msgid "Title"
-msgstr "Título"
+msgstr "አርእስት"
 
 #: src/dialogs/gnome-print-font-picker.c:177
 msgid "The title of the selection dialog box"
-msgstr "El título de la caja de diálogo de selección"
+msgstr "የምርጫው መምረጫ ሳጥን አርዕስት"
 
 #: src/dialogs/gnome-print-font-picker.c:197
 msgid "Font name"
-msgstr "Tipografía"
+msgstr "የፊደሉ ቅርጽ ስም"
 
 #: src/dialogs/gnome-print-font-picker.c:198
 msgid "Name of the selected font"
-msgstr "Nombre de la tipografía seleccionada"
+msgstr "የተመረጠው የፊደል ቅርጽ ስም"
 
 #: src/dialogs/gnome-print-font-picker.c:206
 msgid "Preview text"
-msgstr "Vista preliminar del texto"
+msgstr "የጽሑፉ ቅድመ እይታ"
 
 #: src/dialogs/gnome-print-font-picker.c:207
 msgid "Preview text shown in the dialog"
-msgstr "Vista preliminar del texto mostrada en el diálogo"
+msgstr "በመምረጭው ውስጥ የጽሑፉ ቅድመ እይታው ይታያል"
 
 #: src/dialogs/gnome-print-font-picker.c:215
 msgid "Use font in label"
-msgstr "Usar tipografía en la etiqueta"
+msgstr "በመለያው ውስጥ የፊደል ቅርጹን ተጠቀሙ"
 
 #: src/dialogs/gnome-print-font-picker.c:216
 msgid "Use font in the label in font info mode"
-msgstr "Usar tipografía en la etiqueta en el modo de información de tipografía"
+msgstr "በምልክቱ ውስጥ ያለውን የፊደል ቅርጽ በፊደል ቅርጽ መረጃ የአሠራር ዘዴ ተጠቀም"
 
 #: src/dialogs/gnome-print-font-picker.c:224
 msgid "Font size for label"
-msgstr "Tamaño de la tipografía para la etiqueta"
+msgstr "ለመለያ የፊደል ቅርጽ መጠን"
 
 #: src/dialogs/gnome-print-font-picker.c:225
 msgid "Font size for label in font info mode"
-msgstr "Tamaño de la tipografía para la etiqueta en el modo información de tipografía"
+msgstr "ለምልክት የሚሆን የፊደል ቅርጽ መረጃ የአሠራር ዘዴ ውስጥ የፊደል ቅርጽ መጠን"
 
 #: src/dialogs/gnome-print-font-picker.c:235
 msgid "Show size"
-msgstr "Mostrar tamaño"
+msgstr "መጠኑን አሳይ"
 
 #: src/dialogs/gnome-print-font-picker.c:236
 msgid "Show size in font info mode"
-msgstr "Mostrar tamaño en el modo información de la tipografía"
+msgstr "በመረጃው የፊደል ቅርጽ መንገድ ውስጥ መጠንም አሳይ"
 
 #. gnome_print_font_picker_update_font_info
 #: src/dialogs/goto-line.glade2.h:1
 msgid "Goto Line"
-msgstr "Ir a la línea"
+msgstr "ወደ መስመር ሂድ"
 
 #: src/dialogs/goto-line.glade2.h:2
 msgid "_Line number:"
-msgstr "Número de _línea:"
+msgstr "የ_መስመር ቍጥር"
 
 #: src/dialogs/plugin-manager.glade2.h:1
 msgid "C_onfigure plugin"
-msgstr "C_onfigurar extensión"
+msgstr ""
 
 #: src/dialogs/plugin-manager.glade2.h:2
 msgid "Configure the selected plugin"
-msgstr "Configurar la extensión seleccionada"
+msgstr ""
 
 #: src/dialogs/plugin-manager.glade2.h:3
 msgid "D_etails"
-msgstr "D_etalles"
+msgstr "ዝርዝሮች"
 
 #: src/dialogs/plugin-manager.glade2.h:4
 msgid ""
@@ -1142,76 +1073,67 @@ msgid ""
 "gedit capabilities. From here, you can choose which plugins you want to have "
 "loaded."
 msgstr ""
-"Este es el administrador de extensiones. Las extensiones son programas "
-"extra que extienden las capacidades de gedit. Desde aquí puede elegir que "
-"extensiones desea tener cargadas."
 
 #: src/dialogs/plugin-manager.glade2.h:5
 msgid "_Description"
-msgstr "_Descripción"
+msgstr "መግለጫ"
 
 #: src/dialogs/plugin-manager.glade2.h:6
 msgid "dialog1"
-msgstr "diálogo1"
+msgstr ""
 
 #: src/dialogs/program-location-dialog.glade2.h:1
 msgid "Set program location..."
-msgstr "Configurar ruta del programa..."
+msgstr ""
 
 #: src/dialogs/program-location-dialog.glade2.h:2
 msgid "_Location to search for:"
-msgstr "Ruta de búsqueda para :"
+msgstr ""
 
 #: src/dialogs/program-location-dialog.glade2.h:3
 msgid "label"
-msgstr "etiqueta"
+msgstr ""
 
 #: src/dialogs/replace.glade2.h:1
 msgid "Case sensi_tive"
-msgstr "Distinguir mayúsculas y minúsculas"
+msgstr ""
 
 #: src/dialogs/replace.glade2.h:3
 msgid "Replace _with: "
-msgstr "_Reemplazar con: "
+msgstr ""
 
 #: src/dialogs/replace.glade2.h:4
 msgid "Search fro_m the beginning of the document"
-msgstr "B_uscar a partir del principio del documento"
+msgstr ""
 
 #: src/dialogs/replace.glade2.h:5
 msgid "Search from the c_ursor position"
-msgstr "Buscar desde la posición actual del cursor"
+msgstr ""
 
 #: src/dialogs/replace.glade2.h:6
 msgid "_Search for: "
-msgstr "_Buscar: "
+msgstr "_ፈልግ"
 
 #: src/dialogs/uri.glade2.h:1
 msgid "Enter the location (URI) of the file you would like to open:"
-msgstr "Proporcione la ruta (URI) del archivo que desea abrir"
+msgstr ""
 
 #: src/gedit-commands.c:57
 msgid "Not yet implemented."
-msgstr "No se ha implementado aún."
+msgstr "ሥራ ላይ አልዋለም።"
 
 #: src/gedit-commands.c:340
 #, c-format
 msgid "The string \"%s\" has not been found."
-msgstr "La cadena «%s» no ha sido encontrada."
+msgstr "\"%s\" የተባለው ሐረግ አልተገኘም"
 
 #: src/gedit-commands.c:422
 msgid "Impossible to update gedit settings."
-msgstr "Imposible actualizar la configuración de gedit."
+msgstr " የgeditን ይዞታ ለማሻሻል አይቻልም።"
 
 #: src/gedit-commands.c:491
 msgid "translator_credits"
-msgstr ""
-"Pablo Gonzalo del Campo <pablodc@bigfoot.com>\n"
-"Germán Poo Caamaño <gpoo@ubiobio.cl>\n"
-"Alfredo Sanjuán <asan@euskalnet.net>\n"
-"Carlos Perelló Marín <carlos@gnome-db.org>\n"
-"Chema Celorio <chema@celorio.com>\n"
-"Pablo Saratxaga <srtxg@chanae.alphanet.ch>"
+msgstr "የግዕዝ Frontier Foundation"
 
 #: src/gedit-commands.c:516
 msgid "gedit"
@@ -1219,7 +1141,7 @@ msgstr "gedit"
 
 #: src/gedit-commands.c:519
 msgid "gedit is a small and lightweight text editor for Gnome"
-msgstr "gedit es un editor de texto compacto y simple para GNOME"
+msgstr "gedit ለኖም ትንሽ እና ቀለል ያለ የጽሑፍ አርታዒ ነው"
 
 #: src/gedit-document.c:549 src/gedit-document.c:572
 #, c-format
@@ -1228,45 +1150,43 @@ msgstr "%s %d"
 
 #: src/gedit-document.c:549 src/gedit-document.c:572
 msgid "Untitled"
-msgstr "SinNombre"
+msgstr "ያልተሰየመ"
 
 #: src/gedit-document.c:556 src/gedit-document.c:579
 msgid "Invalid file name"
-msgstr "Nombre de archivo inválido"
+msgstr ""
 
 #: src/gedit-document.c:700 src/gedit-document.c:806
 msgid "Invalid UTF-8 data"
-msgstr "Datos UTF-8 inválidos"
+msgstr ""
 
 #: src/gedit-document.c:1006
 #, c-format
 msgid "Could not read symbolic link information for %s"
-msgstr "No se ha podido leer la información del enlace simbólico para %s"
+msgstr ""
 
 #: src/gedit-document.c:1052
 msgid "The file has too many symbolic links."
-msgstr "El archivo tiene demasiados enlaces simbólicos."
+msgstr ""
 
 #: src/gedit-document.c:1101
 #, c-format
 msgid "gedit cannot handle %s: locations in write mode."
-msgstr "gedit no puede manejar %s direcciones en el modo escritura."
+msgstr ""
 
 #: src/gedit-document.c:1108
 msgid "gedit cannot handle this kind of location in write mode."
-msgstr "gedit no puede manejar este tipo de dirección en el modo escritura."
+msgstr ""
 
 #: src/gedit-document.c:1120
 msgid "Invalid filename."
-msgstr "Nombre de archivo inválido."
+msgstr ""
 
 #: src/gedit-document.c:1198
 msgid ""
 "There is not enough disk space to save the file.\n"
 "Please free some disk space and try again."
 msgstr ""
-"No hay suficiente espacio en el disco para guardar el archivo.\n"
-"Por favor libere un poco de espacio en el disco e intente nuevamente."
 
 #: src/gedit-document.c:1203
 msgid ""
@@ -1274,17 +1194,14 @@ msgid ""
 "sizes.  Please try saving a smaller file or saving it to a disk that does "
 "not have this limitation."
 msgstr ""
-"El disco en donde está intentando guardar el archivo tiene limitaciones para "
-"los tamaños de archivo. Por favor intente guardar un archivo más pequeño o "
-"guardarlo en un disco que no posea estas limitaciones."
 
 #: src/gedit-document.c:1240
 msgid "Could not create a backup file."
-msgstr "No se ha podido crear un archivo de respaldo."
+msgstr ""
 
 #: src/gedit-document.c:1388
 msgid "It is not possible to revert an Untitled document"
-msgstr "No es posible recuperar un documento Sin Título"
+msgstr "ስያሜ ያልተሰጠውን ሰነድ ለመመለስ አይቻልም"
 
 #: src/gedit-file-selector-util.c:96
 #, c-format
@@ -1292,71 +1209,71 @@ msgid ""
 "A file named ''%s'' already exists.\n"
 "Do you want to replace it with the one you are saving?"
 msgstr ""
-"Ya existe un archivo llamado «%s».\n"
-"¿Desea reemplazarlo con el que está guardando ahora?"
+"''%s'' የተባለው ፋይል አሁን ይገኛል አሁን።\n"
+"በሚያስቀምጡት ፋይል መተካት ይፈልጋሉ?"
 
 #: src/gedit-file-selector-util.c:104
 msgid "Do_n't replace"
-msgstr "No ree_mplazar"
+msgstr "_አትተካ"
 
 #: src/gedit-file-selector-util.c:484
 msgid "Select a filename to save"
-msgstr "Seleccione el nombre de archivo a guardar"
+msgstr "ለማስቀመጥ የፋይል ስም ምረጡ"
 
 #: src/gedit-file.c:128
 msgid "Open File ..."
-msgstr "Abrir un archivo ..."
+msgstr "ፋይል ክፈት ..."
 
 #: src/gedit-file.c:148 src/gedit-file.c:763
 #, c-format
 msgid "Loaded file '%s'"
-msgstr "Archivo «%s» cargado"
+msgstr "ፋይል '%s'  ተጭኗል"
 
 #: src/gedit-file.c:279 src/gedit-file.c:401
 #, c-format
 msgid "Saving file '%s' ..."
-msgstr "Guardando el archivo «%s»..."
+msgstr "ፋይል '%s'ን በማስቀመጥ ላይ ..."
 
 #: src/gedit-file.c:300 src/gedit-file.c:416
 msgid "The document has not been saved."
-msgstr "El documento no ha sido guardado"
+msgstr "ሰነዱ አልተቀመጠም።"
 
 #: src/gedit-file.c:315 src/gedit-file.c:408
 #, c-format
 msgid "File '%s' saved."
-msgstr "Se guardó el archivo «%s»."
+msgstr "ፋይል '%s' ተቀምጧል።"
 
 #: src/gedit-file.c:383
 msgid "Save as ..."
-msgstr "Guardar como..."
+msgstr "በ ... ስም አስቀምጥ ..."
 
 #: src/gedit-file.c:574
 #, c-format
 msgid "Reverting file '%s' ..."
-msgstr "Recuperando el archivo «%s»..."
+msgstr "ፋይል '%s'ን በመመለስ ላይ"
 
 #: src/gedit-file.c:587
 msgid "The document has not been reverted."
-msgstr "El documento no ha sido recuperado."
+msgstr "ሰነዱ አልተመለሰም።"
 
 #: src/gedit-file.c:597
 #, c-format
 msgid "File '%s' reverted."
-msgstr "Archivo «%s» recuperado."
+msgstr "ፋይል '%s' ተመልሷል።"
 
 #: src/gedit-file.c:644
 #, c-format
 msgid "Loading %d file..."
-msgstr "Cargando el archivo %d..."
+msgstr "ፋይል %dን በመጫን ላይ..."
 
 #: src/gedit-file.c:680
 #, c-format
 msgid "Loaded %i files"
-msgstr "%i archivos cargados"
+msgstr "ፋይል %i ተጭኗል"
 
 #: src/gedit-file.c:821
 msgid "Could not read data from stdin."
-msgstr "No se ha podido leer datos desde la entrada estándar."
+msgstr ""
 
 #: src/gedit-mdi.c:759
 #, c-format
@@ -1365,102 +1282,102 @@ msgid ""
 "\n"
 "Your changes will be lost if you don't save them."
 msgstr ""
-"¿Desea guardar los cambios realizados al documento «%s»? \n"
+"በሰነድ ``%s'' ላይ ያደረጉትን ለውጥ ማስቀመጥ ይፈልጋሉ?\n"
 "\n"
-"Se perderán los cambios si no los guarda."
+"ካላስቀመጧቸው ለውጥ የተደረገበትን አያገኙትም"
 
 #: src/gedit-mdi.c:764
 msgid "Do_n't save"
-msgstr "No guardar"
+msgstr "አ_ታስቀምጥ"
 
 #: src/gedit-mdi.c:783
 msgid "_Don't quit"
-msgstr "No _salir"
+msgstr "_አትውጣ"
 
 #: src/gedit-mdi.c:787
 msgid "_Don't close"
-msgstr "No c_errar"
+msgstr "_አትዝጋ"
 
 #: src/gedit-mdi.c:877
 msgid "(modified)"
-msgstr "(modificado)"
+msgstr "(የተሻሻለ)"
 
 #: src/gedit-mdi.c:883
 msgid "(readonly)"
-msgstr "(sólo lectura)"
+msgstr "(ለንባብ ብቻ)"
 
 #: src/gedit-plugins-engine.c:159
 #, c-format
 msgid "Error, unable to open module file '%s'\n"
-msgstr "Error: no se puede abrir el archivo de módulo «%s»\n"
+msgstr "ስህተት፦ የታቀደው ፋይል '%s'ን መክፈት አልተቻለም\n"
 
 #: src/gedit-plugins-engine.c:174
 #, c-format
 msgid "Error, plugin '%s' does not contain init function."
-msgstr "Error: la extensión «%s» no contiene la función init."
+msgstr ""
 
 #: src/gedit-plugins-engine.c:184
 #, c-format
 msgid "Error, plugin '%s' does not contain activate function."
-msgstr "Error: la extensión «%s» no contiene la función activate."
+msgstr "ስህተት፦ ተጨማሪ የተደረገው ፕሮግራም '%s' ተግባሩን ማስጀመሪያውንአላካተተም።"
 
 #: src/gedit-plugins-engine.c:194
 #, c-format
 msgid "Error, plugin '%s' does not contain deactivate function."
-msgstr "Error: la extensión «%s» no contiene la función deactivate."
+msgstr "ስህተት፦ የ '%s'  ተጨማሪ ፕሮግራም ሥራውን የሚያዘገየውን አላካተተም።"
 
 #: src/gedit-plugins-engine.c:224
 #, c-format
 msgid "Error, impossible to initialize plugin '%s'"
-msgstr "Error: imposible inicializar la extensión «%s»"
+msgstr "ስህተት፦ ተጨማሪው ፕሮግራም '%s'ን ማስጀመር አልተቻለም"
 
 #: src/gedit-plugins-engine.c:232
 #, c-format
 msgid "Error, the plugin '%s' did not specified a name"
-msgstr "Error: la extensión «%s» no ha especificado un nombre"
+msgstr "ስህተት፦ ተጨማሪው/አጋዡ ፕሮግራም '%s' የተወሰነ ስም አልጠቀሰም"
 
 #: src/gedit-plugins-engine.c:312
 #, c-format
 msgid "Error, impossible to save settings of the plugin '%s'"
-msgstr "Error: imposible guardar la configuración de la extensión «%s»"
+msgstr "ስህተት፦ ተጨማሪው ፕሮግራም የ'%s'ን ይዞታ ለማስቀመጥ አልተቻለም"
 
 #: src/gedit-plugins-engine.c:384 src/gedit-plugins-engine.c:442
 #, c-format
 msgid "Error, impossible to activate plugin '%s'"
-msgstr "Error: imposible activar la extensión «%s»"
+msgstr "ስህተት፦ ተጨማሪውን ፕሮግራም  '%s'ን ማስጀመር አልተቻለም"
 
 #: src/gedit-plugins-engine.c:411
 #, c-format
 msgid "Error, impossible to deactivate plugin '%s'"
-msgstr "Error: imposible desactivar la extensión «%s»"
+msgstr "ስህተት፦ አጋዡን ፕሮግራም '%s'ን ማዘግየት አልተቻለም"
 
 #: src/gedit-plugins-engine.c:486
 #, c-format
 msgid "Error, impossible to update ui of the plugin '%s'"
-msgstr "Error: imposible actualizar la interfaz de usuario de la extensión «%s»"
+msgstr "ስህተት፦ የአጋዥ ፕሮግራሙ የ'%s'ን ቋሻይን ማሻሻል አልተቻለም"
 
 #: src/gedit-print.c:178
 msgid ""
 "gedit is unable to print since it cannot find\n"
 "one of the required fonts."
 msgstr ""
-"gedit no puede imprimir debido a que no puede\n"
-"encontrar una de las tipografías necesarias."
+"geditን እስካላገኘ ድረስ ማተም አይችልም\n"
+"ከአስፈላጊዎቹ የፊደል አፃፃፍ ዓይነቶች አንዱ።"
 
 #: src/gedit-print.c:354
 #, c-format
 msgid "File: %s"
-msgstr "Archivo: %s"
+msgstr "ፋይል፦ %s"
 
 #. Print right text
 #: src/gedit-print.c:359
 #, c-format
 msgid "Page: %d"
-msgstr "Página: %d"
+msgstr "ገጽ፦ %d"
 
 #: src/gedit-print.c:492
 msgid "gedit - Print Preview"
-msgstr "gedit - Vista preliminar"
+msgstr "gedit - የህትመት ቅድመ ዕይታ"
 
 #: src/gedit-print.c:566
 #, c-format
@@ -1469,415 +1386,413 @@ msgid ""
 "\n"
 "%s,"
 msgstr ""
-"Ha ocurrido un error mientras se imprimía.\n"
+"በሚያትምበት ጊዜ ስህተት ተከስቷል።\n"
 "\n"
-"%s,"
+"%s"
 
 #: src/gedit-ui.xml.h:1
 msgid "About this application"
-msgstr "Acerca de esta aplicación"
+msgstr "ስለዚህ ፕሮግራም"
 
 #: src/gedit-ui.xml.h:2
 msgid "Add/Remove plugins"
-msgstr "Agregar/eliminar extensiones"
+msgstr "ተጨማሪ/አጋዥ ፕሮግራሞችን ጨምር/ሰርዝ"
 
 #: src/gedit-ui.xml.h:3
 msgid "C_ustomize Statusbar"
-msgstr "P_ersonalizar barra de estado"
+msgstr ""
 
 #: src/gedit-ui.xml.h:4
 msgid "Change the visibility of the statusbar in the current window"
-msgstr "Cambia la visibilidad de la barra de estado en la ventana actual"
+msgstr ""
 
 #: src/gedit-ui.xml.h:5
 msgid "Change the visibility of the toolbar in the current window"
-msgstr "Cambia la visibilidad de la barra de herramientas en la ventana actual"
+msgstr ""
 
 #: src/gedit-ui.xml.h:6
 msgid "Clos_e All"
-msgstr "Cerrar t_odo"
+msgstr "_ሁሉንም ዝጋ"
 
 #: src/gedit-ui.xml.h:7
 msgid "Close"
-msgstr "Cerrar"
+msgstr "ዝጋ"
 
 #: src/gedit-ui.xml.h:8
 msgid "Close All"
-msgstr "Cerrar t_odo"
+msgstr "ሁሉንም ዝጋ"
 
 #: src/gedit-ui.xml.h:9
 msgid "Close all open files"
-msgstr "Cerrar todos los archivos abiertos"
+msgstr "የተከፈቱትን ሁሉንም ፋይሎች ዝጋ"
 
 #: src/gedit-ui.xml.h:10
 msgid "Close the current file"
-msgstr "Cerrar el archivo actual"
+msgstr "የአሁኑን ፋይል ዝጋ"
 
 #: src/gedit-ui.xml.h:11
 msgid "Configure the application"
-msgstr "Configurar la aplicación"
+msgstr "ፕሮግራሙን አስተካክል"
 
 #: src/gedit-ui.xml.h:12
 msgid "Copy"
-msgstr "Copiar"
+msgstr "ቅጂ"
 
 #: src/gedit-ui.xml.h:13
 msgid "Copy the selection"
-msgstr "Copiar la selección"
+msgstr "የተመረጠውን ቅዳ"
 
 #: src/gedit-ui.xml.h:14
 msgid "Create a new document"
-msgstr "Crear un nuevo documento"
+msgstr "አዲስ ሰነድ ፍጠር"
 
 #: src/gedit-ui.xml.h:15
 msgid "Cu_t"
-msgstr "Cor_tar"
+msgstr "_ቁረጥ"
 
 #: src/gedit-ui.xml.h:16
 msgid "Customize"
-msgstr "Personalizar"
+msgstr "አስተካክል"
 
 #: src/gedit-ui.xml.h:17
 msgid "Customize toolbars"
-msgstr "Personalizar barras de herramientas"
+msgstr "ቱል ባሮቹን አስተካክል"
 
 #: src/gedit-ui.xml.h:18
 msgid "Cut"
-msgstr "Cortar"
+msgstr "ቁረጥ"
 
 #: src/gedit-ui.xml.h:19
 msgid "Cut the selection"
-msgstr "Cortar la selección"
+msgstr "የተመረጠውን ቁረጥ"
 
 #: src/gedit-ui.xml.h:20
 msgid "Delete"
-msgstr "Borrar"
+msgstr "መሰረዣ"
 
 #: src/gedit-ui.xml.h:21
 msgid "Delete the selected text"
-msgstr "Borrar el texto seleccionado"
+msgstr ""
 
 #: src/gedit-ui.xml.h:22
 msgid "Dump XML"
-msgstr "Volcar XML"
+msgstr "XML አስወጣ"
 
 #: src/gedit-ui.xml.h:23
 msgid "Dump the UI Xml description"
-msgstr "Volcar la descripción UI XML"
+msgstr "የUI XML ገለጻ አውጣ"
 
 #: src/gedit-ui.xml.h:25
 msgid "Find Again"
-msgstr "Buscar otra vez"
+msgstr "እንደገና ፈልግ"
 
 #: src/gedit-ui.xml.h:26
 msgid "Find Ne_xt"
-msgstr "Buscar si_guiente"
+msgstr "_የሚቀጥለዉን ፈልግ"
 
 #: src/gedit-ui.xml.h:27
 msgid "Go to a specific line number"
-msgstr "Va a un número de línea especifico"
+msgstr "የተጠቀሰው የመስመር ቁጥር ጋር ሂድ"
 
 #: src/gedit-ui.xml.h:28
 msgid "Goto _Line"
-msgstr "Ir a la _línea"
+msgstr "ወደ _መስመር ሂድ"
 
 #: src/gedit-ui.xml.h:29
 msgid "Icon and _Text"
-msgstr "Icono y _texto"
+msgstr ""
 
 #: src/gedit-ui.xml.h:30
 msgid "Main toolbar"
-msgstr "Barra de herramientas principal"
+msgstr "ዋናው ቱልባር"
 
 #: src/gedit-ui.xml.h:31
 msgid "New"
-msgstr "Nuevo"
+msgstr "አዲስ"
 
 #: src/gedit-ui.xml.h:32
 msgid "Only show icons in the toolbar"
-msgstr "Mostrar únicamente iconos en la barra"
+msgstr ""
 
 #: src/gedit-ui.xml.h:33
 msgid "Open"
-msgstr "Abrir"
+msgstr "ክፈት"
 
 #: src/gedit-ui.xml.h:34
 msgid "Open Location..."
-msgstr "Abrir dirección..."
+msgstr ""
 
 #: src/gedit-ui.xml.h:35
 msgid "Open _Location..."
-msgstr "Abrir _dirección..."
+msgstr ""
 
 #: src/gedit-ui.xml.h:36
 msgid "Open a file"
-msgstr "Abrir un archivo"
+msgstr "ፋይል ክፈት"
 
 #: src/gedit-ui.xml.h:37
 msgid "Open a file from a specified location"
-msgstr "Abre un archivo desde una dirección específica"
+msgstr ""
 
 #: src/gedit-ui.xml.h:38
 msgid "Open the gedit manual"
-msgstr "Abre el manual de gedit"
+msgstr ""
 
 #: src/gedit-ui.xml.h:39
 msgid "Paste"
-msgstr "Pegar"
+msgstr "ለጥፍ"
 
 #: src/gedit-ui.xml.h:40
 msgid "Paste the clipboard"
-msgstr "Pegar el contenido del portapapeles"
+msgstr "ክሊፕቦርዱን ለጥፍ"
 
 #: src/gedit-ui.xml.h:41
 msgid "Plugin _Manager"
-msgstr "Ad_ministrador de extensiones"
+msgstr "ፕላጊን _ማናጀር"
 
 #: src/gedit-ui.xml.h:42
 msgid "Plugin _Manager..."
-msgstr "Ad_ministrador de extensiones..."
+msgstr "ፕላጊን _ማናጀር"
 
 #: src/gedit-ui.xml.h:43
 msgid "Pr_eferences..."
-msgstr "Pr_eferencias..."
+msgstr "_ምርጫዎች..."
 
 #: src/gedit-ui.xml.h:46
 msgid "Print Previe_w"
-msgstr "Vista p_reliminar de impresión"
+msgstr "የ_ቅድመ ህትመት ዕይታ"
 
 #: src/gedit-ui.xml.h:47
 msgid "Print Preview"
-msgstr "Vista prelimina_r de la impresión"
+msgstr "የቅድመ ህትመት ዕይታ"
 
 #: src/gedit-ui.xml.h:48
 msgid "Print Setup"
-msgstr "Configurar impresora"
+msgstr "የህትመት ቅንጅት"
 
 #: src/gedit-ui.xml.h:49
 msgid "Print preview"
-msgstr "Vista preliminar de la impresión..."
+msgstr "የቅድመ ህትመት ዕይታ"
 
 #: src/gedit-ui.xml.h:50
 msgid "Print the current file"
-msgstr "Imprimir el archivo actual"
+msgstr "የአሁኑን ፋይል አትም"
 
 #: src/gedit-ui.xml.h:51
 msgid "Quit"
-msgstr "Salir"
+msgstr "ማቆሚያ"
 
 #: src/gedit-ui.xml.h:52
 msgid "Quit the program"
-msgstr "Salir del programa"
+msgstr ""
 
 #: src/gedit-ui.xml.h:53
 msgid "Recent _Files"
-msgstr "Archivos rec_ientes"
+msgstr ""
 
 #: src/gedit-ui.xml.h:54
 msgid "Redo"
-msgstr "Rehacer"
+msgstr "እንደገና አድርግ"
 
 #: src/gedit-ui.xml.h:55
 msgid "Redo the undone action"
-msgstr "Rehacer la última operación deshecha"
+msgstr "የተተወውን ድርጊት እንደገና አድርግ"
 
 #: src/gedit-ui.xml.h:57
 msgid "Replace a string"
-msgstr "Reemplazar una cadena"
+msgstr "ሐረጉን ተካ"
 
 #: src/gedit-ui.xml.h:58
 msgid "Revert"
-msgstr "Recuperar"
+msgstr "ወደ ነበረበት መልስ"
 
 #: src/gedit-ui.xml.h:59
 msgid "Revert to a saved version of the file"
-msgstr "Recuperar una versión guardada del archivo"
+msgstr "መጀመሪያ ተቀምጦ ወደ ነበረው የፋይሉ ቅጂ መልስ"
 
 #: src/gedit-ui.xml.h:60
 msgid "Sa_ve All"
-msgstr "Guardar _todo"
+msgstr "_ሁሉንም አስቀምጥ"
 
 #: src/gedit-ui.xml.h:62
 msgid "Save All"
-msgstr "Guardar todo"
+msgstr "ሁሉንም አስቀምጥ"
 
 #: src/gedit-ui.xml.h:63
 msgid "Save As"
-msgstr "Guardar como"
+msgstr "በ...ስም አስቀምጥ"
 
 #: src/gedit-ui.xml.h:64
 msgid "Save _As..."
-msgstr "Guardar _como..."
+msgstr "_በ...ስም አስቀምጥ..."
 
 #: src/gedit-ui.xml.h:65
 msgid "Save all open files"
-msgstr "Guardar todos los archivos abiertos"
+msgstr "የተከፈቱትን ሁሉንም ፋይሎች አስቀምጥ"
 
 #: src/gedit-ui.xml.h:66
 msgid "Save the current file"
-msgstr "Guardar el archivo actual"
+msgstr "የአሁኑን ፋይል አስቀምጥ"
 
 #: src/gedit-ui.xml.h:67
 msgid "Save the current file with a different name"
-msgstr "Guardar el archivo actual con un nombre distinto"
+msgstr "የአሁኑን ፋይል በተለየ ስም አስቀምጥ"
 
 #: src/gedit-ui.xml.h:68
 msgid "Search again for the same string"
-msgstr "Buscar otra vez la misma cadena"
+msgstr "ያንኑ ሐረግ እንደገና አስስ"
 
 #: src/gedit-ui.xml.h:69
 msgid "Search for a string"
-msgstr "Buscar una cadena de texto"
+msgstr "ሐረጉን አስስ"
 
 #: src/gedit-ui.xml.h:70
 msgid "Select All"
-msgstr "Seleccionar todo"
+msgstr "ሁሉንም ምረጥ"
 
 #: src/gedit-ui.xml.h:71
 msgid "Select _All"
-msgstr "Seleccionar _todo"
+msgstr "ሁሉንም ምረጥ"
 
 #: src/gedit-ui.xml.h:72
 msgid "Select the entire document"
-msgstr "Seleccionar el documento completo"
+msgstr "ሰነዱን እንዳለ ምረጥ"
 
 #: src/gedit-ui.xml.h:73
 msgid "Set toolbar button style according to desktop default"
 msgstr ""
-"Configurar el estilo de la barra de herramientas de acuerdo al estilo predeterminado del "
-"escritorio"
 
 #: src/gedit-ui.xml.h:74
 msgid "Setup the page settings for your current printer"
-msgstr "Configurar las configuraciones de página para su impresora actual"
+msgstr "የገጹን አቀማመጥ አሁን ላለው ማተሚያ አስተካክሉ"
 
 #: src/gedit-ui.xml.h:75
 msgid "Show _Cursor Position"
-msgstr "Mostrar la posición del _cursor"
+msgstr ""
 
 #: src/gedit-ui.xml.h:76
 msgid "Show _Overwrite Mode"
-msgstr "Mostrar m_odo de sobreescritura"
+msgstr ""
 
 #: src/gedit-ui.xml.h:77
 msgid "Show cursor position in the statusbar"
-msgstr "Mostrar la posición del cursor en la barra de estado"
+msgstr ""
 
 #: src/gedit-ui.xml.h:78
 msgid "Show overwrite mode in the statusbar"
-msgstr "Mostrar el modo de sobreescritura en la barra de estado"
+msgstr ""
 
 #: src/gedit-ui.xml.h:80
 msgid "Undo the last action"
-msgstr "Deshacer la última operación"
+msgstr "የመጨረሻውን ትግባር ተወው"
 
 #: src/gedit-ui.xml.h:81
 msgid "_About"
-msgstr "_Acerca de"
+msgstr "_ስለ"
 
 #: src/gedit-ui.xml.h:82
 msgid "_Close"
-msgstr "C_errar"
+msgstr "_ዝጋ"
 
 #: src/gedit-ui.xml.h:83
 msgid "_Contents"
-msgstr "_Contenidos"
+msgstr "_ይዞታዎች"
 
 #: src/gedit-ui.xml.h:84
 msgid "_Copy"
-msgstr "_Copiar"
+msgstr "_ቅጂ"
 
 #: src/gedit-ui.xml.h:85
 msgid "_Customize Toolbar"
-msgstr "_Personalizar la barra de herramientas"
+msgstr ""
 
 #: src/gedit-ui.xml.h:86
 msgid "_Debug"
-msgstr "_Depurar"
+msgstr "_አስተካክል"
 
 #: src/gedit-ui.xml.h:87
 msgid "_Delete"
-msgstr "_Borrar"
+msgstr "መ_ሰረዣ"
 
 #: src/gedit-ui.xml.h:88
 msgid "_Desktop Default"
-msgstr "Pre_determinado del Escritorio"
+msgstr ""
 
 #: src/gedit-ui.xml.h:89
 msgid "_Documents"
-msgstr "_Documentos"
+msgstr "_ሰነዶች"
 
 #: src/gedit-ui.xml.h:90
 msgid "_Edit"
-msgstr "_Editar"
+msgstr "_አስተካክል"
 
 #: src/gedit-ui.xml.h:91
 msgid "_File"
-msgstr "_Archivo"
+msgstr "_ፋይል"
 
 #: src/gedit-ui.xml.h:92
 msgid "_Find"
-msgstr "_Buscar"
+msgstr "_ፈልግ"
 
 #: src/gedit-ui.xml.h:93
 msgid "_Help"
-msgstr "A_yuda"
+msgstr "_መረጃ"
 
 #: src/gedit-ui.xml.h:95
 msgid "_New"
-msgstr "_Nuevo"
+msgstr "_አዲስ"
 
 #: src/gedit-ui.xml.h:96
 msgid "_Open..."
-msgstr "_Abrir..."
+msgstr "_ክፈት..."
 
 #: src/gedit-ui.xml.h:97
 msgid "_Paste"
-msgstr "_Pegar"
+msgstr "_ለጥፍ"
 
 #: src/gedit-ui.xml.h:98
 msgid "_Print..."
-msgstr "I_mprimir..."
+msgstr "_አትም..."
 
 #: src/gedit-ui.xml.h:99
 msgid "_Quit"
-msgstr "_Salir"
+msgstr "ማ_ቆሚያ"
 
 #: src/gedit-ui.xml.h:100
 msgid "_Redo"
-msgstr "_Rehacer"
+msgstr "_እንደገና አድርግ"
 
 #: src/gedit-ui.xml.h:102
 msgid "_Revert"
-msgstr "Re_vertir"
+msgstr "_ወደ ነበረበት መልስ"
 
 #: src/gedit-ui.xml.h:103
 msgid "_Save"
-msgstr "_Guardar"
+msgstr "_አስቀምጥ"
 
 #: src/gedit-ui.xml.h:104
 msgid "_Search"
-msgstr "_Buscar"
+msgstr "_ፈልግ"
 
 #: src/gedit-ui.xml.h:105
 msgid "_Statusbar"
-msgstr "_Barra de estado"
+msgstr "_ስታተስ ባር"
 
 #: src/gedit-ui.xml.h:106
 msgid "_Toolbar"
-msgstr "Ba_rra de herramientas"
+msgstr "_ቱልባር"
 
 #: src/gedit-ui.xml.h:107
 msgid "_Tools"
-msgstr "_Herramientas"
+msgstr "_መሣሪያዎች (ቱልስ)"
 
 #: src/gedit-ui.xml.h:108
 msgid "_Undo"
-msgstr "_Deshacer"
+msgstr "_ወደ ነበረበት መልስ"
 
 #: src/gedit-ui.xml.h:109
 msgid "_View"
-msgstr "_Ver"
+msgstr "_ተመልከት"
 
 #: src/gedit-utils.c:842
 #, c-format
@@ -1886,34 +1801,33 @@ msgid ""
 "\n"
 "Please, check that you typed the location correctly and try again."
 msgstr ""
-"No se ha podido encontrar el archivo «%s».\n"
-"\n"
-"Por favor verifique que ha escrito la dirección correctamente e intente nuevamente."
 
 #: src/gedit-utils.c:849
 #, c-format
 msgid "Could not open the file \"%s\" because it contains corrupted data."
-msgstr "No se ha podido abrir el archivo «%s» porque contiene datos corruptos."
+msgstr ""
 
 #: src/gedit-utils.c:860
 #, c-format
-msgid "Could not open the file \"%s\" because gedit cannot handle %s: locations."
-msgstr "No se ha podido abrir el archivo «%s» porque gedit no puede manejar %s direcciones."
+msgid ""
+"Could not open the file \"%s\" because gedit cannot handle %s: locations."
+msgstr ""
 
 #: src/gedit-utils.c:868
 #, c-format
 msgid "Could not open the file \"%s\""
-msgstr "No se ha podido abrir el archivo «%s»"
+msgstr ""
 
 #: src/gedit-utils.c:875
 #, c-format
-msgid "Could not open the file \"%s\" because it contains data in an invalid format."
-msgstr "No se ha podido abrir el archivo «%s» porque contiene datos en un formato inválido."
+msgid ""
+"Could not open the file \"%s\" because it contains data in an invalid format."
+msgstr ""
 
 #: src/gedit-utils.c:882
 #, c-format
 msgid "Could not open the file \"%s\" because it is too big."
-msgstr "No se ha podido abrir el archivo «%s» porque es demasiado grande."
+msgstr ""
 
 #: src/gedit-utils.c:889
 #, c-format
@@ -1922,14 +1836,11 @@ msgid ""
 "\n"
 "Please, check that you typed the location correctly and try again."
 msgstr ""
-"«%s» no es una dirección válida.\n"
-"\n"
-"Por favor verifique que ha escrito la dirección correctamente e intente nuevamente."
 
 #: src/gedit-utils.c:896
 #, c-format
 msgid "Could not open the file \"%s\" because access was denied."
-msgstr "No se ha podido abrir el archivo «%s» porque el acceso fué denegado."
+msgstr ""
 
 #: src/gedit-utils.c:903
 #, c-format
@@ -1938,9 +1849,6 @@ msgid ""
 "\n"
 "Please, close some open file and try again."
 msgstr ""
-"No se ha podido abrir el archivo «%s» porque hay demasiados archivos abiertos.\n"
-"\n"
-"Por favor cierre algunos archivos e intente nuevamente."
 
 #: src/gedit-utils.c:911
 #, c-format
@@ -1949,9 +1857,6 @@ msgid ""
 "\n"
 "Please, check that you typed the location correctly and try again."
 msgstr ""
-"«%s» es un directorio.\n"
-"\n"
-"Por favor verifique que ha escrito la dirección correctamente e intente nuevamente."
 
 #: src/gedit-utils.c:918
 #, c-format
@@ -1959,8 +1864,6 @@ msgid ""
 "Not enough available memory to open the file \"%s\". Please, close some "
 "running application and try again."
 msgstr ""
-"No hay suficiente memoria disponible para abrir el archivo «%s». Por favor cierre "
-"algunas aplicaciones e intente nuevamente."
 
 #: src/gedit-utils.c:931
 #, c-format
@@ -1970,11 +1873,6 @@ msgid ""
 "Please, check that you typed the location correctly and that your proxy "
 "settings are correct and then try again."
 msgstr ""
-"No se ha podido abrir el archivo «%s» porque el equipo remoto «%s» no ha "
-"podido ser encontrado.\n"
-"\n"
-"Por favor verifique que ha escrito la dirección correcta y que la configuración "
-"del proxy este correcta e intente nuevamente."
 
 #: src/gedit-utils.c:944
 #, c-format
@@ -1983,10 +1881,6 @@ msgid ""
 "\n"
 "Please, check that you typed the location correctly and try again."
 msgstr ""
-"No se ha podido abrir el archivo «%s» porque el nombre del equipo remoto no es "
-"válido.\n"
-"\n"
-"Por favor verifique que ha escrito la dirección correcta e intente nuevamente."
 
 #: src/gedit-utils.c:951
 #, c-format
@@ -1995,10 +1889,6 @@ msgid ""
 "\n"
 "Please, check that your proxy settings are correct and try again."
 msgstr ""
-"No se ha podido abrir el archivo «%s» porque no se completó el nombre del "
-"equipo remoto.\n"
-"\n"
-"Por favor verifique si la configuración del proxy es correcta e intente nuevamente."
 
 #: src/gedit-utils.c:958
 #, c-format
@@ -2007,9 +1897,6 @@ msgid ""
 "\n"
 "Please, check that you typed the location correctly and try again."
 msgstr ""
-"No se ha podido abrir el archivo «%s» porque el intento de registro ha fallado.\n"
-"\n"
-"Por favor verifique que ha escrito la dirección correcta e intente nuevamente."
 
 #: src/gedit-utils.c:966
 #, c-format
@@ -2018,19 +1905,16 @@ msgid ""
 "\n"
 "Probably, you are trying to open a binary file."
 msgstr ""
-"No se ha podido abrir el archivo «%s» porque contiene datos UTF-8 inválidos.\n"
-"\n"
-"Probablemente usted este intentando abrir un archivo de tipo binario."
 
 #: src/gedit-utils.c:1004
 #, c-format
 msgid "Could not open the file \"%s\"."
-msgstr "No se ha podido abrir el archivo «%s»."
+msgstr ""
 
 #: src/gedit-utils.c:1055
 #, c-format
 msgid "Could not save the file \"%s\"."
-msgstr "No se ha podido guardar el archivo «%s»."
+msgstr "ፋይሉ \"%s\"ን ማስቀመጥ አልተቻለም።"
 
 #: src/gedit-utils.c:1059
 #, c-format
@@ -2039,7 +1923,7 @@ msgid ""
 "\n"
 "%s"
 msgstr ""
-"No se ha podido guardar el archivo «%s».\n"
+"ፋይሉ \"%s\"ን ማስቀመጥ አልተቻለም።"
 "\n"
 "%s"
 
@@ -2050,41 +1934,39 @@ msgid ""
 "\n"
 "Perhaps, it has recently been deleted."
 msgstr ""
-"No se ha podido recuperar el archivo «%s» porque gedit no puede encontrarlo.\n"
-"\n"
-"Quizás haya sido borrado recientemente."
 
 #: src/gedit-utils.c:1119
 #, c-format
 msgid "Could not revert the file \"%s\" because it contains corrupted data."
-msgstr "No se ha podido recuperar el archivo «%s» porque este contiene datos corruptos."
+msgstr ""
 
 #: src/gedit-utils.c:1130
 #, c-format
-msgid "Could not revert the file \"%s\" because gedit cannot handle %s: locations."
-msgstr "No se ha podido recuperar el archivo «%s» porque gedit no puede manejar %s direcciones."
+msgid ""
+"Could not revert the file \"%s\" because gedit cannot handle %s: locations."
+msgstr ""
 
 #: src/gedit-utils.c:1138 src/gedit-utils.c:1260
 #, c-format
 msgid "Could not revert the file \"%s\"."
-msgstr "No se ha podido recuperar el archivo «%s»."
+msgstr ""
 
 #: src/gedit-utils.c:1145
 #, c-format
 msgid ""
 "Could not revert the file \"%s\" because it contains data in an invalid "
 "format."
-msgstr "No se ha podido recuperar el archivo «%s» porque contiene datos en un formato inválido."
+msgstr ""
 
 #: src/gedit-utils.c:1152
 #, c-format
 msgid "Could not revert the file \"%s\" because it is too big."
-msgstr "No se ha podido recuperar el archivo «%s» porque es demasiado grande."
+msgstr ""
 
 #: src/gedit-utils.c:1159
 #, c-format
 msgid "Could not revert the file \"%s\" because access was denied."
-msgstr "No se ha podido recuperar el archivo «%s» porque el acceso fue denegado."
+msgstr ""
 
 #: src/gedit-utils.c:1166
 #, c-format
@@ -2093,9 +1975,6 @@ msgid ""
 "\n"
 "Please, close some open file and try again."
 msgstr ""
-"No se ha podido recuperar el archivo «%s» porque hay demasiados archivos abiertos.\n"
-"\n"
-"Por favor cierre algunos archivos abiertos e intente nuevamente."
 
 #: src/gedit-utils.c:1174
 #, c-format
@@ -2103,8 +1982,6 @@ msgid ""
 "Not enough available memory to revert the file \"%s\". Please, close some "
 "running application and try again."
 msgstr ""
-"No hay suficiente memoria disponible para recuperar el archivo «%s». "
-"Por favor cierre algunas aplicaciones e intente nuevamente."
 
 #: src/gedit-utils.c:1187
 #, c-format
@@ -2113,10 +1990,6 @@ msgid ""
 "\n"
 "Please, check that your proxy settings are correct and try again."
 msgstr ""
-"No se ha podido recuperar el archivo «%s» porque el equipo remoto «%s» no "
-"ha podido ser encontrado.\n"
-"\n"
-"Por favor verifique que la configuración de su proxy este correcta e intente nuevamente."
 
 #: src/gedit-utils.c:1199
 #, c-format
@@ -2125,14 +1998,11 @@ msgid ""
 "\n"
 "Please, check that your proxy settings are correct and try again."
 msgstr ""
-"No se ha podido recuperar el archivo «%s» porque el nombre del equipo remoto esta vacío.\n"
-"\n"
-"Por favor verifique que la configuración de su proxy este correcta e intente nuevamente."
 
 #: src/gedit-utils.c:1206
 #, c-format
 msgid "Could not revert the file \"%s\" because the attempt to log in failed."
-msgstr "No se ha podido recuperar el archivo «%s» porque el intento de registro ha fallado."
+msgstr ""
 
 #: src/gedit-utils.c:1213
 #, c-format
@@ -2141,85 +2011,81 @@ msgid ""
 "\n"
 "Probably, you are trying to revert a binary file."
 msgstr ""
-"No se ha podido recuperar el archivo «%s» porque contiene datos UTF-8 inválidos.\n"
-"\n"
-"Probablemente usted este intentando recuperar un archivo de tipo binario."
 
 #: src/gedit-utils.c:1222
 msgid "It is not possible to revert an Untitled document."
-msgstr "No es posible recuperar un documento Sin Título."
+msgstr "ስያሜ ያልተሰጠውን ሰነድ ለመመለስ አይቻልም"
 
 #: src/gedit-view.c:896
 #, c-format
 msgid "  Ln %d, Col. %d"
-msgstr "  Ln %d, Col. %d"
+msgstr "መስመር %d, ዐምድ %d"
 
 #: src/gedit-view.c:934
 msgid "  OVR"
-msgstr "  SOB"
+msgstr "  በላዩ ላይ ፃፍ"
 
 #: src/gedit-view.c:936
 msgid "  INS"
-msgstr "  INS"
+msgstr "  አስገባ"
 
 #: src/gedit2.c:69
 msgid "Show mdi debugging messages."
-msgstr "Mostrar mensajes de depuración MDI"
+msgstr "የተስተካከሉ የmdi መልዕክቶችን አሳይ።"
 
 #: src/gedit2.c:72
 msgid "Show commands debugging messages."
-msgstr "Mostrar mensajes de depuración de comandos"
+msgstr "ትእዛዞቹ መልእክቶቹን ሲያስተካክሉአቸው አሳይ።"
 
 #: src/gedit2.c:75
 msgid "Show document debugging messages."
-msgstr "Mostrar mensajes de depuración de documento"
+msgstr "የተስተካከሉ መልዕክቶችን ሰነድ አሳይ።"
 
 #: src/gedit2.c:78
 msgid "Show file debugging messages."
-msgstr "Mostrar mensajes de depuración de archivo"
+msgstr "የተስተካከሉ የመልዕክቶች ፋይልን አሳይ።"
 
 #: src/gedit2.c:81
 msgid "Show plugin debugging messages."
-msgstr "Mostrar mensajes de depuración de extensiones"
+msgstr "የረዳት ፕሮግራሙ የተስተካከሉ መልዕክቶች አሳይ።"
 
 #: src/gedit2.c:84
 msgid "Show prefs debugging messages."
-msgstr "Mostrar mensajes de depuración de preferencias"
+msgstr "የተስተካከሉ መልእክቶችን ምርጫዎች አሳይ።"
 
 #: src/gedit2.c:87
 msgid "Show printing debugging messages."
-msgstr "Mostrar mensajes de depuración de impresión"
+msgstr "የተስተካከሉት መልዕክቶች ሲታተሙ አሳይ።"
 
 #: src/gedit2.c:90
 msgid "Show search debugging messages."
-msgstr "Mostrar mensajes de depuración de buscar"
+msgstr "የተስተካከሉትን መልዕክቶች ሲፈልግ አሳይ።"
 
 #: src/gedit2.c:93
 msgid "Show undo debugging messages."
-msgstr "Mostrar mensajes de depuración de deshacer"
+msgstr "ተስተካክለው የተተውትን መልዕክቶች አሳይ።"
 
 #: src/gedit2.c:96
 msgid "Show view debugging messages."
-msgstr "Mostrar mensajes de depuración de ver"
+msgstr "የተስተካከሉ መልዕክቶችን ማሳያ አሳይ።"
 
 #: src/gedit2.c:99
 msgid "Show recent debugging messages."
-msgstr "Mostrar mensajes de depuración recientes"
+msgstr "በቅርቡ የተስተካከሉትን መልዕክቶች አሳይ።"
 
 #: src/gedit2.c:102
 msgid "Show session management debugging messages."
-msgstr "Mostrar mensajes de depuración del manejador de sesiones"
+msgstr ""
 
 #: src/gedit2.c:105
 msgid "Turn on all debugging messages."
-msgstr "Mostrar todos los mensajes de depuración"
+msgstr "ሁሉንም የተስተካከሉ መልዕክቶችን ክፈት።"
 
 #: src/gedit2.c:164
 msgid "The GNOME text editor"
-msgstr "El editor de texto de GNOME"
+msgstr "የኖም የጽሑፍ አርታዒ"
 
 #: src/gnome-recent-view-bonobo.c:189
 #, c-format
 msgid "Open %s"
-msgstr "Abrir %s"
-
+msgstr "ክፈት %s"

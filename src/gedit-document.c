@@ -42,9 +42,9 @@
 
 #include <libgnome/libgnome.h>
 #include <libgnomevfs/gnome-vfs.h>
+#include <eel/eel-vfs-extensions.h>
 
 #include "gedit-prefs-manager.h"
-#include "gnome-vfs-helpers.h"
 #include "gedit-document.h"
 #include "gedit-debug.h"
 #include "gedit-utils.h"
@@ -559,15 +559,10 @@ gedit_document_get_uri (const GeditDocument* doc)
 	else
 	{
 		gchar *res;
-		gchar *uri = g_filename_to_utf8 (doc->priv->uri, -1, NULL, NULL, NULL);
 
-		if (uri == NULL)
-			return g_strdup (_("Invalid file name"));
+		res = eel_format_uri_for_display (doc->priv->uri);
+		g_return_val_if_fail (res != NULL, g_strdup (_("Invalid file name")));
 		
-		res = gnome_vfs_x_format_uri_for_display (uri);
-
-		g_free (uri);
-
 		return res;
 	}
 }
@@ -581,17 +576,39 @@ gedit_document_get_short_name (const GeditDocument* doc)
 		return g_strdup_printf (_("%s %d"), _("Untitled"), doc->priv->untitled_number);
 	else
 	{
-		gchar *res;
-		gchar *uri = g_filename_to_utf8 (doc->priv->uri, -1, NULL, NULL, NULL);
+		gchar *basename;
+		gchar *utf8_basename;
 		
-		if (uri == NULL)
-			return g_strdup (_("Invalid file name"));
+		basename = eel_uri_get_basename (doc->priv->uri);
 
-		res = gnome_vfs_x_uri_get_basename (uri);
+		if (basename != NULL) 
+		{
+			gboolean filenames_are_locale_encoded;
+		       	filenames_are_locale_encoded = g_getenv ("G_BROKEN_FILENAMES") != NULL;
 
-		g_free (uri);
-
-		return res;
+			if (filenames_are_locale_encoded) 
+			{
+				utf8_basename = g_locale_to_utf8 (basename, -1, NULL, NULL, NULL);
+				
+				if (utf8_basename != NULL) 
+				{
+					g_free (basename);
+					return utf8_basename;
+				} 
+			}
+			else 
+			{
+				if (g_utf8_validate (basename, -1, NULL)) 
+					return basename;
+			}
+			
+			/* there are problems */
+			utf8_basename = eel_make_valid_utf8 (basename);
+			g_free (basename);
+			return utf8_basename;
+		}
+		else
+			return 	g_strdup (_("Invalid file name"));
 	}
 }
 
@@ -671,7 +688,7 @@ gedit_document_load (GeditDocument* doc, const gchar *uri, GError **error)
 	g_return_val_if_fail (doc != NULL, FALSE);
 	g_return_val_if_fail (uri != NULL, FALSE);
 
-	res = gnome_vfs_x_read_entire_file (uri, &file_size, &file_contents);
+	res = eel_read_entire_file (uri, &file_size, &file_contents);
 
 	gedit_debug (DEBUG_DOCUMENT, "End reading %s (result: %s)", uri, gnome_vfs_result_to_string (res));
 	
@@ -1121,8 +1138,12 @@ gedit_document_save_as_real (GeditDocument* doc, const gchar *uri,
 	if (!gedit_utils_uri_has_file_scheme (uri))
 	{
 		gchar *error_message;
-		gchar *scheme_string = gnome_vfs_x_uri_get_scheme (uri);
-                
+		gchar *scheme_string;
+
+		gchar *temp = eel_uri_get_scheme (uri);
+                scheme_string = eel_make_valid_utf8 (temp);
+		g_free (temp);
+
 		if (scheme_string != NULL)
 		{
 			error_message = g_strdup_printf (
@@ -1140,8 +1161,17 @@ gedit_document_save_as_real (GeditDocument* doc, const gchar *uri,
 		return FALSE;
 	}
 
-	filename = gnome_vfs_x_format_uri_for_display (uri);
+	/* Get filename from uri */
+	temp_filename = eel_make_uri_canonical (uri);
+	
+	if ((temp_filename == NULL) || (strlen (temp_filename) <= 7))
+		filename = NULL;
+	else
+		filename = g_strdup (temp_filename + 7);
 
+	if (temp_filename != NULL)
+		g_free (temp_filename);
+	
 	if (!filename)
 	{
 		g_set_error (error, GEDIT_DOCUMENT_IO_ERROR, 0,

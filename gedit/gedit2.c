@@ -33,6 +33,7 @@
 #include <libgnome/libgnome.h>
 #include <libgnomeui/libgnomeui.h>
 #include <libgnomeui/gnome-window-icon.h>
+#include <eel/eel-vfs-extensions.h>
 
 #include "gedit2.h"
 #include "gedit-mdi.h"
@@ -43,7 +44,6 @@
 #include "gedit-session.h"
 #include "gedit-plugins-engine.h"
 #include "gedit-application-server.h"
-#include "gnome-vfs-helpers.h"
 
 #ifndef GNOME_ICONDIR
 #define GNOME_ICONDIR "" 
@@ -142,7 +142,8 @@ static void
 gedit_load_file_list (CommandLineData *data)
 {	
 
-	if (!data) {
+	if (!data) 
+	{
 		gedit_file_new ();
 		return;
 	}
@@ -179,14 +180,16 @@ gedit_get_command_line_data (GnomeProgram *program)
 	args = (char**) poptGetArgs(ctx);
 
 
-	if (args) {	
+	if (args) 
+	{	
 		data = g_new0 (CommandLineData, 1);
 		for (i = 0; args[i]; i++) 
 		{
 			if (*args[i] == '+') 
 				data->line_pos = atoi (args[i] + 1);		
 			else
-				data->file_list = g_list_append (data->file_list, gnome_vfs_x_make_uri_from_shell_arg (args[i]));
+				data->file_list = g_list_append (data->file_list, 
+								 eel_make_uri_from_shell_arg (args[i]));
 		}
 	}
 	
@@ -213,20 +216,22 @@ gedit_handle_automation_cmdline (GnomeProgram *program)
                                                      0, NULL, &env);
 	g_return_if_fail (server != NULL);
 
-	if (quit_option) {
+	if (quit_option) 
 		GNOME_Gedit_Application_quit (server, &env);
-	}
-	if (new_window_option) {
+	
+	if (new_window_option) 
 		GNOME_Gedit_Application_newWindow (server, &env);
-	}
-	if (new_document_option) {
+
+	if (new_document_option) 
+	{
 		window = GNOME_Gedit_Application_getActiveWindow (server, &env);
 		GNOME_Gedit_Window_newDocument (window, &env);
 	}
 
 	data = gedit_get_command_line_data (program);
 
-	if (data) {
+	if (data) 
+	{
 		window = GNOME_Gedit_Application_getActiveWindow (server, &env);
 
 		/* convert the GList of files into a CORBA sequence */
@@ -238,7 +243,8 @@ gedit_handle_automation_cmdline (GnomeProgram *program)
 
 		list = data->file_list;
 		i=0;
-		while (list != NULL) {
+		while (list != NULL) 
+		{
 			uri_list->_buffer[i] = CORBA_string_dup ((gchar*)list->data);
 			list = list->next;
 			i++;
@@ -291,7 +297,8 @@ main (int argc, char **argv)
                  Bonobo_ACTIVATION_FLAG_EXISTING_ONLY,
                  NULL, NULL);
 
-        if (factory != NULL) {
+        if (factory != NULL) 
+	{
 		/* there is an instance already running, so send
 		 * commands to it if needed
 		 */
@@ -320,7 +327,8 @@ main (int argc, char **argv)
 	if (gedit_session_is_restored ())
 		restored = gedit_session_load ();
 
-	if (!restored) {
+	if (!restored) 
+	{
 		CommandLineData *data;
 
 		data = gedit_get_command_line_data (program);
