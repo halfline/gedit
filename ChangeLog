@@ -1,3 +1,10 @@
+1999-04-03 (14:47) Alex Roberts  <bse@gedit.pn.org>
+	
+	* gE_mdi.c: Commented out the view_menu.. the Add View and Remove
+	  View functions are completely borked.. The implementation is
+	  completely different to the way GHex implements it.. maybe Jaka
+	  could have a look?
+	
 1999-04-03 (13:16) Alex Roberts  <bse@gedit.pn.org>
 	
 	* gedit.c: (main) Don't send a GE_DOCUMENT reference to add_view.. 

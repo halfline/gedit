@@ -71,7 +71,9 @@ GnomeUIInfo gedit_edit_menu [] = {
 	
 	GNOMEUIINFO_END
 };
-
+/*	This view stuff is really annoying.. if anyone would like to take up the 
+ 	challenge of trying to figure out the view stuff, with gEdit, then please
+ 	do.. its much different to the way GHex implements it... -Alex
 GnomeUIInfo view_menu[] = {
 	GNOMEUIINFO_ITEM_NONE (N_("_Add View"),
 					   N_("Add a new view of the document"), gE_add_view),
@@ -79,10 +81,10 @@ GnomeUIInfo view_menu[] = {
 					   N_("Remove view of the document"), gE_remove_view),
 	GNOMEUIINFO_END
 };
-
+*/
 GnomeUIInfo doc_menu[] = {
 	GNOMEUIINFO_MENU_EDIT_TREE(gedit_edit_menu),
-	GNOMEUIINFO_MENU_VIEW_TREE(view_menu),
+/*	GNOMEUIINFO_MENU_VIEW_TREE(view_menu),*/
 	GNOMEUIINFO_END
 };
 
