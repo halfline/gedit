@@ -376,8 +376,8 @@ auto_indent_cb(GtkWidget *text, char *insertion_text, int length,
 		return FALSE;
 	if (gtk_text_get_length (GTK_TEXT (text)) <=1)
 		return FALSE;
-	/*if (!data->window->auto_indent)
-		return FALSE;*/
+	if (!settings->auto_indent)
+		return FALSE;
 
 	newlines = 0;
 	for (i = *pos; i > 0; i--)

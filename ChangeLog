@@ -1,3 +1,14 @@
+1999-04-02 (23:53) Alex Roberts  <bse@gedit.pn.org>
+
+	* gE_mdi.c: (gE_document_create_view) Reactivated the signal connection
+	  for "insert_text"... now i just get Gtk-CRITICAL errors from
+	  gtk_text_set_point.. maybe its not referencing the TextWidget
+	  properly.. even tho the auto indent itself is working.. grr..
+	
+	* commands.c: (auto_indent_cb) !data->window->auto_indent should be
+	  !settings->auto_indent.. turning auto indent off should work now,
+	  as soon as i get the rest of auto indent implemented
+
 1999-04-02 (23:40) Alex Roberts  <bse@gedit.pn.org>
 
 	* gE_mdi.c: (gE_add_view) This is pretty much a kludge. Just the same

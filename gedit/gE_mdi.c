@@ -185,9 +185,9 @@ BORK!!	*ptr = ++last_assigned_integer;
 	gtk_signal_connect_after(GTK_OBJECT(doc->text), "button_press_event",
 		GTK_SIGNAL_FUNC(gE_event_button_press), NULL);
 
-/*FIXME	gtk_signal_connect_after (GTK_OBJECT(doc->text), "insert_text",
-		GTK_SIGNAL_FUNC(auto_indent_cb), window);
-*/
+	gtk_signal_connect_after (GTK_OBJECT(doc->text), "insert_text",
+		GTK_SIGNAL_FUNC(auto_indent_cb), NULL);
+
 	gtk_table_attach_defaults(GTK_TABLE(table), doc->text, 0, 1, 0, 1);
 
 	style = gtk_style_new();
