@@ -5,7 +5,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: gnome-utils VERSION\n"
-"POT-Creation-Date: 1999-03-20 21:37+0000\n"
+"POT-Creation-Date: 1999-04-02 00:20+0100\n"
 "PO-Revision-Date: 1998-02-28 19:57+0100\n"
 "Last-Translator: Vincent Renardias <vincent@ldsol.com>\n"
 "Language-Team: Vincent Renardias <vincent@ldsol.com>\n"
@@ -115,7 +115,7 @@ msgid "Close"
 msgstr "Fermer"
 
 #. Print Settings
-#: src/gE_document.c:67 src/gE_prefs_box.c:676 src/gE_print.c:70
+#: src/gE_document.c:67 src/gE_prefs_box.c:679 src/gE_print.c:70
 #: src/toolbar.c:46
 msgid "Print"
 msgstr "Imprimer"
@@ -134,77 +134,77 @@ msgid "Line"
 msgstr "Ligne"
 
 #. data->window = app;
-#: src/gE_plugin_api.c:105 src/gE_plugin_api.c:106 src/gE_prefs_box.c:431
-#: src/gE_prefs_box.c:432 src/gE_prefs_box.c:482 src/gE_prefs_box.c:483
+#: src/gE_plugin_api.c:105 src/gE_plugin_api.c:106 src/gE_prefs_box.c:434
+#: src/gE_prefs_box.c:435 src/gE_prefs_box.c:485 src/gE_prefs_box.c:486
 #: src/menus.c:232
 msgid "_Plugins"
 msgstr "_Plugins"
 
-#: src/gE_prefs_box.c:180
+#: src/gE_prefs_box.c:183
 msgid "Appearance"
 msgstr "Apparence"
 
-#: src/gE_prefs_box.c:193
+#: src/gE_prefs_box.c:196
 msgid "Show Statusbar"
 msgstr "Afficher la barre d'état"
 
-#: src/gE_prefs_box.c:202
+#: src/gE_prefs_box.c:205
 msgid "Show Splitscreen"
 msgstr ""
 
-#: src/gE_prefs_box.c:211
+#: src/gE_prefs_box.c:214
 msgid "Editor Behavior"
 msgstr "Comportement de l'éditeur"
 
-#: src/gE_prefs_box.c:224
+#: src/gE_prefs_box.c:227
 msgid "Enable Autoindent"
 msgstr "Activer l'auto-indentation"
 
-#: src/gE_prefs_box.c:233
+#: src/gE_prefs_box.c:236
 msgid "Enable Wordwrap"
 msgstr "Activer le retour à la ligne automatique"
 
-#: src/gE_prefs_box.c:253
+#: src/gE_prefs_box.c:256
 msgid "Print Command"
 msgstr "Commande d'impression"
 
-#: src/gE_prefs_box.c:343
+#: src/gE_prefs_box.c:346
 msgid "Current Font"
 msgstr "Police courante"
 
-#: src/gE_prefs_box.c:360
+#: src/gE_prefs_box.c:363
 msgid "Select..."
 msgstr "Sélectionner..."
 
-#: src/gE_prefs_box.c:526
+#: src/gE_prefs_box.c:529
 msgid "Name"
 msgstr ""
 
-#: src/gE_prefs_box.c:526
+#: src/gE_prefs_box.c:529
 msgid "Location"
 msgstr ""
 
 #. Plugins Settings
-#: src/gE_prefs_box.c:533 src/gE_prefs_box.c:686
+#: src/gE_prefs_box.c:536 src/gE_prefs_box.c:689
 #, fuzzy
 msgid "Plugins"
 msgstr "_Plugins"
 
-#: src/gE_prefs_box.c:614
+#: src/gE_prefs_box.c:617
 msgid "Add"
 msgstr ""
 
-#: src/gE_prefs_box.c:619
+#: src/gE_prefs_box.c:622
 msgid "Remove"
 msgstr ""
 
 #. General Settings
-#: src/gE_prefs_box.c:671
+#: src/gE_prefs_box.c:674
 msgid "General"
 msgstr "Général"
 
 #. Font Settings
-#: src/gE_prefs_box.c:681
+#: src/gE_prefs_box.c:684
 msgid "Font"
 msgstr "Police"
 

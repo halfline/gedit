@@ -807,15 +807,11 @@ edit_cut_cb(GtkWidget *widget, gpointer cbdata)
 {
 	gE_data *data = (gE_data *)cbdata;
 
-#if (GTK_MAJOR_VERSION==1) && (GTK_MINOR_VERSION==1)
-	gtk_editable_cut_clipboard(
-		GTK_EDITABLE(gE_document_current()->text));
-#else
 	gtk_editable_cut_clipboard(GTK_EDITABLE(
 		gE_document_current()->text));
-#endif
+
 	/*gE_msgbar_set(data->window, MSGBAR_CUT);*/
-	gnome_app_error (mdi->active_window, MSGBAR_CUT);
+	gnome_app_flash (mdi->active_window, MSGBAR_CUT);
 }
 
 void
@@ -826,7 +822,7 @@ edit_copy_cb(GtkWidget *widget, gpointer cbdata)
 	gtk_editable_copy_clipboard(
 		GTK_EDITABLE(gE_document_current()->text));
 /*	gE_msgbar_set(data->window, MSGBAR_COPY);*/
-	gnome_app_error (mdi->active_window, MSGBAR_COPY);
+	gnome_app_flash (mdi->active_window, MSGBAR_COPY);
 }
 	
 void
@@ -838,7 +834,7 @@ edit_paste_cb(GtkWidget *widget, gpointer cbdata)
 		GTK_EDITABLE(gE_document_current()->text));
 
 /*	gE_msgbar_set(data->window, MSGBAR_PASTE);*/
-	gnome_app_error (mdi->active_window, MSGBAR_PASTE);
+	gnome_app_flash (mdi->active_window, MSGBAR_PASTE);
 }
 
 void
@@ -851,7 +847,7 @@ edit_selall_cb(GtkWidget *widget, gpointer cbdata)
 		gtk_text_get_length(
 			GTK_TEXT(gE_document_current()->text)));
 /*	gE_msgbar_set(data->window, MSGBAR_SELECT_ALL);*/
-	gnome_app_error (mdi->active_window, MSGBAR_SELECT_ALL);
+	gnome_app_flash (mdi->active_window, MSGBAR_SELECT_ALL);
 }
 
 

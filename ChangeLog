@@ -1,3 +1,14 @@
+1999-04-02 (23:07) Alex Roberts  <bse@gedit.pn.org>
+
+	* gE_mdi.c: Added replacement to the context popup menu for the text
+	  widget. Now in a Gnome Popup menu, with spiffy stock pixmaps :)
+	  (gE_document_create_view) Attached the popup menu GnomeUIINFO to the
+	  text widget.
+	  
+	* commands.c: (edit_cut_cb, edit_copy_cb, edit_paste_cb, edit_selall_cb)
+	  Replaced gnome_app_error with gnome_app_flash.. how the hell did that 
+	  get there?! I must have been tired when I wrote that! ;)
+
 1999-03-27 (20:18) Alex Roberts  <bse@gedit.pn.org>
 
 	* commands.c (doc_insert_text_cb) removed some really annoying debug 

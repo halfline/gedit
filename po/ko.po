@@ -5,7 +5,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: gEdit 0.4.5\n"
-"POT-Creation-Date: 1999-03-20 21:37+0000\n"
+"POT-Creation-Date: 1999-04-02 00:20+0100\n"
 "PO-Revision-Date: 1998-10-18 03:07:11+0900\n"
 "Last-Translator: Sung-Hyun Nam <namsh@lgic.co.kr>\n"
 "Language-Team: Korean <ko@li.org>\n"
@@ -115,7 +115,7 @@ msgid "Close"
 msgstr "닫기"
 
 #. Print Settings
-#: src/gE_document.c:67 src/gE_prefs_box.c:676 src/gE_print.c:70
+#: src/gE_document.c:67 src/gE_prefs_box.c:679 src/gE_print.c:70
 #: src/toolbar.c:46
 #, fuzzy
 msgid "Print"
@@ -135,82 +135,82 @@ msgid "Line"
 msgstr ""
 
 #. data->window = app;
-#: src/gE_plugin_api.c:105 src/gE_plugin_api.c:106 src/gE_prefs_box.c:431
-#: src/gE_prefs_box.c:432 src/gE_prefs_box.c:482 src/gE_prefs_box.c:483
+#: src/gE_plugin_api.c:105 src/gE_plugin_api.c:106 src/gE_prefs_box.c:434
+#: src/gE_prefs_box.c:435 src/gE_prefs_box.c:485 src/gE_prefs_box.c:486
 #: src/menus.c:232
 #, fuzzy
 msgid "_Plugins"
 msgstr "플러그인"
 
-#: src/gE_prefs_box.c:180
+#: src/gE_prefs_box.c:183
 msgid "Appearance"
 msgstr ""
 
-#: src/gE_prefs_box.c:193
+#: src/gE_prefs_box.c:196
 #, fuzzy
 msgid "Show Statusbar"
 msgstr "상태막대 토글"
 
-#: src/gE_prefs_box.c:202
+#: src/gE_prefs_box.c:205
 msgid "Show Splitscreen"
 msgstr ""
 
-#: src/gE_prefs_box.c:211
+#: src/gE_prefs_box.c:214
 msgid "Editor Behavior"
 msgstr ""
 
-#: src/gE_prefs_box.c:224
+#: src/gE_prefs_box.c:227
 #, fuzzy
 msgid "Enable Autoindent"
 msgstr "Autoindent 토글"
 
-#: src/gE_prefs_box.c:233
+#: src/gE_prefs_box.c:236
 #, fuzzy
 msgid "Enable Wordwrap"
 msgstr "Wordwrap 토글"
 
-#: src/gE_prefs_box.c:253
+#: src/gE_prefs_box.c:256
 msgid "Print Command"
 msgstr ""
 
-#: src/gE_prefs_box.c:343
+#: src/gE_prefs_box.c:346
 msgid "Current Font"
 msgstr ""
 
-#: src/gE_prefs_box.c:360
+#: src/gE_prefs_box.c:363
 #, fuzzy
 msgid "Select..."
 msgstr "전부 선택"
 
-#: src/gE_prefs_box.c:526
+#: src/gE_prefs_box.c:529
 msgid "Name"
 msgstr ""
 
-#: src/gE_prefs_box.c:526
+#: src/gE_prefs_box.c:529
 msgid "Location"
 msgstr ""
 
 #. Plugins Settings
-#: src/gE_prefs_box.c:533 src/gE_prefs_box.c:686
+#: src/gE_prefs_box.c:536 src/gE_prefs_box.c:689
 #, fuzzy
 msgid "Plugins"
 msgstr "플러그인"
 
-#: src/gE_prefs_box.c:614
+#: src/gE_prefs_box.c:617
 msgid "Add"
 msgstr ""
 
-#: src/gE_prefs_box.c:619
+#: src/gE_prefs_box.c:622
 msgid "Remove"
 msgstr ""
 
 #. General Settings
-#: src/gE_prefs_box.c:671
+#: src/gE_prefs_box.c:674
 msgid "General"
 msgstr ""
 
 #. Font Settings
-#: src/gE_prefs_box.c:681
+#: src/gE_prefs_box.c:684
 msgid "Font"
 msgstr ""
 

@@ -32,7 +32,7 @@
 #include "commands.h"
 #include "search.h"
 #include "gE_mdi.h"
-
+#include "gE_print.h"
 
 static void 	  gE_document_class_init (gE_document_class *);
 static void 	  gE_document_init (gE_document *);
@@ -86,6 +86,19 @@ GnomeUIInfo doc_menu[] = {
 	GNOMEUIINFO_END
 };
 
+GnomeUIInfo popup_menu [] = {
+	
+	GNOMEUIINFO_ITEM_STOCK ("Cut", NULL, edit_cut_cb, GNOME_STOCK_MENU_CUT),
+	GNOMEUIINFO_ITEM_STOCK ("Copy", NULL, edit_cut_cb, GNOME_STOCK_MENU_COPY),
+	GNOMEUIINFO_ITEM_STOCK ("Paste", NULL, edit_paste_cb, GNOME_STOCK_MENU_PASTE),
+	GNOMEUIINFO_SEPARATOR, 
+	GNOMEUIINFO_ITEM_STOCK ("Save", NULL, file_save_cb, GNOME_STOCK_MENU_SAVE),
+	GNOMEUIINFO_ITEM_STOCK ("Close", NULL, file_close_cb, GNOME_STOCK_MENU_CLOSE),
+	GNOMEUIINFO_ITEM_STOCK ("Print", NULL, file_print_cb, GNOME_STOCK_MENU_PRINT),
+	
+	GNOMEUIINFO_END
+};
+
 
 enum {
 	DOCUMENT_CHANGED,
@@ -135,7 +148,7 @@ static GtkWidget *gE_document_create_view (GnomeMDIChild *child)
 {
 	GtkWidget *new_view;
 	gE_document *doc;
-	GtkWidget *table, *vscrollbar, *vpaned, *vbox;
+	GtkWidget *table, *vscrollbar, *vpaned, *vbox, *menu;
 	GtkStyle *style;
 	gint *ptr; /* For plugin stuff. */
 	
@@ -193,6 +206,9 @@ GTK_SIGNAL_FUNC(gE_document_popup_cb), GTK_OBJECT((gE_window *)(mdi->active_wind
 
 	gtk_widget_show(doc->text);
 	gtk_text_set_point(GTK_TEXT(doc->text), 0);
+
+	menu = gnome_popup_menu_new (popup_menu);
+	gnome_popup_menu_attach (menu, doc->text, doc);
 
 	vbox = gtk_vbox_new (FALSE, FALSE);
 
@@ -340,7 +356,7 @@ gE_document *gE_document_new ()
 	if ((doc = gtk_type_new (gE_document_get_type ())))
 	  {
 	    gnome_mdi_child_set_name(GNOME_MDI_CHILD(doc), _(UNTITLED));
-	    
+	
 	    return doc;
 	  }
 	
