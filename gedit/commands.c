@@ -358,7 +358,6 @@ auto_indent_toggle_cb(GtkWidget *w, gpointer cbdata)
 	gE_window_set_auto_indent ((gint*)!settings->auto_indent);
 }
 
-/* FIXME: All this gE_windiw stuff is annoying.. should be able to fix it later */
 gint
 auto_indent_cb(GtkWidget *text, char *insertion_text, int length,
 	int *pos, gpointer cbdata)

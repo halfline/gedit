@@ -1,3 +1,15 @@
+1999-04-03 (15:57) Alex Roberts  <bse@gedit.pn.org>
+
+	* commands.c: (child_switch) Fixed the function for GnomeMDI.. it now
+	  sets the gEdit window title with the name of the doc as it did before
+	  GnomeMDI was introduced - One problem, the titlebar flickers when you
+	  change the child.
+	
+	* gedit.c: (main) Don't send a window pointer to the child_changed signal,
+	  no pointer at all is needed in fact.
+	
+	* gE_mdi.c: Removed unneeded debug output.
+
 1999-04-03 (15:30) Alex Roberts  <bse@gedit.pn.org>
 	
 	* gE_mdi.c:  (gE_document_create_view) Removed the signal connections

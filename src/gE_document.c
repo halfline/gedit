@@ -275,24 +275,20 @@ gchar *fname;
 void
 child_switch (GnomeMDI *mdi, gE_document *doc)
 {
-/*FIXME	gE_document *doc;
 	gchar *title;
 
-	g_assert(window != NULL);
-	g_assert(window->window != NULL);
-
-	if (gE_documents == NULL)
-		return;	
-
-	gtk_widget_grab_focus(gE_document_current()->text);
-	title = g_malloc0(strlen(GEDIT_ID) +
-		strlen(gE_document_current()->filename) + 4);
-	sprintf(title, "%s - %s",
-		gE_document_current()->filename,
-		GEDIT_ID);
-	gtk_window_set_title(GTK_WINDOW(window->window), title);
-	g_free(title);*/
-	g_print ("child has changed something..\n");
+	if (gE_document_current())
+	  {
+	    gtk_widget_grab_focus(gE_document_current()->text);
+	    title = g_malloc0 (strlen (GEDIT_ID) +
+					   strlen (GNOME_MDI_CHILD (gE_document_current())->name) + 4);
+	    sprintf (title, "%s - %s",
+		   GNOME_MDI_CHILD (gE_document_current())->name,
+		   GEDIT_ID);
+	    gtk_window_set_title(GTK_WINDOW(mdi->active_window), title);
+	    g_free(title);
+	  }
+	  
 
 }
 /*	umm.. FIXME?

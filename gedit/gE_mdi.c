@@ -413,13 +413,9 @@ gE_document *gE_document_current()
 	gE_document *current_document;
 	current_document = NULL;
 
-	/* FIXME: This is borked! I know it! */
-	g_print ("gE_document_current()\n");
-		
 	if (mdi->active_child)
 	  current_document = GE_DOCUMENT(mdi->active_child);
  
-
 	return current_document;
 }
 
@@ -537,9 +533,7 @@ void view_changed_cb (GnomeMDI *mdi, GtkWidget *old_view)
 	GtkWidget *shell, *item;
 	gint group_item, pos;
 	gchar *p, *label;
-	
-	g_print ("It's chnanged!\n");
-	
+
 	if (mdi->active_view == NULL)
 	  return;
 	  
@@ -556,6 +550,7 @@ void view_changed_cb (GnomeMDI *mdi, GtkWidget *old_view)
    
 	  }
 	g_free (p);
+	
 }
 
 void add_view_cb (GnomeMDI *mdi, gE_document *doc)
@@ -571,8 +566,8 @@ void add_view_cb (GnomeMDI *mdi, gE_document *doc)
 gint add_child_cb (GnomeMDI *mdi, gE_document *doc)
 
 {
-	g_print ("stuff\n");
-	
+	/* Add child stuff.. we need to make sure that it is safe to add a child,
+	   or something, i'm not quite sure about the syntax for this function */
 	
 	return TRUE;
 }
