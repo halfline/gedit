@@ -174,6 +174,7 @@ gE_window_new(GnomeMDI *mdi, GnomeApp *app)
 
 	g_list_foreach(plugins, (GFunc) add_plugins_to_window, app);
 	
+	settings->num_recent = 0;
 	recent_update(app);
 	window_list = g_list_append(window_list, (gpointer) w);
 

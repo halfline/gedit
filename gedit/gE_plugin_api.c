@@ -116,7 +116,7 @@ add_plugin_to_menu(GnomeApp *app, plugin_info * info)
 
    (menu + 1)->type = GNOME_APP_UI_ENDOFINFO;
 
-   gnome_app_insert_menus_with_data(app, path, menu, data);
+   gnome_app_insert_menus(app, path, menu);
 
 }
 
