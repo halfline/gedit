@@ -1,7 +1,55 @@
+Tue Jul 20 16:26:39 BST 1999  Alex Roberts  <bse@gedit.pn.org>
+
+	* gE_view.[ch]: Made the View widget inherited from a GtkVBox. This
+	  has fixed one of the Gtk-CRITICAL errors and means we dont have to
+	  worry about allocating space for the widget.
+	
+	* gE_document.c: (gE_window_new) Started re-writing this function, 
+	  to try and make GnomeMDI a little more stable.
+
+Mon Jul 19 19:30:14 BST 1999  Alex Roberts  <bse@gedit.pn.org>
+
+	* main.h: (gE_document) Added buffer and buffer size to the document
+	  struct.
+	
+	* gE_mdi.c: (gE_document_new) Removed references to 
+ 	  gnome_mdi_add_child/view. (gE_document_new_with_file) As above, 
+	  but now load the requested file into the gE_document internal buffer.
+	
+	* gE_files.c:
+	  commands.c:
+	  gE_document.c:
+	  gE_plugin_api.c:
+	  gedit.c: All gE_document_new* functions have the 
+  	  gnome_mdi_add_child/view after them, as they are no longer in the 
+	  gE_document_new* functions.
+
+Mon Jul 19 18:44:31 BST 1999  Alex Roberts  <bse@gedit.pn.org>
+
+	* TODO-large: Moved old TODO list into this.
+	
+	* TODO: New and more consise TODO list.
+	
+	* KNOWNBUGS: Added Line Counter problem.
+
 Sun Jul 18 21:09:40 BST 1999  Alex Roberts  <bse@gedit.pn.org>
 
 	* src/search.c: (search_search) Search should work properly now, except
 	  search backwards is a bit dodgy now, erf.. 
+
+1999-07-17  Karsten Weiss  <karsten@addx.au.s.shuttle.de>
+
+	* gE_prefs_box.c: (doc_page_new) Tagged two strings as translatable.
+
+Fri Jul  2 16:18:27 BST 1999  Alex Roberts  <bse@gedit.pn.org>
+
+	* README: Upped version number to 0.5.4. Also updated various parts
+	  of the file to reflect current features and other related items.
+	
+	* README.plugins, INSTALL, makeconfig.pl: Upped version number to 0.5.4,
+	  in preperation of release.
+	
+	* NEWS: Added Announce message for 0.5.4.
 
 Mon Jun 28 19:37:27 BST 1999  Alex Roberts  <bse@gedit.pn.org>
 
@@ -28,20 +76,6 @@ Mon Jun 28 19:37:27 BST 1999  Alex Roberts  <bse@gedit.pn.org>
 	
 	* There's still lots of bugs, i know.. but the new system is working 
           now.
-
-1999-07-17  Karsten Weiss  <karsten@addx.au.s.shuttle.de>
-
-	* gE_prefs_box.c: (doc_page_new) Tagged two strings as translatable.
-
-Fri Jul  2 16:18:27 BST 1999  Alex Roberts  <bse@gedit.pn.org>
-
-	* README: Upped version number to 0.5.4. Also updated various parts
-	  of the file to reflect current features and other related items.
-	
-	* README.plugins, INSTALL, makeconfig.pl: Upped version number to 0.5.4,
-	  in preperation of release.
-	
-	* NEWS: Added Announce message for 0.5.4.
 
 Sat Jun 26 22:22:17 BST 1999  Alex Roberts  <bse@gedit.pn.org>
 

@@ -222,7 +222,13 @@ int
 gE_plugin_document_create(gint context, gchar * title)
 {
    /*return *(int *) g_hash_table_lookup(doc_pointer_to_int, gE_document_new());*/
-   return (int) gE_document_new ();
+   gE_document *doc;
+   
+   doc = gE_document_new ();
+   gnome_mdi_add_child (mdi, GNOME_MDI_CHILD (doc));
+   gnome_mdi_add_view (mdi, GNOME_MDI_CHILD (doc));
+    
+   return (int) doc;
 }
 
 void 

@@ -289,7 +289,9 @@ int main (int argc, char **argv)
 		{
 			/*data->temp2 = file_list->data;*/
 			/*file_open_wrapper (file_list->data);*/
-			gE_document_new_with_file (file_list->data);
+			doc = gE_document_new_with_file (file_list->data);
+			gnome_mdi_add_child (mdi, GNOME_MDI_CHILD (doc));
+	        	gnome_mdi_add_view (mdi, GNOME_MDI_CHILD (doc));
 		}
 	}
 /*	else

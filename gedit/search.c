@@ -662,7 +662,7 @@ search_select (gE_document *doc, gchar *str, gint pos, gulong options)
 		gtk_editable_set_position (GTK_EDITABLE (view->text),
 				pos);
 		gtk_editable_select_region (GTK_EDITABLE (view->text),
-				 pos, pos + numwcs);
+				 pos + numwcs, pos);
 	}
 }
 

@@ -308,7 +308,11 @@ filenames_dropped (GtkWidget * widget,
 	tmp_list = names;
 
 	while (tmp_list) {
-		doc = gE_document_new_with_file ((gchar *)tmp_list->data);
+		doc = gE_document_new ();
+		gnome_mdi_add_child (mdi, GNOME_MDI_CHILD (doc));
+	        gnome_mdi_add_view (mdi, GNOME_MDI_CHILD (doc));
+	        
+	        gE_file_open (doc, (gchar *)tmp_list->data);
 		
 		tmp_list = tmp_list->next;
 	}
@@ -323,6 +327,9 @@ void file_new_cb (GtkWidget *widget, gpointer cbdata)
 
 	gnome_app_flash (mdi->active_window, MSGBAR_FILE_NEW);
 	doc = gE_document_new();
+	
+	gnome_mdi_add_child (mdi, GNOME_MDI_CHILD (doc));
+	gnome_mdi_add_view (mdi, GNOME_MDI_CHILD (doc));
 }
 
 
@@ -378,16 +385,26 @@ static void file_open_ok_sel(GtkWidget *widget, GtkFileSelection *files)
 		     doc = gE_document_current();
 		     
 		     if (doc->filename || GE_VIEW(mdi->active_view)->changed)
-		       doc = gE_document_new_with_file (filename);
-		     else
-		       gE_file_open (GE_DOCUMENT(doc), filename);
+		       {
+		         doc = gE_document_new ();
+		         gnome_mdi_add_child (mdi, GNOME_MDI_CHILD (doc));
+	        		 gnome_mdi_add_view (mdi, GNOME_MDI_CHILD (doc));
+	        		 
+	        	   }
+		     
+		         gE_file_open (GE_DOCUMENT(doc), filename);
+		      
 		     
 		     gtk_widget_hide (GTK_WIDGET(osel));
 		     return;
 		   }
 		 else
 		   {
-		     doc = gE_document_new_with_file (filename);
+		     doc = gE_document_new ();
+		     gnome_mdi_add_child (mdi, GNOME_MDI_CHILD (doc));
+	        	 gnome_mdi_add_view (mdi, GNOME_MDI_CHILD (doc));
+		     
+		     gE_file_open (GE_DOCUMENT (doc), filename);
 		     
 		     gtk_widget_hide (GTK_WIDGET(osel));
 		     return;
@@ -582,6 +599,7 @@ file_save_as_cb(GtkWidget *widget, gpointer cbdata)
 void
 file_close_cb(GtkWidget *widget, gpointer cbdata)
 {
+	gE_document *doc;
 /*	gE_data *data = (gE_data *)cbdata;
 
 	g_assert(data != NULL);
@@ -595,7 +613,11 @@ file_close_cb(GtkWidget *widget, gpointer cbdata)
 	    if (mdi->active_child == NULL)
 	      {
 	        if (!settings->close_doc)
-	          gE_document_new ();
+	          {
+	            doc = gE_document_new ();
+	            gnome_mdi_add_child (mdi, GNOME_MDI_CHILD (doc));
+	            gnome_mdi_add_view (mdi, GNOME_MDI_CHILD (doc));
+	          }
 	        else
 	          g_print ("hola!\n");
 	      }
@@ -902,12 +924,19 @@ recent_cb(GtkWidget *w, gE_data *data)
 	if ((doc = gE_document_current ()))
 	  {
 	    if (doc->filename || GE_VIEW(mdi->active_view)->changed)
-	      doc = gE_document_new_with_file (data->temp1);
-	    else		
-	      gE_file_open (doc, data->temp1);
+	      {
+	        doc = gE_document_new ();
+	        gnome_mdi_add_child (mdi, GNOME_MDI_CHILD (doc));
+	        gnome_mdi_add_view (mdi, GNOME_MDI_CHILD (doc));
+	      }
+	    
+	        gE_file_open (doc, data->temp1);
+	      
 	  }
 	else
 	  doc = gE_document_new_with_file (data->temp1);
+	  gnome_mdi_add_child (mdi, GNOME_MDI_CHILD (doc));
+	  gnome_mdi_add_view (mdi, GNOME_MDI_CHILD (doc));
 }
 
 

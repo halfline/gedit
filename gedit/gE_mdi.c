@@ -220,8 +220,8 @@ gE_document *gE_document_new ()
 	    gnome_mdi_child_set_name(GNOME_MDI_CHILD(doc), _(UNTITLED));
 	    /* gE_documents = g_list_append(gE_documents, doc); */
 
-	    gnome_mdi_add_child (mdi, GNOME_MDI_CHILD (doc));
-	    gnome_mdi_add_view (mdi, GNOME_MDI_CHILD (doc));
+	  /*  gnome_mdi_add_child (mdi, GNOME_MDI_CHILD (doc));
+	    gnome_mdi_add_view (mdi, GNOME_MDI_CHILD (doc));*/
 	
 	    return doc;
 	  }
@@ -237,6 +237,7 @@ gE_document *gE_document_new_with_file (gchar *filename)
 	gE_document *doc;
 	char *nfile, *name;
 	struct stat stats;
+	FILE *fp;
 
 	name = filename;
 /*	if ((doc = gE_document_new()))*/
@@ -245,16 +246,30 @@ gE_document *gE_document_new_with_file (gchar *filename)
 	  {
 	    if ((doc = gtk_type_new (gE_document_get_type ())))
 	      {
+   	        doc->buf_size = stats.st_size;
+   	        
+   	        if ((doc->buf = g_malloc (doc->buf_size)) != NULL)
+   	          {
+   	            if ((doc->filename = g_strdup (filename)) != NULL)
+   	              {
+   	                /*gE_file_open (GE_DOCUMENT(doc));*/
+   	                
+   	                if ((fp = fopen (filename, "r")) != NULL)
+   	                  {
+   	                    doc->buf_size = fread (doc->buf, 1, doc->buf_size,fp);
+   	                    g_print ("newwithfile: doc->buf = %s\n",doc->buf);
+   	                	gnome_mdi_child_set_name(GNOME_MDI_CHILD(doc),
+   	                	                          g_basename(filename));
+   	                	
+   	                	fclose (fp);
 
-   	        gnome_mdi_child_set_name(GNOME_MDI_CHILD(doc), g_basename(filename));
+	        /*gnome_mdi_add_child (mdi, GNOME_MDI_CHILD (doc));
+	        gnome_mdi_add_view (mdi, GNOME_MDI_CHILD (doc));*/
 
-	        gnome_mdi_add_child (mdi, GNOME_MDI_CHILD (doc));
-	        gnome_mdi_add_view (mdi, GNOME_MDI_CHILD (doc));
-
-    	        gE_file_open (GE_DOCUMENT(doc), filename);
-
-    	    	    
-	        return doc;
+ 	        			return doc;
+	        		  }
+	        	  }
+	          }
 	       }
 		g_print ("Eeek.. bork!\n");
 		gtk_object_destroy (GTK_OBJECT(doc));
@@ -295,7 +310,9 @@ GnomeMDIChild *gE_document_new_from_config (gchar *file)
 	gE_document *doc;
 	
 	doc = gE_document_new_with_file (file);
-	
+	gnome_mdi_add_child (mdi, GNOME_MDI_CHILD (doc));
+        gnome_mdi_add_view (mdi, GNOME_MDI_CHILD (doc));        
+        
 	return GNOME_MDI_CHILD (doc);
 }
 
@@ -326,6 +343,9 @@ void gE_add_view (GtkWidget *w, gpointer data)
 	   
 	   if (mdi->active_view)
 	     {
+	       g_print ("contents: %d\n", 
+	       			GTK_TEXT(GE_VIEW(mdi->active_view)->text)->first_line_start_index);
+	     
 	       child = gnome_mdi_get_child_from_view (mdi->active_view);
 	       
 	       gnome_mdi_add_view (mdi, child);
@@ -356,38 +376,41 @@ gint remove_doc_cb (GnomeMDI *mdi, gE_document *doc)
 	msg =   (char *)g_malloc(strlen(fname) + 52);
 	sprintf(msg, _(" '%s' has been modified. Do you wish to save it?"), fname);
 	
-	if (GE_VIEW (mdi->active_view)->changed)
+	if (mdi->active_view)
 	  {
-	    msgbox = GNOME_MESSAGE_BOX (gnome_message_box_new (
+	    if (GE_VIEW (mdi->active_view)->changed)
+	      {
+	        msgbox = GNOME_MESSAGE_BOX (gnome_message_box_new (
 	    							  msg,
 	    							  GNOME_MESSAGE_BOX_QUESTION,
 	    							  GNOME_STOCK_BUTTON_YES,
 	    							  GNOME_STOCK_BUTTON_NO,
 	    							  GNOME_STOCK_BUTTON_CANCEL,
 	    							  NULL));
-	    gnome_dialog_set_default (GNOME_DIALOG (msgbox), 2);
-	    ret = gnome_dialog_run_and_close (GNOME_DIALOG (msgbox));
+	    	gnome_dialog_set_default (GNOME_DIALOG (msgbox), 2);
+	    	ret = gnome_dialog_run_and_close (GNOME_DIALOG (msgbox));
 	    	    
-	    switch (ret)
-	      {
-	        case 0:
+	    	switch (ret)
+	      	{
+	        	case 0:
 	                 file_save_cb (NULL, data);
 	                 g_print("blargh\n");
-	        case 1:
+	        	case 1:
 	                 return TRUE;
-	        default:
+	        	default:
 	                 return FALSE;
-	      }
-/*	      if (ret == 0)
-	        {
-*/	          /*file_save_cb (NULL, data);*/
-/*	          if (gE_document_current()->filename)
-	            file_save_cb (NULL, data);
+	      	}
+/*	      	if (ret == 0)
+	          {
+*/	            /*file_save_cb (NULL, data);*/
+/*	            if (gE_document_current()->filename)
+	              file_save_cb (NULL, data);
 
-	        }  
-	      else if (ret == 2)
-	       return FALSE;
-*/	  }
+	          }  
+	        else if (ret == 2)
+	         return FALSE;
+*/	       }
+          }
 	
 /*	ptr = g_hash_table_lookup(doc_pointer_to_int, doc);
 	g_hash_table_remove(doc_int_to_pointer, ptr);

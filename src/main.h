@@ -65,6 +65,9 @@ typedef struct _gE_document {
 	GtkWidget *tab_label;
 	gchar *filename;
 
+	guchar *buf;
+	guint buf_size;
+
 	struct stat *sb;
 
 } gE_document;
