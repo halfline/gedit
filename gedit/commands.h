@@ -30,14 +30,14 @@ extern "C" {
 /* File Ops */
 extern void file_quit_cb(GtkWidget *widget, gpointer cbdata);
 extern void file_new_cb(GtkWidget *widget, gpointer cbdata);
-extern void window_new_cb(GtkWidget *widget, gpointer cbdata);
+/* extern void window_new_cb(GtkWidget *widget, gpointer cbdata); -- FOO! */
 extern void file_open_cb(GtkWidget *widget, gpointer cbdata);
 extern void file_open_in_new_win_cb(GtkWidget *widget, gpointer data);
 extern void file_save_cb(GtkWidget *widget, gpointer cbdata);
 extern void file_save_as_cb(GtkWidget *widget, gpointer cbdata);
 extern void file_close_cb(GtkWidget *widget, gpointer cbdata);
-extern void file_close_all_cb(GtkWidget *widget, gpointer cbdata);
-extern void window_close_cb(GtkWidget *widget, gpointer cbdata);
+/*FIXME extern void file_close_all_cb(GtkWidget *widget, gpointer cbdata);
+extern void window_close_cb(GtkWidget *widget, gpointer cbdata);*/
 
 
 /* Edit functions */
@@ -49,14 +49,14 @@ extern void edit_selall_cb(GtkWidget *widget, gpointer cbdata);
 extern void doc_changed_cb(GtkWidget *widget, gpointer);
 
 /* Tab positioning */
-extern void tab_top_cb(GtkWidget *widget, gpointer cbwindow);
+/*extern void tab_top_cb(GtkWidget *widget, gpointer cbwindow);
 extern void tab_bot_cb(GtkWidget *widget, gpointer cbwindow);
 extern void tab_lef_cb(GtkWidget *widget, gpointer cbwindow);
 extern void tab_rgt_cb(GtkWidget *widget, gpointer cbwindow);
 extern void tab_toggle_cb(GtkWidget *widget, gpointer cbwindow);
-
+*/
 /* Auto indent */
-extern gint auto_indent_cb(GtkWidget *text, char *insertion_text, int length, int *pos, gE_window *window);
+extern gint auto_indent_cb(GtkWidget *text, char *insertion_text, int length, int *pos);
 extern void auto_indent_toggle_cb(GtkWidget *w, gpointer cbdata);
 extern gint gE_event_button_press(GtkWidget *w, GdkEventButton *, gE_window *);
 
@@ -67,8 +67,7 @@ extern void filenames_dropped (GtkWidget * widget,
 	gint              y,
 	GtkSelectionData *selection_data,
 	guint             info,
-	guint             time,
-	gE_window        *window);
+	guint             time);
 
 /* Recent documents */
 extern void recent_add (char *filename);

@@ -76,31 +76,32 @@ void gE_window_refresh(gE_window *w)
 {
 GtkStyle *style;
 gint i;
+/* FIXME: This function is basically borked right now... */
 
-    if (w->show_status == 0)
+/*FIXME    if (w->show_status == 0)
        gtk_widget_hide (GTK_WIDGET (w->statusbar)->parent);
      else
        gtk_widget_show (GTK_WIDGET (w->statusbar)->parent);
-       
+*/       
      /* if (w->splitscreen == TRUE) */
-       gE_document_set_split_screen (gE_document_current(w), (gint) w->splitscreen);
-    
-  style = gtk_style_new();
+/*       gE_document_set_split_screen (gE_document_current(), (gint) w->splitscreen);
+  */  
+/*  style = gtk_style_new();
   gdk_font_unref (style->font);
-  style->font = gdk_font_load (w->font);
+  style->font = gdk_font_load (settings->font);
   
   gtk_widget_push_style (style);    
-  for (i = 0; i < g_list_length (w->documents); i++)
+  for (i = 0; i < g_list_length (gE_documents); i++)
   {
   	gtk_widget_set_style(GTK_WIDGET(
-  		((gE_document *) g_list_nth_data (w->documents, i))->split_screen), style);
+  		((gE_document *) g_list_nth_data (gE_documents, i))->split_screen), style);
 
   	gtk_widget_set_style(GTK_WIDGET(
-  		((gE_document *) g_list_nth_data (w->documents, i))->text), style);
+  		((gE_document *) g_list_nth_data (gE_documents, i))->text), style);
   }
 
   gtk_widget_pop_style ();
-  	
+*/  	
   
 }
 
@@ -111,15 +112,15 @@ void gE_apply(GnomePropertyBox *pbox, gint page, gE_data *data)
 
 
   /* General Settings */
-  data->window->auto_indent = (GTK_TOGGLE_BUTTON (prefs->autoindent)->active);
-  data->window->show_status = (GTK_TOGGLE_BUTTON (prefs->status)->active);  
-  data->window->splitscreen = (GTK_TOGGLE_BUTTON (prefs->split)->active);
+  settings->auto_indent = (GTK_TOGGLE_BUTTON (prefs->autoindent)->active);
+  settings->show_status = (GTK_TOGGLE_BUTTON (prefs->status)->active);  
+  settings->splitscreen = (GTK_TOGGLE_BUTTON (prefs->split)->active);
 
   /* Print Settings */
-  data->window->print_cmd = g_strdup (gtk_entry_get_text (GTK_ENTRY(prefs->pcmd)));
+  settings->print_cmd = g_strdup (gtk_entry_get_text (GTK_ENTRY(prefs->pcmd)));
   
   /* Font Settings */
-    data->window->font = g_strdup (gtk_entry_get_text (GTK_ENTRY(prefs->font)));
+    settings->font = g_strdup (gtk_entry_get_text (GTK_ENTRY(prefs->font)));
   	if ((rc = gE_prefs_open_file ("gtkrc", "r")) == NULL)
 	{
 		printf ("Couldn't open gtk rc file for parsing.\n");
@@ -135,13 +136,13 @@ void gE_apply(GnomePropertyBox *pbox, gint page, gE_data *data)
 	fprintf(file, "#\n");
 	fprintf(file, "style \"text\"\n");
 	fprintf(file, "{\n");
-	fprintf(file, "  font = \"%s\"\n", data->window->font);
+	fprintf(file, "  font = \"%s\"\n", settings->font);
 	fprintf(file, "}\n");
 	fprintf(file, "widget_class \"*GtkText\" style \"text\"\n");
 	fclose(file);  
 
   gE_window_refresh(data->window);
-  gE_save_settings(data->window, data->window);
+  gE_save_settings();
 }
 
 
@@ -150,14 +151,14 @@ void get_prefs(gE_data *data)
 {
   gint uP;
   
-  gtk_entry_set_text (GTK_ENTRY (prefs->pcmd), data->window->print_cmd);
-  gtk_entry_set_text (GTK_ENTRY (prefs->font), data->window->font);
+  gtk_entry_set_text (GTK_ENTRY (prefs->pcmd), settings->print_cmd);
+  gtk_entry_set_text (GTK_ENTRY (prefs->font), settings->font);
   gtk_toggle_button_set_state (GTK_TOGGLE_BUTTON (prefs->autoindent), 
-  					   data->window->auto_indent);
+  					   settings->auto_indent);
   gtk_toggle_button_set_state (GTK_TOGGLE_BUTTON (prefs->status),
-  					   data->window->show_status);
+  					   settings->show_status);
   gtk_toggle_button_set_state (GTK_TOGGLE_BUTTON (prefs->split),
-  					   data->window->splitscreen);
+  					   settings->splitscreen);
   					   
  
    if (!GTK_TOGGLE_BUTTON(prefs->plugins_toggle)->active)

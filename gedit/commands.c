@@ -36,6 +36,7 @@
 
 #include "main.h"
 #include "commands.h"
+#include "gE_mdi.h"
 #include "gE_document.h"
 #include "gE_prefs.h"
 #include "gE_files.h"
@@ -54,6 +55,7 @@ static void line_pos_cb(GtkWidget *w, gE_data *data);
 static void recent_update_menus (gE_window *window, GList *recent_files);
 static void recent_cb(GtkWidget *w, gE_data *data);
 
+static GtkWidget *open_fs, *save_fs;
 
 /* handles changes in the text widget... */
 void
@@ -67,8 +69,9 @@ gchar MOD_label[255];
 	gtk_signal_disconnect (GTK_OBJECT(doc->text), (gint) doc->changed_id);
 	doc->changed_id = FALSE;
 	
-	sprintf(MOD_label, "*%s", GTK_LABEL(doc->tab_label)->label);
-	gtk_label_set(GTK_LABEL(doc->tab_label), MOD_label);
+	sprintf(MOD_label, "*%s", (const char *)g_basename(doc->filename));
+	/*gtk_label_set(GTK_LABEL(doc->tab_label), MOD_label);*/
+	gnome_mdi_child_set_name (GNOME_MDI_CHILD (doc), MOD_label);
 }
 
 
@@ -79,7 +82,8 @@ static void
 close_file_save_no_sel(GtkWidget *w, gE_data *data)
 {
 	g_assert(data != NULL);
-	close_doc_execute(NULL, data);
+	/*close_doc_execute(NULL, data);*/
+	file_close_cb (w, data);
 	data->temp1 = NULL;
 	data->temp2 = NULL;
 	data->flag = TRUE;
@@ -101,14 +105,16 @@ close_file_save_yes_sel(GtkWidget *w, gE_data *data)
 		data->temp1 = NULL;
 		file_save_as_cb(w, data);
 		if (data->flag == TRUE) /* close document if successful */
-			close_doc_execute(NULL, data);
+		     file_close_cb (w, data);
+			/*close_doc_execute(NULL, data);*/
 	} else {
 		int error;
 
-		error = gE_file_save(data->window, doc, doc->filename);
+		error = gE_file_save(doc, doc->filename);
 		if (!error) {
 			data->temp1 = NULL;
-			close_doc_execute(NULL, data);
+			/*close_doc_execute(NULL, data);*/
+			file_close_cb (w, data);
 			data->temp2 = NULL;
 			data->flag = TRUE;
 		} else
@@ -185,18 +191,14 @@ popup_close_verify(gE_document *doc, gE_data *data)
 gint
 file_open_ok_sel(GtkWidget *widget, gE_data *data)
 {
-	char *filename;
-	char *nfile;
+	gchar *filename;
+	gchar *nfile;
 	struct stat sb;
-	gE_window *w;
-	gE_document *curdoc;
+	gE_document *doc;
 	GtkFileSelection *fs;
 
 
-	g_assert(data != NULL);
-	w = data->window;
-	g_assert(w != NULL);
-	fs = GTK_FILE_SELECTION(w->open_fileselector);
+	fs = GTK_FILE_SELECTION(open_fs);
 
 	filename = gtk_file_selection_get_filename(fs);
 
@@ -208,17 +210,28 @@ file_open_ok_sel(GtkWidget *widget, gE_data *data)
 			nfile = g_malloc0(strlen (filename) + 3);
 			sprintf(nfile, "%s/.", filename);
 			gtk_file_selection_set_filename(GTK_FILE_SELECTION(
-				w->open_fileselector), nfile);
+				open_fs), nfile);
 			g_free(nfile);
 			return TRUE;
 		}
 
-		curdoc = gE_document_current(w);
-		if (curdoc->filename || curdoc->changed)
-			gE_document_new(data->window);
+		if ((doc = gE_document_current()))
+		  {
+		   if (doc->filename || doc->changed)
+		     doc = gE_document_new_with_file (filename);
+		  }
+		 else
+		     doc = gE_document_new_with_file (filename);
+		
+/*..with_file is better		  if ((doc = gE_document_new()))
+		    {
+		      gnome_mdi_add_child (mdi, GNOME_MDI_CHILD (doc));
+		      gnome_mdi_add_view (mdi, GNOME_MDI_CHILD (doc));
+		    }
+
 
 		nfile = g_strdup(filename);
-		gE_file_open(data->window, gE_document_current(w), nfile);
+		gE_file_open(doc, nfile);*/
 	}
 	if (GTK_WIDGET_VISIBLE(fs))
 		gtk_widget_hide (GTK_WIDGET(fs));
@@ -243,8 +256,7 @@ file_saveas_ok_sel(GtkWidget *w, gE_data *data)
 
 	fname = gtk_file_selection_get_filename(GTK_FILE_SELECTION(safs));
 	if (fname != NULL) {
-		if (gE_file_save(data->window,
-			gE_document_current(data->window), fname) == 0) {
+		if (gE_file_save(gE_document_current(), fname) == 0) {
 
 			gtk_widget_destroy(data->temp1);
 			data->temp1 = NULL;
@@ -282,7 +294,9 @@ file_sel_destroy (GtkWidget *w, GtkFileSelection *fs)
 
 
 /* --- Notebook Tab Stuff --- */
-
+/* No longer needed.. kinda.. this sort of stuff needs to be elsewhere..
+   It's all handled by GnomeMDI now..#
+   
 void
 tab_top_cb(GtkWidget *widget, gpointer cbwindow)
 {
@@ -328,7 +342,7 @@ tab_toggle_cb(GtkWidget *widget, gpointer cbwindow)
 	w->show_tabs = !w->show_tabs;
 	gtk_notebook_set_show_tabs(GTK_NOTEBOOK(w->notebook), w->show_tabs);
 }
-
+*/
 
 
 /* ---- Auto-indent Callback(s) --- */
@@ -338,12 +352,13 @@ auto_indent_toggle_cb(GtkWidget *w, gpointer cbdata)
 {
 	gE_data *data = (gE_data *)cbdata;
 
-	gE_window_set_auto_indent (data->window, !data->window->auto_indent);
+	gE_window_set_auto_indent ((gint*)!settings->auto_indent);
 }
 
+/* FIXME: All this gE_windiw stuff is annoying.. should be able to fix it later */
 gint
 auto_indent_cb(GtkWidget *text, char *insertion_text, int length,
-	int *pos, gE_window *window)
+	int *pos)
 {
 	int i, newlines, newline_1 = 0;
 	gchar *buffer, *whitespace;
@@ -351,15 +366,15 @@ auto_indent_cb(GtkWidget *text, char *insertion_text, int length,
 	
 	data = g_malloc0 (sizeof (gE_data));
 	data->temp2 = text;
-	data->window = window;
+	/*data->window = window;*/
 	line_pos_cb(NULL, data);
 
 	if ((length != 1) || (insertion_text[0] != '\n'))
 		return FALSE;
 	if (gtk_text_get_length (GTK_TEXT (text)) <=1)
 		return FALSE;
-	if (!data->window->auto_indent)
-		return FALSE;
+	/*if (!data->window->auto_indent)
+		return FALSE;*/
 
 	newlines = 0;
 	for (i = *pos; i > 0; i--)
@@ -442,8 +457,6 @@ gint gE_event_button_press (GtkWidget *w, GdkEventButton *event, gE_window *wind
 
 /* --- Drag and Drop Callback(s) --- */
 
-/* This is a modified routine from gnumeric. */
-
 void
 filenames_dropped (GtkWidget * widget,
                    GdkDragContext   *context,
@@ -451,16 +464,17 @@ filenames_dropped (GtkWidget * widget,
                    gint              y,
                    GtkSelectionData *selection_data,
                    guint             info,
-                   guint             time,
-                   gE_window        *window)
+                   guint             time)
 {
 	GList *names, *tmp_list;
+	gE_document *doc;
 
 	names = gnome_uri_list_extract_filenames ((char *)selection_data->data);
 	tmp_list = names;
 
 	while (tmp_list) {
-		gE_document_new_with_file (window, tmp_list->data);
+		doc = gE_document_new_with_file ((gchar *)tmp_list->data);
+		
 		tmp_list = tmp_list->next;
 	}
 }
@@ -477,17 +491,15 @@ void file_new_cb (GtkWidget *widget, gpointer cbdata)
 	g_assert(data != NULL);
 	w = data->window;
 	g_assert(w != NULL);
-	gE_msgbar_set(w, MSGBAR_FILE_NEW);
-	gE_document_new(w);
-	doc = gE_document_current(w);
-
-	if (w->files_list_window)
-		flw_append_entry(w, doc,
-			g_list_length(GTK_NOTEBOOK(w->notebook)->children) - 1,
-			doc->filename);
+	/*gE_msgbar_set(w, MSGBAR_FILE_NEW);*/
+	gnome_app_flash (mdi->active_window, MSGBAR_FILE_NEW);
+	doc = gE_document_new();
+	/*doc = gE_document_current();*/
+	gnome_mdi_add_child (mdi, GNOME_MDI_CHILD(doc));
+	gnome_mdi_add_view (mdi, GNOME_MDI_CHILD(doc));
 }
 
-
+/* FIXME: Dunno what to do with this right now..
 void window_new_cb(GtkWidget *widget, gpointer cbdata)
 {
 	gE_window *window;
@@ -502,37 +514,39 @@ void window_new_cb(GtkWidget *widget, gpointer cbdata)
 
 	gE_get_settings (window);
 }
-
+*/
 
 void file_open_cb(GtkWidget *widget, gpointer cbdata)
 {
-	gE_data *data = (gE_data *)cbdata;
-	gE_window *w;
-
-	g_assert(data != NULL);
+	/*gE_data *data = (gE_data *)cbdata;
+	gE_window *w;*/
+	
+	static GtkWidget *open_fileselector;
+	
+	
+	/*g_assert(data != NULL);
 	w = data->window;
-	g_assert(w != NULL);
+	g_assert(w != NULL);*/
 
-	if (w->open_fileselector == NULL) {
-		w->open_fileselector = gtk_file_selection_new(_("Open File..."));
+	if (open_fs == NULL) {
+		open_fs = gtk_file_selection_new(_("Open File..."));
 		gtk_file_selection_hide_fileop_buttons(
-			GTK_FILE_SELECTION(w->open_fileselector));
-		gtk_signal_connect(GTK_OBJECT(w->open_fileselector), "destroy",
-			(GtkSignalFunc)file_sel_destroy, w->open_fileselector);
+			GTK_FILE_SELECTION(open_fs));
+		gtk_signal_connect(GTK_OBJECT(open_fs), "destroy",
+			(GtkSignalFunc)file_sel_destroy, open_fs);
 		gtk_signal_connect(GTK_OBJECT(
-			GTK_FILE_SELECTION(w->open_fileselector)->ok_button), 
-			"clicked", (GtkSignalFunc)file_open_ok_sel, data);
+			GTK_FILE_SELECTION(open_fs)->ok_button), 
+			"clicked", (GtkSignalFunc)file_open_ok_sel, NULL);
 		gtk_signal_connect(GTK_OBJECT(
-			GTK_FILE_SELECTION(
-				w->open_fileselector)->cancel_button),
+			GTK_FILE_SELECTION(open_fs)->cancel_button),
 			"clicked", (GtkSignalFunc)file_cancel_sel,
-			w->open_fileselector);
+			open_fs);
 	}
 
-	if (GTK_WIDGET_VISIBLE(w->open_fileselector))
+	if (GTK_WIDGET_VISIBLE(open_fs))
 		return;
 
-	gtk_widget_show(w->open_fileselector);
+	gtk_widget_show(open_fs);
 }
 
 
@@ -545,7 +559,7 @@ void file_open_cb(GtkWidget *widget, gpointer cbdata)
  * have to "close" the document in the original window without destroying the
  * actual contents.
  */
-void
+/*void		This function is defunct..
 file_open_in_new_win_cb(GtkWidget *widget, gpointer cbdata)
 {
 	gE_document *src_doc, *dest_doc;
@@ -555,10 +569,10 @@ file_open_in_new_win_cb(GtkWidget *widget, gpointer cbdata)
 	int pos = 0;
 	gchar *base;
 	
-	src_doc = gE_document_current (data->window);
+	src_doc = gE_document_current ();
 	buffer = gtk_editable_get_chars (GTK_EDITABLE (src_doc->text), 0, -1);
 	win = gE_window_new ();
-	dest_doc = gE_document_current (win);
+	dest_doc = gE_document_current ();
 	dest_doc->filename = g_strdup (src_doc->filename);
 
 	gtk_label_set (GTK_LABEL (dest_doc->tab_label), (const char *)g_basename (dest_doc->filename));
@@ -568,7 +582,7 @@ file_open_in_new_win_cb(GtkWidget *widget, gpointer cbdata)
 	close_doc_execute (src_doc, data);
 	g_free (buffer);
 }
-
+*/
 
 void
 file_save_cb(GtkWidget *widget, gpointer cbdata)
@@ -577,15 +591,16 @@ file_save_cb(GtkWidget *widget, gpointer cbdata)
 	gE_data *data = (gE_data *)cbdata;
 
 	g_assert(data != NULL);
-	g_assert(data->window != NULL);
- 	fname = gE_document_current(data->window)->filename;
+/*bork!	g_assert(data->window != NULL);*/
+ 	fname = gE_document_current()->filename;
 	if (fname == NULL)
 		file_save_as_cb(NULL, data);
 	else
-	 if ((gE_file_save(data->window, gE_document_current(data->window),
-	               gE_document_current(data->window)->filename)) != 0)
+	 if ((gE_file_save(gE_document_current(),
+	               gE_document_current()->filename)) != 0)
 	   {
-	gE_msgbar_set(data->window, _("Read only file!"));
+	/*E_msgbar_set(data->window, _("Read only file!"));*/
+	gnome_app_flash (mdi->active_window, _("Read only file!"));
 	file_save_as_cb(NULL, data);
         }
 
@@ -594,7 +609,7 @@ file_save_cb(GtkWidget *widget, gpointer cbdata)
 void
 file_save_as_cb(GtkWidget *widget, gpointer cbdata)
 {
-	GtkWidget *safs;
+	static GtkWidget *safs;
 	gE_data *data = (gE_data *)cbdata;
 
 	g_assert(data != NULL);
@@ -630,10 +645,15 @@ file_saveas_destroy(GtkWidget *w, gpointer cbdata)
 void
 file_close_cb(GtkWidget *widget, gpointer cbdata)
 {
-	gE_data *data = (gE_data *)cbdata;
+/*	gE_data *data = (gE_data *)cbdata;
 
 	g_assert(data != NULL);
-	close_doc_common(data);
+	close_doc_common(data);*/
+	
+	if (mdi->active_child == NULL)
+	  return;
+	
+	gnome_mdi_remove_child (mdi, mdi->active_child, FALSE);
 }
 
 
@@ -642,7 +662,7 @@ file_close_cb(GtkWidget *widget, gpointer cbdata)
  * file was changed.
  *
  * data->flag is set to TRUE if file closed
- */
+ *//*
 static void
 close_doc_common(gE_data *data)
 {
@@ -650,19 +670,19 @@ close_doc_common(gE_data *data)
 
 	g_assert(data != NULL);
 	g_assert(data->window != NULL);
-	doc = gE_document_current(data->window);
+	doc = gE_document_current();
 	if (doc->changed)
 		popup_close_verify(doc, data);
 	else {
 		close_doc_execute(NULL, data);
-		data->flag = TRUE;	/* indicate closed */
+		data->flag = TRUE;	// indicate closed 
 	}
-} /* close_doc_common */
+} *//* close_doc_common */
 
 
 /*
  * actually close the document.
- */
+ *//*
 void
 close_doc_execute(gE_document *opt_doc, gpointer cbdata)
 {
@@ -679,26 +699,26 @@ close_doc_execute(gE_document *opt_doc, gpointer cbdata)
 	g_assert(w != NULL);
 	nb = GTK_NOTEBOOK(w->notebook);
 	g_assert(nb != NULL);
-	/*
-	 * Provide the option to pass the specific document as an argument
-	 * instead of always going with the current document - needed for
-	 * the plugins api...
-	 */
-	doc = (opt_doc == NULL) ? gE_document_current(w) : opt_doc;
+	//
+	// Provide the option to pass the specific document as an argument
+	// instead of always going with the current document - needed for
+	// the plugins api...
+	//
+	doc = (opt_doc == NULL) ? gE_document_current() : opt_doc;
 	g_assert(doc != NULL);
 
-	/* if all we have is a blank, Untitled doc, then return immediately */
+	// if all we have is a blank, Untitled doc, then return immediately 
 	if (!doc->changed && g_list_length(nb->children) == 1 &&
 		doc->filename == NULL)
 		return;
 
-	/* Remove document from our hash tables */
+	// Remove document from our hash tables 
 	ptr = g_hash_table_lookup(doc_pointer_to_int, doc);
 	g_hash_table_remove(doc_int_to_pointer, ptr);
 	g_hash_table_remove(doc_pointer_to_int, doc);
 	g_free (ptr);
 
-	/* remove notebook entry and item from document list */
+	// remove notebook entry and item from document list //
 	num = gtk_notebook_current_page(nb);
 	gtk_notebook_remove_page(nb, num);
 	w->documents = g_list_remove(w->documents, doc);
@@ -708,20 +728,20 @@ close_doc_execute(gE_document *opt_doc, gpointer cbdata)
 		g_free(doc->sb);
 	g_free(doc);
 
-	/* if files list window present, remove corresponding entry */
+	// if files list window present, remove corresponding entry 
 	flw_remove_entry(w, num);
 
-	/* echo message to user */
+	// echo message to user 
 	gE_msgbar_set(w, MSGBAR_FILE_CLOSED);
 
 	num = g_list_length(nb->children);
 	numdoc = g_list_length(w->documents);
 	g_assert(num == numdoc);
 
-	/*
-	 * we always have at least one document (e.g., "Untitled").
-	 * so if we just closed the last document, create "Untitled".
-	 */
+	//
+	// we always have at least one document (e.g., "Untitled").
+	// so if we just closed the last document, create "Untitled".
+	//
 	if (num < 1) {
 		g_list_free(w->documents);
 		w->documents = NULL;
@@ -730,117 +750,19 @@ close_doc_execute(gE_document *opt_doc, gpointer cbdata)
 			flw_append_entry(w, doc,
 				g_list_length(nb->children) - 1, NULL);
 	}
-	/* Set the title of the window to Current Document - GEDIT_ID */
+	// Set the title of the window to Current Document - GEDIT_ID 
 	
 	title = g_malloc0(strlen(GEDIT_ID) +
-		strlen(GTK_LABEL(gE_document_current(w)->tab_label)->label) + 4);
+		strlen(GTK_LABEL(gE_document_current()->tab_label)->label) + 4);
 	sprintf(title, "%s - %s",
-	 GTK_LABEL(gE_document_current(w)->tab_label)->label,
+	 GTK_LABEL(gE_document_current()->tab_label)->label,
 	 GEDIT_ID);
 	gtk_window_set_title(GTK_WINDOW(w->window), title);
 	g_free(title);
 
-} /* close_doc_execute */
+} *//* close_doc_execute */
 
 
-/*
- * close all documents in invoking window
- */
-void
-file_close_all_cb(GtkWidget *widget, gpointer cbdata)
-{
-	gE_data *data = (gE_data *)cbdata;
-	GtkNotebook *nb;
-	int num, i;
-	gboolean allclosed = TRUE;
-
-	g_assert(data != NULL);
-	g_assert(data->window != NULL);
-	nb = GTK_NOTEBOOK(data->window->notebook);
-	g_assert(nb != NULL);
-	num = g_list_length(nb->children);
-	g_assert(num > 0);
-	/*gtk_widget_hide(data->window->notebook);*/
-
-	for (i = 0; i < num; i++) {
-		close_doc_common(data);
-
-		/* if a file was not closed, then all files were not closed */
-		if (!data->flag) {
-			allclosed = FALSE;
-			break;
-		}
-	}
-
-	/*gtk_widget_show(data->window->notebook);*/
-
-	data->flag = allclosed;
-
-	if (i == num) {
-		g_assert(allclosed == TRUE);
-		gE_msgbar_set(data->window, MSGBAR_FILE_CLOSED_ALL);
-	}
-} /* file_close_all_cb */
-
-
-/*
- * closes gEdit window by closing all documents.  only if all documents are
- * closed will the window actually go away.
- */
-void
-window_close_cb(GtkWidget *widget, gpointer cbdata)
-{
-	gE_data *data = (gE_data *)cbdata;
-
-	g_assert(data != NULL);
-	g_assert(data->window != NULL);
-	/*gtk_widget_hide(data->window->window);*/
-	flw_destroy(NULL, data);
-
-	data->flag = FALSE;	/* use flag to indicate all files closed */
-	file_close_all_cb(widget, cbdata);
-	/*gtk_widget_hide(data->window->window);*/
-
-	if (data->flag) {
-		gE_msgbar_clear((gpointer)(data->window));
-
-		close_window_common(data->window);	/* may not return */
-
-		data->window = g_list_nth_data(window_list, 0);
-		/*gtk_widget_hide(data->window->window);*/
-	} else
-		gtk_widget_show(data->window->window);
-}
-
-
-/*
- * actually close the window.  exits if last window is closed.
- */
-static void
-close_window_common(gE_window *w)
-{
-	gint *ptr;
-	g_assert(w != NULL);
-	window_list = g_list_remove(window_list, (gpointer)w);
-
-	ptr = g_hash_table_lookup(win_pointer_to_int, w);
-	g_hash_table_remove(win_int_to_pointer, ptr);
-	g_hash_table_remove(win_pointer_to_int, w);
-	g_free (ptr);
-	
-	if (w->files_list_window)
-		gtk_widget_destroy(w->files_list_window);
-	gtk_widget_destroy(w->window);
-	gE_save_settings (w, w);
-
-	g_free(w->search);
-	g_free(w);
-
-	if (window_list == NULL)
-	{
-		gtk_exit(0);
-	}
-}
 
 
 /*
@@ -849,18 +771,21 @@ close_window_common(gE_window *w)
 void
 file_quit_cb(GtkWidget *widget, gpointer cbdata)
 {
-	gE_data *data = (gE_data *)cbdata;
+/*	gE_data *data = (gE_data *)cbdata;
 
 	g_assert(data != NULL);
-	
+*/	
 	plugin_save_list();
-	
+/*	
 	while (window_list) {
 		data->window = g_list_nth_data(window_list, 0);
 		window_close_cb(widget, data);
-		if (data->flag == FALSE)	/* cancelled by user */
+		if (data->flag == FALSE)	// cancelled by user 
 			return;
-	}
+	}*/
+	if (gnome_mdi_remove_all (mdi, FALSE))
+	  gtk_object_destroy (GTK_OBJECT (mdi));
+	
 	gtk_exit(0);	/* should not reach here */
 }
 
@@ -874,12 +799,13 @@ edit_cut_cb(GtkWidget *widget, gpointer cbdata)
 
 #if (GTK_MAJOR_VERSION==1) && (GTK_MINOR_VERSION==1)
 	gtk_editable_cut_clipboard(
-		GTK_EDITABLE(gE_document_current(data->window)->text));
+		GTK_EDITABLE(gE_document_current()->text));
 #else
 	gtk_editable_cut_clipboard(GTK_EDITABLE(
-		gE_document_current(data->window)->text));
+		gE_document_current()->text));
 #endif
-	gE_msgbar_set(data->window, MSGBAR_CUT);
+	/*gE_msgbar_set(data->window, MSGBAR_CUT);*/
+	gnome_app_error (mdi->active_window, MSGBAR_CUT);
 }
 
 void
@@ -888,8 +814,9 @@ edit_copy_cb(GtkWidget *widget, gpointer cbdata)
 	gE_data *data = (gE_data *)cbdata;
 
 	gtk_editable_copy_clipboard(
-		GTK_EDITABLE(gE_document_current(data->window)->text));
-	gE_msgbar_set(data->window, MSGBAR_COPY);
+		GTK_EDITABLE(gE_document_current()->text));
+/*	gE_msgbar_set(data->window, MSGBAR_COPY);*/
+	gnome_app_error (mdi->active_window, MSGBAR_COPY);
 }
 	
 void
@@ -898,9 +825,10 @@ edit_paste_cb(GtkWidget *widget, gpointer cbdata)
 	gE_data *data = (gE_data *)cbdata;
 
 	gtk_editable_paste_clipboard(
-		GTK_EDITABLE(gE_document_current(data->window)->text));
+		GTK_EDITABLE(gE_document_current()->text));
 
-	gE_msgbar_set(data->window, MSGBAR_PASTE);
+/*	gE_msgbar_set(data->window, MSGBAR_PASTE);*/
+	gnome_app_error (mdi->active_window, MSGBAR_PASTE);
 }
 
 void
@@ -909,10 +837,11 @@ edit_selall_cb(GtkWidget *widget, gpointer cbdata)
 	gE_data *data = (gE_data *)cbdata;
 
 	gtk_editable_select_region(
-		GTK_EDITABLE(gE_document_current(data->window)->text), 0,
+		GTK_EDITABLE(gE_document_current()->text), 0,
 		gtk_text_get_length(
-			GTK_TEXT(gE_document_current(data->window)->text)));
-	gE_msgbar_set(data->window, MSGBAR_SELECT_ALL);
+			GTK_TEXT(gE_document_current()->text)));
+/*	gE_msgbar_set(data->window, MSGBAR_SELECT_ALL);*/
+	gnome_app_error (mdi->active_window, MSGBAR_SELECT_ALL);
 }
 
 
@@ -1088,10 +1017,12 @@ recent_update_menus (gE_window *window, GList *recent_files)
 static void
 recent_cb(GtkWidget *w, gE_data *data)
 {
-	gE_document *doc = gE_document_current (data->window);
+	gE_document *doc = gE_document_current ();
+	
 	if (doc->filename != NULL || doc->changed != 0)
-		gE_document_new (data->window);
-	gE_file_open (data->window, gE_document_current (data->window), data->temp1);
+		doc = gE_document_new ();
+		
+	gE_file_open (gE_document_current (), data->temp1);
 }
 
 
@@ -1162,7 +1093,7 @@ doc_delete_text_cb(GtkWidget *editable, int start_pos, int end_pos,
 
 void options_toggle_split_screen_cb (GtkWidget *widget, gE_window *window)
 {
-	gE_document *doc = gE_document_current (window);
+	gE_document *doc = gE_document_current ();
 	gint visible;
 
 	if (!doc->split_parent)
@@ -1175,23 +1106,23 @@ void options_toggle_split_screen_cb (GtkWidget *widget, gE_window *window)
 
 void options_toggle_read_only_cb (GtkWidget *widget, gE_window *window)
 {
-	gE_document *doc = gE_document_current (window);
+	gE_document *doc = gE_document_current ();
 	gE_document_set_read_only (doc, !doc->read_only);
 }
 
 void options_toggle_word_wrap_cb (GtkWidget *widget, gE_window *window)
 {
-	gE_document *doc = gE_document_current (window);
+	gE_document *doc = gE_document_current ();
 	gE_document_set_word_wrap (doc, !doc->word_wrap);
 }
 
 void options_toggle_line_wrap_cb (GtkWidget *widget, gE_window *window)
 {
-	gE_document *doc = gE_document_current (window);
+	gE_document *doc = gE_document_current ();
 	gE_document_set_line_wrap (doc, !doc->line_wrap);
 }
 
 void options_toggle_status_bar_cb (GtkWidget *w, gE_window *window)
 {
-	gE_window_set_status_bar (window, !window->show_status);
+	gE_window_set_status_bar (!settings->show_status);
 }

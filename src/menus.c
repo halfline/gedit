@@ -34,7 +34,7 @@
 #include "gE_prefs.h"
 #include "gE_prefs_box.h"
 #include "search.h"
-
+#include "gE_mdi.h"
 
 #define GE_DATA		1
 #define GE_WINDOW	2
@@ -99,9 +99,9 @@ GnomeUIInfo gedit_file_menu [] = {
 
 	GNOMEUIINFO_MENU_CLOSE_ITEM(file_close_cb, (gpointer) GE_DATA),
 
-	{ GNOME_APP_UI_ITEM, N_("Close All"), N_("Close all open files"),
-	  file_close_all_cb, (gpointer) GE_DATA, NULL,
-	  GNOME_APP_PIXMAP_STOCK, GNOME_STOCK_MENU_CLOSE },
+/*BORK	{ GNOME_APP_UI_ITEM, N_("Close All"), N_("Close all open files"),
+FIXME	  file_close_all_cb, (gpointer) GE_DATA, NULL,
+	  GNOME_APP_PIXMAP_STOCK, GNOME_STOCK_MENU_CLOSE },*/
 
 	GNOMEUIINFO_MENU_EXIT_ITEM(file_quit_cb, (gpointer) GE_DATA),
 
@@ -134,7 +134,7 @@ GnomeUIInfo gedit_edit_menu [] = {
 	
 	GNOMEUIINFO_END
 };	
-
+/*
 GnomeUIInfo gedit_tab_menu []= {
 	{ GNOME_APP_UI_ITEM, N_("_Top"),
 	  N_("Put the document tabs at the top"),
@@ -159,7 +159,7 @@ GnomeUIInfo gedit_tab_menu []= {
 				    tab_toggle_cb, (gpointer) GE_WINDOW, NULL),
 	
 	GNOMEUIINFO_END
-};
+};*/
 
 
 
@@ -197,9 +197,9 @@ GnomeUIInfo gedit_settings_menu []= {
 
 	GNOMEUIINFO_SEPARATOR,
 
-	{ GNOME_APP_UI_SUBTREE, N_("_Document Tabs"),
+/*BORKED	{ GNOME_APP_UI_SUBTREE, N_("_Document Tabs"),
 	  N_("Change the placement of the document tabs"), &gedit_tab_menu },
-
+*/
 	GNOMEUIINFO_SEPARATOR,
 
 	{ GNOME_APP_UI_ITEM, N_("Sa_ve Settings"),
@@ -214,17 +214,17 @@ GnomeUIInfo gedit_settings_menu []= {
 };
 
 GnomeUIInfo gedit_window_menu []={
-        GNOMEUIINFO_MENU_NEW_WINDOW_ITEM(window_new_cb, (gpointer) GE_DATA),
+/*FIXME GNOMEUIINFO_MENU_NEW_WINDOW_ITEM(window_new_cb, (gpointer) GE_DATA),*/
 
-        GNOMEUIINFO_MENU_CLOSE_WINDOW_ITEM(window_close_cb,
-					   (gpointer) GE_DATA),
+/*FIXME        GNOMEUIINFO_MENU_CLOSE_WINDOW_ITEM(window_close_cb,
+					   (gpointer) GE_DATA),*/
 	
-	GNOMEUIINFO_SEPARATOR,
+/*	GNOMEUIINFO_SEPARATOR,
 
 	{ GNOME_APP_UI_ITEM, N_("_Document List"),
 	  N_("Display the document list"),
 	  files_list_popup, (gpointer) GE_DATA, NULL,
-	  GNOME_APP_PIXMAP_NONE, NULL, 'L', GDK_CONTROL_MASK, NULL },
+	  GNOME_APP_PIXMAP_NONE, NULL, 'L', GDK_CONTROL_MASK, NULL },*/
 
 	GNOMEUIINFO_END
 };
@@ -270,16 +270,16 @@ GnomeUIInfo * gE_menus_init (gE_window *window, gE_data *data)
 {
 	add_callback_data (gedit_file_menu, window, data);
 	add_callback_data (gedit_edit_menu, window, data);
-	add_callback_data (gedit_tab_menu, window, data);
+/*	add_callback_data (gedit_tab_menu, window, data);*/
 	add_callback_data (gedit_settings_menu, window, data);
 	add_callback_data (gedit_window_menu, window, data);
 	add_callback_data (gedit_help_menu, window, data);
 
-	gnome_app_create_menus (GNOME_APP (window->window), gedit_menu);
+	gnome_app_create_menus (GNOME_APP (mdi->active_window), gedit_menu);
 
 	remove_callback_data (gedit_file_menu, window, data);
 	remove_callback_data (gedit_edit_menu, window, data);
-	remove_callback_data (gedit_tab_menu, window, data);
+/*	remove_callback_data (gedit_tab_menu, window, data);*/
 	remove_callback_data (gedit_settings_menu, window, data);
 	remove_callback_data (gedit_window_menu, window, data);
 	remove_callback_data (gedit_help_menu, window, data);
@@ -294,7 +294,7 @@ GnomeUIInfo * gE_menus_init (gE_window *window, gE_data *data)
 void
 gE_set_menu_toggle_states(gE_window *w)
 {
-  gE_document *doc = gE_document_current (w);
+  gE_document *doc = gE_document_current ();
   int i;
 
 #define GE_SET_TOGGLE_STATE(item, l, boolean)                            \
@@ -303,8 +303,10 @@ gE_set_menu_toggle_states(gE_window *w)
 
   /*
    * Initialize the states of the document tabs menu...
+   * FIXME: This is borked right now.. does GnomeMDI need this? 
+   *  	    An addition to the prefs box would be better..
    */
-  for (i = 0; gedit_tab_menu[i].type != GNOME_APP_UI_ENDOFINFO; i++)
+/*  for (i = 0; gedit_tab_menu[i].type != GNOME_APP_UI_ENDOFINFO; i++)
     {
       if (gedit_tab_menu[i].label)
 	{
@@ -312,7 +314,7 @@ gE_set_menu_toggle_states(gE_window *w)
 			      w->show_tabs);
 	  
 	}
-    }
+    }*/
 
 
   /*
@@ -324,11 +326,11 @@ gE_set_menu_toggle_states(gE_window *w)
 	{
 	  GE_SET_TOGGLE_STATE(gedit_settings_menu[i],
 			      _(GE_TOGGLE_LABEL_AUTOINDENT),
-			      w->auto_indent);
+			      settings->auto_indent);
 
 	  GE_SET_TOGGLE_STATE(gedit_settings_menu[i],
 			      _(GE_TOGGLE_LABEL_STATUSBAR),
-			      w->show_status);
+			      settings->show_status);
 
 	  GE_SET_TOGGLE_STATE(gedit_settings_menu[i],
 			      _(GE_TOGGLE_LABEL_WORDWRAP),
@@ -344,7 +346,7 @@ gE_set_menu_toggle_states(gE_window *w)
 
 	  GE_SET_TOGGLE_STATE(gedit_settings_menu[i],
 			      _(GE_TOGGLE_LABEL_SPLITSCREEN),
-			      doc->window->splitscreen);
+			      doc->splitscreen);
 
 	}
     }

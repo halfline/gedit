@@ -27,9 +27,11 @@
 #include "main.h"
 #include "commands.h"
 #include "gE_document.h"
+#include "gE_mdi.h"
 #include "gE_prefs.h"
 #include "gE_plugin_api.h"
 #include "gE_files.h"
+#include "menus.h"
 
 #ifdef WITH_GMODULE_PLUGINS
 #include <gE_plugin.h>
@@ -42,7 +44,9 @@
 GList *window_list;
 extern GList *plugins;
 plugin_callback_struct pl_callbacks;
-
+GnomeMDI *mdi;
+gE_window *window;
+gE_preference *settings;
 
 void setup_callbacks( plugin_callback_struct *callbacks )
 {
@@ -63,20 +67,20 @@ void setup_callbacks( plugin_callback_struct *callbacks )
 	callbacks->document.get_position = NULL;
 	callbacks->document.get_selection = NULL;
 }
-
-gint file_open_wrapper (gE_data *data)
+/* We dont need this!
+gint file_open_wrapper (char *fname)
 {
-	char *nfile, *name;
+	char *nfile;
+	gE_document *doc;
 
-	name = data->temp2;
-	gE_document_new(data->window);
-	nfile = g_malloc(strlen(name)+1);
+	doc = gE_document_new();
+	nfile = g_malloc(strlen(fname)+1);
 	strcpy(nfile, name);
-	(gint) gE_file_open (data->window, gE_document_current(data->window), nfile);
+	(gint) gE_file_open (doc, nfile);
 
 	return FALSE;
 }
-
+*/
 
 
 GSList *launch_plugins = NULL;
@@ -203,34 +207,54 @@ int main (int argc, char **argv)
 	
 	poptFreeContext(ctx);
 	
-	gE_rc_parse();
+/*	gE_rc_parse(); -- THis really isnt needed any more.. but i forget the
+				  function itself.. */
 
 	doc_pointer_to_int = g_hash_table_new (g_direct_hash, g_direct_equal);
 	doc_int_to_pointer = g_hash_table_new (g_int_hash, g_int_equal);
 	win_pointer_to_int = g_hash_table_new (g_direct_hash, g_direct_equal);
 	win_int_to_pointer = g_hash_table_new (g_int_hash, g_int_equal);
-
+	
+	
 	data = g_malloc (sizeof (gE_data));
 	window_list = NULL;
-	window = gE_window_new();
+	settings = g_malloc (sizeof (gE_preference));
 
-	data->window = window;
+	mdi = GNOME_MDI(gnome_mdi_new ("gEdit", GEDIT_ID));
+	mdi->tab_pos = GTK_POS_TOP;
+	
+	gnome_mdi_set_menubar_template (mdi, gedit_menu);
+/*	gnome_mdi_set_toolbar_template (mdi, toolbar_data);*/
+	
+	
+	
+	/*window = gE_window_new();
+
+	data->window = window;*/
+	window = g_malloc (sizeof (gE_window));
+	
+    /* connect signals -- FIXME -- We'll do the rest later */
+    gtk_signal_connect(GTK_OBJECT(mdi), "remove_child", GTK_SIGNAL_FUNC(remove_doc_cb), NULL);
+    gtk_signal_connect(GTK_OBJECT(mdi), "destroy", GTK_SIGNAL_FUNC(file_quit_cb), NULL);
+    gtk_signal_connect(GTK_OBJECT(mdi), "view_changed", GTK_SIGNAL_FUNC(view_changed_cb), NULL);
+	gtk_signal_connect(GTK_OBJECT(mdi), "child_changed", GTK_SIGNAL_FUNC(child_switch), window);
+	
+	gtk_signal_connect(GTK_OBJECT(mdi), "app_created", GTK_SIGNAL_FUNC(gE_window_new), window);
 	
 	if (file_list){
 		gE_document *doc;
 
-		doc = gE_document_current(window);
-		gtk_notebook_remove_page(GTK_NOTEBOOK(window->notebook),
-					 gtk_notebook_current_page (GTK_NOTEBOOK(window->notebook)));
-		window->documents = g_list_remove(window->documents, doc);
+		doc = gE_document_current();
+
 		if (doc->filename != NULL)
 			g_free (doc->filename);
 		g_free (doc);
 
 		for (;file_list; file_list = file_list->next)
 		{
-			data->temp2 = file_list->data;
-			file_open_wrapper (data);
+			/*data->temp2 = file_list->data;*/
+			/*file_open_wrapper (file_list->data);*/
+			gE_document_new_with_file (file_list->data);
 		}
 	}
 
@@ -248,6 +272,8 @@ int main (int argc, char **argv)
 #ifdef WITH_GMODULE_PLUGINS
 	gE_Plugin_Query_All ();
 #endif
+	
+	gnome_mdi_open_toplevel(mdi);
 	
 	gtk_main ();
 	return 0;
