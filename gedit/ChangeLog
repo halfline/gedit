@@ -1,3 +1,9 @@
+2004-11-05  Paolo Borelli  <pborelli@katamail.com>
+
+	* gedit-mdi.c:
+	* Makefile.am:
+	* gedit-search-bar*: search bar experiment.
+
 2004-11-02  Paolo Borelli  <pborelli@katamail.com>
 
 	* gedit-convert.c: mark error strings for translation.
