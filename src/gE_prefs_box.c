@@ -29,6 +29,7 @@
 #include "toolbar.h"
 #include "gE_prefs_box.h"
 #include "gE_document.h"
+#include "gE_view.h"
 #include "gE_plugin_api.h"
 #include "gE_mdi.h"
 
@@ -124,7 +125,8 @@ gint i;
        gE_document_set_split_screen (gE_document_current(), (gint) w->splitscreen);
   */  
   
-  	gE_window_set_status_bar (settings->show_status);
+  
+  gE_window_set_status_bar (settings->show_status);
   
   for (i = 0; i < NUM_MDI_MODES; i++)
      if (GTK_TOGGLE_BUTTON (prefs->mdi_type[i])->active)
@@ -136,7 +138,7 @@ gint i;
            }
          break;
        }
-  
+/*  
   style = gtk_style_new();
   gdk_font_unref (style->font);
   if (use_fontset)
@@ -148,15 +150,15 @@ gint i;
   for (i = 0; i < g_list_length (mdi->children); i++)
   {
   	gtk_widget_set_style(GTK_WIDGET(
-  		((gE_document *) g_list_nth_data (mdi->children, i))->split_screen), style);
+  		((gE_view *) g_list_nth_data (mdi->children, i))->split_screen), style);
 
   	gtk_widget_set_style(GTK_WIDGET(
-  		((gE_document *) g_list_nth_data (mdi->children, i))->text), style);
+  		((gE_view *) g_list_nth_data (mdi->children, i))->text), style);
   }
 
   gtk_widget_pop_style ();
   	
-  
+  */
 }
 
 void gE_apply(GnomePropertyBox *pbox, gint page, gE_data *data)
@@ -356,13 +358,13 @@ static GtkWidget *doc_page_new()
   gtk_box_pack_start(GTK_BOX(vbox), hbox, FALSE, TRUE, 0);
   gtk_widget_show(hbox);
   
-  prefs->DButton1 = gtk_radio_button_new_with_label (NULL, _("New Document After Closing Last"));
+  prefs->DButton1 = gtk_radio_button_new_with_label (NULL, "New Document After Closing Last");
   gtk_box_pack_start (GTK_BOX (hbox), prefs->DButton1, TRUE, TRUE, 0);
   gtk_widget_show (prefs->DButton1);
   
   prefs->DButton2 = gtk_radio_button_new_with_label (
 	         gtk_radio_button_group (GTK_RADIO_BUTTON (prefs->DButton1)),
-		 _("Close Window After Closing Last"));
+		 "Close Window After Closing Last");
   gtk_box_pack_start (GTK_BOX (hbox), prefs->DButton2, TRUE, TRUE, 0);
   gtk_widget_show (prefs->DButton2);
   

@@ -27,6 +27,7 @@
 
 #include "main.h"
 #include "gE_document.h"
+#include "gE_view.h"
 #include "gE_files.h"
 #include "gE_prefs_box.h"
 #include "gE_plugin_api.h"
@@ -117,8 +118,8 @@ void gE_window_new(GnomeMDI *mdi, GnomeApp *app)
 	gnome_app_add_docked (GNOME_APP (app), GTK_WIDGET (statusbar), "Statusbar", 
 						GNOME_DOCK_ITEM_BEH_NORMAL, GNOME_DOCK_BOTTOM,
 						0, 0, 0);
-	gnome_app_set_statusbar (GNOME_APP(app), GTK_WIDGET (statusbar));
-
+	gnome_app_set_statusbar (GNOME_APP(app),GTK_WIDGET (statusbar));
+	
 	/* line and column indicators */
 
 	/*tmp = gtk_label_new(_("Column:"));
@@ -194,68 +195,6 @@ void gE_window_set_status_bar (gint show_status)
 	  gtk_widget_hide (GTK_WIDGET (GNOME_APP(mdi->active_window)->statusbar));
 }
 
-/* gE_document_new: Relocated to gE_mdi.[ch] */
-
-/* gE_document_new_with_file: Relocated to gE_mdi[ch] */
-
-/* gE_docuemnt_current: Relocated to gE_mdi.[ch] */
-
-void gE_document_set_split_screen (gE_document *doc, gint split_screen)
-{
-	if (!doc->split_parent)
-		return;
-
-	if (split_screen)
-	  {
-	   	gtk_widget_show (doc->split_parent);
-	  }
-	else
-	  {
-		gtk_widget_hide (doc->split_parent);
-	  }
-   	doc->splitscreen = split_screen;
-}
-
-
-void gE_document_set_word_wrap (gE_document *doc, gint word_wrap)
-{
-	doc->word_wrap = word_wrap;
-	gtk_text_set_word_wrap (GTK_TEXT (doc->text), doc->word_wrap);
-}
-
-void gE_document_set_line_wrap (gE_document *doc, gint line_wrap)
-{
-	doc->line_wrap = line_wrap;
-	gtk_text_set_line_wrap (GTK_TEXT (doc->text), doc->line_wrap);
-}
-
-void gE_document_set_read_only (gE_document *doc, gint read_only)
-{
-gchar RO_label[255];
-gchar *fname;
-
-	doc->read_only = read_only;
-	gtk_text_set_editable (GTK_TEXT (doc->text), !doc->read_only);
-	
-	if(read_only)
-	{
-	  sprintf(RO_label, "RO - %s", GNOME_MDI_CHILD(doc)->name);
-	  gnome_mdi_child_set_name (GNOME_MDI_CHILD (doc), RO_label);
-	}
-	else
-	{
-	 if (doc->filename)
-	   gnome_mdi_child_set_name (GNOME_MDI_CHILD(doc),
-	   					     g_basename(doc->filename));
-	 else
-	   gnome_mdi_child_set_name (GNOME_MDI_CHILD(doc), _(UNTITLED));
-	}
-	 if (doc->split_screen)
-		gtk_text_set_editable
-			(GTK_TEXT (doc->split_screen), !doc->read_only);
-}
-
-
 
 void
 child_switch (GnomeMDI *mdi, gE_document *doc)
@@ -264,7 +203,7 @@ child_switch (GnomeMDI *mdi, gE_document *doc)
 
 	if (gE_document_current())
 	  {
-	    gtk_widget_grab_focus(gE_document_current()->text);
+	    gtk_widget_grab_focus(GE_VIEW(mdi->active_view)->text);
 	    title = g_malloc0 (strlen (GEDIT_ID) +
 					   strlen (GNOME_MDI_CHILD (gE_document_current())->name) + 4);
 	    sprintf (title, "%s - %s",

@@ -1,3 +1,29 @@
+Mon Jun 28 19:37:27 BST 1999  Alex Roberts  <bse@gedit.pn.org>
+
+	* gE_view.[ch]: New files... What i've done is re-implemented the 
+	  viewable area that you enter text into as a widget, called gE_view.
+	  The widget now works the same as the old method, but now the GnomeMDI
+	  system will be able to access the member widgets, unlike before.
+	
+	* main.h: (gE_document) Moved all the view related widgets into the 
+          gE_view class structure.
+	
+	* commands.[ch]: Moved view related functions over to gE_view.[ch]. Also
+	  modified any functions that referred to the old method to refer to the
+	  new gE_view system.
+	
+	* gE_document.c:
+	  gE_prefs_box.c:
+	  gE_plugin_api.c:
+	  gE_print.c:
+	  menus.c:
+	  search.c: Made the functions that used the old view method use the new
+	  method. So all doc->text is now either a view->text or a 
+	  GE_VIEW (mdi->active_view)->text (as gE_view is the MDI view now).
+	
+	* There's still lots of bugs, i know.. but the new system is working 
+          now.
+
 1999-07-17  Karsten Weiss  <karsten@addx.au.s.shuttle.de>
 
 	* gE_prefs_box.c: (doc_page_new) Tagged two strings as translatable.
