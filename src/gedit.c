@@ -32,6 +32,7 @@
 #include "gE_plugin_api.h"
 #include "gE_files.h"
 #include "menus.h"
+#include "toolbar.h"
 
 #ifdef WITH_GMODULE_PLUGINS
 #include <gE_plugin.h>
@@ -47,6 +48,8 @@ plugin_callback_struct pl_callbacks;
 GnomeMDI *mdi;
 gE_window *window;
 gE_preference *settings;
+
+gint mdiMode = GNOME_MDI_DEFAULT_MODE;
 
 void setup_callbacks( plugin_callback_struct *callbacks )
 {
@@ -156,7 +159,7 @@ corba_exception (CORBA_Environment* ev)
 
 int main (int argc, char **argv)
 {
-
+	gE_document *doc;
 	gE_window *window;
 	gE_data *data;
 	plugin_callback_struct callbacks;
@@ -224,8 +227,10 @@ int main (int argc, char **argv)
 	mdi->tab_pos = GTK_POS_TOP;
 	
 	gnome_mdi_set_menubar_template (mdi, gedit_menu);
-/*	gnome_mdi_set_toolbar_template (mdi, toolbar_data);*/
+	gnome_mdi_set_toolbar_template (mdi, toolbar_data);
 	
+	gnome_mdi_set_child_menu_path (mdi, GNOME_MENU_FILE_STRING);
+	gnome_mdi_set_child_list_path (mdi, GNOME_MENU_FILES_PATH);
 	
 	
 	/*window = gE_window_new();
@@ -241,8 +246,17 @@ int main (int argc, char **argv)
 	
 	gtk_signal_connect(GTK_OBJECT(mdi), "app_created", GTK_SIGNAL_FUNC(gE_window_new), window);
 	
+	gnome_mdi_set_mode (mdi, mdiMode);
+
+	if ((doc = gE_document_new()))
+	  {
+	    gnome_mdi_add_child (mdi, GNOME_MDI_CHILD (doc));
+	    gnome_mdi_add_view (mdi, GNOME_MDI_CHILD (doc));
+	    
+	  }
+	
 	if (file_list){
-		gE_document *doc;
+
 
 		doc = gE_document_current();
 

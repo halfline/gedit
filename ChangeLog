@@ -1,3 +1,41 @@
+1999-03-12 (19:09) Alex Roberts  <bse@dial.pipex.com>
+
+	* gE_mdi.c: (gE_document_create_view) The document being created is now
+	  built from the MDIChild specified in the function arguments. Instead of
+	  a fresh new gE_document; Now the text widget is being created properly,
+	  and file loading and saving now works again.. yay!
+	
+	* gE_mdi.c: Added creation of View menu to menubar, only problem is that
+	  the file doesnt get recreated properly when a new view is added; And a new
+	  window seems to get created when the first new document is added (on 
+	  startup)...
+
+1999-03-12 (18:25) Alex Roberts  <bse@dial.pipex.com>
+	
+	* toolbar.h:
+	  gedit.c: The Toolbar has returned :]
+
+1999-03-12 (18:00) Alex Roberts  <bse@dial.pipex.com>
+
+	* gedit.c:
+	  menus.c: Added Files menu, for use with MDI..
+
+1999-03-11 Alex Roberts  <bse@dial.pipex.com>
+
+	* I've been working on adding GnomeMDI to gEdit since the last entry.
+
+	* gE_mdi.[ch]: New files, containing the new gE_document class definition
+	  to work with GnomeMDI. This is the main work towards the new GnomeMDI
+	  stuff in gEdit. Work on this is based upon Ghex (and GTop)
+	  
+	* I've moved gE_document_new* and gE_document_current to gE_mdi.[ch].
+	
+	* gedit.c: Converted to using GnomeMDI.. so we initialise the MDI system
+	  here. Also includes the signals for new documents, chaning views, etc.
+	
+	* There's more.. but basically just MDI stuff..
+	
+
 1999-02-27 (22:19) Alex Roberts  <bse@dial.pipex.com>
 
 	* README*:

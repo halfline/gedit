@@ -214,14 +214,14 @@ file_open_ok_sel(GtkWidget *widget, gE_data *data)
 			g_free(nfile);
 			return TRUE;
 		}
+			g_print("file_open_ok_sel: filename=%s\n",filename);
 
-		if ((doc = gE_document_current()))
-		  {
+		   doc = gE_document_current ();
 		   if (doc->filename || doc->changed)
 		     doc = gE_document_new_with_file (filename);
-		  }
-		 else
-		     doc = gE_document_new_with_file (filename);
+		   else
+		      gE_file_open (doc, filename);
+	
 		
 /*..with_file is better		  if ((doc = gE_document_new()))
 		    {

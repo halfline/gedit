@@ -82,7 +82,7 @@ gE_file_open(gE_document *doc, gchar *fname)
 			return 1;
 		}
 
-		gtk_text_freeze(GTK_TEXT(doc->text));
+		gtk_text_freeze(GTK_TEXT(GE_DOCUMENT(doc)->text));
 		clear_text(doc);
 
 #ifdef USE_SIMPLE_READ_ALGORITHM

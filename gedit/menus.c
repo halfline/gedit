@@ -229,6 +229,10 @@ GnomeUIInfo gedit_window_menu []={
 	GNOMEUIINFO_END
 };
 
+GnomeUIInfo gedit_docs_menu[] = {
+	GNOMEUIINFO_END
+};
+
 GnomeUIInfo gedit_help_menu []= {
 
 	GNOMEUIINFO_HELP ("gedit"),
@@ -258,9 +262,8 @@ GnomeUIInfo gedit_menu [] = {
 #endif
 
 	GNOMEUIINFO_MENU_SETTINGS_TREE(gedit_settings_menu),
-
 	GNOMEUIINFO_MENU_WINDOWS_TREE(gedit_window_menu),
-
+	GNOMEUIINFO_MENU_FILES_TREE(gedit_docs_menu),
 	GNOMEUIINFO_MENU_HELP_TREE(gedit_help_menu),
 
 	GNOMEUIINFO_END
@@ -268,22 +271,24 @@ GnomeUIInfo gedit_menu [] = {
 
 GnomeUIInfo * gE_menus_init (gE_window *window, gE_data *data)
 {
-	add_callback_data (gedit_file_menu, window, data);
-	add_callback_data (gedit_edit_menu, window, data);
-/*	add_callback_data (gedit_tab_menu, window, data);*/
-	add_callback_data (gedit_settings_menu, window, data);
-	add_callback_data (gedit_window_menu, window, data);
-	add_callback_data (gedit_help_menu, window, data);
-
+/*	add_callback_data (gedit_file_menu, GNOME_APP (mdi->active_window), data);
+	add_callback_data (gedit_edit_menu, GNOME_APP (mdi->active_window), data);
+	add_callback_data (gedit_tab_menu, window, data);
+	add_callback_data (gedit_settings_menu,GNOME_APP (mdi->active_window), data);
+	add_callback_data (gedit_window_menu, GNOME_APP (mdi->active_window), data);
+	add_callback_data (gedit_docs_menu, GNOME_APP (mdi->active_window), data);
+	add_callback_data (gedit_help_menu, GNOME_APP (mdi->active_window), data);
+*/
 	gnome_app_create_menus (GNOME_APP (mdi->active_window), gedit_menu);
 
-	remove_callback_data (gedit_file_menu, window, data);
-	remove_callback_data (gedit_edit_menu, window, data);
-/*	remove_callback_data (gedit_tab_menu, window, data);*/
-	remove_callback_data (gedit_settings_menu, window, data);
-	remove_callback_data (gedit_window_menu, window, data);
-	remove_callback_data (gedit_help_menu, window, data);
-
+/*	remove_callback_data (gedit_file_menu, GNOME_APP (mdi->active_window), data);
+	remove_callback_data (gedit_edit_menu, GNOME_APP (mdi->active_window), data);
+	remove_callback_data (gedit_tab_menu, GNOME_APP (mdi->active_window),data);
+       remove_callback_data (gedit_settings_menu,GNOME_APP (mdi->active_window), data);
+	remove_callback_data (gedit_window_menu,GNOME_APP (mdi->active_window),data);
+	remove_callback_data (gedit_docs_menu, GNOME_APP (mdi->active_window), data);
+	remove_callback_data (gedit_help_menu, GNOME_APP (mdi->active_window), data);
+*/
 	return (GnomeUIInfo *) gedit_menu;
 }
 

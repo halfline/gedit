@@ -40,6 +40,21 @@ static void	  gE_document_destroy (GtkObject *);
 static void	  gE_document_real_changed (gE_document *, gpointer);
 static gchar *gE_document_get_config_string (GnomeMDIChild *child);
 
+/* MDI Menus Stuff */
+
+GnomeUIInfo view_menu[] = {
+	GNOMEUIINFO_ITEM_NONE (N_("_Add View"),
+					   N_("Add a new view of the document"), gE_add_view),
+	GNOMEUIINFO_ITEM_NONE (N_("_Remove View"),
+					   N_("Remove view of the document"), gE_remove_view),
+	GNOMEUIINFO_END
+};
+
+GnomeUIInfo doc_menu[] = {
+	GNOMEUIINFO_MENU_VIEW_TREE(view_menu),
+	GNOMEUIINFO_END
+};
+
 
 enum {
 	LAST_SIGNAL
@@ -92,7 +107,7 @@ static GtkWidget *gE_document_create_view (GnomeMDIChild *child)
 	GtkStyle *style;
 	gint *ptr; /* For plugin stuff. */
 	
-	doc = g_malloc0(sizeof(gE_document));
+	doc = GE_DOCUMENT(child);
 
 /*	ptr = g_new(int, 1);
 BORK!!	*ptr = ++last_assigned_integer;
@@ -278,6 +293,7 @@ static void gE_document_init (gE_document *doc)
 	doc->read_only = FALSE;
 	doc->splitscreen = FALSE;
 	
+	gnome_mdi_child_set_menu_template (GNOME_MDI_CHILD (doc), doc_menu);
 }
 
 gE_document *gE_document_new ()
@@ -291,7 +307,7 @@ gE_document *gE_document_new ()
 	if ((doc = gtk_type_new (gE_document_get_type ())))
 	  {
 	    gnome_mdi_child_set_name(GNOME_MDI_CHILD(doc), _(UNTITLED));
-	
+	    
 	    return doc;
 	  }
 	
@@ -307,18 +323,26 @@ gE_document *gE_document_new_with_file (gchar *filename)
 	char *nfile, *name;
 
 	name = filename;
-	if ((doc = gE_document_new()))
+/*	if ((doc = gE_document_new()))*/
+	if ((doc = gtk_type_new (gE_document_get_type ())))
 	  {
-	    gnome_mdi_add_child (mdi, GNOME_MDI_CHILD (doc));
-	    gnome_mdi_add_view (mdi, GNOME_MDI_CHILD (doc));
-	    
+
+    	    gnome_mdi_child_set_name(GNOME_MDI_CHILD(doc), _(filename));
+
 	    nfile = g_malloc(strlen(name)+1);
 	    strcpy(nfile, name);
-	    gE_file_open (doc, filename);
+
+	    gnome_mdi_add_child (mdi, GNOME_MDI_CHILD (doc));
+	    gnome_mdi_add_view (mdi, GNOME_MDI_CHILD (doc));
+
+    	    gE_file_open (GE_DOCUMENT(doc), filename);
+	    	    	    
+	    return doc;
 	  }
-
-
-	return doc;
+	g_print ("Eeek.. bork!\n");
+	gtk_object_destroy (GTK_OBJECT(doc));
+	
+	return NULL;
 
 } /* gE_document_new_with_file */
 
