@@ -1,3 +1,17 @@
+1999-05-14  Martijn van Beers  <martijn@earthling.net>
+
+	* gedit.gnorba:
+	* src/editor.c:
+	* src/corba-glue.h:
+	* src/openfile.c: New files for the Desktop::Editor implementation.
+	* acconfig.h: removed ORBit/gnorba defines, since we no longer check.
+	* makeconfig.pl: removed ORBit/gnorba checks. done in the gnome check.
+	* Makefile.am: added gerdit.gnorba
+	* src/Makefile.am:
+	* src/main.h:
+	* src/gE_mdi.c:
+	* src/gedit.c Changes to incorporate the added code.
+
 1999-05-12  Alex Roberts  <bse@gedit.pn.org>
 
 	* makeconfig.pl: Changed version number to 0.5.3pre. To differenciate with

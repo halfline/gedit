@@ -81,6 +81,7 @@ typedef struct _gE_document {
 	GtkWidget *split_viewport;
 	GtkWidget *split_screen;
 	GtkWidget *flag;
+	GList *ed_obj_list;
 
 } gE_document;
 

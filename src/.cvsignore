@@ -1,5 +1,7 @@
 .deps
 gedit
+testcorba
+desktop-*
 cvsdiff-plugin
 diff-plugin
 hello-plugin

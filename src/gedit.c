@@ -38,9 +38,10 @@
 #include <gE_plugin.h>
 #endif
 
-#ifdef HAVE_LIBGNORBA
 #include <libgnorba/gnorba.h>
-#endif
+
+#include "desktop-editor.h"
+#include "corba-glue.h"
 
 GList *window_list;
 extern GList *plugins;
@@ -70,20 +71,6 @@ void setup_callbacks( plugin_callback_struct *callbacks )
 	callbacks->document.get_position = NULL;
 	callbacks->document.get_selection = NULL;
 }
-/* We dont need this!
-gint file_open_wrapper (char *fname)
-{
-	char *nfile;
-	gE_document *doc;
-
-	doc = gE_document_new();
-	nfile = g_malloc(strlen(fname)+1);
-	strcpy(nfile, name);
-	(gint) gE_file_open (doc, nfile);
-
-	return FALSE;
-}
-*/
 
 
 GSList *launch_plugins = NULL;
@@ -128,7 +115,6 @@ static const struct poptOption options[] = {
 
 static GList *file_list;
 
-#ifdef HAVE_LIBGNORBA
 
 CORBA_ORB global_orb;
 PortableServer_POA root_poa;
@@ -155,7 +141,6 @@ corba_exception (CORBA_Environment* ev)
 	}
 }
 
-#endif /* HAVE_LIBGNORBA */
 
 int main (int argc, char **argv)
 {
@@ -164,20 +149,22 @@ int main (int argc, char **argv)
 	gE_data *data;
 	plugin_callback_struct callbacks;
 	char **args;
-	poptContext ctx;
 	int i;
+	CORBA_Object editor_factory;
+	poptContext ctx;
+
 
 	bindtextdomain(PACKAGE, GNOMELOCALEDIR);
 	textdomain(PACKAGE);
 
 
-#ifdef HAVE_LIBGNORBA
 
 	global_ev = g_new0 (CORBA_Environment, 1);
 
 	CORBA_exception_init (global_ev);
-	global_orb = gnome_CORBA_init
-		("gEdit", VERSION, &argc, argv, options, 0, &ctx, global_ev);
+	global_orb = gnome_CORBA_init_with_popt_table
+		("gEdit", VERSION, &argc, argv, options,
+		0, &ctx, GNORBA_INIT_SERVER_FUNC, global_ev);
 	corba_exception (global_ev);
 	
 	root_poa = CORBA_ORB_resolve_initial_references
@@ -192,12 +179,18 @@ int main (int argc, char **argv)
 	corba_exception (global_ev);
 
 	name_service = gnome_name_service_get ();
+	editor_factory = impl_Desktop_EditorFactory__create (
+			root_poa, global_ev);
+	corba_exception (global_ev);
 
-#else
+	if (goad_server_register (name_service, editor_factory,
+			"gedit_editor_factory", "factory", global_ev) != 0) {
+		corba_exception (global_ev);
+		g_error ("Couldn't register server");
+		exit (1);
+	}
 
-	gnome_init_with_popt_table ("gEdit", VERSION, argc, argv, options, 0, &ctx);
-	
-#endif /* HAVE_LIBGNORBA */
+
 
 	g_slist_foreach(launch_plugins, launch_plugin, NULL);
 	g_slist_free(launch_plugins);
@@ -210,9 +203,6 @@ int main (int argc, char **argv)
 	
 	poptFreeContext(ctx);
 	
-/*	gE_rc_parse(); -- THis really isnt needed any more.. but i forget the
-				  function itself.. */
-
 	doc_pointer_to_int = g_hash_table_new (g_direct_hash, g_direct_equal);
 	doc_int_to_pointer = g_hash_table_new (g_int_hash, g_int_equal);
 	win_pointer_to_int = g_hash_table_new (g_direct_hash, g_direct_equal);
@@ -234,21 +224,21 @@ int main (int argc, char **argv)
 	gnome_mdi_set_child_menu_path (mdi, GNOME_MENU_FILE_STRING);
 	gnome_mdi_set_child_list_path (mdi, GNOME_MENU_FILES_PATH);
 	
+	
 	gnome_mdi_set_mode (mdi, mdiMode);	
-	/*window = gE_window_new();
 
-	data->window = window;*/
-	window = g_malloc (sizeof (gE_window));
 
 	/* Init plugins... */
 	plugins = NULL;
 	
+	/*
 	setup_callbacks (&pl_callbacks);
 	
-	/*plugin_query_all (&pl_callbacks);*/
-	/*custom_plugin_query_all ( "/usr/gnome/libexec/plugins", &pl_callbacks);*/
-	/*custom_plugin_query ( "/usr/gnome/libexec", "print-plugin", &pl_callbacks);*/
+	plugin_query_all (&pl_callbacks);
+	custom_plugin_query_all ( "/usr/gnome/libexec/plugins", &pl_callbacks);
+	custom_plugin_query ( "/usr/gnome/libexec", "print-plugin", &pl_callbacks);
 	plugin_load_list("gEdit");
+	*/
 
 		
     /* connect signals -- FIXME -- We'll do the rest later */
@@ -261,20 +251,18 @@ int main (int argc, char **argv)
     gtk_signal_connect(GTK_OBJECT(mdi), "add_child", GTK_SIGNAL_FUNC(add_child_cb), NULL);		
 
 	gnome_mdi_open_toplevel(mdi);
-
+	
 	if (file_list){
 
 
-/*		doc = gE_document_current();
+		doc = gE_document_current();
 
 		if (doc->filename != NULL)
 			g_free (doc->filename);
 		g_free (doc);
-*/
+
 		for (;file_list; file_list = file_list->next)
 		{
-			/*data->temp2 = file_list->data;*/
-			/*file_open_wrapper (file_list->data);*/
 			gE_document_new_with_file (file_list->data);
 		}
 	}
@@ -288,7 +276,6 @@ int main (int argc, char **argv)
 	}
 	
 	g_free (data);
-
 	
       
 #ifdef WITH_GMODULE_PLUGINS
@@ -296,7 +283,6 @@ int main (int argc, char **argv)
 #endif
 	
 
-	
 	gtk_main ();
 	return 0;
 }

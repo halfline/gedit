@@ -46,28 +46,6 @@ have_gmodule_plugins=no
 
 AM_CONDITIONAL(WITH_GMODULE_PLUGINS, test x$have_gmodule_plugins = xyes)
 
-dnl Let the user disable ORBit even if it can be found
-AC_ARG_ENABLE(orbit,
-	      [  --enable-orbit          Try to use ORBit [default=no] ],
-	      enable_orbit="$enableval", enable_orbit=no)
-dnl We only need CORBA for plugins
-if test x$have_gmodule_plugins = xyes ; then
-  if test x$enable_orbit = xyes ; then
-    GNOME_ORBIT_HOOK([have_orbit=yes])
-  fi
-fi
-AM_CONDITIONAL(HAVE_ORBIT, test x$have_orbit = xyes)
-
-dnl Check if we also have LibGnorba
-if test x$have_orbit = xyes; then
-  AC_CHECK_LIB(gnorba, gnome_CORBA_init, have_libgnorba=yes, have_libgnorba=no,
-               $ORBIT_LIBS $GNOMEUI_LIBS)
-fi
-if test x$have_libgnorba = xyes ; then
-  AC_DEFINE(HAVE_LIBGNORBA)
-fi
-AM_CONDITIONAL(HAVE_LIBGNORBA, test x$have_libgnorba = xyes)
-
 dnl Check for libzvt from gnome-libs/zvt
 AC_CHECK_LIB(zvt, zvt_term_new, have_libzvt=yes, have_libzvt=no, $GNOMEUI_LIBS)
 AM_CONDITIONAL(HAVE_LIBZVT, test x$have_libzvt = xyes)

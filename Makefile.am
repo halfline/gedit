@@ -6,7 +6,7 @@ SUBDIRS = macros po intl src editor-plugins gmodule-plugins help
 
 EXTRA_DIST = KNOWNBUGS FAQ ChangeLog README README.plugins			\
 	INSTALL gedit.1 gE-icon-1.xpm gE-icon-2.xpm gedit.desktop	\
-	ABOUT-NLS TODO gedit.spec.in gedit.keys
+	ABOUT-NLS TODO gedit.spec.in gedit.keys gedit.gnorba
 
 man_MANS = gedit.1
 
@@ -15,6 +15,9 @@ sys_DATA = gedit.desktop
 
 mimedir = $(datadir)/mime-info
 mime_DATA = gedit.keys
+
+gnorbadir = $(sysconfdir)/CORBA/servers
+gnorba_DATA = gedit.gnorba
 
 dist-hook:
 	mkdir $(distdir)/xpm

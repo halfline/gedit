@@ -1,0 +1,11 @@
+[gedit_editor_factory]
+type=exe
+repo_id=IDL:Desktop/EditorFactory:1.0
+description=GNOME Editor
+location_info=gedit
+
+[gedit_editor]
+type=factory
+repo_id=IDL:Desktop/Editor:1.0
+description=Editor Window
+location_info=gedit_editor_factory

@@ -24,6 +24,7 @@
 #include <gnome.h>
 #include <gtk/gtk.h>
 #include <glib.h>
+#include <orb/orb.h>
 
 #include "main.h"
 #include "gE_prefs.h"
@@ -34,6 +35,8 @@
 #include "gE_mdi.h"
 #include "gE_print.h"
 #include "gE_plugin_api.h"
+#include "desktop-editor.h"
+#include "corba-glue.h"
 
 static void 	  gE_document_class_init (gE_document_class *);
 static void 	  gE_document_init (gE_document *);
@@ -61,7 +64,6 @@ GnomeUIInfo gedit_edit_menu [] = {
 
 	{ GNOME_APP_UI_ITEM, N_("Find _Line..."),
 	  N_("Search for a line"),
-
 	  goto_line_cb, NULL, NULL,
 	  GNOME_APP_PIXMAP_STOCK, GNOME_STOCK_MENU_SEARCH },
 
@@ -337,6 +339,7 @@ void gE_document_init (gE_document *doc)
 	doc->changed = FALSE;
 	/*doc->changed_id = gtk_signal_connect(GTK_OBJECT(doc->text), "changed",
 									GTK_SIGNAL_FUNC(doc_changed_cb), doc);*/
+	doc->ed_obj_list = NULL;
 		
 	gnome_mdi_child_set_menu_template (GNOME_MDI_CHILD (doc), doc_menu);
 	
@@ -464,6 +467,12 @@ void gE_remove_view (GtkWidget *w, gpointer data)
 
 /* Various MDI Callbacks */
 
+static void
+delete_editor_obj (gpointer servant, gpointer data)
+{
+	impl_Desktop_Editor__destroy (servant, global_ev);
+}
+
 gint remove_doc_cb (GnomeMDI *mdi, gE_document *doc)
 {
 	GnomeMessageBox *msgbox;
@@ -509,6 +518,9 @@ gint remove_doc_cb (GnomeMDI *mdi, gE_document *doc)
 	      else if (ret == 2)
 	       return FALSE;
 	  }
+	  
+	g_list_foreach (doc->ed_obj_list, delete_editor_obj, NULL);
+	gE_documents = g_list_remove (gE_documents, doc);
 	
 	ptr = g_hash_table_lookup(doc_pointer_to_int, doc);
 	g_hash_table_remove(doc_int_to_pointer, ptr);

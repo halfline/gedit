@@ -28,15 +28,27 @@ else
 GMODULE_PLUGIN_SRCLIST =
 endif
 
-if HAVE_ORBIT
-corba_libs = @ORBIT_LIBS@
-endif
-
-if HAVE_LIBGNORBA
-libgnorba_libs = -lgnorba
-endif
-
 bin_PROGRAMS = gedit
+noinst_PROGRAMS = testcorba
+
+BUILT_SOURCES = \
+	desktop-editor.h	\
+	desktop-editor-common.c	\
+	desktop-editor-skels.c	\
+	desktop-editor-stubs.c	\
+	desktop-textviewer.h	\
+	desktop-textviewer-common.c	\
+	desktop-textviewer-skels.c	\
+	desktop-textviewer-stubs.c
+
+testcorba_SOURCES = \
+	openfile.c	\
+	desktop-editor-common.c	\
+	desktop-editor-stubs.c	\
+	desktop-editor.h	\
+	desktop-textviewer.h	\
+	desktop-textviewer-common.c	\
+	desktop-textviewer-stubs.c
 
 gedit_SOURCES = 	\
 	gedit.c		\
@@ -71,12 +83,20 @@ gedit_SOURCES = 	\
 	search.c	\
 	dialog.h	\
 	dialog.c	\
-	$(GMODULE_PLUGIN_SRCLIST)
+	$(GMODULE_PLUGIN_SRCLIST)	\
+	editor.c	\
+	$(BUILT_SOURCES)
 
-#gedit_LDADD = -lm -lgtk -lgdk -lglib -lXext -lX11 -L/usr/X11R6/lib -L/usr/local/lib
 
-gedit_LDADD = $(GNOME_LIBDIR) $(GNOMEUI_LIBS) $(corba_libs) \
-	      $(libgnorba_libs) $(INTLLIBS)
+gedit_LDADD = $(GNOME_LIBDIR) $(GNOMEUI_LIBS)  \
+	      $(INTLLIBS) $(ORBIT_LIBS) $(GNORBA_LIBS)
+
+testcorba_LDADD = $(GNOME_LIBDIR) $(GNOMEUI_LIBS) $(ORBIT_LIBS) \
+	      $(INTLLIBS) $(GNORBA_LIBS)
+
+$(BUILT_SOURCES): /opt/gnome/share/idl/desktop-editor.idl
+	$(ORBIT_IDL) /opt/gnome/share/idl/desktop-editor.idl
+	$(ORBIT_IDL) /opt/gnome/share/idl/desktop-textviewer.idl
 
 EXTRA_DIST = gE-icon-1.xpm gE-icon-2.xpm gE_icon.xpm $(gtkrc_DATA) $(appicon_DATA)
 
