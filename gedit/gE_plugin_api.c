@@ -29,7 +29,7 @@
 #include "gE_plugin.h"
 #endif
 #include "gE_plugin_api.h"
-#include "gE_document.h"
+#include "gE_window.h"
 #include "gE_view.h"
 #include "gE_files.h"
 #include "commands.h"

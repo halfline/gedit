@@ -26,7 +26,7 @@
 
 #include "main.h"
 #include "commands.h"
-#include "gE_document.h"
+#include "gE_window.h"
 #include "gE_mdi.h"
 #include "gE_prefs.h"
 #include "gE_plugin_api.h"
@@ -277,6 +277,10 @@ int main (int argc, char **argv)
 /*	gnome_mdi_set_mode (mdi, GNOME_MDI_NOTEBOOK);	*/
 		
 	gnome_mdi_open_toplevel(mdi);
+
+	doc = gE_document_new ();
+	gnome_mdi_add_child (mdi, GNOME_MDI_CHILD (doc));
+	gnome_mdi_add_view  (mdi, GNOME_MDI_CHILD (doc));
 
 	if (file_list){
 

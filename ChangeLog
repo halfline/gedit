@@ -1,3 +1,52 @@
+Sat Aug 07 18:46:50 BST 1999  Alex Roberts  <bse@gedit.pn.org>
+
+	* gE_view.c: (gE_view_new) Check to see if the gE_docuemnt buffer
+	  contains text, if so, insert this into the view; i need to figure out
+	  how to keep this buffer in sync, so the GnomeMDI add view will work
+	  properly.
+
+Sat Aug 07 18:09:58 BST 1999  Alex Roberts  <bse@gedit.pn.org>
+
+	* gE_window.[ch]: Replacements for gE_document.[ch]. Removed old cruft
+	  that isnt needed any more (such as msgbar and popup menu code).
+	
+	* commands.c:
+	  gE_files.c:
+	  gE_mdi.c:
+	  gE_plugin_api.c:
+	  gE_prefs_box.c:
+	  gE_print.c:
+	  gE_view.c:
+	  gedit.c:
+	  menus.c:
+	  search.c: Replaced includes of gE_document.h for gE_window.h (ahh,
+	  the joy's of sed =).
+	
+	* gE_document.[ch] are now depreciated files, i'll keep them for now
+	  for reference purposes.
+
+Sat Aug 07 17:50:30 BST 1999  Alex Roberts  <bse@gedit.pn.org>
+
+	* Makefile.am:
+	  toolbar.[ch]: ok, i've put the actual toolbar GnomeUIInfo into
+	  toolbar.h and commented out toolbar.c from the make list. Nothing
+	  uses toolbar.c any more (we use GnomeMDI, we just need to supply the
+	  GnomeUIInfo).
+	
+	* Makefile.am: Also commented out dialog.[ch], its not used any more
+
+	* gE_document.c:
+	  gE_files.c:
+	  gE_prefs.c:
+	  gE_prefs_box.c:
+	  menu.c: Commented out an include for toolbar.h - only gedit.c needs
+	  it.
+	
+	* gE_prefs.c: Go back to using the regular gnome_config code, instead
+	  of our old gE_prefslib.[ch] code. This should improve config
+	  performance (as we dont open/close the config file each time). 
+	  I've shaved off about 17k from the binary now! wooo! =)
+
 Tue Jul 20 16:26:39 BST 1999  Alex Roberts  <bse@gedit.pn.org>
 
 	* gE_view.[ch]: Made the View widget inherited from a GtkVBox. This

@@ -25,7 +25,7 @@
 #include "gE_mdi.h"
 #include "commands.h"
 #include "gE_prefs.h"
-#include "gE_document.h"
+#include "gE_window.h"
 #include "gE_print.h"
 
 #define GE_DATA		1
@@ -116,7 +116,7 @@ doc_insert_text_cb(GtkWidget *editable, char *insertion_text, int length,
 	GtkWidget *text;
 
 	data = g_malloc0 (sizeof (gE_data));
-/*	line_pos_cb(NULL, data);*/
+	line_pos_cb(NULL, data);
 	
 	g_free (data);
 	
@@ -509,7 +509,7 @@ static void gE_view_init (gE_view *view)
 	gtk_widget_show (view->vbox);*/
 
 	gtk_widget_grab_focus(view->text);
-
+	
 }
 
 guint gE_view_get_type ()
@@ -539,6 +539,25 @@ GtkWidget *gE_view_new (gE_document *doc)
 	gE_view *view = gtk_type_new (gE_view_get_type ());
 	
 	view->document = doc;
+
+	if (view->document->buf_size)
+	{
+	  	g_print ("gE_view_init: inserting buffer..\n");
+	  	
+	  	/*gtk_text_freeze (GTK_TEXT (view->text));*/
+	  	gtk_text_insert (GTK_TEXT (view->text), NULL,
+						 &view->text->style->black,
+						 NULL, view->document->buf,
+						 view->document->buf_size);
+
+	  	gtk_text_insert (GTK_TEXT (view->split_screen), NULL,
+						 &view->split_screen->style->black,
+						 NULL, view->document->buf,
+						 view->document->buf_size);
+		/*gtk_text_thaw (GTK_TEXT (view->text));*/
+		
+		gE_view_set_position (view, 0);
+	}
 	
 	return GTK_WIDGET (view);
 }

@@ -29,7 +29,7 @@
 
 #include "main.h"
 #include "gE_prefs.h"
-#include "gE_document.h"
+#include "gE_window.h"
 #include "gE_view.h"
 #include "gE_files.h"
 #include "commands.h"
@@ -257,7 +257,6 @@ gE_document *gE_document_new_with_file (gchar *filename)
    	                if ((fp = fopen (filename, "r")) != NULL)
    	                  {
    	                    doc->buf_size = fread (doc->buf, 1, doc->buf_size,fp);
-   	                    g_print ("newwithfile: doc->buf = %s\n",doc->buf);
    	                	gnome_mdi_child_set_name(GNOME_MDI_CHILD(doc),
    	                	                          g_basename(filename));
    	                	

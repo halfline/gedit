@@ -35,7 +35,7 @@
 #include "gE_mdi.h"
 #include "gE_print.h"
 #include "menus.h"
-#include "toolbar.h"
+/*#include "toolbar.h"*/
 #include "gE_prefs.h"
 #include "search.h"
 

@@ -27,8 +27,8 @@
 #include "commands.h"
 #include "gE_prefs.h"
 #include "gE_files.h"
-#include "toolbar.h"
-#include "gE_document.h"
+/*#include "toolbar.h"*/
+#include "gE_window.h"
 #include "gE_view.h"
 #include "gE_about.h"
 #include "gE_print.h"

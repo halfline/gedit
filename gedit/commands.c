@@ -38,7 +38,7 @@
 #include "gE_view.h"
 #include "commands.h"
 #include "gE_mdi.h"
-#include "gE_document.h"
+#include "gE_window.h"
 #include "gE_prefs.h"
 #include "gE_files.h"
 #include "gE_plugin_api.h"

@@ -26,9 +26,9 @@
 #include <time.h>
 #include "main.h"
 #include "gE_prefs.h"
-#include "toolbar.h"
+/*#include "toolbar.h"*/
 #include "gE_prefs_box.h"
-#include "gE_document.h"
+#include "gE_window.h"
 #include "gE_view.h"
 #include "gE_plugin_api.h"
 #include "gE_mdi.h"

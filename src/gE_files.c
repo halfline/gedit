@@ -27,11 +27,11 @@
 #include <gtk/gtk.h>
 #include <glib.h>
 #include "main.h"
-#include "gE_document.h"
+#include "gE_window.h"
 #include "gE_view.h"
 #include "gE_files.h"
 #include "commands.h"
-#include "toolbar.h"
+/*#include "toolbar.h"*/
 #include "gE_mdi.h"
 
 static void clear_text (gE_view *view);
