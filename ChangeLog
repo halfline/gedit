@@ -1,3 +1,8 @@
+1999-04-02 (23:40) Alex Roberts  <bse@gedit.pn.org>
+
+	* gE_mdi.c: (gE_add_view) This is pretty much a kludge. Just the same
+	  as the old file_open_in_new_win_cb function (commands.c)..
+
 1999-04-02 (23:22) Alex Roberts  <bse@gedit.pn.org>
 
 	* commands.c: (gE_event_button_press) Put the debug output of this

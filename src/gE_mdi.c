@@ -436,36 +436,29 @@ GnomeMDIChild *gE_document_new_from_config (const gchar *file)
 void gE_add_view (GtkWidget *w, gpointer data)
 {
 	GnomeMDIChild *child = GNOME_MDI_CHILD (data);
-/*	guchar *buf;
-	gint len;
+	gchar *buf;
+	gint len, pos = 0;
 	gint mod = 0;
 	
 	if (GTK_TEXT(GE_DOCUMENT(child)->text)->text.ch)
 	  {
-	   buf = GTK_TEXT(GE_DOCUMENT(child)->text)->text.ch;
-	  	g_print("hmm.. %s\n",buf);
-	   len = strlen (buf);
+	   buf = gtk_editable_get_chars (GTK_EDITABLE (GE_DOCUMENT(child)->text), 0, -1);
 	  }
 	
 	if (GE_DOCUMENT(child)->changed)
-	  mod = GE_DOCUMENT(child)->changed;*/
+	  mod = GE_DOCUMENT(child)->changed;
 	
 	gnome_mdi_add_view (mdi, GNOME_MDI_CHILD(child));
 	
-/*	if (mdi->active_child)
+	if (mdi->active_child)
 	  {
 	   if (buf)
 	     {
-	      gtk_text_freeze(GTK_TEXT(GE_DOCUMENT(mdi->active_child)->text));
-              gtk_text_insert(GTK_TEXT(GE_DOCUMENT(mdi->active_child)->text),
-	       					NULL,
-	       					NULL,
-	       					NULL, buf, len);
-	      gtk_text_thaw(GTK_TEXT(GE_DOCUMENT(mdi->active_child)->text));
+	      gtk_editable_insert_text (GTK_EDITABLE (GE_DOCUMENT(mdi->active_child)->text), buf, strlen (buf), &pos);
 	     }
 	     
 	     GE_DOCUMENT(mdi->active_child)->changed = mod;
-	   }*/
+	   }
 
 }
 
