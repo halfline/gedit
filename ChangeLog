@@ -1,3 +1,8 @@
+Sun Jul 18 21:09:40 BST 1999  Alex Roberts  <bse@gedit.pn.org>
+
+	* src/search.c: (search_search) Search should work properly now, except
+	  search backwards is a bit dodgy now, erf.. 
+
 Mon Jun 28 19:37:27 BST 1999  Alex Roberts  <bse@gedit.pn.org>
 
 	* gE_view.[ch]: New files... What i've done is re-implemented the 

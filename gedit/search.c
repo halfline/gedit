@@ -655,12 +655,12 @@ search_select (gE_document *doc, gchar *str, gint pos, gulong options)
 	seek_to_line (doc, line, numlines);
 	if (options | SEARCH_BACKWARDS) {
 		gtk_editable_set_position (GTK_EDITABLE (view->text),
-				pos);
+				pos + numwcs);
 		gtk_editable_select_region (GTK_EDITABLE (view->text),
-				pos + numwcs, pos);
+				pos , pos + numwcs);
 	} else {
 		gtk_editable_set_position (GTK_EDITABLE (view->text),
-				pos + numwcs);
+				pos);
 		gtk_editable_select_region (GTK_EDITABLE (view->text),
 				 pos, pos + numwcs);
 	}
