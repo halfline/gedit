@@ -1,5 +1,9 @@
 2002-07-04  Paolo Maggi  <maggi@athena.polito.it>
 
+	* TODO: Updated
+
+2002-07-04  Paolo Maggi  <maggi@athena.polito.it>
+
 	* gedit.schemas: s/GEdit/gedit, change the backup_copy_extension
 	default to ~
 
