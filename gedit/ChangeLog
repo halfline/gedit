@@ -1,5 +1,12 @@
 2002-07-03  Paolo Maggi <maggi@athena.polito.it>
 
+	* bonobo-mdi.[ch] (bonobo_mdi_get_window_info)
+	new method
+	(app_clone): set the size of the new window to the
+	one of the cloned one
+	
+2002-07-03  Paolo Maggi <maggi@athena.polito.it>
+
 	* gnome-vfs-helpers.[ch]: removed
 
 	* *.c: s/gnome_vfs_x/eel
