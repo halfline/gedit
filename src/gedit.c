@@ -222,6 +222,8 @@ int main (int argc, char **argv)
 	data = g_malloc (sizeof (gE_data));
 	window_list = NULL;
 	settings = g_malloc (sizeof (gE_preference));
+	
+	settings->num_recent = 0;
 
 	mdi = GNOME_MDI(gnome_mdi_new ("gEdit", GEDIT_ID));
 	mdi->tab_pos = GTK_POS_TOP;

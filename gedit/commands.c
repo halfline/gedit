@@ -969,7 +969,10 @@ recent_update_menus (GnomeApp *app, GList *recent_files)
 	gE_data *data;
 	gchar *path;
 	int i;
-	
+
+	if (settings->num_recent)
+	   gnome_app_remove_menu_range (app, "_File/", 5, settings->num_recent + 1);
+
 	if (recent_files == NULL)
 		return;
 
