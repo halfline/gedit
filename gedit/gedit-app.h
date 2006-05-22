@@ -83,6 +83,8 @@ GeditApp 	*gedit_app_get_default			(void);
 
 GeditWindow	*gedit_app_create_window		(GeditApp  *app,
 							 GdkScreen *screen);
+GeditWindow	*gedit_app_create_window_simple		(GeditApp  *app,
+							 GdkScreen *screen);
 
 const GList	*gedit_app_get_windows			(GeditApp *app);
 GeditWindow	*gedit_app_get_active_window		(GeditApp *app);
@@ -97,6 +99,8 @@ GList		*gedit_app_get_views			(GeditApp *app);
  * Non exported functions
  */
 GeditWindow	*_gedit_app_restore_window		(GeditApp    *app,
+							 const gchar *role);
+GeditWindow	*_gedit_app_restore_window_simple	(GeditApp    *app,
 							 const gchar *role);
 GeditWindow	*_gedit_app_get_window_in_workspace	(GeditApp  *app,
 							 GdkScreen *screen,

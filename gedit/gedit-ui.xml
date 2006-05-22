@@ -50,7 +50,7 @@
       </placeholder>
       <separator/>
       <menuitem name="FileCloseMenu" action="FileClose"/>
-      <menuitem name="FileQuitMenu" action="FileQuit"/>
+      <placeholder name="FileQuitPlaceholder"/>
     </menu>
 
     <menu name="EditMenu" action="Edit">
@@ -110,22 +110,14 @@
       <placeholder name="ToolsOps_5" />
     </menu>
 
-    <menu name="DocumentsMenu" action="Documents">
-      <menuitem action="FileSaveAll" />
-      <menuitem action="FileCloseAll" />
-      <separator/>       
-      <menuitem action="DocumentsMoveToNewWindow"/>
-      <placeholder name="DocumentsListPlaceholder">
-        <separator/>
-      </placeholder>
-    </menu>
-
+    <placeholder name="DocumentsPlaceholder" />
+    
     <menu name="HelpMenu" action="Help">
       <menuitem name="HelpContentsMenu" action="HelpContents"/>
       <menuitem name="HelpAboutMenu" action="HelpAbout"/>
     </menu>
   </menubar>
-
+    
   <toolbar name="ToolBar">
     <toolitem action="FileNew"/>
     <toolitem action="FileSave"/>
@@ -142,18 +134,4 @@
     <toolitem action="SearchFind"/>
     <toolitem action="SearchReplace"/>
   </toolbar>
-
-  <popup name="NotebookPopup" action="NotebookPopupAction">
-    <menuitem action="DocumentsMoveToNewWindow"/>
-    <separator/>
-    <menuitem action="FileSave"/>
-    <menuitem action="FileSaveAs"/>
-    <separator/>
-    <menuitem action="FilePrint"/>
-    <separator/>
-    <placeholder name="NotebookPupupOps_1"/>   
-    <separator/>
-    <menuitem name="FileCloseMenu" action="FileClose"/>
-  </popup>
-
 </ui>

@@ -1,0 +1,31 @@
+<ui>
+  <menubar name="MenuBar">
+    <placeholder name="DocumentsPlaceholder">
+      <menu name="DocumentsMenu" action="Documents">
+        <menuitem action="FileSaveAll" />
+        <menuitem action="FileCloseAll" />
+        <separator/>
+        <menuitem action="DocumentsMoveToNewWindow"/>
+        <placeholder name="DocumentsListPlaceholder">
+          <separator/>
+        </placeholder>
+      </menu>
+    </placeholder>
+    <placeholder name="FileQuitPlaceholder">
+      <menuitem name="FileQuitMenu" action="FileQuit"/> 
+    </placeholder>
+  </menubar>
+
+  <popup name="NotebookPopup" action="NotebookPopupAction">
+    <menuitem action="DocumentsMoveToNewWindow"/>
+    <separator/>
+    <menuitem action="FileSave"/>
+    <menuitem action="FileSaveAs"/>
+    <separator/>
+    <menuitem action="FilePrint"/>
+    <separator/>
+    <placeholder name="NotebookPupupOps_1"/>   
+    <separator/>
+    <menuitem name="FileCloseMenu" action="FileClose"/>
+  </popup>
+</ui>

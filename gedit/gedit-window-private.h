@@ -41,8 +41,6 @@ G_BEGIN_DECLS
 
 struct _GeditWindowPrivate
 {
-	GtkWidget      *notebook;
-
 	GtkWidget      *side_panel;
 	GtkWidget      *bottom_panel;
 
@@ -57,11 +55,8 @@ struct _GeditWindowPrivate
 	/* Menus & Toolbars */
 	GtkUIManager   *manager;
 	GtkActionGroup *action_group;
-	GtkActionGroup *quit_action_group;
 	GtkActionGroup *always_sensitive_action_group;
 	GtkActionGroup *languages_action_group;
-	GtkActionGroup *documents_list_action_group;
-	guint           documents_list_menu_ui_id;
 	GtkWidget      *toolbar;
 	GtkWidget      *toolbar_recent_menu;
 	GeditToolbarSetting toolbar_style;
@@ -69,8 +64,9 @@ struct _GeditWindowPrivate
 	EggRecentViewUIManager *recent_view_uim;
 
 	GeditTab       *active_tab;
-	gint            num_tabs;
-	
+	GList	       *tabs;
+	gboolean        is_removing_tabs;
+
 	gint            num_tabs_with_error;
 
 	gint            width;
@@ -79,8 +75,6 @@ struct _GeditWindowPrivate
 
 	gint		side_panel_size;
 	gint		bottom_panel_size;
-
-	gboolean	removing_tabs;
 	
 	GeditWindowState state;
 

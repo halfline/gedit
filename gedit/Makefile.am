@@ -98,7 +98,9 @@ INST_H_FILES =				\
 	gedit-tab.h 			\
 	gedit-utils.h 			\
 	gedit-view.h 			\
-	gedit-window.h
+	gedit-window.h			\
+	gedit-window-mdi.h		\
+	gedit-window-sdi.h
 
 headerdir = $(prefix)/include/gedit-@GEDIT_MAJOR@/gedit
 
@@ -151,6 +153,8 @@ libgedit_la_SOURCES = 			\
 	gedit-utils.c 			\
 	gedit-view.c 			\
 	gedit-window.c			\
+	gedit-window-mdi.c		\
+	gedit-window-sdi.c		\
 	sexy-icon-entry.c		\
 	gedittextregion.c		\
 	$(NOINST_H_FILES)		\
@@ -172,7 +176,9 @@ gedit-marshal.c: gedit-marshal.list $(GLIB_GENMARSHAL)
 	echo "#include \"gedit-marshal.h\"" > $@ && \
 	$(GLIB_GENMARSHAL) $< --body --prefix=gedit_marshal >> $@
 
-ui_DATA = gedit-ui.xml
+ui_DATA = \
+	gedit-ui.xml \
+	gedit-ui-mdi.xml
 uidir = $(datadir)/gedit-2/ui/
 
 EXTRA_DIST = 				\

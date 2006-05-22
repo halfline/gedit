@@ -120,8 +120,12 @@ static const GtkActionEntry gedit_menu_entries[] =
 	{ "SearchClearHighlight", NULL, N_("_Clear Highlight"), "<shift><control>K",
 	  N_("Clear highlighting of search matches"), G_CALLBACK (gedit_cmd_search_clear_highlight) },
 	{ "SearchGoToLine", GTK_STOCK_JUMP_TO, N_("Go to _Line..."), "<control>I",
-	  N_("Go to a specific line"), G_CALLBACK (gedit_cmd_search_goto_line) },
+	  N_("Go to a specific line"), G_CALLBACK (gedit_cmd_search_goto_line) }
+};
 
+/* separate group, is only used in mdi */
+static const GtkActionEntry gedit_documents_menu_entries[] = 
+{
 	/* Documents menu */
 	{ "FileSaveAll", GTK_STOCK_SAVE, N_("_Save All"), "<shift><control>L",
 	  N_("Save all open files"), G_CALLBACK (gedit_cmd_file_save_all) },

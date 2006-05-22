@@ -32,6 +32,7 @@
 #include <config.h>
 #endif
 
+#include "gedit-window.h"
 #include "gedit-documents-panel.h"
 #include "gedit-utils.h"
 
@@ -43,7 +44,7 @@
 
 struct _GeditDocumentsPanelPrivate
 {
-	GeditWindow  *window;
+	GeditWindowMdi  *window;
 
 	GtkWidget    *treeview;
 	GtkTreeModel *model;
@@ -118,7 +119,7 @@ get_iter_from_tab (GeditDocumentsPanel *panel, GeditTab *tab)
 	GtkTreeIter iter;
 	GtkTreePath *path;
 
-	nb = _gedit_window_get_notebook (panel->priv->window);
+	nb = _gedit_window_mdi_get_notebook (panel->priv->window);
 	num = gtk_notebook_page_num (GTK_NOTEBOOK (nb),
 				     GTK_WIDGET (tab));
 
@@ -173,7 +174,7 @@ refresh_list (GeditDocumentsPanel *panel)
 
 	active_tab = gedit_window_get_active_tab (panel->priv->window);
 
-	nb = _gedit_window_get_notebook (panel->priv->window);
+	nb = _gedit_window_mdi_get_notebook (panel->priv->window);
 
 	tabs = gtk_container_get_children (GTK_CONTAINER (nb));
 	l = tabs;
@@ -323,10 +324,10 @@ window_tabs_reordered (GeditWindow         *window,
 
 static void
 set_window (GeditDocumentsPanel *panel,
-	    GeditWindow         *window)
+	    GeditWindowMdi      *window)
 {
 	g_return_if_fail (panel->priv->window == NULL);
-	g_return_if_fail (GEDIT_IS_WINDOW (window));
+	g_return_if_fail (GEDIT_IS_WINDOW_MDI (window));
 
 	panel->priv->window = window;
 
@@ -453,7 +454,7 @@ get_current_path (GeditDocumentsPanel *panel)
 	GtkWidget *nb;
 	GtkTreePath *path;
 
-	nb = _gedit_window_get_notebook (panel->priv->window);
+	nb = _gedit_window_mdi_get_notebook (panel->priv->window);
 	num = gtk_notebook_get_current_page (GTK_NOTEBOOK (nb));
 
 	path = gtk_tree_path_new_from_indices (num, -1);
@@ -662,9 +663,9 @@ gedit_documents_panel_init (GeditDocumentsPanel *panel)
 }
 
 GtkWidget *
-gedit_documents_panel_new (GeditWindow *window)
+gedit_documents_panel_new (GeditWindowMdi *window)
 {
-	g_return_val_if_fail (GEDIT_IS_WINDOW (window), NULL);
+	g_return_val_if_fail (GEDIT_IS_WINDOW_MDI (window), NULL);
 
 	return GTK_WIDGET (g_object_new (GEDIT_TYPE_DOCUMENTS_PANEL, 
 					 "window", window,

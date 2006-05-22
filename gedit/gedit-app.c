@@ -36,6 +36,8 @@
 
 #include <glib/gi18n.h>
 
+#include "gedit-window-mdi.h"
+#include "gedit-window-sdi.h"
 #include "gedit-app.h"
 #include "gedit-prefs-manager-app.h"
 #include "gedit-commands.h"
@@ -197,11 +199,17 @@ gen_role (void)
 static GeditWindow *
 gedit_app_create_window_real (GeditApp    *app,
 			      gboolean     set_geometry,
-			      const gchar *role)
+			      const gchar *role,
+			      gboolean     simple)
 {
 	GeditWindow *window;
 
 	gedit_debug (DEBUG_APP);
+
+	if (simple)
+		window = g_object_new (GEDIT_TYPE_WINDOW_SDI, NULL);
+	else
+		window = g_object_new (GEDIT_TYPE_WINDOW_MDI, NULL);
 
 	/*
 	 * We need to be careful here, there is a race condition:
@@ -210,14 +218,7 @@ gedit_app_create_window_real (GeditApp    *app,
 	 * is never NULL when at least a window exists.
 	 */
 	if (app->priv->windows == NULL)
-	{
-		app->priv->active_window = window = g_object_new (GEDIT_TYPE_WINDOW,
-								  NULL);
-	}
-	else
-	{
-		window = g_object_new (GEDIT_TYPE_WINDOW, NULL);
-	}
+		app->priv->active_window = window;
 
 	app->priv->windows = g_list_prepend (app->priv->windows,
 					     window);
@@ -286,7 +287,7 @@ gedit_app_create_window_real (GeditApp    *app,
  * gedit_app_create_window:
  * @app: the #GeditApp
  *
- * Create a new #GeditWindow part of @app.
+ * Create a new #GeditWindowMdi part of @app.
  *
  * Return value: the new #GeditWindow
  */
@@ -296,7 +297,29 @@ gedit_app_create_window (GeditApp  *app,
 {
 	GeditWindow *window;
 
-	window = gedit_app_create_window_real (app, TRUE, NULL);
+	window = gedit_app_create_window_real (app, TRUE, NULL, FALSE);
+
+	if (screen != NULL)
+		gtk_window_set_screen (GTK_WINDOW (window), screen);
+
+	return window;
+}
+
+/**
+ * gedit_app_create_window_simple:
+ * @app: the #GeditApp
+ *
+ * Create a new #GeditWindowSdi part of @app.
+ *
+ * Return value: the new #GeditWindow
+ */
+GeditWindow *
+gedit_app_create_window_simple (GeditApp  *app,
+			        GdkScreen *screen)
+{
+	GeditWindow *window;
+
+	window = gedit_app_create_window_real (app, TRUE, NULL, TRUE);
 
 	if (screen != NULL)
 		gtk_window_set_screen (GTK_WINDOW (window), screen);
@@ -314,7 +337,22 @@ _gedit_app_restore_window (GeditApp    *app,
 {
 	GeditWindow *window;
 
-	window = gedit_app_create_window_real (app, FALSE, role);
+	window = gedit_app_create_window_real (app, FALSE, role, FALSE);
+
+	return window;
+}
+
+/*
+ * Same as _create_window_simple, but doesn't set the geometry.
+ * The session manager takes care of it. Used in gnome-session.
+ */
+GeditWindow *
+_gedit_app_restore_window_simple (GeditApp    *app,
+			          const gchar *role)
+{
+	GeditWindow *window;
+
+	window = gedit_app_create_window_real (app, FALSE, role, TRUE);
 
 	return window;
 }

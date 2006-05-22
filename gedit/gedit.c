@@ -276,7 +276,7 @@ on_message_received (const char *message,
 
 	if (new_window_option)
 	{
-		window = gedit_app_create_window (app, screen);
+		window = gedit_app_create_window_simple (app, screen);
 	}
 	else
 	{
@@ -463,7 +463,7 @@ main (int argc, char *argv[])
 
 	gedit_debug_message (DEBUG_APP, "Create bacon connection");
 
-	connection = bacon_message_connection_new ("gedit");
+	connection = bacon_message_connection_new ("gedit-sdi");
 
 	if (connection != NULL)
 	{
@@ -535,7 +535,7 @@ main (int argc, char *argv[])
 		app = gedit_app_get_default ();
 
 		gedit_debug_message (DEBUG_APP, "Create main window");
-		window = gedit_app_create_window (app, NULL);
+		window = gedit_app_create_window_simple (app, NULL);
 
 		if (file_list != NULL)
 		{
@@ -545,6 +545,7 @@ main (int argc, char *argv[])
 		else
 		{
 			gedit_debug_message (DEBUG_APP, "Create tab");
+			
 			gedit_window_create_tab (window, TRUE);
 		}
 		

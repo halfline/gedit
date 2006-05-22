@@ -55,6 +55,7 @@
 #include "gedit-notebook.h"
 #include "gedit-marshal.h"
 #include "gedit-window.h"
+#include "gedit-window-mdi.h"
 #include "gedit-tooltips.h"
 #include "gedit-spinner.h"
 
@@ -184,10 +185,10 @@ find_notebook_at_pointer (gint abs_x, gint abs_y)
 
 	/* toplevel should be an GeditWindow */
 	if ((toplevel != NULL) && 
-	    GEDIT_IS_WINDOW (toplevel))
+	    GEDIT_IS_WINDOW_MDI (toplevel))
 	{
-		return GEDIT_NOTEBOOK (_gedit_window_get_notebook
-						(GEDIT_WINDOW (toplevel)));
+		return GEDIT_NOTEBOOK (_gedit_window_mdi_get_notebook
+						(GEDIT_WINDOW_MDI (toplevel)));
 	}
 
 	/* We are outside all windows containing a notebook */

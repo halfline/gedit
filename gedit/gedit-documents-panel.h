@@ -33,7 +33,7 @@
 
 #include <gtk/gtk.h>
 
-#include <gedit/gedit-window.h>
+#include <gedit/gedit-window-mdi.h>
 
 G_BEGIN_DECLS
 
@@ -79,7 +79,7 @@ struct _GeditDocumentsPanelClass
  */
 GType 		 gedit_documents_panel_get_type	(void) G_GNUC_CONST;
 
-GtkWidget	*gedit_documents_panel_new 	(GeditWindow *window);
+GtkWidget	*gedit_documents_panel_new 	(GeditWindowMdi *window);
 
 G_END_DECLS
 

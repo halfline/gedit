@@ -84,6 +84,21 @@ struct _GeditWindowClass
 {
 	GtkWindowClass parent_class;
 	
+	/* Virtual functions */
+	GeditTab	*(* create_tab)          (GeditWindow         *window,
+						  gboolean             jump_to);
+	GeditTab 	*(* create_tab_from_uri) (GeditWindow         *window,
+					 	  const gchar         *uri,
+						  const GeditEncoding *encoding,
+						  gint                 line_pos,
+						  gboolean             create,
+						  gboolean             jump_to);
+	void		(* close_tab)		 (GeditWindow         *window,
+						  GeditTab            *tab);
+	void		(* set_active_tab)	 (GeditWindow         *window,
+						  GeditTab            *tab);
+	void		(* update_sensitivity)	 (GeditWindow         *window);	
+
 	/* Signals */
 	void	 (* tab_added)      	(GeditWindow *window,
 				     	 GeditTab    *tab);
@@ -128,6 +143,9 @@ void		 gedit_window_set_active_tab		(GeditWindow         *window,
 GeditView	*gedit_window_get_active_view		(GeditWindow         *window);
 GeditDocument	*gedit_window_get_active_document	(GeditWindow         *window);
 
+/* Returns a newly allocated list with all the tabs in the window */
+GList		*gedit_window_get_tabs			(GeditWindow         *window);
+
 /* Returns a newly allocated list with all the documents in the window */
 GList		*gedit_window_get_documents		(GeditWindow         *window);
 
@@ -153,20 +171,15 @@ GeditWindowState gedit_window_get_state 		(GeditWindow         *window);
 /*
  * Non exported functions
  */
-GtkWidget	*_gedit_window_get_notebook		(GeditWindow         *window);
-
-GeditWindow	*_gedit_window_move_tab_to_new_window	(GeditWindow         *window,
-							 GeditTab            *tab);
-gboolean	 _gedit_window_is_removing_tabs		(GeditWindow         *window);
-
-GtkWidget	*_gedit_window_get_search_panel		(GeditWindow         *window);
-
 G_CONST_RETURN gchar
 		*_gedit_window_get_default_path 	(GeditWindow         *window);
 
 void		 _gedit_window_set_saving_session_state	(GeditWindow         *window,
 							 gboolean             saving_session);
-							 
+void		_gedit_window_set_widget		(GeditWindow         *window,
+							 GtkWidget           *widget);
+gboolean	_gedit_window_is_removing_tabs		(GeditWindow         *window);
+
 G_END_DECLS
 
 #endif  /* __GEDIT_WINDOW_H__  */
