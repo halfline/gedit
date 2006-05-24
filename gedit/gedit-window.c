@@ -2629,14 +2629,6 @@ gedit_window_get_state (GeditWindow *window)
 	return window->priv->state;
 }
 
-G_CONST_RETURN gchar *
-_gedit_window_get_default_path (GeditWindow *window)
-{
-	g_return_val_if_fail (GEDIT_IS_WINDOW (window), NULL);
-	
-	return window->priv->default_path;
-}
-
 /* Returns the documents that need to be saved before closing the window */
 GList *
 gedit_window_get_unsaved_documents (GeditWindow *window)
@@ -2664,6 +2656,14 @@ gedit_window_get_unsaved_documents (GeditWindow *window)
 	g_list_free (docs);
 
 	return g_list_reverse (unsaved_docs);
+}
+
+G_CONST_RETURN gchar *
+_gedit_window_get_default_path (GeditWindow *window)
+{
+	g_return_val_if_fail (GEDIT_IS_WINDOW (window), NULL);
+	
+	return window->priv->default_path;
 }
 
 void 
@@ -2705,4 +2705,65 @@ gboolean
 _gedit_window_is_removing_tabs (GeditWindow *window)
 {
 	return window->priv->is_removing_tabs;
+}
+
+void
+_gedit_window_clone (GeditWindow *target, 
+                     GeditWindow *origin)
+{
+	GtkWindow *window;
+	
+	g_return_if_fail (GEDIT_IS_WINDOW (target));
+	g_return_if_fail (GEDIT_IS_WINDOW (origin));
+
+	window = GTK_WINDOW (target);
+
+	if (!GTK_WIDGET_VISIBLE (GTK_WIDGET (origin)))
+		return;
+
+	gtk_window_set_default_size (window, 
+				     origin->priv->width,
+				     origin->priv->height);
+				     
+	if ((origin->priv->window_state & GDK_WINDOW_STATE_MAXIMIZED) != 0)
+	{
+		gtk_window_set_default_size (window, 
+					     gedit_prefs_manager_get_default_window_width (),
+					     gedit_prefs_manager_get_default_window_height ());
+					     
+		gtk_window_maximize (window);
+	}
+	else
+	{
+		gtk_window_set_default_size (window, 
+				     origin->priv->width,
+				     origin->priv->height);
+
+		gtk_window_unmaximize (window);
+	}		
+
+	if ((origin->priv->window_state & GDK_WINDOW_STATE_STICKY ) != 0)
+		gtk_window_stick (window);
+	else
+		gtk_window_unstick (window);
+
+	gtk_paned_set_position (GTK_PANED (target->priv->hpaned),
+				gtk_paned_get_position (GTK_PANED (origin->priv->hpaned)));
+
+	gtk_paned_set_position (GTK_PANED (target->priv->vpaned),
+				gtk_paned_get_position (GTK_PANED (origin->priv->vpaned)));
+				
+	if (GTK_WIDGET_VISIBLE (origin->priv->side_panel))
+		gtk_widget_show (target->priv->side_panel);
+	else
+		gtk_widget_hide (target->priv->side_panel);
+
+	if (GTK_WIDGET_VISIBLE (origin->priv->bottom_panel))
+		gtk_widget_show (target->priv->bottom_panel);
+	else
+		gtk_widget_hide (target->priv->bottom_panel);
+		
+	set_statusbar_style (target, origin);
+	set_toolbar_style (target, origin);
+
 }

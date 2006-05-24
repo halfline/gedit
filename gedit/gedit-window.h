@@ -180,6 +180,9 @@ void		_gedit_window_set_widget		(GeditWindow         *window,
 							 GtkWidget           *widget);
 gboolean	_gedit_window_is_removing_tabs		(GeditWindow         *window);
 
+void		_gedit_window_clone                     (GeditWindow         *window, 
+						         GeditWindow         *origin);
+
 G_END_DECLS
 
 #endif  /* __GEDIT_WINDOW_H__  */

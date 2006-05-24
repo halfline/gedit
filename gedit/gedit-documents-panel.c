@@ -172,7 +172,7 @@ refresh_list (GeditDocumentsPanel *panel)
 
 	gtk_list_store_clear (list_store);
 
-	active_tab = gedit_window_get_active_tab (panel->priv->window);
+	active_tab = gedit_window_get_active_tab (GEDIT_WINDOW (panel->priv->window));
 
 	nb = _gedit_window_mdi_get_notebook (panel->priv->window);
 
@@ -368,9 +368,9 @@ treeview_cursor_changed (GtkTreeView         *view,
 				    &tab, 
 				    -1);
 
-		if (gedit_window_get_active_tab (panel->priv->window) != tab)
+		if (gedit_window_get_active_tab (GEDIT_WINDOW (panel->priv->window)) != tab)
 		{
-			gedit_window_set_active_tab (panel->priv->window,
+			gedit_window_set_active_tab (GEDIT_WINDOW (panel->priv->window),
 						     GEDIT_TAB (tab));
 		}				    
 	}	
@@ -514,7 +514,7 @@ show_popup_menu (GeditDocumentsPanel *panel,
 {
 	GtkWidget *menu;
 
-	menu = gtk_ui_manager_get_widget (gedit_window_get_ui_manager (panel->priv->window),
+	menu = gtk_ui_manager_get_widget (gedit_window_get_ui_manager (GEDIT_WINDOW (panel->priv->window)),
 					 "/NotebookPopup");
 	g_return_val_if_fail (menu != NULL, FALSE);
 

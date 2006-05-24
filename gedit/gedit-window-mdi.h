@@ -84,7 +84,7 @@ GType 		 gedit_window_mdi_get_type 			(void) G_GNUC_CONST;
  */
 GtkWidget	*_gedit_window_mdi_get_notebook		  (GeditWindowMdi *window);
 
-GeditWindowMdi	*_gedit_window_mdi_move_tab_to_new_window (GeditWindowMdi *window,
+GeditWindow	*_gedit_window_mdi_move_tab_to_new_window (GeditWindowMdi *window,
 							   GeditTab       *tab);
 							 
 G_END_DECLS

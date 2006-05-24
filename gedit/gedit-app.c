@@ -327,6 +327,44 @@ gedit_app_create_window_simple (GeditApp  *app,
 	return window;
 }
 
+/**
+ * gedit_app_create_window_from_settings:
+ * @app: the #GeditApp
+ *
+ * Create a new #GeditWindowMdi or #GeditWindowSdi depending on the current
+ * settings.
+ *
+ * Return value: the new #GeditWindow
+ */
+GeditWindow *
+gedit_app_create_window_from_settings  (GeditApp  *app,
+                                        GdkScreen *screen,
+                                        gboolean  single_doc)
+{
+	gint mode = gedit_prefs_manager_get_open_mode ();
+	GeditWindow *window;
+
+	switch (mode) {
+		case GEDIT_OPEN_MODE_MIXED:
+			if (single_doc)
+				window = gedit_app_create_window_simple (app, screen);
+			else
+				window = gedit_app_create_window (app, screen);
+		break;
+		case GEDIT_OPEN_MODE_MDI:
+			window = gedit_app_create_window (app, screen);
+		break;
+		case GEDIT_OPEN_MODE_SDI:
+			window = gedit_app_create_window_simple (app, screen);
+		break;
+		default:
+			g_assert_not_reached();
+		break;
+	}
+	
+	return window;
+}
+
 /*
  * Same as _create_window, but doesn't set the geometry.
  * The session manager takes care of it. Used in gnome-session.

@@ -78,6 +78,9 @@ struct _GeditPreferencesDialogPrivate
 {
 	GtkTooltips	*tooltips;
 
+	/* Window */
+	GtkWidget       *open_mode_combobox;
+
 	/* Font & Colors */
 	GtkWidget	*default_font_checkbutton;
 	GtkWidget	*default_colors_checkbutton;
@@ -183,6 +186,33 @@ dialog_response_handler (GtkDialog *dlg,
 		default:
 			gtk_widget_destroy (GTK_WIDGET(dlg));
 	}
+}
+
+static void
+open_mode_changed_cb (GtkComboBox *combobox,
+		   GeditPreferencesDialog *dlg)
+{
+	gint active = gtk_combo_box_get_active (combobox);
+	gedit_prefs_manager_set_open_mode (active);
+}
+
+static void
+setup_window_page (GeditPreferencesDialog *dlg)
+{
+	GtkComboBox *combo = GTK_COMBO_BOX (dlg->priv->open_mode_combobox);
+	gint open_mode = gedit_prefs_manager_get_open_mode ();
+
+	/* FIXME: please... */
+	gtk_combo_box_append_text (combo, _("Select open mode according to situation"));
+	gtk_combo_box_append_text (combo, _("Open all windows with a multiple document interface"));
+	gtk_combo_box_append_text (combo, _("Open all windows with a single document interface"));
+	
+	gtk_combo_box_set_active (combo, open_mode);
+	
+	g_signal_connect (combo,
+			  "changed",
+			  G_CALLBACK (open_mode_changed_cb),
+			  dlg);
 }
 
 static void
@@ -1286,6 +1316,8 @@ gedit_preferences_dialog_init (GeditPreferencesDialog *dlg)
 		"notebook",
 		&error_widget,
 
+		"open_mode_combobox", &dlg->priv->open_mode_combobox,
+
 		"notebook", &content,
 		"display_line_numbers_checkbutton", &dlg->priv->display_line_numbers_checkbutton,
 		"highlight_current_line_checkbutton", &dlg->priv->highlight_current_line_checkbutton,
@@ -1351,6 +1383,7 @@ gedit_preferences_dialog_init (GeditPreferencesDialog *dlg)
 	gtk_box_pack_start (GTK_BOX (GTK_DIALOG (dlg)->vbox),
 			    content, FALSE, FALSE, 0);
 
+	setup_window_page (dlg);
 	setup_editor_page (dlg);
 	setup_view_page (dlg);
 	setup_font_colors_page (dlg);

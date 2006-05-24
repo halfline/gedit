@@ -37,7 +37,7 @@
 #include <gtk/gtk.h>
 
 #include "gedit-commands.h"
-#include "gedit-window.h"
+#include "gedit-window-mdi.h"
 #include "gedit-notebook.h"
 #include "gedit-debug.h"
 
@@ -55,10 +55,8 @@ gedit_cmd_documents_move_to_new_window (GtkAction   *action,
 	if (tab == NULL)
 		return;
 
-	/*
-	old_notebook = GEDIT_NOTEBOOK (_gedit_window_get_notebook (window));
-
+	old_notebook = GEDIT_NOTEBOOK (_gedit_window_mdi_get_notebook (GEDIT_WINDOW_MDI (window)));
 	g_return_if_fail (gtk_notebook_get_n_pages (GTK_NOTEBOOK (old_notebook)) > 1);
 
-	_gedit_window_move_tab_to_new_window (window, tab);*/
+	_gedit_window_mdi_move_tab_to_new_window (GEDIT_WINDOW_MDI (window), tab);
 }

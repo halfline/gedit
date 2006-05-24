@@ -34,6 +34,12 @@
 #include <gtk/gtkenums.h>
 #include <glib/gslist.h>
 
+typedef enum {
+	GEDIT_OPEN_MODE_MIXED = 0,
+	GEDIT_OPEN_MODE_MDI,
+	GEDIT_OPEN_MODE_SDI
+} GeditOpenMode;
+
 #define GEDIT_BASE_KEY	"/apps/gedit-2"
 
 #define GPM_PREFS_DIR			GEDIT_BASE_KEY "/preferences"
@@ -137,6 +143,10 @@
 #define GPM_SYNTAX_HL_DIR		GPM_PREFS_DIR "/syntax_highlighting"
 #define GPM_SYNTAX_HL_ENABLE		GPM_SYNTAX_HL_DIR "/enable"
 
+/* Open mode */
+#define GPM_OPEN_MODE_DIR		GPM_PREFS_DIR "/open_mode"
+#define GPM_OPEN_MODE			GPM_OPEN_MODE_DIR "/mode"
+
 /* White list of writable gnome-vfs methods */
 #define GPM_WRITABLE_VFS_SCHEMES 	GPM_SAVE_DIR "/writable_vfs_schemes"
 
@@ -217,6 +227,8 @@
 #define GPM_DEFAULT_RESTORE_CURSOR_POSITION 1 /* TRUE */
 
 #define GPM_DEFAULT_SEARCH_HIGHLIGHTING_ENABLE 1 /* TRUE */
+
+#define GPM_DEFAULT_OPEN_MODE GEDIT_OPEN_MODE_MIXED /* Mixed mode */
 
 typedef enum {
 	GEDIT_TOOLBAR_SYSTEM = 0,
@@ -428,6 +440,10 @@ gboolean 		 gedit_prefs_manager_get_restore_cursor_position (void);
 gboolean 		 gedit_prefs_manager_get_enable_search_highlighting (void);
 void			 gedit_prefs_manager_set_enable_search_highlighting (gboolean esh);
 gboolean		 gedit_prefs_manager_enable_search_highlighting_can_set (void);
+
+/* Open mode */
+gint			gedit_prefs_manager_get_open_mode (void);
+void			gedit_prefs_manager_set_open_mode (gint mode);
 
 #endif  /* __GEDIT_PREFS_MANAGER_H__ */
 

@@ -276,7 +276,8 @@ on_message_received (const char *message,
 
 	if (new_window_option)
 	{
-		window = gedit_app_create_window_simple (app, screen);
+		window = gedit_app_create_window_from_settings (app, screen, 
+				file_list == NULL || file_list->next == NULL);
 	}
 	else
 	{
@@ -535,7 +536,8 @@ main (int argc, char *argv[])
 		app = gedit_app_get_default ();
 
 		gedit_debug_message (DEBUG_APP, "Create main window");
-		window = gedit_app_create_window_simple (app, NULL);
+		window = gedit_app_create_window_from_settings (app, NULL, 
+				file_list == NULL || file_list->next == NULL);
 
 		if (file_list != NULL)
 		{
@@ -548,7 +550,7 @@ main (int argc, char *argv[])
 			
 			gedit_window_create_tab (window, TRUE);
 		}
-		
+
 		gedit_debug_message (DEBUG_APP, "Show window");
 		gtk_widget_show (GTK_WIDGET (window));
 

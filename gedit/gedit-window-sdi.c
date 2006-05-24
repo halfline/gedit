@@ -149,8 +149,11 @@ gedit_window_sdi_create_tab (GeditWindow *window,
 		
 		return GEDIT_TAB (window_sdi->priv->tab);
 	} else {
-		new_window = gedit_app_create_window_simple (gedit_app_get_default (), 
-	                                gtk_window_get_screen (GTK_WINDOW (window)));
+		new_window = gedit_app_create_window_from_settings (gedit_app_get_default (), 
+	                                gtk_window_get_screen (GTK_WINDOW (window)), TRUE);
+
+		/* Clone this window */
+		_gedit_window_clone (new_window, window);
 		gedit_window_create_tab (new_window, TRUE);
 		
 		gtk_widget_show (GTK_WIDGET (new_window));
@@ -200,9 +203,13 @@ gedit_window_sdi_create_tab_from_uri (GeditWindow         *window,
 		
 		tab = GEDIT_TAB (window_sdi->priv->tab);
 	} else {
-		new_window = gedit_app_create_window_simple (
+		new_window = gedit_app_create_window_from_settings (
 				gedit_app_get_default (),
-				gtk_window_get_screen (GTK_WINDOW (window)));
+				gtk_window_get_screen (GTK_WINDOW (window)),
+				TRUE);
+
+		/* Clone this window */
+		_gedit_window_clone (new_window, window);
 		tab = gedit_window_create_tab_from_uri (new_window, 
 		                                        uri, 
 		                                        encoding, 
@@ -232,7 +239,7 @@ gedit_window_sdi_close_tab (GeditWindow *window,
 	g_return_if_fail (tab == GEDIT_TAB (window_sdi->priv->tab));
 	
 	g_signal_emit_by_name (window, "tab_removed", tab);
-	gtk_widget_destroy (tab);
+	gtk_widget_destroy (GTK_WIDGET (tab));
 
 	gedit_cmd_file_quit (NULL, window);
 }
@@ -247,6 +254,9 @@ gedit_window_sdi_set_active_tab (GeditWindow *window,
 	g_return_if_fail (GEDIT_IS_TAB (tab));
 	
 	window_sdi = GEDIT_WINDOW_SDI (window);
+	
+	if (window_sdi->priv->tab == NULL)
+		add_tab (window_sdi, tab);
 	
 	g_return_if_fail (tab == GEDIT_TAB (window_sdi->priv->tab));
 }

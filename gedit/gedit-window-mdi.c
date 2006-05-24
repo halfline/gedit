@@ -267,70 +267,6 @@ update_documents_list_menu (GeditWindowMdi *window)
 	p->documents_list_menu_ui_id = id;
 }
 
-static GeditWindowMdi *
-clone_window (GeditWindowMdi *origin)
-{
-/*	GtkWindow *window;
-	GdkScreen *screen;
-	GeditApp  *app;
-
-	gedit_debug (DEBUG_WINDOW);	
-
-	app = gedit_app_get_default ();
-
-	screen = gtk_window_get_screen (GTK_WINDOW (origin));
-	window = GTK_WINDOW (gedit_app_create_window (app, screen));
-
-	gtk_window_set_default_size (window, 
-				     origin->priv->width,
-				     origin->priv->height);
-				     
-	if ((origin->priv->window_state & GDK_WINDOW_STATE_MAXIMIZED) != 0)
-	{
-		gtk_window_set_default_size (window, 
-					     gedit_prefs_manager_get_default_window_width (),
-					     gedit_prefs_manager_get_default_window_height ());
-					     
-		gtk_window_maximize (window);
-	}
-	else
-	{
-		gtk_window_set_default_size (window, 
-				     origin->priv->width,
-				     origin->priv->height);
-
-		gtk_window_unmaximize (window);
-	}		
-
-	if ((origin->priv->window_state & GDK_WINDOW_STATE_STICKY ) != 0)
-		gtk_window_stick (window);
-	else
-		gtk_window_unstick (window);
-
-	gtk_paned_set_position (GTK_PANED (GEDIT_WINDOW_MDI (window)->priv->hpaned),
-				gtk_paned_get_position (GTK_PANED (origin->priv->hpaned)));
-
-	gtk_paned_set_position (GTK_PANED (GEDIT_WINDOW_MDI (window)->priv->vpaned),
-				gtk_paned_get_position (GTK_PANED (origin->priv->vpaned)));
-				
-	if (GTK_WIDGET_VISIBLE (origin->priv->side_panel))
-		gtk_widget_show (GEDIT_WINDOW_MDI (window)->priv->side_panel);
-	else
-		gtk_widget_hide (GEDIT_WINDOW_MDI (window)->priv->side_panel);
-
-	if (GTK_WIDGET_VISIBLE (origin->priv->bottom_panel))
-		gtk_widget_show (GEDIT_WINDOW_MDI (window)->priv->bottom_panel);
-	else
-		gtk_widget_hide (GEDIT_WINDOW_MDI (window)->priv->bottom_panel);
-		
-	set_statusbar_style (GEDIT_WINDOW_MDI (window), origin);
-	set_toolbar_style (GEDIT_WINDOW_MDI (window), origin);
-
-	return GEDIT_WINDOW_MDI (window);*/
-	
-	return NULL;
-}
-
 static void 
 notebook_switch_page (GtkNotebook     *book, 
 		      GtkNotebookPage *pg,
@@ -374,8 +310,6 @@ gedit_window_mdi_update_sensitivity (GeditWindow *window)
 	GtkAction      *action;
 	GeditWindowMdi *window_mdi;
 	
-	g_message("Update sensitivity!");
-	
 	window_mdi = GEDIT_WINDOW_MDI (window);
 	
 	state = gedit_window_get_state (window);
@@ -395,14 +329,15 @@ gedit_window_mdi_update_sensitivity (GeditWindow *window)
 				  !(state & GEDIT_WINDOW_STATE_SAVING) &&
 				  !(state & GEDIT_WINDOW_STATE_PRINTING));
 
-	if ((state & GEDIT_WINDOW_STATE_SAVING_SESSION) != 0)
+	if ((state & GEDIT_WINDOW_STATE_SAVING_SESSION) != 0) {
 		if (gtk_action_group_get_sensitive (window_mdi->priv->quit_action_group))
 			gtk_action_group_set_sensitive (window_mdi->priv->quit_action_group,
 							FALSE);
-	else
+	} else {
 		if (!gtk_action_group_get_sensitive (window_mdi->priv->quit_action_group))
 			gtk_action_group_set_sensitive (window_mdi->priv->quit_action_group,
 							window_mdi->priv->num_tabs != 0);
+	}
 
 	gedit_notebook_set_close_buttons_sensitive (GEDIT_NOTEBOOK (window_mdi->priv->notebook),
 						    !(state & GEDIT_WINDOW_STATE_SAVING_SESSION));
@@ -497,19 +432,12 @@ notebook_tab_detached (GeditNotebook *notebook,
 		       GeditTab      *tab,
 		       GeditWindowMdi   *window)
 {
-	/* CHECK: we must be smart here
-	GeditWindowMdi *new_window;
+	GeditWindow *new_window;
 	
-	new_window = clone_window (window);
+	new_window = _gedit_window_mdi_move_tab_to_new_window (window, tab);
 
-	gedit_notebook_move_tab (notebook,
-				 GEDIT_NOTEBOOK (_gedit_window_mdi_get_notebook (new_window)),
-				 tab, 0);
-				 
 	gtk_window_set_position (GTK_WINDOW (new_window), 
 				 GTK_WIN_POS_MOUSE);
-					 
-	gtk_widget_show (GTK_WIDGET (new_window)); */
 }		      
 
 static void 
@@ -615,7 +543,7 @@ gedit_window_mdi_init (GeditWindowMdi *window)
 	_gedit_window_set_widget (GEDIT_WINDOW (window), window->priv->notebook);
 
 	/* Create the documents panel */
-	documents_panel = gedit_documents_panel_new (GEDIT_WINDOW (window));
+	documents_panel = gedit_documents_panel_new (window);
         gedit_panel_add_item_with_stock_icon (gedit_window_get_side_panel (GEDIT_WINDOW (window)),
                                               documents_panel,
                                               "Documents",
@@ -758,29 +686,40 @@ gedit_window_mdi_set_active_tab (GeditWindow *window,
 				       page_num);
 }
 
-GeditWindowMdi *
+GeditWindow *
 _gedit_window_mdi_move_tab_to_new_window (GeditWindowMdi *window,
-				      GeditTab    *tab)
+				          GeditTab    *tab)
 {
-	/* CHECK: handle this properly
-	GeditWindowMdi *new_window;
-
+	GeditWindow   *new_window;
+	GeditNotebook *notebook;
+	
 	g_return_val_if_fail (GEDIT_IS_WINDOW_MDI (window), NULL);
 	g_return_val_if_fail (GEDIT_IS_TAB (tab), NULL);
 	g_return_val_if_fail (gtk_notebook_get_n_pages (
 				GTK_NOTEBOOK (window->priv->notebook)) > 1, 
 			      NULL);
 			      
-	new_window = clone_window (window);
+	new_window = gedit_app_create_window_from_settings (gedit_app_get_default (),
+				                            gtk_window_get_screen (GTK_WINDOW (window)), TRUE);
 
-	gedit_notebook_move_tab (GEDIT_NOTEBOOK (window->priv->notebook),
-				 GEDIT_NOTEBOOK (new_window->priv->notebook),
-				 tab,
-				 -1);
-				 
+	_gedit_window_clone (new_window, GEDIT_WINDOW (window));
+	
+	notebook = GEDIT_NOTEBOOK (window->priv->notebook);
+	
+	if (GEDIT_IS_WINDOW_MDI (new_window)) {
+		gedit_notebook_move_tab (notebook,
+			                 GEDIT_NOTEBOOK (_gedit_window_mdi_get_notebook (GEDIT_WINDOW_MDI (new_window))),
+				         tab, 0);
+	} else {
+		/* Make sure the tab isn't destroyed when removing it from the notebook */
+		g_object_ref (tab);
+		gedit_notebook_remove_tab (notebook, tab);
+		
+		gedit_window_set_active_tab (new_window, tab);
+		g_object_unref (tab);
+	}
+	
 	gtk_widget_show (GTK_WIDGET (new_window));
 	
-	return new_window;*/
-	
-	return NULL;
+	return new_window;
 }

@@ -85,6 +85,9 @@ GeditWindow	*gedit_app_create_window		(GeditApp  *app,
 							 GdkScreen *screen);
 GeditWindow	*gedit_app_create_window_simple		(GeditApp  *app,
 							 GdkScreen *screen);
+GeditWindow	*gedit_app_create_window_from_settings  (GeditApp  *app,
+                                                         GdkScreen *screen,
+                                                         gboolean  single_doc);
 
 const GList	*gedit_app_get_windows			(GeditApp *app);
 GeditWindow	*gedit_app_get_active_window		(GeditApp *app);

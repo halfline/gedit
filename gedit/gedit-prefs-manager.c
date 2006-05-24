@@ -1238,6 +1238,11 @@ DEFINE_BOOL_PREF (enable_syntax_highlighting,
 DEFINE_BOOL_PREF (enable_search_highlighting,
 		  GPM_SEARCH_HIGHLIGHTING_ENABLE,
 		  GPM_DEFAULT_SEARCH_HIGHLIGHTING_ENABLE)
+		  
+/* Open mode */
+DEFINE_INT_PREF (open_mode,
+                 GPM_OPEN_MODE,
+                 GPM_DEFAULT_OPEN_MODE)
 
 
 GSList *
