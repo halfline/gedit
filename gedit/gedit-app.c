@@ -467,9 +467,11 @@ is_in_workspace (GeditWindow *window,
 GeditWindow *
 _gedit_app_get_window_in_workspace (GeditApp  *app,
 				    GdkScreen *screen,
-				    gint       workspace)
+				    gint       workspace,
+				    gboolean   single_doc)
 {
 	GeditWindow *window;
+	gint mode = gedit_prefs_manager_get_open_mode ();
 
 	GList *l;
 
@@ -480,20 +482,26 @@ _gedit_app_get_window_in_workspace (GeditApp  *app,
 
 	g_return_val_if_fail (GEDIT_IS_WINDOW (window), NULL);
 
-	if (is_in_workspace (window, screen, workspace))
-		return window;
-
-	/* otherwise try to see if there is a window on this workspace */
-	for (l = app->priv->windows; l != NULL; l = l->next)
-	{
-		window = l->data;
-
-		if (is_in_workspace (window, screen, workspace))
+	/* SDI mode should always open in a new window 
+	   MIXED mode should open a new window if single_doc */
+	if (mode != GEDIT_OPEN_MODE_SDI && (mode != GEDIT_OPEN_MODE_MIXED || !single_doc)) {
+		if (is_in_workspace (window, screen, workspace) && 
+		    GEDIT_IS_WINDOW_MDI (window))
 			return window;
+
+		/* otherwise try to see if there is a window on this workspace */
+		for (l = app->priv->windows; l != NULL; l = l->next)
+		{
+			window = l->data;
+	
+			if (is_in_workspace (window, screen, workspace) &&
+			    GEDIT_IS_WINDOW_MDI (window))
+				return window;
+		}
 	}
 
 	/* no window on this workspace... create a new one */
-	return gedit_app_create_window (app, screen);
+	return gedit_app_create_window_from_settings (app, screen, single_doc);
 }
 
 /**

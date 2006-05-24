@@ -107,7 +107,8 @@ GeditWindow	*_gedit_app_restore_window_simple	(GeditApp    *app,
 							 const gchar *role);
 GeditWindow	*_gedit_app_get_window_in_workspace	(GeditApp  *app,
 							 GdkScreen *screen,
-							 gint       workspace);
+							 gint       workspace,
+							 gboolean   single_doc);
 
 G_END_DECLS
 

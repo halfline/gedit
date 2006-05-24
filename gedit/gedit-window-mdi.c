@@ -699,26 +699,16 @@ _gedit_window_mdi_move_tab_to_new_window (GeditWindowMdi *window,
 				GTK_NOTEBOOK (window->priv->notebook)) > 1, 
 			      NULL);
 			      
-	new_window = gedit_app_create_window_from_settings (gedit_app_get_default (),
-				                            gtk_window_get_screen (GTK_WINDOW (window)), TRUE);
+	new_window = gedit_app_create_window (gedit_app_get_default (),
+				              gtk_window_get_screen (GTK_WINDOW (window)));
 
 	_gedit_window_clone (new_window, GEDIT_WINDOW (window));
 	
 	notebook = GEDIT_NOTEBOOK (window->priv->notebook);
-	
-	if (GEDIT_IS_WINDOW_MDI (new_window)) {
-		gedit_notebook_move_tab (notebook,
-			                 GEDIT_NOTEBOOK (_gedit_window_mdi_get_notebook (GEDIT_WINDOW_MDI (new_window))),
-				         tab, 0);
-	} else {
-		/* Make sure the tab isn't destroyed when removing it from the notebook */
-		g_object_ref (tab);
-		gedit_notebook_remove_tab (notebook, tab);
-		
-		gedit_window_set_active_tab (new_window, tab);
-		g_object_unref (tab);
-	}
-	
+	gedit_notebook_move_tab (notebook,
+		                 GEDIT_NOTEBOOK (_gedit_window_mdi_get_notebook (GEDIT_WINDOW_MDI (new_window))),
+			         tab, 0);
+
 	gtk_widget_show (GTK_WIDGET (new_window));
 	
 	return new_window;

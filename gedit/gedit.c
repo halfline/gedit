@@ -284,7 +284,8 @@ on_message_received (const char *message,
 		/* get a window in the current workspace (if exists) and raise it */
 		window = _gedit_app_get_window_in_workspace (app,
 							     screen,
-							     workspace);
+							     workspace,
+							     file_list == NULL || file_list->next == NULL);
 	}
 
 	if (file_list != NULL)
