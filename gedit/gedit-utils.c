@@ -60,6 +60,16 @@
 
 #define STDIN_DELAY_MICROSECONDS 100000
 
+gchar *
+gedit_utils_get_home_file (const gchar *filename)
+{
+	return g_build_filename (g_get_home_dir(),
+				 ".gnome2",
+				 "gedit",
+				 filename,
+				 NULL);
+}
+
 /* Returns true if uri is a file: uri and is not a chained uri */
 gboolean
 gedit_utils_uri_has_file_scheme (const gchar *uri)

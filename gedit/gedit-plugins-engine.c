@@ -36,20 +36,20 @@
 
 #include <glib/gi18n.h>
 #include <glib/gkeyfile.h>
-#include <libgnome/gnome-util.h>
 #include <gconf/gconf-client.h>
 
 #include "gedit-plugins-engine.h"
 #include "gedit-plugin.h"
 #include "gedit-debug.h"
 #include "gedit-app.h"
+#include "gedit-utils.h"
 
 #include "gedit-module.h"
 #ifdef ENABLE_PYTHON
 #include "gedit-python-module.h"
 #endif
 
-#define USER_GEDIT_PLUGINS_LOCATION "gedit/plugins/"
+#define USER_GEDIT_PLUGINS_LOCATION "plugins"
 
 #define GEDIT_PLUGINS_ENGINE_BASE_KEY "/apps/gedit-2/plugins"
 #define GEDIT_PLUGINS_ENGINE_KEY GEDIT_PLUGINS_ENGINE_BASE_KEY "/active-plugins"
@@ -360,7 +360,7 @@ gedit_plugins_engine_load_all (void)
 {
 	gchar *pdir;
 
-	pdir = gnome_util_home_file (USER_GEDIT_PLUGINS_LOCATION);
+	pdir = gedit_utils_get_home_file (USER_GEDIT_PLUGINS_LOCATION);
 
 	/* load user's plugins */
 	if (g_file_test (pdir, G_FILE_TEST_IS_DIR))

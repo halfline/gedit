@@ -52,6 +52,8 @@ G_BEGIN_DECLS
 
 enum { GEDIT_ALL_WORKSPACES = 0xffffffff };
 
+gchar		*gedit_utils_get_home_file		(const gchar *filename);
+
 gboolean	 gedit_utils_uri_has_writable_scheme	(const gchar *uri);
 gboolean	 gedit_utils_uri_has_file_scheme	(const gchar *uri);
 
