@@ -61,52 +61,12 @@ gedit_get_languages_manager (void)
 	return language_manager;
 }
 
+// NUKE THIS WRAPPER NO LONGER NEEDED
 GtkSourceLanguage *
 gedit_languages_manager_get_language_from_id (GtkSourceLanguagesManager *lm,
 					      const gchar               *lang_id)
 {
-	const GSList *languages;
-	
-	g_return_val_if_fail (lang_id != NULL, NULL);
-
-	languages = gtk_source_languages_manager_get_available_languages (lm);
-
-	while (languages != NULL)
-	{
-		gchar *name;
-
-		GtkSourceLanguage *lang = GTK_SOURCE_LANGUAGE (languages->data);
-		
-		name = gtk_source_language_get_id (lang);
-
-		if (strcmp (name, lang_id) == 0)
-		{	
-			g_free (name);	
-			return lang;
-		}
-		
-		g_free (name);
-		languages = g_slist_next (languages);
-	}
-
-	return NULL;
-}
-
-static gchar*
-get_gconf_key (GtkSourceLanguage *language, const gchar *tag_id)
-{
-	gchar *key;
-	gchar *lang_id;
-
-	lang_id = gtk_source_language_get_id (language);
-	
-	key = g_strconcat (GPM_SYNTAX_HL_DIR, "/", lang_id, "/", tag_id, NULL);
-
-	g_return_val_if_fail (gconf_valid_key (key, NULL), NULL);
-
-	g_free (lang_id);
-
-	return key;
+	return gtk_source_languages_manager_get_language_by_id (lm, lang_id);
 }
 
 static GSList *initialized_languages = NULL;
@@ -163,6 +123,8 @@ language_get_mime_types (GtkSourceLanguage *lang)
 	GSList *mime_types = NULL;
 
 	mimetypes = gtk_source_language_get_property (lang, "mimetypes");
+	if (mimetypes == NULL)
+		return NULL;
 
 	mtl = g_strsplit (mimetypes, ";", 0);
 
