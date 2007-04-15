@@ -152,6 +152,32 @@ filter_changed (GeditFileChooserDialog *dialog,
 	gedit_prefs_manager_set_active_file_filter (id);
 }
 
+// CUT&PASTE alert!
+// We need to figure out what needs to go into gsv itself
+
+static GSList *
+language_get_mime_types (GtkSourceLanguage *lang)
+{
+	const gchar *mimetypes;
+	gchar **mtl;
+	gint i;
+	GSList *mime_types = NULL;
+
+	mimetypes = gtk_source_language_get_property (lang, "mimetypes");
+
+	mtl = g_strsplit (mimetypes, ";", 0);
+
+	for (i = 0; mtl[i] != NULL; i++)
+	{
+		/* steal the strings from the array */
+		mime_types = g_slist_prepend (mime_types, mtl[i]);
+	}
+
+	g_free (mtl);
+
+	return mime_types;
+}
+
 static gboolean
 all_text_files_filter (const GtkFileFilterInfo *filter_info,
 		       gpointer                 data)
@@ -174,7 +200,7 @@ all_text_files_filter (const GtkFileFilterInfo *filter_info,
 
 			lang = GTK_SOURCE_LANGUAGE (languages->data);
 
-			tmp = mime_types = gtk_source_language_get_mime_types (lang);
+			tmp = mime_types = language_get_mime_types (lang);
 
 			while (tmp != NULL)
 			{

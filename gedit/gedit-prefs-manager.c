@@ -35,7 +35,6 @@
 
 #include <glib/gi18n.h>
 #include <gconf/gconf-value.h>
-#include <libgnomeprint/gnome-font.h>
 
 #include "gedit-prefs-manager.h"
 #include "gedit-prefs-manager-private.h"
@@ -806,82 +805,10 @@ gedit_prefs_manager_print_wrap_mode_can_set (void)
 DEFINE_INT_PREF (print_line_numbers,
 		 GPM_PRINT_LINE_NUMBERS,
 		 GPM_DEFAULT_PRINT_LINE_NUMBERS)
-		 
 
-/* The printing font entries are done in custom code because we
- * need to implement transitioning between old gnome-print font
- * names and new Pango fontnames
- */
-
-/*
- * The following routines are duplicated in gtksourceview/gtksourceview/gtksourceprintjob.c
- */
-
-/* Do this ourselves since gnome_font_find_closest() doesn't call
- * gnome_font_face_find_closest() (probably a gnome-print bug)
- */
-static void
-face_and_size_from_full_name (const gchar    *name,
-			      GnomeFontFace **face,
-			      gdouble        *size)
-{
-	char *copy;
-	char *str_size;
-
-	copy = g_strdup (name);
-	str_size = strrchr (copy, ' ');
-	if (str_size) {
-		*str_size = 0;
-		str_size ++;
-		*size = atof (str_size);
-	} else {
-		*size = 12;
-	}
-
-	*face = gnome_font_face_find_closest ((guchar *)copy);
-	g_free (copy);
-}
-
-static PangoFontDescription *
-font_description_from_gnome_font_name (const char *font_name)
-{
-	GnomeFontFace *face;
-	PangoFontDescription *desc;
-	PangoStyle style;
-	PangoWeight weight;
-	const gchar *family_name;
-	gdouble size;
-
-	face_and_size_from_full_name (font_name, &face, &size);
-
-	/* Pango and GnomePrint have basically the same numeric weight values */
-	weight = (PangoWeight) gnome_font_face_get_weight_code (face);
-	style = gnome_font_face_is_italic (face) ? PANGO_STYLE_ITALIC : PANGO_STYLE_NORMAL;
-	family_name = (const gchar *) gnome_font_face_get_family_name (face);
-
-	desc = pango_font_description_new ();
-	pango_font_description_set_family (desc, family_name);
-	pango_font_description_set_weight (desc, weight);
-	pango_font_description_set_style (desc, style);
-	pango_font_description_set_size (desc, size * PANGO_SCALE);
-
-	g_object_unref (face);
-
-	return desc;
-}
-
-static char *
-font_name_from_gnome_font_name (const char *gnome_name)
-{
-	PangoFontDescription *desc;
-	gchar *pango_name;
-
-	desc = font_description_from_gnome_font_name (gnome_name);
-	pango_name = pango_font_description_to_string (desc);
-	pango_font_description_free (desc);
-
-	return pango_name;
-}
+// For now I just nuked the gnome-print stuff, quite a bit of time
+// passed, can we drop compat code, right?
+// Maybe this code now could use the DEFINE_PREF macro...
 
 static gchar *
 get_string_without_default (GConfClient *gconf_client,
@@ -921,17 +848,6 @@ gedit_prefs_manager_get_font (const gchar *pango_key,
 							  NULL);
 		if (pango_value)
 			return pango_value;
-		
-		gnome_print_value = get_string_without_default (gedit_prefs_manager->gconf_client,
-								gnome_print_key,
-								NULL);
-
-		if (gnome_print_value) {
-			pango_value = font_name_from_gnome_font_name (gnome_print_value);
-			g_free (gnome_print_value);
-			
-			return pango_value;
-		}
 	}
 
 	return gedit_prefs_manager_get_string (pango_key, def);

@@ -35,7 +35,6 @@
 
 #include <gconf/gconf.h>
 #include <gconf/gconf-client.h>
-#include <gtksourceview/gtksourcetag.h>
 
 #include "gedit-languages-manager.h"
 #include "gedit-prefs-manager.h"
@@ -110,191 +109,11 @@ get_gconf_key (GtkSourceLanguage *language, const gchar *tag_id)
 	return key;
 }
 
-static gchar *
-tag_style_to_string (const GtkSourceTagStyle *style)
-{
-	gchar *res;
-	gchar *background;
-	gchar *foreground;
-
-	background = gedit_gdk_color_to_string (style->background);
-	foreground = gedit_gdk_color_to_string (style->foreground);
-
-	res = g_strdup_printf ("%d/%s/%s/%d/%d/%d/%d",
-			style->mask,
-			foreground,
-			background,
-			style->italic,
-			style->bold,
-			style->underline,
-			style->strikethrough);
-
-	g_free (foreground);
-	g_free (background);
-
-	return res;
-}
-
-static GtkSourceTagStyle *
-string_to_tag_style (const gchar *string)
-{
-	const int items_len[] = {1, 13, 13, 1, 1, 1, 1};
-	guint i;
-	gchar**	items;
-	GtkSourceTagStyle *style;
-	
-	style = gtk_source_tag_style_new ();
-	items = g_strsplit (string, "/", G_N_ELEMENTS(items_len));
-
-	for (i = 0; i < G_N_ELEMENTS (items_len); ++i)
-	{
-		if ((items[i] == NULL) || (strlen (items[i]) != items_len[i]))
-			goto error;
-	}
-
-	style->is_default = FALSE;
-
-	style->mask = items[0][0] - '0';
-	if (style->mask < 0 || style->mask > 3)
-		goto error;
-
-	if (!gdk_color_parse (items[1], &style->foreground))
-		goto error;
-
-	if (!gdk_color_parse (items[2], &style->background))
-		goto error;
-
-	style->italic = items[3][0] - '0';
-	if (!IS_VALID_BOOLEAN (style->italic))
-		goto error;
-
-	style->bold = items[4][0] - '0';
-	if (!IS_VALID_BOOLEAN (style->bold))
-		goto error;
-
-	style->underline = items[5][0] - '0';
-	if (!IS_VALID_BOOLEAN (style->underline))
-		goto error;
-
-	style->strikethrough = items[6][0] - '0';
-	if (!IS_VALID_BOOLEAN (style->strikethrough))
-		goto error;
-
-	g_strfreev (items);
-	return style;
-
-error:
-	gtk_source_tag_style_free (style);
-
-	g_strfreev (items);
-	
-	return NULL;
-}
-
-void
-gedit_language_set_tag_style (GtkSourceLanguage       *language,
-			      const gchar             *tag_id,
-			      const GtkSourceTagStyle *style)
-{
-	gchar *key;
-
-	g_return_if_fail (gconf_client != NULL);
-
-	key = get_gconf_key (language, tag_id);
-	g_return_if_fail (key != NULL);
-	
-	if (style == NULL)
-	{
-		gconf_client_unset (gconf_client, key, NULL);
-		
-		/* Make the changes locally */
-		gtk_source_language_set_tag_style (language, tag_id, NULL);
-	}
-	else
-	{
-		gchar *value;
-
-		value = tag_style_to_string (style);
-		g_return_if_fail (value != NULL);
-		
-		gconf_client_set_string (gconf_client, key, value, NULL);
-	
-		/* Make the changes locally */
-		gtk_source_language_set_tag_style (language, tag_id, style);
-	}
-	
-	g_free (key);
-}
-
 static GSList *initialized_languages = NULL;
 
 void 
 gedit_language_init_tag_styles (GtkSourceLanguage *language)
 {
-	GSList *l;
-	GSList *tags;
-
-	l = initialized_languages;
-
-	while (l != NULL)
-	{
-		if (l->data == language)
-			/* Already initialized */
-			return;
-
-		l = g_slist_next (l);
-	}
-
-	tags = gtk_source_language_get_tags (language);
-
-	l = tags;
-
-	while (l != NULL)
-	{
-		GtkSourceTag *tag;
-		gchar *id;
-		gchar *key;
-		gchar *value;
-		
-		tag = GTK_SOURCE_TAG (l->data);
-		
-		id = gtk_source_tag_get_id (tag);
-		g_return_if_fail (id != NULL);
-		
-		key = get_gconf_key (language, id);
-		g_return_if_fail (key != NULL);
-		
-		value = gconf_client_get_string (gconf_client, key, NULL);
-		
-		if (value != NULL)
-		{
-			GtkSourceTagStyle *style;
-	
-			style = string_to_tag_style (value);
-			if (style != NULL)
-			{
-				gtk_source_language_set_tag_style (language, id, style);
-				
-				gtk_source_tag_style_free (style);
-
-			}
-			else
-			{
-				g_warning ("gconf key %s contains an invalid value", key);
-			}
-
-			g_free (value);
-		}
-
-		g_free (id);
-		g_free (key);
-
-		l = g_slist_next (l);
-	}
-
-	g_slist_foreach (tags, (GFunc)g_object_unref, NULL);
-	g_slist_free (tags);
-
 	initialized_languages =	g_slist_prepend (initialized_languages, language);
 }
 
@@ -315,6 +134,7 @@ language_compare (gconstpointer a, gconstpointer b)
 	return res;
 }
 
+/* Move the sorting in sourceview as a flag to get_available_langs? */
 const GSList*
 gedit_languages_manager_get_available_languages_sorted (GtkSourceLanguagesManager *lm)
 {
@@ -330,6 +150,31 @@ gedit_languages_manager_get_available_languages_sorted (GtkSourceLanguagesManage
 	}
 
 	return languages_list_sorted;
+}
+
+// We need to figure out what needs to go into gsv itself
+
+static GSList *
+language_get_mime_types (GtkSourceLanguage *lang)
+{
+	const gchar *mimetypes;
+	gchar **mtl;
+	gint i;
+	GSList *mime_types = NULL;
+
+	mimetypes = gtk_source_language_get_property (lang, "mimetypes");
+
+	mtl = g_strsplit (mimetypes, ";", 0);
+
+	for (i = 0; mtl[i] != NULL; i++)
+	{
+		/* steal the strings from the array */
+		mime_types = g_slist_prepend (mime_types, mtl[i]);
+	}
+
+	g_free (mtl);
+
+	return mime_types;
 }
 
 /* Returns a hash table that is used as a cache of already matched mime-types */
@@ -416,8 +261,8 @@ gedit_languages_manager_get_language_from_mime_type (GtkSourceLanguagesManager 	
 		GSList *mime_types, *tmp;
 
 		lang = GTK_SOURCE_LANGUAGE (languages->data);
-		
-		tmp = mime_types = gtk_source_language_get_mime_types (lang);
+
+		tmp = mime_types = language_get_mime_types (lang);
 
 		while (tmp != NULL)
 		{

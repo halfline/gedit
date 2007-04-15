@@ -92,8 +92,6 @@ INST_H_FILES =				\
 	gedit-plugin.h			\
 	gedit-prefs-manager-app.h	\
 	gedit-prefs-manager.h		\
-	gedit-print.h			\
-	gedit-print-job-preview.h	\
 	gedit-progress-message-area.h	\
 	gedit-statusbar.h		\
 	gedit-tab.h 			\
@@ -141,8 +139,6 @@ libgedit_la_SOURCES = 			\
 	gedit-prefs-manager-app.c	\
 	gedit-prefs-manager.c		\
 	gedit-prefs-manager-private.h	\
-	gedit-print.c			\
-	gedit-print-job-preview.c	\
 	gedit-progress-message-area.c	\
 	gedit-session.c			\
 	gedit-spinner.c			\

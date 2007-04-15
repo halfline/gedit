@@ -42,7 +42,6 @@
 #include "gedit-utils.h"
 #include "gedit-message-area.h"
 #include "gedit-io-error-message-area.h"
-#include "gedit-print-job-preview.h"
 #include "gedit-progress-message-area.h"
 #include "gedit-debug.h"
 #include "gedit-prefs-manager-app.h"
@@ -62,8 +61,6 @@ struct _GeditTabPrivate
 
 	GtkWidget	       *message_area;
 	GtkWidget	       *print_preview;
-
-	GeditPrintJob          *print_job;
 
 	/* tmp data for saving */
 	gchar		       *tmp_save_uri;
@@ -228,15 +225,7 @@ static void
 gedit_tab_finalize (GObject *object)
 {
 	GeditTab *tab = GEDIT_TAB (object);
-	
-	if (tab->priv->print_job != NULL)
-	{
-		gedit_debug_message (DEBUG_TAB, "Cancelling printing");
-		
-		gtk_source_print_job_cancel (GTK_SOURCE_PRINT_JOB (tab->priv->print_job));
-		g_object_unref (tab->priv->print_job);
-	}
-	
+
 	if (tab->priv->timer != NULL)
 		g_timer_destroy (tab->priv->timer);
 
@@ -2174,219 +2163,21 @@ set_print_preview (GeditTab  *tab, GtkWidget *print_preview)
 
 #define MIN_PAGES 15
 
-static void
-print_page_cb (GtkSourcePrintJob *pjob, GeditTab *tab)
-{
-	gchar *str;
-	gint page_num;
-	gint total;
-
-	g_return_if_fail (GEDIT_IS_PROGRESS_MESSAGE_AREA (tab->priv->message_area));	
-
-	total = gtk_source_print_job_get_page_count (pjob);
-	
-	if (total < MIN_PAGES)
-		return;
-
-	page_num = gtk_source_print_job_get_page (pjob);
-			
-	g_return_if_fail (GEDIT_IS_PROGRESS_MESSAGE_AREA (tab->priv->message_area));	
-	
-	gtk_widget_show (tab->priv->message_area);
-	
-	str = g_strdup_printf (_("Rendering page %d of %d..."), page_num, total);
-
-	gedit_progress_message_area_set_text (GEDIT_PROGRESS_MESSAGE_AREA (tab->priv->message_area),
-					      str);
-	g_free (str);
-	
-	gedit_progress_message_area_set_fraction (GEDIT_PROGRESS_MESSAGE_AREA (tab->priv->message_area),
-						  1.0 * page_num / total);
-}
-
-static void
-preview_finished_cb (GtkSourcePrintJob *pjob, GeditTab *tab)
-{
-	GnomePrintJob *gjob;
-	GtkWidget *preview = NULL;
-
-	g_return_if_fail (GEDIT_IS_PROGRESS_MESSAGE_AREA (tab->priv->message_area));
-	set_message_area (tab, NULL); /* destroy the message area */
-	
-	gjob = gtk_source_print_job_get_print_job (pjob);
-
-	preview = gedit_print_job_preview_new (gjob);	
- 	g_object_unref (gjob);
-	
-	set_print_preview (tab, preview);
-	
-	gtk_widget_show (preview);
-	g_object_unref (pjob);
-	
-	gedit_tab_set_state (tab, GEDIT_TAB_STATE_SHOWING_PRINT_PREVIEW);
-}
-
-static void
-print_finished_cb (GtkSourcePrintJob *pjob, GeditTab *tab)
-{
-	GnomePrintJob *gjob;
-
-	g_return_if_fail (GEDIT_IS_PROGRESS_MESSAGE_AREA (tab->priv->message_area));
-	set_message_area (tab, NULL); /* destroy the message area */
-	
-	gjob = gtk_source_print_job_get_print_job (pjob);
-
-	gnome_print_job_print (gjob);
- 	g_object_unref (gjob);
-
-	gedit_print_job_save_config (GEDIT_PRINT_JOB (pjob));
-
-	g_object_unref (pjob);
-
-	if (tab->priv->print_preview != NULL)
-	{
-		/* If we were printing while showing the print preview,
-		   see bug #352658 */
-		gtk_widget_destroy (tab->priv->print_preview);
-		g_return_if_fail (tab->priv->state == GEDIT_TAB_STATE_PRINTING);
-	}
-	
-	gedit_tab_set_state (tab, GEDIT_TAB_STATE_NORMAL);
-}
-
-static void
-print_cancelled (GeditMessageArea *area,
-                 gint              response_id,
-                 GeditTab         *tab)
-{
-	g_return_if_fail (GEDIT_IS_PROGRESS_MESSAGE_AREA (tab->priv->message_area));
-	
-	gtk_source_print_job_cancel (GTK_SOURCE_PRINT_JOB (tab->priv->print_job));
-	g_object_unref (tab->priv->print_job);
-
-	set_message_area (tab, NULL); /* destroy the message area */
-
-	if (tab->priv->print_preview != NULL)
-	{
-		/* If we were printing while showing the print preview,
-		   see bug #352658 */        	
-		gtk_widget_destroy (tab->priv->print_preview);
-		g_return_if_fail (tab->priv->state == GEDIT_TAB_STATE_PRINTING);
-	}
-	
-	gedit_tab_set_state (tab, GEDIT_TAB_STATE_NORMAL);
-}
-
-static void
-show_printing_message_area (GeditTab      *tab,
-			    gboolean       preview)
-{
-	GtkWidget *area;
-	
-	if (preview)
-		area = gedit_progress_message_area_new (GTK_STOCK_PRINT_PREVIEW,
-							"",
-							TRUE);
-	else
-		area = gedit_progress_message_area_new (GTK_STOCK_PRINT,
-							"",
-							TRUE);
-	
-
-	g_signal_connect (area,
-			  "response",
-			  G_CALLBACK (print_cancelled),
-			  tab);
-	  
-	set_message_area (tab, area);
-}
 
 void 
 _gedit_tab_print (GeditTab      *tab,
-		  GeditPrintJob *pjob,
+		  gpointer      *pjob,
 		  GtkTextIter   *start, 
 		  GtkTextIter   *end)
 {
-	GeditDocument *doc;
-	
-	g_return_if_fail (GEDIT_IS_TAB (tab));
-	g_return_if_fail (GEDIT_IS_PRINT_JOB (pjob));
-	g_return_if_fail (start != NULL);
-	g_return_if_fail (end != NULL);	
-		
-	doc = GEDIT_DOCUMENT (gtk_source_print_job_get_buffer (GTK_SOURCE_PRINT_JOB (pjob)));
-	g_return_if_fail (doc != NULL);
-	g_return_if_fail (gedit_tab_get_document (tab) == doc);
-	g_return_if_fail (gtk_text_iter_get_buffer (start) == GTK_TEXT_BUFFER (doc));
-	g_return_if_fail (gtk_text_iter_get_buffer (end) == GTK_TEXT_BUFFER (doc));	
-	
-	g_return_if_fail (tab->priv->print_job == NULL);
-	g_return_if_fail ((tab->priv->state == GEDIT_TAB_STATE_NORMAL) ||
-			  (tab->priv->state == GEDIT_TAB_STATE_SHOWING_PRINT_PREVIEW));
-	
-	g_object_ref (pjob);
-	tab->priv->print_job = pjob;
-	g_object_add_weak_pointer (G_OBJECT (pjob), 
-				   (gpointer *) &tab->priv->print_job);
-	
-	show_printing_message_area (tab, FALSE);
-
-	g_signal_connect (pjob, "begin_page", (GCallback) print_page_cb, tab);
-	g_signal_connect (pjob, "finished", (GCallback) print_finished_cb, tab);
-
-	gedit_tab_set_state (tab, GEDIT_TAB_STATE_PRINTING);
-	
-	if (!gtk_source_print_job_print_range_async (GTK_SOURCE_PRINT_JOB (pjob), start, end))
-	{
-		/* FIXME: go in error state */
-		gtk_text_view_set_editable (GTK_TEXT_VIEW (tab->priv->view), 
-					    !tab->priv->not_editable);
-		g_warning ("Async print preview failed");
-		g_object_unref (pjob);
-	}
 }
 
 void
 _gedit_tab_print_preview (GeditTab      *tab,
-			  GeditPrintJob *pjob,
+			  gpointer      *pjob,
 			  GtkTextIter   *start, 
 			  GtkTextIter   *end)		  
 {
-	GeditDocument *doc;
-	
-	g_return_if_fail (GEDIT_IS_TAB (tab));
-	g_return_if_fail (GEDIT_IS_PRINT_JOB (pjob));
-	g_return_if_fail (start != NULL);
-	g_return_if_fail (end != NULL);	
-		
-	doc = GEDIT_DOCUMENT (gtk_source_print_job_get_buffer (GTK_SOURCE_PRINT_JOB (pjob)));
-	g_return_if_fail (doc != NULL);
-	g_return_if_fail (gedit_tab_get_document (tab) == doc);
-	g_return_if_fail (gtk_text_iter_get_buffer (start) == GTK_TEXT_BUFFER (doc));
-	g_return_if_fail (gtk_text_iter_get_buffer (end) == GTK_TEXT_BUFFER (doc));	
-	
-	g_return_if_fail (tab->priv->print_job == NULL);
-	g_return_if_fail (tab->priv->state == GEDIT_TAB_STATE_NORMAL);
-	
-	g_object_ref (pjob);
-	tab->priv->print_job = pjob;
-	g_object_add_weak_pointer (G_OBJECT (pjob), 
-				   (gpointer *) &tab->priv->print_job);
-	
-	show_printing_message_area (tab, TRUE);
-
-	g_signal_connect (pjob, "begin_page", (GCallback) print_page_cb, tab);
-	g_signal_connect (pjob, "finished", (GCallback) preview_finished_cb, tab);
-
-	gedit_tab_set_state (tab, GEDIT_TAB_STATE_PRINT_PREVIEWING);
-	
-	if (!gtk_source_print_job_print_range_async (GTK_SOURCE_PRINT_JOB (pjob), start, end))
-	{
-		/* FIXME: go in error state */
-		gedit_tab_set_state (tab, GEDIT_TAB_STATE_NORMAL);
-		g_warning ("Async print preview failed");
-		g_object_unref (pjob);
-	}
 }
 
 void 
