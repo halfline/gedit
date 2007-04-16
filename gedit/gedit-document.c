@@ -39,6 +39,7 @@
 
 #include <glib/gi18n.h>
 #include <libgnomevfs/gnome-vfs.h>
+#include <gtksourceview/gtksourceiter.h>
 
 #include "gedit-prefs-manager-app.h"
 #include "gedit-document.h"
@@ -46,12 +47,11 @@
 #include "gedit-utils.h"
 #include "gedit-metadata-manager.h"
 #include "gedit-languages-manager.h"
+#include "gedit-source-style-manager.h"
 #include "gedit-document-loader.h"
 #include "gedit-document-saver.h"
 #include "gedit-marshal.h"
 #include "gedittextregion.h"
-
-#include <gtksourceview/gtksourceiter.h>
 
 #undef ENABLE_PROFILE 
 
@@ -569,6 +569,9 @@ set_encoding (GeditDocument       *doc,
 static void
 gedit_document_init (GeditDocument *doc)
 {
+	GtkSourceStyleManager *style_manager;
+	GtkSourceStyleScheme *style_scheme;
+
 	gedit_debug (DEBUG_DOCUMENT);
 
 	doc->priv = GEDIT_DOCUMENT_GET_PRIVATE (doc);
@@ -601,6 +604,11 @@ gedit_document_init (GeditDocument *doc)
 
 	gedit_document_set_enable_search_highlighting (doc,
 						       gedit_prefs_manager_get_enable_search_highlighting ());
+
+	style_manager = gedit_get_source_style_manager ();
+	style_scheme = gedit_source_style_manager_get_default_scheme (style_manager);
+	gtk_source_buffer_set_style_scheme (GTK_SOURCE_BUFFER (doc),
+					    style_scheme);
 
 	g_signal_connect_after (doc, 
 			  	"insert-text",

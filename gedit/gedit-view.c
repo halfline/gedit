@@ -40,7 +40,6 @@
 #include <gdk/gdkkeysyms.h>
 
 #include <glib/gi18n.h>
-#include <gtksourceview/gtksourcestylemanager.h>
 
 #include "gedit-view.h"
 #include "gedit-debug.h"
@@ -382,25 +381,6 @@ gedit_view_init (GeditView *view)
 		      "indent_on_tab", TRUE,
 		      "smart_home_end", FALSE, /* Never changes this */
 		      NULL);
-
-// FIXME: this is just a quick workaround.
-// - IMHO the style scheme should on the buffer)
-// - should be set lazily, only if we have a language (listen to the language property)
-// - we need a style manager, not this quick static var
-// GSV should also be fixed so that if no style is set, the default
-// is used.
-	{
-	static GtkSourceStyleManager *sm;
-	GtkSourceStyleScheme *style_scheme;
-
-	if (sm == NULL)
-		sm = gtk_source_style_manager_new ();
-
-	style_scheme = gtk_source_style_manager_get_scheme (sm, "gvim");
-	g_return_if_fail (style_scheme != NULL);
-
-	gtk_source_view_set_style_scheme (GTK_SOURCE_VIEW (view), style_scheme);
-	}
 
 	/* Make sure that the view is scrolled to the cursor so
 	 * that "gedit +100 foo.txt" works.

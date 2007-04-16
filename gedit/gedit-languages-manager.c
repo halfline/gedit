@@ -29,8 +29,6 @@
  * $Id$
  */
 
-/* FIXME: Monitor gconf keys */
-
 #include <string.h>
 
 #include <gconf/gconf.h>

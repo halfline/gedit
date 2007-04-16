@@ -64,6 +64,7 @@ NOINST_H_FILES =			\
 	gedit-document-saver.h		\
 	gedit-history-entry.h		\
 	gedit-io-error-message-area.h	\
+	gedit-source-style-manager.h	\
 	gedit-spinner.h			\
 	gedit-prefs-manager-private.h	\
 	sexy-icon-entry.h		\
@@ -142,6 +143,7 @@ libgedit_la_SOURCES = 			\
 	gedit-progress-message-area.c	\
 	gedit-session.c			\
 	gedit-spinner.c			\
+	gedit-source-style-manager.c	\
 	gedit-statusbar.c		\
 	gedit-tab.c 			\
 	gedit-tooltips.c		\
