@@ -33,11 +33,11 @@ GtkSourceStyleManager	*gedit_get_source_style_manager			(void);
 
 GtkSourceStyleScheme	*gedit_source_style_manager_get_default_scheme	(GtkSourceStyleManager	*manager);
 
-/* 
+/*
  * Non exported functions
  */
-void			_gedit_source_style_manager_set_default_scheme	(GtkSourceStyleManager	*manager,
-									 const gchar		*name);
+gboolean		_gedit_source_style_manager_set_default_scheme	(GtkSourceStyleManager	*manager,
+									 const gchar		*scheme_id);
 
 G_END_DECLS
 

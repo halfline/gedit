@@ -22,6 +22,8 @@
  * $Id: gedit-source-style-manager.c 5598 2007-04-15 13:16:24Z pborelli $
  */
 
+#include <string.h>
+
 #include "gedit-source-style-manager.h"
 #include "gedit-prefs-manager.h"
 
@@ -46,30 +48,52 @@ gedit_source_style_manager_get_default_scheme (GtkSourceStyleManager *manager)
 
 	if (def_style == NULL)
 	{
-		gchar *name;
+		gchar *scheme_id;
 
-		name = gedit_prefs_manager_get_source_style_scheme ();
+		scheme_id = gedit_prefs_manager_get_source_style_scheme ();
 		def_style = gtk_source_style_manager_get_scheme (manager,
-							         name);
-		g_free (name);
+							         scheme_id);
+		if (def_style == NULL)
+		{
+			g_warning ("Style Scheme %s not found", scheme_id);
+		}
+
+		g_free (scheme_id);
 	}
 
 	return def_style;
 }
 
-// TODO: this function will be used when listening to gconf notifications
-void
+/* Return TRUE if style scheme changed */
+gboolean
 _gedit_source_style_manager_set_default_scheme (GtkSourceStyleManager *manager,
-						const gchar           *name)
+						const gchar           *scheme_id)
 {
-	g_return_if_fail (GTK_IS_SOURCE_STYLE_MANAGER (manager));
+	GtkSourceStyleScheme *new_style;
 
-	// FIXME: accept null name as "reset to default"?
+	g_return_val_if_fail (GTK_IS_SOURCE_STYLE_MANAGER (manager), FALSE);
+	g_return_val_if_fail (scheme_id != NULL, FALSE);
+
+	if (def_style != NULL &&
+	    strcmp (scheme_id, gtk_source_style_scheme_get_id (def_style)) == 0)
+	{
+		return FALSE;
+	}
+
+	new_style = gtk_source_style_manager_get_scheme (manager,
+						         scheme_id);
+
+	if (new_style == NULL)
+	{
+		g_warning ("Style Scheme %s not found", scheme_id);
+		return FALSE;
+	}
 
 	if (def_style != NULL)
 		g_object_unref (def_style);
 
-	def_style = gtk_source_style_manager_get_scheme (manager,
-						         name);
+	def_style = new_style;
+
+	return TRUE;
 }
 
