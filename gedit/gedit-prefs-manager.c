@@ -834,7 +834,6 @@ gedit_prefs_manager_get_font (const gchar *pango_key,
 			      const gchar *def)
 {
 	gchar *pango_value;
-	gchar *gnome_print_value;
 	
 	/* if the new pango key isn't writable, we don't want an old value to
 	 * overwrite it. Otherwise, we first look whether the pango key has

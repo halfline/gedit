@@ -1229,8 +1229,6 @@ gedit_prefs_manager_source_style_scheme_changed (GConfClient *client,
 					(gedit_get_source_style_manager ());
 
 		docs = gedit_app_get_documents (gedit_app_get_default ());
-		l = docs;
-
 		for (l = docs; l != NULL; l = l->next)
 		{
 			g_return_if_fail (GTK_IS_SOURCE_BUFFER (l->data));
