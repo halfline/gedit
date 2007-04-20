@@ -32,24 +32,18 @@
 #ifndef __GEDIT_LANGUAGES_MANAGER_H__
 #define __GEDIT_LANGUAGES_MANAGER_H__
 
-#include <gtksourceview/gtksourcelanguagesmanager.h>
+#include <gtksourceview/gtksourcelanguagemanager.h>
 
 G_BEGIN_DECLS
 
-GtkSourceLanguagesManager *gedit_get_languages_manager    (void);
+GtkSourceLanguageManager	*gedit_get_language_manager	(void);
 
-GtkSourceLanguage	  *gedit_languages_manager_get_language_from_id
-							  (GtkSourceLanguagesManager *lm,
-							   const gchar               *lang_id);
+const GSList			*gedit_language_manager_get_available_languages_sorted
+								(GtkSourceLanguageManager	*lm);
 
-void 			   gedit_language_init_tag_styles (GtkSourceLanguage         *language);
-
-const GSList		  *gedit_languages_manager_get_available_languages_sorted
-							  (GtkSourceLanguagesManager *lm);
-
-GtkSourceLanguage 	  *gedit_languages_manager_get_language_from_mime_type 
-							  (GtkSourceLanguagesManager *lm,
-							   const gchar               *mime_type);
+GtkSourceLanguage		*gedit_language_manager_get_language_from_mime_type 
+								(GtkSourceLanguageManager	*lm,
+								 const gchar			*mime_type);
 
 G_END_DECLS
 

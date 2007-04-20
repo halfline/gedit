@@ -187,11 +187,11 @@ all_text_files_filter (const GtkFileFilterInfo *filter_info,
 
 	if (known_mime_types == NULL)
 	{
-		GtkSourceLanguagesManager *lm;
+		GtkSourceLanguageManager *lm;
 		const GSList *languages;
 
-		lm = gedit_get_languages_manager ();
-		languages = gtk_source_languages_manager_get_available_languages (lm);
+		lm = gedit_get_language_manager ();
+		languages = gtk_source_language_manager_get_available_languages (lm);
 
 		while (languages != NULL)
 		{

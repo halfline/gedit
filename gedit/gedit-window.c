@@ -37,8 +37,6 @@
 #include <string.h>
 
 #include <glib/gi18n.h>
-#include <gtksourceview/gtksourcelanguage.h>
-#include <gtksourceview/gtksourcelanguagesmanager.h>
 #include <libgnomevfs/gnome-vfs-utils.h>
 
 #include "gedit-ui.h"
@@ -826,8 +824,8 @@ language_toggled (GtkToggleAction *action,
 	}
 	else
 	{
-		languages = gedit_languages_manager_get_available_languages_sorted (
-						gedit_get_languages_manager ());
+		languages = gedit_language_manager_get_available_languages_sorted (
+						gedit_get_language_manager ());
 
 		lang = GTK_SOURCE_LANGUAGE (g_slist_nth_data ((GSList *) languages, n));
 	}
@@ -984,8 +982,8 @@ create_languages_menu (GeditWindow *window)
 	gtk_toggle_action_set_active (GTK_TOGGLE_ACTION (action_none), TRUE);
 
 	/* now add all the known languages */
-	languages = gedit_languages_manager_get_available_languages_sorted (
-						gedit_get_languages_manager ());
+	languages = gedit_language_manager_get_available_languages_sorted (
+						gedit_get_language_manager ());
 
 	for (l = languages, i = 0; l != NULL; l = l->next, ++i)
 		create_language_menu_item (GTK_SOURCE_LANGUAGE (l->data),

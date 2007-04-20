@@ -508,9 +508,7 @@ set_language (GeditDocument     *doc,
 		return;
 
 	gtk_source_buffer_set_language (GTK_SOURCE_BUFFER (doc), lang);
-	if (lang != NULL)
-		gedit_language_init_tag_styles (lang);
-		
+
 	if (lang != NULL)
 		gtk_source_buffer_set_highlight (GTK_SOURCE_BUFFER (doc),
 						 gedit_prefs_manager_get_enable_syntax_highlighting ());
@@ -527,14 +525,14 @@ set_language (GeditDocument     *doc,
 			lang_id = gtk_source_language_get_id (lang);
 			g_return_if_fail (lang_id != NULL);
 		}
-		
+
 		gedit_metadata_manager_set (doc->priv->uri,
 					    "language",
 					    (lang_id == NULL) ? "_NORMAL_" : lang_id);
 
 		g_free (lang_id);
 	}
-	
+
 	doc->priv->language_set_by_user = set_by_user;
 }
 
@@ -706,8 +704,8 @@ set_uri (GeditDocument *doc,
 
 			if (strcmp (data, "_NORMAL_") != 0)
 			{
-				language = gedit_languages_manager_get_language_from_id (
-							gedit_get_languages_manager (),
+				language = gtk_source_language_manager_get_language_by_id (
+							gedit_get_language_manager (),
 							data);
 			}
 
@@ -719,8 +717,8 @@ set_uri (GeditDocument *doc,
 
 			if (strcmp (doc->priv->mime_type, "text/plain") != 0)
 			{
-				language = gedit_languages_manager_get_language_from_mime_type (
-							gedit_get_languages_manager (),
+				language = gedit_language_manager_get_language_from_mime_type (
+							gedit_get_language_manager (),
 							doc->priv->mime_type);
 			}
 		}
