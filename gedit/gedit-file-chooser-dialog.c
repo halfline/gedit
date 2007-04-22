@@ -152,32 +152,6 @@ filter_changed (GeditFileChooserDialog *dialog,
 	gedit_prefs_manager_set_active_file_filter (id);
 }
 
-// CUT&PASTE alert!
-// We need to figure out what needs to go into gsv itself
-
-static GSList *
-language_get_mime_types (GtkSourceLanguage *lang)
-{
-	const gchar *mimetypes;
-	gchar **mtl;
-	gint i;
-	GSList *mime_types = NULL;
-
-	mimetypes = gtk_source_language_get_property (lang, "mimetypes");
-
-	mtl = g_strsplit (mimetypes, ";", 0);
-
-	for (i = 0; mtl[i] != NULL; i++)
-	{
-		/* steal the strings from the array */
-		mime_types = g_slist_prepend (mime_types, mtl[i]);
-	}
-
-	g_free (mtl);
-
-	return mime_types;
-}
-
 static gboolean
 all_text_files_filter (const GtkFileFilterInfo *filter_info,
 		       gpointer                 data)
@@ -189,40 +163,42 @@ all_text_files_filter (const GtkFileFilterInfo *filter_info,
 	{
 		GtkSourceLanguageManager *lm;
 		const GSList *languages;
+		const GSList *l;
 
 		lm = gedit_get_language_manager ();
 		languages = gtk_source_language_manager_get_available_languages (lm);
 
-		while (languages != NULL)
+		for (l = languages; l != NULL; l = l->next)
 		{
-			GSList *mime_types, *tmp;
+			gchar **mime_types;
+			gint i;
 			GtkSourceLanguage *lang;
 
-			lang = GTK_SOURCE_LANGUAGE (languages->data);
+			lang = GTK_SOURCE_LANGUAGE (l->data);
 
-			tmp = mime_types = language_get_mime_types (lang);
+			mime_types = gtk_source_language_get_mime_types (lang);
+			if (mime_types == NULL)
+				continue;
 
-			while (tmp != NULL)
+			for (i = 0; mime_types[i] != NULL; i++)
 			{
 				GnomeVFSMimeEquivalence res;
-				res = gnome_vfs_mime_type_get_equivalence ((const gchar*)tmp->data,
+
+				res = gnome_vfs_mime_type_get_equivalence (mime_types[i],
 									   "text/plain");
 
 				if (res == GNOME_VFS_MIME_UNRELATED)
 				{
 					gedit_debug_message (DEBUG_COMMANDS,
-							     "Mime-type %s is not related to text/plain", (const gchar*)tmp->data);
+							     "Mime-type %s is not related to text/plain",
+							     mime_types[i]);
 
-					known_mime_types = g_slist_prepend (known_mime_types, g_strdup (tmp->data));
+					known_mime_types = g_slist_prepend (known_mime_types,
+									    g_strdup (mime_types[i]));
 				}
-
-				tmp = g_slist_next (tmp);
 			}
 
-			g_slist_foreach (mime_types, (GFunc) g_free, NULL);
-			g_slist_free (mime_types);
-
-			languages = g_slist_next (languages);
+			g_strfreev (mime_types);
 		}
 
 		/* known_mime_types always has "text/plain" as first item" */

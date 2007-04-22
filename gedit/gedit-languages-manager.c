@@ -46,7 +46,7 @@ gedit_get_language_manager (void)
 {
 	if (language_manager == NULL)
 	{
-		language_manager = gtk_source_language_manager_new ();	
+		language_manager = gtk_source_language_manager_new ();
 	}
 
 	return language_manager;
@@ -91,33 +91,6 @@ gedit_language_manager_get_available_languages_sorted (GtkSourceLanguageManager 
 	}
 
 	return languages_list_sorted;
-}
-
-// We need to figure out what needs to go into gsv itself
-
-static GSList *
-language_get_mime_types (GtkSourceLanguage *lang)
-{
-	const gchar *mimetypes;
-	gchar **mtl;
-	gint i;
-	GSList *mime_types = NULL;
-
-	mimetypes = gtk_source_language_get_property (lang, "mimetypes");
-	if (mimetypes == NULL)
-		return NULL;
-
-	mtl = g_strsplit (mimetypes, ";", 0);
-
-	for (i = 0; mtl[i] != NULL; i++)
-	{
-		/* steal the strings from the array */
-		mime_types = g_slist_prepend (mime_types, mtl[i]);
-	}
-
-	g_free (mtl);
-
-	return mime_types;
 }
 
 /* Returns a hash table that is used as a cache of already matched mime-types */
@@ -174,12 +147,11 @@ gedit_language_manager_get_language_from_mime_type (GtkSourceLanguageManager *lm
 						    const gchar              *mime_type)
 {
 	const GSList *languages;
+	const GSList *l;
 	GtkSourceLanguage *lang;
 	GtkSourceLanguage *parent = NULL;
 
 	g_return_val_if_fail (mime_type != NULL, NULL);
-
-	languages = gtk_source_language_manager_get_available_languages (lm);
 
 	lang = get_language_from_cache (lm, mime_type);
 	if (lang != NULL)
@@ -191,15 +163,21 @@ gedit_language_manager_get_language_from_mime_type (GtkSourceLanguageManager *lm
 	gedit_debug_message (DEBUG_DOCUMENT,
 			     "Cache miss for %s", mime_type);
 
-	while (languages != NULL)
+	languages = gtk_source_language_manager_get_available_languages (lm);
+
+	for (l = languages; l != NULL; l = l->next)
 	{
-		GSList *mime_types, *tmp;
+		gchar **mime_types;
+		gchar *found = NULL;
+		gint i;
 
-		lang = GTK_SOURCE_LANGUAGE (languages->data);
+		lang = GTK_SOURCE_LANGUAGE (l->data);
 
-		tmp = mime_types = language_get_mime_types (lang);
+		mime_types = gtk_source_language_get_mime_types (lang);
+		if (mime_types == NULL)
+			continue;
 
-		while (tmp != NULL)
+		for (i = 0; mime_types[i] != NULL; ++i)
 		{
 			GnomeVFSMimeEquivalence res;
 
@@ -207,14 +185,17 @@ gedit_language_manager_get_language_from_mime_type (GtkSourceLanguageManager *lm
 			 * strcmp, to take care of mime-types inheritance
 			 * (see bug #324191) */
 			res = gnome_vfs_mime_type_get_equivalence (mime_type, 
-								   (const gchar *)tmp->data);
-						
+								   mime_types[i]);
+
 			if (res == GNOME_VFS_MIME_IDENTICAL)
 			{
 				/* If the mime-type of lang is identical to "mime-type" then
 				   return lang */
 				gedit_debug_message (DEBUG_DOCUMENT,
-						     "%s is indentical to %s\n", (const gchar*)tmp->data, mime_type);
+						     "%s is indentical to %s\n",
+						     mime_types[i], mime_type);
+
+				found = mime_types[i];
 
 				break;
 			}
@@ -226,22 +207,21 @@ gedit_language_manager_get_language_from_mime_type (GtkSourceLanguageManager *lm
 				parent = lang;
 
 				gedit_debug_message (DEBUG_DOCUMENT,
-						     "%s is a parent of %s\n", (const gchar*)tmp->data, mime_type);
+						     "%s is a parent of %s\n",
+						     mime_types[i], mime_type);
 			}
-
-			tmp = g_slist_next (tmp);
 		}
 
-		g_slist_foreach (mime_types, (GFunc) g_free, NULL);
-		g_slist_free (mime_types);
-
-		if (tmp != NULL)
+		if (found != NULL)
 		{
 			add_language_to_cache (lm, mime_type, lang);
+
+			g_strfreev (mime_types);
+
 			return lang;
 		}
 
-		languages = g_slist_next (languages);
+		g_strfreev (mime_types);
 	}
 
 	if (parent != NULL)
