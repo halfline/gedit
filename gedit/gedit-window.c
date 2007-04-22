@@ -2429,32 +2429,38 @@ can_search_again (GeditDocument *doc,
 
 static void
 can_undo (GeditDocument *doc,
-          gboolean       can,
-          GeditWindow   *window)
+	  GParamSpec    *pspec,
+	  GeditWindow   *window)
 {
 	GtkAction *action;
-	
+	gboolean sensitive;
+
+	sensitive = gtk_source_buffer_can_undo (GTK_SOURCE_BUFFER (doc));
+
 	if (doc != gedit_window_get_active_document (window))
 		return;
-		
+
 	action = gtk_action_group_get_action (window->priv->action_group,
 					     "EditUndo");
-	gtk_action_set_sensitive (action, can);
+	gtk_action_set_sensitive (action, sensitive);
 }
 
 static void
 can_redo (GeditDocument *doc,
-          gboolean       can,
-          GeditWindow   *window)
+	  GParamSpec    *pspec,
+	  GeditWindow   *window)
 {
 	GtkAction *action;
+	gboolean sensitive;
+
+	sensitive = gtk_source_buffer_can_redo (GTK_SOURCE_BUFFER (doc));
 
 	if (doc != gedit_window_get_active_document (window))
 		return;
-	
+
 	action = gtk_action_group_get_action (window->priv->action_group,
 					     "EditRedo");
-	gtk_action_set_sensitive (action, can);
+	gtk_action_set_sensitive (action, sensitive);
 }
 
 static void
@@ -2631,11 +2637,11 @@ notebook_tab_added (GeditNotebook *notebook,
 			  G_CALLBACK (can_search_again),
 			  window);
 	g_signal_connect (doc,
-			  "can-undo",
+			  "notify::can-undo",
 			  G_CALLBACK (can_undo),
 			  window);
 	g_signal_connect (doc,
-			  "can-redo",
+			  "notify::can-redo",
 			  G_CALLBACK (can_redo),
 			  window);
 	g_signal_connect (doc,
