@@ -57,15 +57,12 @@ language_compare (gconstpointer a, gconstpointer b)
 {
 	GtkSourceLanguage *lang_a = GTK_SOURCE_LANGUAGE (a);
 	GtkSourceLanguage *lang_b = GTK_SOURCE_LANGUAGE (b);
-	gchar *name_a = gtk_source_language_get_name (lang_a);
-	gchar *name_b = gtk_source_language_get_name (lang_b);
+	const gchar *name_a = gtk_source_language_get_name (lang_a);
+	const gchar *name_b = gtk_source_language_get_name (lang_b);
 	gint res;
 	
 	res = g_utf8_collate (name_a, name_b);
 		
-	g_free (name_a);
-	g_free (name_b);	
-	
 	return res;
 }
 

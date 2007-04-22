@@ -216,8 +216,6 @@ gedit_document_finalize (GObject *object)
 	{
 		GtkTextIter iter;
 		gchar *position;
-		gchar *lang_id = NULL;
-		GtkSourceLanguage *lang;
 
 		gtk_text_buffer_get_iter_at_mark (
 				GTK_TEXT_BUFFER (doc),			
@@ -234,15 +232,13 @@ gedit_document_finalize (GObject *object)
 
 		if (doc->priv->language_set_by_user)
 		{
+			GtkSourceLanguage *lang;
+
 			lang = gedit_document_get_language (doc);
 
-			if (lang != NULL)
-				lang_id = gtk_source_language_get_id (lang);
-
 			gedit_metadata_manager_set (doc->priv->uri,
-						    "language",
-						    (lang_id == NULL) ? "_NORMAL_" : lang_id);
-			g_free (lang_id);
+				    "language",
+				    (lang == NULL) ? "_NORMAL_" : gtk_source_language_get_id (lang));
 		}
 	}
 
@@ -518,19 +514,9 @@ set_language (GeditDocument     *doc,
 
 	if (set_by_user && (doc->priv->uri != NULL))
 	{
-		gchar *lang_id = NULL;
-
-		if (lang != NULL)
-		{
-			lang_id = gtk_source_language_get_id (lang);
-			g_return_if_fail (lang_id != NULL);
-		}
-
 		gedit_metadata_manager_set (doc->priv->uri,
-					    "language",
-					    (lang_id == NULL) ? "_NORMAL_" : lang_id);
-
-		g_free (lang_id);
+			    "language",
+			    (lang == NULL) ? "_NORMAL_" : gtk_source_language_get_id (lang));
 	}
 
 	doc->priv->language_set_by_user = set_by_user;

@@ -861,9 +861,9 @@ create_language_menu_item (GtkSourceLanguage *lang,
 	GtkRadioAction *action;
 	GtkAction *normal_action;
 	GSList *group;
-	gchar *section;
+	const gchar *section;
 	gchar *escaped_section;
-	gchar *lang_name;
+	const gchar *lang_name;
 	gchar *escaped_lang_name;
 	gchar *tip;
 	gchar *path;
@@ -896,7 +896,6 @@ create_language_menu_item (GtkSourceLanguage *lang,
 
 	/* now add the language item to the section */
 	lang_name = gtk_source_language_get_name (lang);
-
 	escaped_lang_name = g_markup_escape_text (lang_name, -1);
 
 	tip = g_strdup_printf (_("Use %s highlight mode"), lang_name);
@@ -935,9 +934,7 @@ create_language_menu_item (GtkSourceLanguage *lang,
 
 	g_free (path);
 	g_free (tip);
-	g_free (lang_name);
 	g_free (escaped_lang_name);
-	g_free (section);
 	g_free (escaped_section);
 }
 
@@ -1000,7 +997,7 @@ update_languages_menu (GeditWindow *window)
 	GList *l;
 	GtkAction *action;
 	GtkSourceLanguage *lang;
-	gchar *lang_name;
+	const gchar *lang_name;
 	gchar *escaped_lang_name;
 
 	doc = gedit_window_get_active_document (window);
@@ -1011,7 +1008,7 @@ update_languages_menu (GeditWindow *window)
 	if (lang != NULL)
 		lang_name = gtk_source_language_get_name (lang);
 	else
-		lang_name = g_strdup ("LangNone");
+		lang_name = "LangNone";
 
 	escaped_lang_name = g_markup_escape_text (lang_name, -1);
 
@@ -1038,7 +1035,6 @@ update_languages_menu (GeditWindow *window)
 	}
 
 	g_list_free (actions);
-	g_free (lang_name);
 	g_free (escaped_lang_name);
 }
 
