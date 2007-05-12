@@ -834,7 +834,7 @@ language_toggled (GtkToggleAction *action,
 }
 
 static gchar *
-escape_section_name (gchar *name)
+escape_section_name (const gchar *name)
 {
 	gchar *tmp;
 	gchar *ret;
