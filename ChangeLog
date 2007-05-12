@@ -1,4 +1,11 @@
-    
+2007-05-12  Steve Frécinaux  <code@istique.net>
+
+	* plugins/externaltools/data/build.desktop.in: Use Ctrl+F8 as the
+	shortcut for the Build tool (workaround bug #406176).
+
+	* plugins/externaltools/data/build.tool.in: Look recursively for
+	Makefiles in the parent directories of the current file.
+
 === gedit 2.18.1 ===
 
 2007-04-10  Paolo Borelli  <pborelli@katamail.com>
