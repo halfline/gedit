@@ -342,7 +342,7 @@ gedit_init_pygtksourceview (void)
 {
 	PyObject *gtksourceview;
 
-	gtksourceview = PyImport_ImportModule("gtksourceview");
+	gtksourceview = PyImport_ImportModule("gtksourceview2");
 	if (gtksourceview == NULL)
 	{
 		PyErr_SetString (PyExc_ImportError,

@@ -20,7 +20,8 @@ import os
 import gtk
 from gtk import gdk
 import gnomevfs
-import gedit, gtksourceview
+import gtksourceview2 as gtksourceview
+import gedit
 from outputpanel import OutputPanel
 from capture import *
 
@@ -174,9 +175,9 @@ def capture_end_execute_panel(capture, exit_code, panel, view, update_type):
         end = start.copy()
         end.forward_chars(300)
 
-        mtype = gnomevfs.get_mime_type_for_data(doc.get_text(start, end))
-        languages_manager = gtksourceview.SourceLanguagesManager()
-        language = languages_manager.get_language_from_mime_type(mtype)
+#        mtype = gnomevfs.get_mime_type_for_data(doc.get_text(start, end))
+#        languages_manager = gtksourceview.SourceLanguagesManager()
+#        language = languages_manager.get_language_from_mime_type(mtype)
         if language is not None:
             doc.set_language(language)
 

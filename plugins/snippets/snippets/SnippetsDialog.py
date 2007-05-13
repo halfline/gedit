@@ -21,7 +21,7 @@ from gtk import gdk
 import pango
 import os
 import gedit
-import gtksourceview
+import gtksourceview2 as gtksourceview
 from Snippet import Snippet
 from functions import *
 from SnippetsLibrary import *
@@ -98,13 +98,13 @@ class SnippetsDialog:
 
                 tree_view = self['tree_view_snippets']
                 expand = None
-                
+
                 if not self.model:
                         self.model = gtk.TreeStore(str, str, object)
                         self.model.set_sort_column_id(self.SORT_COLUMN, gtk.SORT_ASCENDING)
-                        manager = gtksourceview.SourceLanguagesManager()
+                        manager = gtksourceview.SourceLanguageManager()
                         langs = manager.get_available_languages()
-                        
+
                         piter = self.model.append(None, (_('Global'), '', None))
                         # Add dummy node
                         self.model.append(piter, ('', '', None))
