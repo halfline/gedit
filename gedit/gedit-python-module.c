@@ -340,7 +340,7 @@ gedit_init_pygtk (void)
 static void
 gedit_init_pygtksourceview (void)
 {
-	PyObject *gtksourceview;
+	PyObject *gtksourceview, *mdict, *version, *required_version;
 
 	gtksourceview = PyImport_ImportModule("gtksourceview2");
 	if (gtksourceview == NULL)
@@ -349,6 +349,27 @@ gedit_init_pygtksourceview (void)
 				 "could not import gtksourceview");
 		return;
 	}
+
+	mdict = PyModule_GetDict (gtksourceview);
+	version = PyDict_GetItemString (mdict, "pygtksourceview2_version");
+	if (!version)
+	{
+		PyErr_SetString (PyExc_ImportError,
+				 "PyGtkSourceView version too old");
+		return;
+	}
+
+	required_version = Py_BuildValue ("(iii)", 0, 8, 0); /* FIXME */
+
+	if (PyObject_Compare (version, required_version) == -1)
+	{
+		PyErr_SetString (PyExc_ImportError,
+				 "PyGtkSourceView version too old");
+		Py_DECREF (required_version);
+		return;
+	}
+
+	Py_DECREF (required_version);
 }
 
 gboolean
