@@ -370,6 +370,13 @@ gedit_init_pygtksourceview (void)
 	}
 
 	Py_DECREF (required_version);
+
+	/* Create a dummy 'gtksourceview' module to prevent
+	 * loading of the old 'gtksourceview' modules that
+	 * has conflicting symbols with the gtksourceview2 module */
+	gtksourceview = Py_InitModule3 ("gtksourceview",
+					NULL,
+					"gtksourceview module cannot be used, port your plugin to gtksourceview2");
 }
 
 gboolean
