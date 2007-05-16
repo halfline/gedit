@@ -338,6 +338,13 @@ gedit_init_pygtk (void)
 }
 
 static void
+old_gtksourceview_init (void)
+{
+	PyErr_SetString(PyExc_ImportError,
+			"gtksourceview module not allowed, use gtksourceview2");
+}
+
+static void
 gedit_init_pygtksourceview (void)
 {
 	PyObject *gtksourceview, *mdict, *version, *required_version;
@@ -373,10 +380,13 @@ gedit_init_pygtksourceview (void)
 
 	/* Create a dummy 'gtksourceview' module to prevent
 	 * loading of the old 'gtksourceview' modules that
-	 * has conflicting symbols with the gtksourceview2 module */
-	gtksourceview = Py_InitModule3 ("gtksourceview",
+	 * has conflicting symbols with the gtksourceview2 module.
+	 * Raise an exception when trying to import it.
+	 */
+	PyImport_AppendInittab ("gtksourceview", old_gtksourceview_init);
+/*	gtksourceview = Py_InitModule3 ("gtksourceview",
 					NULL,
-					"gtksourceview module cannot be used, port your plugin to gtksourceview2");
+					"gtksourceview module cannot be used, port your plugin to gtksourceview2"); */
 }
 
 gboolean
