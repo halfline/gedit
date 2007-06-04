@@ -384,9 +384,6 @@ gedit_init_pygtksourceview (void)
 	 * Raise an exception when trying to import it.
 	 */
 	PyImport_AppendInittab ("gtksourceview", old_gtksourceview_init);
-/*	gtksourceview = Py_InitModule3 ("gtksourceview",
-					NULL,
-					"gtksourceview module cannot be used, port your plugin to gtksourceview2"); */
 }
 
 gboolean
@@ -404,7 +401,7 @@ gedit_python_init (void)
 	if (init_failed)
 	{
 		/* We already failed to initialized Python, don't need to
-		   retry again */
+		 * retry again */
 		return FALSE;
 	}
 	
@@ -413,18 +410,18 @@ gedit_python_init (void)
 		/* Python has already been successfully initialized */
 		return TRUE;
 	}
-	
+
 	/* We are trying to initialize Python for the first time,
 	   set init_failed to FALSE only if the entire initialization process
 	   ends with success */
 	init_failed = TRUE;
-	
+
 	/* Hack to make python not overwrite SIGINT: this is needed to avoid
 	 * the crash reported on bug #326191 */
-	 
-       /* CHECK: can't we use Py_InitializeEx instead of Py_Initialize in order
+
+	/* CHECK: can't we use Py_InitializeEx instead of Py_Initialize in order
           to avoid to manage signal handlers ? - Paolo (Dec. 31, 2006) */
-	
+
 	/* Save old handler */
 	res = sigaction (SIGINT, NULL, &old_sigint);  
 	if (res != 0)

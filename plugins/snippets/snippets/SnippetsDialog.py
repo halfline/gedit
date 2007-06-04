@@ -102,7 +102,7 @@ class SnippetsDialog:
                 if not self.model:
                         self.model = gtk.TreeStore(str, str, object)
                         self.model.set_sort_column_id(self.SORT_COLUMN, gtk.SORT_ASCENDING)
-                        manager = gtksourceview.SourceLanguageManager()
+                        manager = gtksourceview.LanguageManager()
                         langs = manager.get_available_languages()
 
                         piter = self.model.append(None, (_('Global'), '', None))
@@ -180,9 +180,9 @@ class SnippetsDialog:
         def custom_handler(self, xml, function_name, widget_name, str1, str2, \
                         int1 , int2):
                 if function_name == 'create_source_view':
-                        buf = gtksourceview.SourceBuffer()
+                        buf = gtksourceview.Buffer()
                         buf.set_highlight(True)
-                        source_view = gtksourceview.SourceView(buf)
+                        source_view = gtksourceview.View(buf)
                         source_view.set_auto_indent(True)
                         source_view.set_insert_spaces_instead_of_tabs(False)
                         source_view.set_smart_home_end(True)
@@ -565,7 +565,7 @@ class SnippetsDialog:
                 self.snippet['accelerator'] = accelerator
 
                 return True
-        
+
         def on_entry_accelerator_key_press(self, entry, event):
                 source_view = self['source_view_snippet']
 

@@ -133,8 +133,8 @@ class Manager(object):
     def custom_handler(self, xml, function_name, widget_name,
                        str1, str2, int1 , int2):
         if function_name == 'create_commands':
-            buf = gsv.SourceBuffer()
-            view = gsv.SourceView(buf)
+            buf = gsv.Buffer()
+            view = gsv.View(buf)
             view.set_wrap_mode(gtk.WRAP_WORD)
             view.show()
             return view
