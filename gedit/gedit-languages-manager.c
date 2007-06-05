@@ -55,8 +55,8 @@ gedit_get_language_manager (void)
 static gint
 language_compare (gconstpointer a, gconstpointer b)
 {
-	GtkSourceLanguage *lang_a = GTK_SOURCE_LANGUAGE (a);
-	GtkSourceLanguage *lang_b = GTK_SOURCE_LANGUAGE (b);
+	GtkSourceLanguage *lang_a = a;
+	GtkSourceLanguage *lang_b = b;
 	const gchar *name_a = gtk_source_language_get_name (lang_a);
 	const gchar *name_b = gtk_source_language_get_name (lang_b);
 	gint res;
@@ -168,7 +168,7 @@ gedit_language_manager_get_language_from_mime_type (GtkSourceLanguageManager *lm
 		gchar *found = NULL;
 		gint i;
 
-		lang = GTK_SOURCE_LANGUAGE (l->data);
+		lang = l->data;
 
 		mime_types = gtk_source_language_get_mime_types (lang);
 		if (mime_types == NULL)

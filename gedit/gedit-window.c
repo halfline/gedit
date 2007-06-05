@@ -827,7 +827,7 @@ language_toggled (GtkToggleAction *action,
 		languages = gedit_language_manager_get_available_languages_sorted (
 						gedit_get_language_manager ());
 
-		lang = GTK_SOURCE_LANGUAGE (g_slist_nth_data ((GSList *) languages, n));
+		lang = g_slist_nth_data ((GSList *) languages, n);
 	}
 
 	gedit_document_set_language (doc, (GtkSourceLanguage *) lang);
@@ -983,7 +983,7 @@ create_languages_menu (GeditWindow *window)
 						gedit_get_language_manager ());
 
 	for (l = languages, i = 0; l != NULL; l = l->next, ++i)
-		create_language_menu_item (GTK_SOURCE_LANGUAGE (l->data),
+		create_language_menu_item (l->data,
 					    i,
 					    id,
 					    window);

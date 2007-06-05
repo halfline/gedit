@@ -174,7 +174,7 @@ all_text_files_filter (const GtkFileFilterInfo *filter_info,
 			gint i;
 			GtkSourceLanguage *lang;
 
-			lang = GTK_SOURCE_LANGUAGE (l->data);
+			lang = l->data;
 
 			mime_types = gtk_source_language_get_mime_types (lang);
 			if (mime_types == NULL)
