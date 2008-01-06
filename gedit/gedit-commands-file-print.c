@@ -34,177 +34,321 @@
 #include <config.h>
 #endif
 
+#include <math.h>
+
+#include <pango/pangocairo.h>
 #include <glib/gi18n.h>
 #include <gtk/gtk.h>
+#include <gtk/gtkprintoperation.h>
+#include <gtksourceview/gtksourceprintcompositor.h>
 
 #include "gedit-commands.h"
+#include "gedit-print-preview.h"
 #include "gedit-window.h"
 #include "gedit-debug.h"
-#include "gedit-print.h"
-#include "dialogs/gedit-page-setup-dialog.h"
 
+#define LINE_NUMBERS_FONT_NAME   "Monospace 6"
+#define HEADER_FONT_NAME   "Serif Italic 12"
+#define FOOTER_FONT_NAME   "SansSerif Bold 8"
 
-void
-_gedit_cmd_file_page_setup (GtkAction   *action,
-			   GeditWindow *window)
+static GtkPageSetup *page_setup = NULL;
+static GtkPrintSettings *settings = NULL;
+static GList *active_prints = NULL;
+
+static void
+do_page_setup (GtkWindow *window)
 {
-	gedit_debug (DEBUG_COMMANDS);
+	GtkPageSetup *new_page_setup;
 
-	gedit_show_page_setup_dialog (GTK_WINDOW (window));
+	new_page_setup = gtk_print_run_page_setup_dialog (window,
+							  page_setup,
+							  settings);
+
+	if (page_setup)
+		g_object_unref (page_setup);
+  
+	page_setup = new_page_setup;
+}
+
+static void
+status_changed_cb (GtkPrintOperation *op,
+		   gpointer user_data)
+{
+  if (gtk_print_operation_is_finished (op))
+    {
+      active_prints = g_list_remove (active_prints, op);
+      g_object_unref (op);
+    }
+
+//  update_statusbar ();
+}
+
+//static GtkWidget *
+//create_custom_widget (GtkPrintOperation *operation,
+//		      gpointer          *data)
+//{
+//  GtkWidget *vbox, *hbox, *font, *label;
+
+//  gtk_print_operation_set_custom_tab_label (operation, "Other");
+//  vbox = gtk_vbox_new (FALSE, 0);
+//  gtk_container_set_border_width (GTK_CONTAINER (vbox), 12);
+
+//  hbox = gtk_hbox_new (FALSE, 8);
+//  gtk_box_pack_start (GTK_BOX (vbox), hbox, FALSE, FALSE, 0);
+//  gtk_widget_show (hbox);
+
+//  label = gtk_label_new ("Font:");
+//  gtk_box_pack_start (GTK_BOX (hbox), label, FALSE, FALSE, 0);
+//  gtk_widget_show (label);
+//  
+//  font = gtk_font_button_new_with_font  (data->font);
+//  gtk_box_pack_start (GTK_BOX (hbox), font, FALSE, FALSE, 0);
+//  gtk_widget_show (font);
+//  data->font_button = font;
+
+//  return vbox;
+//}
+
+//static void
+//custom_widget_apply (GtkPrintOperation *operation,
+//		     GtkWidget *widget,
+//		     PrintData *data)
+//{
+//  const char *selected_font;
+//  selected_font = gtk_font_button_get_font_name  (GTK_FONT_BUTTON (data->font_button));
+//  g_free (data->font);
+//  data->font = g_strdup (selected_font);
+//}
+
+static gboolean 
+run_preview (GtkPrintOperation        *op,
+	     GtkPrintOperationPreview *gtk_preview,
+	     GtkPrintContext          *context,
+	     GtkWindow                *parent,
+	     GeditTab                 *tab)
+{
+	GtkWidget *window;
+	GtkWidget *preview;
+
+	window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
+	gtk_window_set_default_size (GTK_WINDOW (window), 400, 600);
+
+	preview = gedit_print_preview_new (op, gtk_preview, context);
+	gtk_container_add (GTK_CONTAINER (window), preview);
+
+	gtk_widget_show_all (window);
+
+	return TRUE;
+}
+
+static void
+print_done (GtkPrintOperation *op,
+	    GtkPrintOperationResult res,
+	    gpointer *data)
+{
+  GError *error = NULL;
+
+  if (res == GTK_PRINT_OPERATION_RESULT_ERROR)
+    {
+
+      GtkWidget *error_dialog;
+      
+      gtk_print_operation_get_error (op, &error);
+
+      error_dialog = gtk_message_dialog_new (NULL, //GTK_WINDOW (main_window),
+					     GTK_DIALOG_DESTROY_WITH_PARENT,
+					     GTK_MESSAGE_ERROR,
+					     GTK_BUTTONS_CLOSE,
+					     "Error printing file:\n%s",
+					     error ? error->message : "no details");
+      g_signal_connect (error_dialog, "response", G_CALLBACK (gtk_widget_destroy), NULL);
+      gtk_widget_show (error_dialog);
+    }
+  else if (res == GTK_PRINT_OPERATION_RESULT_APPLY)
+    {
+      if (settings != NULL)
+	g_object_unref (settings);
+      settings = g_object_ref (gtk_print_operation_get_print_settings (op));
+    }
+
+//  g_object_unref (print_data->buffer);
+//  g_free (print_data->font);
+//  g_free (print_data);
+  
+  if (!gtk_print_operation_is_finished (op))
+    {
+      g_object_ref (op);
+      active_prints = g_list_append (active_prints, op);
+//      update_statusbar ();
+      
+      /* This ref is unref:ed when we get the final state change */
+      g_signal_connect (op, "status_changed",
+			G_CALLBACK (status_changed_cb), NULL);
+    }
+}
+
+static void
+begin_print (GtkPrintOperation        *operation, 
+	     GtkPrintContext          *context,
+	     GtkSourcePrintCompositor *compositor)
+{
+	g_debug ("begin_print");
+}
+
+static gboolean
+paginate (GtkPrintOperation        *operation, 
+	  GtkPrintContext          *context,
+	  GtkSourcePrintCompositor *compositor)
+{
+	g_print ("Pagination progress: %.2f %%\n", gtk_source_print_compositor_get_pagination_progress (compositor) * 100.0);
+	
+	if (gtk_source_print_compositor_paginate (compositor, context))
+	{
+		gint n_pages;
+
+		g_assert (gtk_source_print_compositor_get_pagination_progress (compositor) == 1.0);
+		g_print ("Pagination progress: %.2f %%\n", gtk_source_print_compositor_get_pagination_progress (compositor) * 100.0);
+		        
+		n_pages = gtk_source_print_compositor_get_n_pages (compositor);
+		gtk_print_operation_set_n_pages (operation, n_pages);
+
+
+		
+		return TRUE;
+	}
+     
+	return FALSE;
+}
+
+static void
+draw_page (GtkPrintOperation        *operation,
+	   GtkPrintContext          *context,
+	   gint                      page_nr,
+	   GtkSourcePrintCompositor *compositor)
+{
+	g_debug ("draw_page %d", page_nr);
+
+	gtk_source_print_compositor_draw_page (compositor, context, page_nr);
+}
+
+static void
+end_print (GtkPrintOperation        *operation, 
+	   GtkPrintContext          *context,
+	   GtkSourcePrintCompositor *compositor)
+{
+	g_object_unref (compositor);
 }
 
 void
-_gedit_cmd_file_print_preview (GtkAction   *action,
-			      GeditWindow *window)
+do_print_or_preview (GeditWindow             *window,
+		     GtkPrintOperationAction  print_action)
 {
+	GeditTab *tab;
+	GeditView *view;
 	GeditDocument *doc;
-	GeditTab      *tab;
-	GeditPrintJob *pjob;
-	GtkTextIter    start;
-	GtkTextIter    end;
-
-	gedit_debug (DEBUG_COMMANDS);
+	GtkSourcePrintCompositor *compositor;
+	GtkPrintOperation *operation;
+	gchar *name;
 
 	tab = gedit_window_get_active_tab (window);
 	if (tab == NULL)
 		return;
 
+	view = gedit_tab_get_view (tab);
+	if (view == NULL)
+		return;
+
 	doc = gedit_tab_get_document (tab);
+	if (doc == NULL)
+		return;
 
-	pjob = gedit_print_job_new (doc);
+	compositor = gtk_source_print_compositor_new (GTK_SOURCE_BUFFER (doc));
 
-	gtk_text_buffer_get_bounds (GTK_TEXT_BUFFER (doc) , &start, &end);
+	gtk_source_print_compositor_set_tab_width (compositor,
+						   gtk_source_view_get_tab_width (GTK_SOURCE_VIEW (view)));
+	gtk_source_print_compositor_set_wrap_mode (compositor,
+						   gtk_text_view_get_wrap_mode (GTK_TEXT_VIEW (view)));
 
-	_gedit_tab_print_preview (tab, pjob, &start, &end);
-	g_object_unref (pjob);
+	gtk_source_print_compositor_set_print_line_numbers (compositor, 5);
+
+	/* To test line numbers font != text font */
+	gtk_source_print_compositor_set_line_numbers_font_name (compositor,
+								LINE_NUMBERS_FONT_NAME);
+
+	gtk_source_print_compositor_set_header_format (compositor,
+						       TRUE,
+						       "Printed on %A",
+						       "test-widget",
+						       "%F");
+
+	name = gedit_document_get_short_name_for_display (doc);
+	gtk_source_print_compositor_set_footer_format (compositor,
+						       TRUE,
+						       "%T",
+						       name,
+						       "Page %N/%Q");
+	g_free (name);
+
+	gtk_source_print_compositor_set_print_header (compositor, TRUE);
+	gtk_source_print_compositor_set_print_footer (compositor, TRUE);
+
+	gtk_source_print_compositor_set_header_font_name (compositor,
+							  HEADER_FONT_NAME);
+
+	gtk_source_print_compositor_set_footer_font_name (compositor,
+							  FOOTER_FONT_NAME);
+	
+	operation = gtk_print_operation_new ();
+	
+  	g_signal_connect (operation, "begin-print", 
+			  G_CALLBACK (begin_print), compositor);
+  	g_signal_connect (operation, "paginate", 
+			  G_CALLBACK (paginate), compositor);		          
+	g_signal_connect (operation, "draw-page", 
+			  G_CALLBACK (draw_page), compositor);
+	g_signal_connect (operation, "preview",
+			  G_CALLBACK (run_preview), tab);
+//	g_signal_connect (operation, "create_custom_widget",
+//			  G_CALLBACK (create_custom_widget), print_data);
+//	g_signal_connect (operation, "custom_widget_apply",
+//			  G_CALLBACK (custom_widget_apply), print_data);
+	g_signal_connect (operation, "end-print", 
+			  G_CALLBACK (end_print), compositor);
+	g_signal_connect (operation, "done",
+			  G_CALLBACK (print_done), compositor);
+
+	gtk_print_operation_run (operation, 
+				 print_action,
+				 GTK_WINDOW (window),
+				 NULL);
+
+	g_object_unref (operation);
 }
 
-static void
-print_dialog_response_cb (GtkWidget *dialog,
-			  gint response,
-			  GeditPrintJob *pjob)
+void
+_gedit_cmd_file_page_setup (GtkAction   *action,
+			    GeditWindow *window)
 {
-	GtkTextIter          start;
-	GtkTextIter          end;
-	gint                 line_start;
-	gint                 line_end;
-	GnomePrintRangeType  range_type;
-	GtkTextBuffer       *buffer;
-	GeditTab            *tab;
-
 	gedit_debug (DEBUG_COMMANDS);
 
-	range_type = gnome_print_dialog_get_range (GNOME_PRINT_DIALOG (dialog));
+	do_page_setup (GTK_WINDOW (window));
+}
 
-	buffer = GTK_TEXT_BUFFER (
-			gtk_source_print_job_get_buffer (GTK_SOURCE_PRINT_JOB (pjob)));
+void
+_gedit_cmd_file_print_preview (GtkAction   *action,
+			       GeditWindow *window)
+{
+	gedit_debug (DEBUG_COMMANDS);
 
-	gtk_text_buffer_get_bounds (buffer, &start, &end);
-
-	tab = gedit_tab_get_from_document (GEDIT_DOCUMENT (buffer));
-
-	switch (range_type)
-	{
-		case GNOME_PRINT_RANGE_ALL:
-			break;
-
-		case GNOME_PRINT_RANGE_SELECTION:
-			gtk_text_buffer_get_selection_bounds (buffer,
-							      &start,
-							      &end);
-			break;
-
-		case GNOME_PRINT_RANGE_RANGE:
-			gnome_print_dialog_get_range_page (GNOME_PRINT_DIALOG (dialog),
-							   &line_start,
-							   &line_end);
-
-			/* The print dialog should ensure to set the
-			 * sensitivity of the spin buttons so that
-			 * the start and end lines are in ascending
-			 * order, but it doesn't.
-			 * We reorder them if needed */
-			if (line_start > line_end)
-			{
-				gint tmp;
-
-				gedit_debug_message (DEBUG_PRINT,
-						     "line start: %d, line end: %d. Swapping.",
-						     line_start,
-						     line_end);
-
-				tmp = line_start;
-				line_start = line_end;
-				line_end = tmp;
-			}
-
-			gtk_text_iter_set_line (&start, line_start - 1);
-			gtk_text_iter_set_line (&end, line_end - 1);
-
-			gtk_text_iter_forward_to_line_end (&end);
-
-			break;
-
-		default:
-			g_return_if_reached ();
-	}
-
-	switch (response)
-	{
-		case GNOME_PRINT_DIALOG_RESPONSE_PRINT:
-			gedit_debug_message (DEBUG_PRINT,
-					     "Print button pressed.");
-
-			_gedit_tab_print (tab, pjob, &start, &end);
-
-			break;
-
-		case GNOME_PRINT_DIALOG_RESPONSE_PREVIEW:
-			gedit_debug_message (DEBUG_PRINT,
-					     "Preview button pressed.");
-
-			_gedit_tab_print_preview (tab, pjob, &start, &end);
-
-			break;
-        }
-
-        g_object_unref (pjob);
-	gtk_widget_destroy (dialog);
+	do_print_or_preview (window, GTK_PRINT_OPERATION_ACTION_PREVIEW);
 }
 
 void
 _gedit_cmd_file_print (GtkAction   *action,
-		      GeditWindow *window)
+		       GeditWindow *window)
 {
-	GeditDocument *doc;
-	GeditPrintJob *pjob;
-	GtkWidget *print_dialog;
-	GtkWindowGroup *wg;
-
 	gedit_debug (DEBUG_COMMANDS);
 
-	doc = gedit_window_get_active_document (window);
-	if (doc == NULL)
-		return;
-
-	pjob = gedit_print_job_new (doc);
-
-	print_dialog = gedit_print_dialog_new (pjob);
-
-	wg = gedit_window_get_group (window);
-
-	gtk_window_group_add_window (wg,
-				     GTK_WINDOW (print_dialog));
-
-	gtk_window_set_transient_for (GTK_WINDOW (print_dialog),
-				      GTK_WINDOW (window));
-	gtk_window_set_modal (GTK_WINDOW (print_dialog), TRUE);
-
-	g_signal_connect (print_dialog,
-			  "response",
-			  G_CALLBACK (print_dialog_response_cb),
-			  pjob);
-
-	gtk_widget_show (print_dialog);
+	do_print_or_preview (window, GTK_PRINT_OPERATION_ACTION_PRINT_DIALOG);
 }
 

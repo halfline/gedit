@@ -42,8 +42,8 @@
 #include "gedit-utils.h"
 #include "gedit-message-area.h"
 #include "gedit-io-error-message-area.h"
-#include "gedit-print.h"
-#include "gedit-print-job-preview.h"
+//#include "gedit-print.h"
+//#include "gedit-print-job-preview.h"
 #include "gedit-progress-message-area.h"
 #include "gedit-debug.h"
 #include "gedit-prefs-manager-app.h"
@@ -64,7 +64,7 @@ struct _GeditTabPrivate
 	GtkWidget	       *message_area;
 	GtkWidget	       *print_preview;
 
-	GeditPrintJob          *print_job;
+//	GeditPrintJob          *print_job;
 
 	/* tmp data for saving */
 	gchar		       *tmp_save_uri;
@@ -229,7 +229,8 @@ static void
 gedit_tab_finalize (GObject *object)
 {
 	GeditTab *tab = GEDIT_TAB (object);
-	
+
+#if 0
 	if (tab->priv->print_job != NULL)
 	{
 		gedit_debug_message (DEBUG_TAB, "Cancelling printing");
@@ -237,6 +238,7 @@ gedit_tab_finalize (GObject *object)
 		gtk_source_print_job_cancel (GTK_SOURCE_PRINT_JOB (tab->priv->print_job));
 		g_object_unref (tab->priv->print_job);
 	}
+#endif
 	
 	if (tab->priv->timer != NULL)
 		g_timer_destroy (tab->priv->timer);
@@ -2197,6 +2199,8 @@ set_print_preview (GeditTab  *tab, GtkWidget *print_preview)
 
 #define MIN_PAGES 15
 
+#if 0
+
 static void
 print_page_cb (GtkSourcePrintJob *pjob, GeditTab *tab)
 {
@@ -2333,6 +2337,7 @@ show_printing_message_area (GeditTab      *tab,
 	  
 	set_message_area (tab, area);
 }
+#endif
 
 void 
 _gedit_tab_print (GeditTab      *tab,
@@ -2340,6 +2345,7 @@ _gedit_tab_print (GeditTab      *tab,
 		  GtkTextIter   *start, 
 		  GtkTextIter   *end)
 {
+#if 0
 	GeditPrintJob *pjob;
 	GeditDocument *doc;
 
@@ -2380,6 +2386,7 @@ _gedit_tab_print (GeditTab      *tab,
 		g_warning ("Async print preview failed");
 		g_object_unref (pjob);
 	}
+#endif
 }
 
 void
@@ -2388,6 +2395,7 @@ _gedit_tab_print_preview (GeditTab      *tab,
 			  GtkTextIter   *start, 
 			  GtkTextIter   *end)
 {
+#if 0
 	GeditPrintJob *pjob;
 	GeditDocument *doc;
 
@@ -2426,6 +2434,7 @@ _gedit_tab_print_preview (GeditTab      *tab,
 		g_warning ("Async print preview failed");
 		g_object_unref (pjob);
 	}
+#endif
 }
 
 void 
