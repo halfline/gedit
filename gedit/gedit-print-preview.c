@@ -785,6 +785,7 @@ preview_expose (GtkWidget         *widget,
 {
 	GeditPrintPreviewPrivate *priv;	
 	cairo_t *cr;
+	gint pg;
 	gint i, j;
 
 	priv = preview->priv;
@@ -797,25 +798,29 @@ preview_expose (GtkWidget         *widget,
 	gdk_cairo_rectangle (cr, &event->area);
 	cairo_clip (cr);
 
+	/* get the first page to display */
+	pg = priv->cur_page - priv->cur_page % (priv->cols * priv->rows);
+
 	for (i = 0; i < priv->cols; ++i)
 	{
 		for (j = 0; j < priv->rows; ++j)
 		{
-			gint pg;
-
-			pg = priv->cur_page + j + i * priv->rows;
-
 			if (!gtk_print_operation_preview_is_selected (priv->gtk_preview,
 								      pg))
 			{
 				continue;
 			}
 
+			if (pg == priv->n_pages)
+				break;
+
 			draw_page (cr,
 				   j * priv->tile_w,
 				   i * priv->tile_h,
 				   pg,
 				   preview);
+
+			++pg;
 		}
 	}
 	cairo_destroy (cr);
