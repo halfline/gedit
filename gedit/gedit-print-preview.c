@@ -577,6 +577,72 @@ create_bar (GeditPrintPreview *preview)
 	gtk_toolbar_insert (GTK_TOOLBAR (toolbar), i, -1);
 }
 
+static gint
+get_first_page_displayed (GeditPrintPreview *preview)
+{
+	GeditPrintPreviewPrivate *priv;
+
+	priv = preview->priv;
+
+	return priv->cur_page - priv->cur_page % (priv->cols * priv->rows);
+}
+
+/* returns the page number (starting from 0) or -1 if no page */
+static gint
+get_page_at_coords (GeditPrintPreview *preview,
+		    gint               x,
+		    gint               y)
+{
+	GeditPrintPreviewPrivate *priv;
+	gint r, c, pg;
+
+	priv = preview->priv;
+
+	if (priv->tile_h <= 0 || priv->tile_h <= 0)
+		return -1;
+
+	x += gtk_layout_get_hadjustment (GTK_LAYOUT (priv->layout))->value;
+	y += gtk_layout_get_vadjustment (GTK_LAYOUT (priv->layout))->value;
+
+	r = 1 + y / (priv->tile_h);
+	c = 1 + x / (priv->tile_w);
+
+	if (c > priv->cols)
+		return -1;
+
+	pg = get_first_page_displayed (preview) - 1;
+	pg += (r - 1) * priv->cols + c;
+
+	if (pg >= priv->n_pages)
+		return -1;
+
+	/* FIXME: we could try to be picky and check
+	 * if we actually are inside the page */
+	return pg; 
+}
+
+static gboolean
+preview_layout_query_tooltip (GtkWidget         *widget,
+			      gint               x,
+			      gint               y,
+			      gboolean           keyboard_tip,
+			      GtkTooltip        *tooltip,
+			      GeditPrintPreview *preview)
+{
+	gint pg;
+	gchar *tip;
+
+	pg = get_page_at_coords (preview, x, y);
+	if (pg < 0)
+		return FALSE;
+
+	tip = g_strdup_printf (_("Page %d of %d"), pg + 1, preview->priv->n_pages);
+	gtk_tooltip_set_text (tooltip, tip);
+	g_free (tip);
+
+	return TRUE;
+}
+
 static void
 create_preview_layout (GeditPrintPreview *preview)
 {
@@ -592,12 +658,18 @@ create_preview_layout (GeditPrintPreview *preview)
 	atk_object_set_name (atko, _("Page Preview"));
 	atk_object_set_description (atko, _("The preview of a page in the document to be printed"));
 
-	gtk_widget_set_events (priv->layout,
-	                       gtk_widget_get_events (priv->layout) |
+	gtk_widget_add_events (priv->layout,
+			       GDK_POINTER_MOTION_MASK |
 	                       GDK_BUTTON_PRESS_MASK |
 	                       GDK_KEY_PRESS_MASK);
 
 	GTK_WIDGET_SET_FLAGS (priv->layout, GTK_CAN_FOCUS);
+
+	g_object_set (priv->layout, "has-tooltip", TRUE, NULL);
+  	g_signal_connect (priv->layout,
+			  "query-tooltip",
+			  G_CALLBACK (preview_layout_query_tooltip),
+			  preview);
 
 	priv->scrolled_window = gtk_scrolled_window_new (NULL, NULL);
 	gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (priv->scrolled_window),
@@ -799,7 +871,7 @@ preview_expose (GtkWidget         *widget,
 	cairo_clip (cr);
 
 	/* get the first page to display */
-	pg = priv->cur_page - priv->cur_page % (priv->cols * priv->rows);
+	pg = get_first_page_displayed (preview);
 
 	for (i = 0; i < priv->cols; ++i)
 	{
