@@ -911,6 +911,21 @@ get_screen_dpi (GeditPrintPreview *preview)
 }
 
 static void
+set_n_pages (GeditPrintPreview *preview,
+	     gint               n_pages)
+{
+	gchar *str;
+
+	preview->priv->n_pages = n_pages;
+
+	// FIXME: count the visible pages
+
+	str =  g_strdup_printf ("%d", n_pages);
+	gtk_label_set_markup (GTK_LABEL (preview->priv->last), str);
+	g_free (str);
+}
+
+static void
 preview_ready (GtkPrintOperationPreview *gtk_preview,
 	       GtkPrintContext          *context,
 	       GeditPrintPreview        *preview)
@@ -918,7 +933,7 @@ preview_ready (GtkPrintOperationPreview *gtk_preview,
 	gint n_pages;
 
 	g_object_get (preview->priv->operation, "n-pages", &n_pages, NULL);
-	preview->priv->n_pages = n_pages;
+	set_n_pages (preview, n_pages);
 	goto_page (preview, 0);
 
 	/* figure out the dpi */
