@@ -163,6 +163,8 @@ goto_page (GeditPrintPreview *preview, gint page)
 {
 	gchar c[32];
 
+	g_print ("move to page %d\n", page);
+
 	g_snprintf (c, 32, "%d", page + 1);
 	gtk_entry_set_text (GTK_ENTRY (preview->priv->page_entry), c);
 
@@ -185,15 +187,16 @@ prev_button_clicked (GtkWidget         *button,
 		     GeditPrintPreview *preview)
 {
 	GdkEvent *event;
+	gint page;
 
 	event = gtk_get_current_event ();
 
 	if (event->button.state & GDK_SHIFT_MASK)
-		goto_page (preview, 0);
+		page = 0;
 	else
-		goto_page (preview,
-			   MAX (preview->priv->cur_page - preview->priv->rows * preview->priv->cols,
-				0));
+		page = preview->priv->cur_page - preview->priv->rows * preview->priv->cols;
+
+ 	goto_page (preview, MAX (page, 0));
 
 	gdk_event_free (event);
 }
@@ -203,15 +206,16 @@ next_button_clicked (GtkWidget         *button,
 		     GeditPrintPreview *preview)
 {
 	GdkEvent *event;
+	gint page;
 
 	event = gtk_get_current_event ();
 
 	if (event->button.state & GDK_SHIFT_MASK)
-		goto_page (preview, preview->priv->n_pages - 1);
+		page = preview->priv->n_pages - 1;
 	else
-		goto_page (preview,
-			   MIN (preview->priv->cur_page + preview->priv->rows * preview->priv->cols,
-			     	preview->priv->n_pages - 1));
+		page = preview->priv->cur_page + preview->priv->rows * preview->priv->cols;
+
+ 	goto_page (preview, MIN (page, preview->priv->n_pages - 1));
 
 	gdk_event_free (event);
 }
