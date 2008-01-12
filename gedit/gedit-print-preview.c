@@ -278,6 +278,23 @@ set_zoom_fit_to_size (GeditPrintPreview *preview)
 	gtk_widget_queue_draw (priv->layout);
 }
 
+#define ZOOM_IN_FACTOR (1.2)
+#define ZOOM_OUT_FACTOR (1.0 / ZOOM_IN_FACTOR)
+
+static void
+zoom_in (GeditPrintPreview *preview)
+{
+	set_zoom_factor (preview,
+			 preview->priv->scale * ZOOM_IN_FACTOR);
+}
+
+static void
+zoom_out (GeditPrintPreview *preview)
+{
+	set_zoom_factor (preview,
+			 preview->priv->scale * ZOOM_OUT_FACTOR);
+}
+
 static void
 goto_page (GeditPrintPreview *preview, gint page)
 {
@@ -473,7 +490,6 @@ static void
 zoom_one_button_clicked (GtkWidget         *button,
 			 GeditPrintPreview *preview)
 {
-	// FIXME: look at the old widget to see proper zoom stuff
 	set_zoom_factor (preview, 1);
 }
 
@@ -488,16 +504,14 @@ static void
 zoom_in_button_clicked (GtkWidget         *button,
 			GeditPrintPreview *preview)
 {
-	// FIXME: look at the old widget to see proper zoom stuff
-	set_zoom_factor (preview, preview->priv->scale * 2);
+	zoom_in (preview);
 }
 
 static void
 zoom_out_button_clicked (GtkWidget         *button,
 			 GeditPrintPreview *preview)
 {
-	// FIXME: look at the old widget to see proper zoom stuff
-	set_zoom_factor (preview, preview->priv->scale / 2);
+	zoom_out (preview);
 }
 
 static void
