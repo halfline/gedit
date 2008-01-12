@@ -69,7 +69,8 @@ NOINST_H_FILES =			\
 	gedit-local-document-saver.h	\
 	gedit-gnomevfs-document-saver.h	\
 	gedit-history-entry.h		\
-	gedit-print-preview.h	\
+	gedit-print-job.h		\
+	gedit-print-preview.h		\
 	gedit-io-error-message-area.h	\
 	gedit-spinner.h			\
 	gedit-prefs-manager-private.h	\
@@ -151,7 +152,8 @@ libgedit_la_SOURCES = 			\
 	gedit-prefs-manager-app.c	\
 	gedit-prefs-manager.c		\
 	gedit-prefs-manager-private.h	\
-	gedit-print-preview.c		\
+	gedit-print-job.c		\
+	gedit-print-preview.c		\	
 	gedit-progress-message-area.c	\
 	gedit-session.c			\
 	gedit-spinner.c			\

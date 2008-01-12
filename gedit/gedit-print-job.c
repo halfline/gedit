@@ -41,12 +41,14 @@
 #include <unistd.h>
 #include <string.h>	/* For strlen */
 
+#include <gtksourceview/gtksourceprintcompositor.h>
+
 #include "gedit-print-job.h"
 #include "gedit-debug.h"
 #include "gedit-utils.h"
 #include "gedit-prefs-manager-app.h"
 #include "gedit-tab.h"
-
+#include "gedit-marshal.h"
 
 #define GEDIT_PRINT_JOB_GET_PRIVATE(object)(G_TYPE_INSTANCE_GET_PRIVATE ((object), GEDIT_TYPE_PRINT_JOB, GeditPrintJobPrivate))
 
@@ -68,13 +70,20 @@ enum
 enum 
 {
 	PRINTING,
-	DONE
+	DONE,
 	LAST_SIGNAL
 };
 
 static guint print_job_signals[LAST_SIGNAL] = { 0 };
 
 G_DEFINE_TYPE (GeditPrintJob, gedit_print_job, G_TYPE_OBJECT)
+
+static void
+set_view (GeditPrintJob *job, GeditView *view) 
+{
+	job->priv->view = view;
+	job->priv->doc = GEDIT_DOCUMENT (gtk_text_view_get_buffer (GTK_TEXT_VIEW (view)));
+}
 
 static void 
 gedit_print_job_get_property (GObject    *object,
@@ -87,7 +96,7 @@ gedit_print_job_get_property (GObject    *object,
 	switch (prop_id)
 	{
 		case PROP_VIEW:
-			g_value_set_object (value, compositor->priv->view);
+			g_value_set_object (value, job->priv->view);
 			break;
 		default:
 			G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -106,7 +115,7 @@ gedit_print_job_set_property (GObject      *object,
 	switch (prop_id)
 	{
 		case PROP_VIEW:
-			gedit_print_job_set_view (job, g_value_get_object (value));
+			set_view (job, g_value_get_object (value));
 			break;
 		default:
 			G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -117,7 +126,7 @@ gedit_print_job_set_property (GObject      *object,
 static void
 gedit_print_job_finalize (GObject *object)
 {
-	GeditPrintJob *job = GEDIT_PRINT_JOB (object);
+	/* GeditPrintJob *job = GEDIT_PRINT_JOB (object); */
 
 	G_OBJECT_CLASS (gedit_print_job_parent_class)->finalize (object);
 }
@@ -134,7 +143,7 @@ gedit_print_job_class_init (GeditPrintJobClass *klass)
 	object_class->finalize = gedit_print_job_finalize;
 
 	g_object_class_install_property (object_class,
-					 PROP_DOCUMENT,
+					 PROP_VIEW,
 					 g_param_spec_object ("view",
 							      "Gedit View",
 							      "Gedit View to print",
@@ -171,12 +180,6 @@ gedit_print_job_class_init (GeditPrintJobClass *klass)
 // Vedi buffer_set
 #define GEDIT_PRINT_CONFIG "gedit-print-config-key"
 
-static void
-set_view (GeditPrintJob *job, GeditView *view) 
-{
-	job->priv->view = view;
-	job->priv->doc = GEDIT_DOCUMENT (gtk_text_view_get_buffer (GTK_TEXT_VIEW (view)));
-}
 
 static void
 create_compositor (GeditPrintJob *job)
@@ -193,16 +196,16 @@ create_compositor (GeditPrintJob *job)
 	job->priv->compositor = GTK_SOURCE_PRINT_COMPOSITOR (
 					g_object_new (GTK_TYPE_SOURCE_PRINT_COMPOSITOR,
 						     "buffer", GTK_SOURCE_BUFFER (job->priv->doc),
-						     "tab-width", gtk_source_view_get_tab_width (GTK_TEXT_VIEW (view)),
-						     "highlight-syntax", gtk_source_buffer_get_highlight_syntax (buffer) &&
+						     "tab-width", gtk_source_view_get_tab_width (GTK_SOURCE_VIEW (job->priv->view)),
+						     "highlight-syntax", gtk_source_buffer_get_highlight_syntax (GTK_SOURCE_BUFFER (job->priv->doc)) &&
 					   				 gedit_prefs_manager_get_print_syntax_hl (),
-						     "wrap-mode", gtk_text_view_get_wrap_mode (GTK_TEXT_VIEW (view)),
+						     "wrap-mode", gtk_text_view_get_wrap_mode (GTK_TEXT_VIEW (job->priv->view)),
 						     "print-line-numbers", gedit_prefs_manager_get_print_line_numbers (),
 						     "print-header", gedit_prefs_manager_get_print_header (),
 						     "print-footer", FALSE,
 						     "body-font-name", print_font_body,
 						     "line-numbers-font-name", print_font_numbers,
-						     "header-font-name", print_font_header
+						     "header-font-name", print_font_header,
 						     NULL));
 	
 	g_free (print_font_body);
@@ -215,7 +218,7 @@ create_compositor (GeditPrintJob *job)
 		gchar *name_to_display;
 		gchar *left;
 
-		doc_name = gedit_document_get_uri_for_display (GEDIT_DOCUMENT (buffer));
+		doc_name = gedit_document_get_uri_for_display (job->priv->doc);
 		name_to_display = gedit_utils_str_middle_truncate (doc_name, 60);
 
 		left = g_strdup_printf (_("File: %s"), name_to_display);
@@ -241,7 +244,9 @@ gedit_print_job_print (GeditPrintJob            *job,
 		       GtkPrintOperationAction   action,
 		       GError                  **error)
 {
-	g_return_val_if_fail (job->priv->compositor == NULL, GTK_PRINT_OPERATION_RESULT_ERROR)
+	gchar *job_name;
+	
+	g_return_val_if_fail (job->priv->compositor == NULL, GTK_PRINT_OPERATION_RESULT_ERROR);
 
 	create_compositor (job);
 	
@@ -253,13 +258,15 @@ gedit_print_job_print (GeditPrintJob            *job,
 	
 	job_name = gedit_document_get_short_name_for_display (job->priv->doc);
 	
-	gtk_print_operation_set_job_name (operation, job_name);
+	gtk_print_operation_set_job_name (job->priv->operation, job_name);
 	
 	g_free (job_name);
 	
 	gtk_print_operation_set_allow_async (job->priv->operation, TRUE);
 	
 	// TODO
+	
+	return GTK_PRINT_OPERATION_RESULT_ERROR;
 }
 
 static void
