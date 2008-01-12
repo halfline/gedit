@@ -52,9 +52,11 @@
 
 struct _GeditPrintJobPrivate
 {
-	GeditView         *view;
-	GeditDocument     *doc;
-	GtkPrintOperation *operation;	
+	GeditView                *view;
+	GeditDocument            *doc;
+	
+	GtkPrintOperation        *operation;
+	GtkSourcePrintCompositor *compositor;
 };
 
 enum
@@ -169,48 +171,44 @@ gedit_print_job_class_init (GeditPrintJobClass *klass)
 // Vedi buffer_set
 #define GEDIT_PRINT_CONFIG "gedit-print-config-key"
 
-#if 0
 static void
-buffer_set (GeditPrintJob *job, GParamSpec *pspec, gpointer d)
+set_view (GeditPrintJob *job, GeditView *view) 
 {
-	GtkSourceBuffer *buffer;
-	GtkSourcePrintJob *pjob;
-	gpointer data;
-	GnomePrintConfig *config;
-	
-	gedit_debug (DEBUG_PRINT);
-	
-	pjob = GTK_SOURCE_PRINT_JOB (job);
-	
-	buffer = gtk_source_print_job_get_buffer (pjob);
-	
-	data = g_object_get_data (G_OBJECT (buffer),
-				  GEDIT_PRINT_CONFIG);
+	job->priv->view = view;
+	job->priv->doc = GEDIT_DOCUMENT (gtk_text_view_get_buffer (GTK_TEXT_VIEW (view)));
+}
 
-	if (data == NULL)	
-	{			  
-		config = load_print_config_from_file ();
-		g_return_if_fail (config != NULL);
-		
-		g_object_set_data_full (G_OBJECT (buffer),
-					GEDIT_PRINT_CONFIG,
-					config,
-					(GDestroyNotify)gnome_print_config_unref);
-	}
-	else
-	{
-		config = GNOME_PRINT_CONFIG (data);
-	}
-
-	gnome_print_config_set_int (config, (guchar *) GNOME_PRINT_KEY_NUM_COPIES, 1);
-	gnome_print_config_set_boolean (config, (guchar *) GNOME_PRINT_KEY_COLLATE, FALSE);
-
-	gtk_source_print_job_set_config (pjob, config);
+static void
+create_compositor (GeditPrintJob *job)
+{
+	gchar *print_font_body;
+	gchar *print_font_header;
+	gchar *print_font_numbers;
 	
-	gtk_source_print_job_set_highlight (pjob, 
-					    gtk_source_buffer_get_highlight_syntax (buffer) &&
-					    gedit_prefs_manager_get_print_syntax_hl ());
-		
+	/* Create and initialize print compositor */
+	print_font_body = gedit_prefs_manager_get_print_font_body ();
+	print_font_header = gedit_prefs_manager_get_print_font_header ();
+	print_font_numbers = gedit_prefs_manager_get_print_font_numbers ();
+	
+	job->priv->compositor = GTK_SOURCE_PRINT_COMPOSITOR (
+					g_object_new (GTK_TYPE_SOURCE_PRINT_COMPOSITOR,
+						     "buffer", GTK_SOURCE_BUFFER (job->priv->doc),
+						     "tab-width", gtk_source_view_get_tab_width (GTK_TEXT_VIEW (view)),
+						     "highlight-syntax", gtk_source_buffer_get_highlight_syntax (buffer) &&
+					   				 gedit_prefs_manager_get_print_syntax_hl (),
+						     "wrap-mode", gtk_text_view_get_wrap_mode (GTK_TEXT_VIEW (view)),
+						     "print-line-numbers", gedit_prefs_manager_get_print_line_numbers (),
+						     "print-header", gedit_prefs_manager_get_print_header (),
+						     "print-footer", FALSE,
+						     "body-font-name", print_font_body,
+						     "line-numbers-font-name", print_font_numbers,
+						     "header-font-name", print_font_header
+						     NULL));
+	
+	g_free (print_font_body);
+	g_free (print_font_header);
+	g_free (print_font_numbers);
+	
 	if (gedit_prefs_manager_get_print_header ())
 	{
 		gchar *doc_name;
@@ -225,82 +223,49 @@ buffer_set (GeditPrintJob *job, GParamSpec *pspec, gpointer d)
 		/* Translators: %N is the current page number, %Q is the total
 		 * number of pages (ex. Page 2 of 10) 
 		 */
-		gtk_source_print_job_set_header_format (pjob,
-							left, 
-							NULL, 
-							_("Page %N of %Q"), 
-							TRUE);
-
-		gtk_source_print_job_set_print_header (pjob, TRUE);
+		gtk_source_print_compositor_set_header_format (job->priv->compositor,
+							       TRUE,
+							       left,
+							       NULL,
+							       _("Page %N of %Q"));
 
 		g_free (doc_name);
 		g_free (name_to_display);
 		g_free (left);
-	}	
+	}		
 }
-#endif
+
+/* Note that gedit_print_job_print can can only be called once on a given GeditPrintJob */
+GtkPrintOperationResult	 
+gedit_print_job_print (GeditPrintJob            *job,
+		       GtkPrintOperationAction   action,
+		       GError                  **error)
+{
+	g_return_val_if_fail (job->priv->compositor == NULL, GTK_PRINT_OPERATION_RESULT_ERROR)
+
+	create_compositor (job);
+	
+	/* Creare print operation */
+
+	job->priv->operation = gtk_print_operation_new ();
+	
+	// TODO: set print settings and default page setup
+	
+	job_name = gedit_document_get_short_name_for_display (job->priv->doc);
+	
+	gtk_print_operation_set_job_name (operation, job_name);
+	
+	g_free (job_name);
+	
+	gtk_print_operation_set_allow_async (job->priv->operation, TRUE);
+	
+	// TODO
+}
 
 static void
 gedit_print_job_init (GeditPrintJob *job)
 {
-
 	job->priv = GEDIT_PRINT_JOB_GET_PRIVATE (job);
-#if 0
-	GtkSourcePrintJob *pjob;
-
-	gchar *print_font_body;
-	gchar *print_font_header;
-	gchar *print_font_numbers;
-	
-	PangoFontDescription *print_font_body_desc;
-	PangoFontDescription *print_font_header_desc;
-	PangoFontDescription *print_font_numbers_desc;
-	
-	gedit_debug (DEBUG_PRINT);
-	
-	pjob = GTK_SOURCE_PRINT_JOB (job);
-		
-	gtk_source_print_job_set_print_numbers (pjob,
-			gedit_prefs_manager_get_print_line_numbers ());
-
-	gtk_source_print_job_set_wrap_mode (pjob,
-			gedit_prefs_manager_get_print_wrap_mode ());
-
-	gtk_source_print_job_set_tabs_width (pjob,
-			gedit_prefs_manager_get_tabs_size ());
-	
-	gtk_source_print_job_set_print_header (pjob, FALSE);
-	gtk_source_print_job_set_print_footer (pjob, FALSE);
-
-	print_font_body = gedit_prefs_manager_get_print_font_body ();
-	print_font_header = gedit_prefs_manager_get_print_font_header ();
-	print_font_numbers = gedit_prefs_manager_get_print_font_numbers ();
-	
-	gtk_source_print_job_set_font (pjob, print_font_body);
-	gtk_source_print_job_set_numbers_font (pjob, print_font_numbers);
-	gtk_source_print_job_set_header_footer_font (pjob, print_font_header);
-
-	print_font_body_desc = pango_font_description_from_string (print_font_body);
-	print_font_header_desc = pango_font_description_from_string (print_font_header);
-	print_font_numbers_desc = pango_font_description_from_string (print_font_numbers);
-
-	gtk_source_print_job_set_font_desc (pjob, print_font_body_desc);
-	gtk_source_print_job_set_numbers_font_desc (pjob, print_font_numbers_desc);
-	gtk_source_print_job_set_header_footer_font_desc (pjob, print_font_header_desc);
-
-	g_free (print_font_body);
-	g_free (print_font_header);
-	g_free (print_font_numbers);
-
-	pango_font_description_free (print_font_body_desc);
-	pango_font_description_free (print_font_header_desc);
-	pango_font_description_free (print_font_numbers_desc);
-	
-	g_signal_connect (job,
-			  "notify::buffer",
-			  G_CALLBACK (buffer_set),
-			  NULL);
-#endif
 }
 
 GeditPrintJob *
@@ -311,7 +276,7 @@ gedit_print_job_new (GeditDocument *doc)
 	g_return_val_if_fail (GEDIT_IS_DOCUMENT (doc), NULL);
 	
 	job = GEDIT_PRINT_JOB (g_object_new (GEDIT_TYPE_PRINT_JOB,
-					     "buffer", doc,
+					     "document", doc,
 					      NULL));
 
 	return job;
