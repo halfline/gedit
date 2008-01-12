@@ -52,6 +52,7 @@
 
 struct _GeditPrintJobPrivate
 {
+	GeditView         *view;
 	GeditDocument     *doc;
 	GtkPrintOperation *operation;	
 };
@@ -59,7 +60,7 @@ struct _GeditPrintJobPrivate
 enum
 {
 	PROP_0,
-	PROP_DOCUMENT,
+	PROP_VIEW,
 };
 
 enum 
@@ -83,6 +84,9 @@ gedit_print_job_get_property (GObject    *object,
 
 	switch (prop_id)
 	{
+		case PROP_VIEW:
+			g_value_set_object (value, compositor->priv->view);
+			break;
 		default:
 			G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
 			break;
@@ -99,6 +103,9 @@ gedit_print_job_set_property (GObject      *object,
 
 	switch (prop_id)
 	{
+		case PROP_VIEW:
+			gedit_print_job_set_view (job, g_value_get_object (value));
+			break;
 		default:
 			G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
 			break;
@@ -126,11 +133,11 @@ gedit_print_job_class_init (GeditPrintJobClass *klass)
 
 	g_object_class_install_property (object_class,
 					 PROP_DOCUMENT,
-					 g_param_spec_object ("document",
-							      "Gedit Document",
-							      "Gedit Document to print",
+					 g_param_spec_object ("view",
+							      "Gedit View",
+							      "Gedit View to print",
 							      GEDIT_TYPE_DOCUMENT,
-							      G_PARAM_READWRITE));
+							      G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY));
 
 	print_job_signals[PRINTING] =
 		g_signal_new ("printing",
