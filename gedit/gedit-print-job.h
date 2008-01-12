@@ -33,7 +33,7 @@
 #define __GEDIT_PRINT_JOB_H__
 
 #include <gtk/gtk.h>
-#include <gedit/gedit-document.h>
+#include <gedit/gedit-view.h>
 
 G_BEGIN_DECLS
 
@@ -103,7 +103,7 @@ struct _GeditPrintJobClass
  */
 GType			 gedit_print_job_get_type		(void) G_GNUC_CONST;
 
-GeditPrintJob		*gedit_print_job_new			(GeditDocument            *doc);
+GeditPrintJob		*gedit_print_job_new			(GeditView                *view);
 
 void			 gedit_print_job_set_export_filename	(GeditPrintJob            *job,
 								 const gchar              *filename);
@@ -114,7 +114,7 @@ GtkPrintOperationResult	 gedit_print_job_print			(GeditPrintJob            *job,
 
 void			 gedit_print_job_cancel                 (GeditPrintJob            *job);
 
-GeditDocument		*gedit_print_job_get_document		(GeditPrintJob            *job);
+GeditView		*gedit_print_job_get_view		(GeditPrintJob            *job);
 								 
 const gchar		*gedit_print_job_get_status_string      (GeditPrintJob            *job);
 

@@ -269,14 +269,14 @@ gedit_print_job_init (GeditPrintJob *job)
 }
 
 GeditPrintJob *
-gedit_print_job_new (GeditDocument *doc)
+gedit_print_job_new (GeditView *view)
 {
 	GeditPrintJob *job;
 	
-	g_return_val_if_fail (GEDIT_IS_DOCUMENT (doc), NULL);
+	g_return_val_if_fail (GEDIT_IS_VIEW (view), NULL);
 	
 	job = GEDIT_PRINT_JOB (g_object_new (GEDIT_TYPE_PRINT_JOB,
-					     "document", doc,
+					     "view", view,
 					      NULL));
 
 	return job;
