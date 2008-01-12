@@ -647,6 +647,166 @@ preview_layout_query_tooltip (GtkWidget         *widget,
 	return TRUE;
 }
 
+static gint
+preview_layout_key_press (GtkWidget         *widget,
+			  GdkEventKey       *event,
+			  GeditPrintPreview *preview)
+{
+	GeditPrintPreviewPrivate *priv;
+	double x, y;
+	guint h, w;
+	double lower, upper;
+	double page_size;
+	double hstep, vstep;
+	gboolean domove = FALSE;
+	gboolean ret = TRUE;
+
+	priv = preview->priv;
+
+	x = gtk_layout_get_hadjustment (GTK_LAYOUT (priv->layout))->value;
+	y = gtk_layout_get_vadjustment (GTK_LAYOUT (priv->layout))->value;
+	gtk_layout_get_size (GTK_LAYOUT (priv->layout), &w, &h);
+
+	g_object_get (gtk_layout_get_vadjustment (GTK_LAYOUT (priv->layout)),
+		      "lower", &lower,
+		      "upper", &upper,
+		      "page-size", &page_size,
+		      NULL);
+
+	hstep = 10;
+	vstep = 10;
+
+	switch (event->keyval) {
+	case '1':
+//		preview_zoom_100_cmd (preview);
+		break;
+	case '+':
+	case '=':
+	case GDK_KP_Add:
+//		gpreview_zoom_in_cmd (NULL, preview);
+		break;
+	case '-':
+	case '_':
+	case GDK_KP_Subtract:
+//		gpreview_zoom_out_cmd (NULL, preview);
+		break;
+	case GDK_KP_Right:
+	case GDK_Right:
+		if (event->state & GDK_SHIFT_MASK)
+			x += w;
+		else
+			x += hstep;
+		domove = TRUE;
+		break;
+	case GDK_KP_Left:
+	case GDK_Left:
+		if (event->state & GDK_SHIFT_MASK)
+			x -= w;
+		else
+			x -= hstep;
+		domove = TRUE;
+		break;
+	case GDK_KP_Up:
+	case GDK_Up:
+		if (event->state & GDK_SHIFT_MASK)
+			goto page_up;
+		y -= vstep;
+		domove = TRUE;
+		break;
+	case GDK_KP_Down:
+	case GDK_Down:
+		if (event->state & GDK_SHIFT_MASK)
+			goto page_down;
+		y += vstep;
+		domove = TRUE;
+		break;
+	case GDK_KP_Page_Up:
+	case GDK_Page_Up:
+	case GDK_Delete:
+	case GDK_KP_Delete:
+	case GDK_BackSpace:
+	page_up:
+		if (y <= lower)
+		{
+			if (preview->priv->cur_page > 0)
+			{
+				goto_page (preview, preview->priv->cur_page - 1);
+				y = (upper - page_size);
+			}
+		}
+		else
+		{
+			y = lower;
+		}
+		domove = TRUE;
+		break;
+	case GDK_KP_Page_Down:
+	case GDK_Page_Down:
+	case ' ':
+	page_down:
+		if (y >= (upper - page_size))
+		{
+			if (preview->priv->cur_page < preview->priv->n_pages - 1)
+			{
+				goto_page (preview, preview->priv->cur_page + 1);
+				y = lower;
+			}
+		}
+		else
+		{
+			y = (upper - page_size);
+		}
+		domove = TRUE;
+		break;
+	case GDK_KP_Home:
+	case GDK_Home:
+		goto_page (preview, 0);
+		y = 0;
+		domove = TRUE;
+		break;
+	case GDK_KP_End:
+	case GDK_End:
+		goto_page (preview, preview->priv->n_pages - 1);
+		y = 0;
+		domove = TRUE;
+		break;
+	case GDK_Escape:
+		gtk_widget_destroy (GTK_WIDGET (preview));
+	        break;
+	case 'c':
+		if (event->state & GDK_MOD1_MASK)
+		{
+			gtk_widget_destroy (GTK_WIDGET (preview));
+		}
+		break;
+	case 'p':
+		if (event->state & GDK_MOD1_MASK)
+		{
+			gtk_widget_grab_focus (preview->priv->page_entry);
+		}
+		break;
+	default:
+		/* by default do not stop the default handler */
+		ret = FALSE;
+	}
+
+	if (domove)
+	{
+		GtkAdjustment *hadj, *vadj;
+
+		hadj = gtk_layout_get_hadjustment (GTK_LAYOUT (priv->layout));
+		vadj = gtk_layout_get_vadjustment (GTK_LAYOUT (priv->layout));
+
+		gtk_adjustment_set_value (hadj, x);
+		gtk_adjustment_set_value (vadj, y);
+
+		gtk_adjustment_value_changed (hadj);
+		gtk_adjustment_value_changed (vadj);
+	}
+
+	return ret;
+}
+
 static void
 create_preview_layout (GeditPrintPreview *preview)
 {
@@ -668,6 +828,11 @@ create_preview_layout (GeditPrintPreview *preview)
 	                       GDK_KEY_PRESS_MASK);
 
 	GTK_WIDGET_SET_FLAGS (priv->layout, GTK_CAN_FOCUS);
+
+  	g_signal_connect (priv->layout,
+			  "key-press-event",
+			  G_CALLBACK (preview_layout_key_press),
+			  preview);
 
 	g_object_set (priv->layout, "has-tooltip", TRUE, NULL);
   	g_signal_connect (priv->layout,
@@ -908,10 +1073,18 @@ static double
 get_screen_dpi (GeditPrintPreview *preview)
 {
 	GdkScreen *screen;
+	double dpi;
 
 	screen = gtk_widget_get_screen (GTK_WIDGET (preview));	
 
-	return gdk_screen_get_resolution (screen);
+	dpi = gdk_screen_get_resolution (screen);
+	if (dpi < 30. || 600. < dpi)
+	{
+		g_warning ("Invalid the x-resolution for the screen, assuming 96dpi");
+		dpi = 96.;
+	}
+
+	return dpi;
 }
 
 static void
