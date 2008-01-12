@@ -45,10 +45,9 @@
 
 #include "gedit-print-job.h"
 #include "gedit-debug.h"
-#include "gedit-utils.h"
 #include "gedit-prefs-manager-app.h"
-#include "gedit-tab.h"
 #include "gedit-marshal.h"
+#include "gedit-utils.h"
 
 #define GEDIT_PRINT_JOB_GET_PRIVATE(object)(G_TYPE_INSTANCE_GET_PRIVATE ((object), GEDIT_TYPE_PRINT_JOB, GeditPrintJobPrivate))
 
@@ -134,9 +133,9 @@ gedit_print_job_finalize (GObject *object)
 {
 	GeditPrintJob *job = GEDIT_PRINT_JOB (object);
 
-	G_OBJECT_CLASS (gedit_print_job_parent_class)->finalize (object);
-	
 	g_free (job->priv->status_string);
+
+	G_OBJECT_CLASS (gedit_print_job_parent_class)->finalize (object);
 }
 
 static void 
@@ -310,6 +309,15 @@ draw_page_cb (GtkPrintOperation *operation,
 	gtk_source_print_compositor_draw_page (job->priv->compositor, context, page_nr);
 }
 
+static void
+end_print_cb (GtkPrintOperation *operation, 
+	      GtkPrintContext   *context,
+	      GeditPrintJob     *job)
+{
+	g_object_unref (job->priv->compositor);
+	job->priv->compositor = NULL;
+}
+
 static GtkPrintSettings *
 get_print_settings (GeditPrintJob  *job,
 		    GError        **error)
@@ -359,23 +367,29 @@ gedit_print_job_print (GeditPrintJob            *job,
 	
 	gtk_print_operation_set_allow_async (job->priv->operation, TRUE);
 
-  	g_signal_connect (G_OBJECT (job->priv->operation), "begin-print", 
-			  G_CALLBACK (begin_print_cb), job);
-			  
-  	g_signal_connect (G_OBJECT (job->priv->operation), "paginate", 
-			  G_CALLBACK (paginate_cb), job);
-
-	g_signal_connect (G_OBJECT (job->priv->operation), "draw-page", 
-			  G_CALLBACK (draw_page_cb), job);
+  	g_signal_connect (job->priv->operation,
+			  "begin-print", 
+			  G_CALLBACK (begin_print_cb),
+			  job); 
+  	g_signal_connect (job->priv->operation,
+			  "paginate", 
+			  G_CALLBACK (paginate_cb),
+			  job);
+	g_signal_connect (job->priv->operation,
+			  "draw-page", 
+			  G_CALLBACK (draw_page_cb),
+			  job);
+	g_signal_connect (job->priv->operation,
+			  "end-print", 
+			  G_CALLBACK (end_print_cb),
+			  job);
 /*
-	g_signal_connect (G_OBJECT (job->priv->operation), "end-print", 
-			  G_CALLBACK (end_print_cb), job);
-
-	g_signal_connect (G_OBJECT (job->priv->operation), "done", 
-			  G_CALLBACK (done_cb), job);			  
+	g_signal_connect (job->priv->operation,
+			  "done", 
+			  G_CALLBACK (done_cb),
+			  job);			  
 */
 
-	
 	// TODO
 	
 	return GTK_PRINT_OPERATION_RESULT_ERROR;
