@@ -59,6 +59,10 @@ struct _GeditPrintJobPrivate
 	
 	GtkPrintOperation        *operation;
 	GtkSourcePrintCompositor *compositor;
+	
+	GeditPrintJobStatus       status;
+	
+	gchar                    *status_string;
 };
 
 enum
@@ -126,9 +130,11 @@ gedit_print_job_set_property (GObject      *object,
 static void
 gedit_print_job_finalize (GObject *object)
 {
-	/* GeditPrintJob *job = GEDIT_PRINT_JOB (object); */
+	GeditPrintJob *job = GEDIT_PRINT_JOB (object);
 
 	G_OBJECT_CLASS (gedit_print_job_parent_class)->finalize (object);
+	
+	g_free (job->priv->status_string);
 }
 
 static void 
@@ -179,7 +185,6 @@ gedit_print_job_class_init (GeditPrintJobClass *klass)
 // Print setting and page setup vanno settati per document e fall back al file salvato
 // Vedi buffer_set
 #define GEDIT_PRINT_CONFIG "gedit-print-config-key"
-
 
 static void
 create_compositor (GeditPrintJob *job)
@@ -238,24 +243,78 @@ create_compositor (GeditPrintJob *job)
 	}		
 }
 
+static void
+begin_print_cb (GtkPrintOperation *operation, 
+	        GtkPrintContext   *context,
+	        GeditPrintJob     *job)
+{
+	create_compositor (job);
+}
+
+static gboolean
+paginate_cb (GtkPrintOperation *operation, 
+	     GtkPrintContext   *context,
+	     GeditPrintJob     *job)
+{
+	gboolean res;	
+	
+	res = gtk_source_print_compositor_paginate (job->priv->compositor, context);
+		
+	if (res)
+	{
+		gint n_pages;
+
+		n_pages = gtk_source_print_compositor_get_n_pages (job->priv->compositor);
+		gtk_print_operation_set_n_pages (job->priv->operation, n_pages);
+	}
+     
+	g_signal_emit (job, print_job_signals[PRINTING], 0, GEDIT_PRINT_JOB_STATUS_PAGINATING);
+	
+	return res;
+}
+
+
+static GtkPrintSettings *
+get_print_settings (GeditPrintJob  *job,
+		    GError        **error)
+{
+	/* TODO */
+	return NULL;
+}
+
+static GtkPageSetup *
+get_page_setup (GeditPrintJob  *job,
+		GError        **error)
+{
+	/* TODO */
+	return NULL;
+}
+
 /* Note that gedit_print_job_print can can only be called once on a given GeditPrintJob */
 GtkPrintOperationResult	 
 gedit_print_job_print (GeditPrintJob            *job,
 		       GtkPrintOperationAction   action,
 		       GError                  **error)
 {
-	gchar *job_name;
+	gchar            *job_name;
+	GtkPrintSettings *settings;
+	GtkPageSetup     *page_setup;
 	
 	g_return_val_if_fail (job->priv->compositor == NULL, GTK_PRINT_OPERATION_RESULT_ERROR);
-
-	create_compositor (job);
+	
+	/* Get print setting and page_setup */
+	settings = get_print_settings (job, error);
+	page_setup = get_page_setup (job, error);
 	
 	/* Creare print operation */
-
 	job->priv->operation = gtk_print_operation_new ();
 	
-	// TODO: set print settings and default page setup
-	
+	if (settings != NULL) 
+		gtk_print_operation_set_print_settings (job->priv->operation, settings);
+	    
+	if (page_setup != NULL)
+		gtk_print_operation_set_default_page_setup (job->priv->operation, page_setup);
+		
 	job_name = gedit_document_get_short_name_for_display (job->priv->doc);
 	
 	gtk_print_operation_set_job_name (job->priv->operation, job_name);
@@ -263,6 +322,24 @@ gedit_print_job_print (GeditPrintJob            *job,
 	g_free (job_name);
 	
 	gtk_print_operation_set_allow_async (job->priv->operation, TRUE);
+
+  	g_signal_connect (G_OBJECT (job->priv->operation), "begin-print", 
+			  G_CALLBACK (begin_print_cb), job);
+			  
+  	g_signal_connect (G_OBJECT (job->priv->operation), "paginate", 
+			  G_CALLBACK (paginate_cb), job);
+
+/*
+	g_signal_connect (G_OBJECT (job->priv->operation), "draw-page", 
+			  G_CALLBACK (draw_page_cb), job);
+
+	g_signal_connect (G_OBJECT (job->priv->operation), "end-print", 
+			  G_CALLBACK (end_print_cb), job);
+
+	g_signal_connect (G_OBJECT (job->priv->operation), "done", 
+			  G_CALLBACK (done_cb), job);			  
+*/
+
 	
 	// TODO
 	
@@ -273,6 +350,10 @@ static void
 gedit_print_job_init (GeditPrintJob *job)
 {
 	job->priv = GEDIT_PRINT_JOB_GET_PRIVATE (job);
+	
+	job->priv->status = GEDIT_PRINT_JOB_STATUS_INIT;
+	
+	job->priv->status_string = g_strdup (_("Preparing..."));
 }
 
 GeditPrintJob *
