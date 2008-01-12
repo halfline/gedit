@@ -112,6 +112,7 @@ void			 gedit_print_job_set_export_filename	(GeditPrintJob            *job,
 								 
 GtkPrintOperationResult	 gedit_print_job_print			(GeditPrintJob            *job,
 								 GtkPrintOperationAction   action,
+								 GtkWindow                *parent,
 								 GError                  **error);
 
 void			 gedit_print_job_cancel                 (GeditPrintJob            *job);

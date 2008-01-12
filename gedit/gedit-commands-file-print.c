@@ -347,8 +347,14 @@ void
 _gedit_cmd_file_print (GtkAction   *action,
 		       GeditWindow *window)
 {
+	GeditTab *tab;
+
 	gedit_debug (DEBUG_COMMANDS);
 
-	do_print_or_preview (window, GTK_PRINT_OPERATION_ACTION_PRINT_DIALOG);
+	tab = gedit_window_get_active_tab (window);
+	if (tab == NULL)
+		return;
+
+	_gedit_tab_print (tab);
 }
 

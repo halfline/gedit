@@ -34,13 +34,6 @@
 #endif
 
 #include <glib/gi18n.h>
-
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
-#include <unistd.h>
-#include <string.h>	/* For strlen */
-
 #include <gtksourceview/gtksourceprintcompositor.h>
 
 #include "gedit-print-job.h"
@@ -338,6 +331,7 @@ get_page_setup (GeditPrintJob  *job,
 GtkPrintOperationResult	 
 gedit_print_job_print (GeditPrintJob            *job,
 		       GtkPrintOperationAction   action,
+		       GtkWindow                *parent,
 		       GError                  **error)
 {
 	gchar            *job_name;
@@ -391,8 +385,11 @@ gedit_print_job_print (GeditPrintJob            *job,
 */
 
 	// TODO
-	
-	return GTK_PRINT_OPERATION_RESULT_ERROR;
+
+	return 	gtk_print_operation_run (job->priv->operation, 
+					 action,
+					 parent,
+					 error);
 }
 
 static void
