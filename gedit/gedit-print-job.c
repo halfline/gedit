@@ -63,6 +63,8 @@ struct _GeditPrintJobPrivate
 	GeditPrintJobStatus       status;
 	
 	gchar                    *status_string;
+	
+	gdouble			  progress;
 };
 
 enum
@@ -249,6 +251,12 @@ begin_print_cb (GtkPrintOperation *operation,
 	        GeditPrintJob     *job)
 {
 	create_compositor (job);
+
+	job->priv->status = GEDIT_PRINT_JOB_STATUS_PAGINATING;
+
+	job->priv->progress = 0.0;
+	
+	g_signal_emit (job, print_job_signals[PRINTING], 0, job->priv->status);
 }
 
 static gboolean
@@ -257,6 +265,8 @@ paginate_cb (GtkPrintOperation *operation,
 	     GeditPrintJob     *job)
 {
 	gboolean res;	
+	
+	job->priv->status = GEDIT_PRINT_JOB_STATUS_PAGINATING;
 	
 	res = gtk_source_print_compositor_paginate (job->priv->compositor, context);
 		
@@ -267,12 +277,38 @@ paginate_cb (GtkPrintOperation *operation,
 		n_pages = gtk_source_print_compositor_get_n_pages (job->priv->compositor);
 		gtk_print_operation_set_n_pages (job->priv->operation, n_pages);
 	}
+	
+	job->priv->progress = gtk_source_print_compositor_get_pagination_progress (job->priv->compositor) / 2.0;
      
-	g_signal_emit (job, print_job_signals[PRINTING], 0, GEDIT_PRINT_JOB_STATUS_PAGINATING);
+	g_signal_emit (job, print_job_signals[PRINTING], 0, job->priv->status);
 	
 	return res;
 }
 
+static void
+draw_page_cb (GtkPrintOperation *operation,
+	      GtkPrintContext   *context,
+	      gint               page_nr,
+	      GeditPrintJob     *job)
+{
+	gint n_pages;
+	
+	g_free (job->priv->status_string);
+	
+	n_pages = gtk_source_print_compositor_get_n_pages (job->priv->compositor);
+	
+	job->priv->status = GEDIT_PRINT_JOB_STATUS_DRAWING;
+	
+	job->priv->status_string = g_strdup_printf ("Rendering page %d of %d...", 
+						    page_nr + 1,
+						    n_pages);
+	
+	job->priv->progress = (double)page_nr / (double)n_pages + 0.5;
+	
+	g_signal_emit (job, print_job_signals[PRINTING], 0, job->priv->status);
+		
+	gtk_source_print_compositor_draw_page (job->priv->compositor, context, page_nr);
+}
 
 static GtkPrintSettings *
 get_print_settings (GeditPrintJob  *job,
@@ -329,10 +365,9 @@ gedit_print_job_print (GeditPrintJob            *job,
   	g_signal_connect (G_OBJECT (job->priv->operation), "paginate", 
 			  G_CALLBACK (paginate_cb), job);
 
-/*
 	g_signal_connect (G_OBJECT (job->priv->operation), "draw-page", 
 			  G_CALLBACK (draw_page_cb), job);
-
+/*
 	g_signal_connect (G_OBJECT (job->priv->operation), "end-print", 
 			  G_CALLBACK (end_print_cb), job);
 
