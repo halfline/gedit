@@ -84,9 +84,6 @@ struct _GeditPrintPreviewPrivate
 
 G_DEFINE_TYPE (GeditPrintPreview, gedit_print_preview, GTK_TYPE_VBOX)
 
-static void	set_zoom_factor		(GeditPrintPreview *preview,
-					 double             zoom);
-
 static void 
 gedit_print_preview_get_property (GObject    *object,
 				  guint       prop_id,
@@ -156,11 +153,135 @@ gedit_print_preview_class_init (GeditPrintPreviewClass *klass)
 }
 
 static void
+update_layout_size (GeditPrintPreview *preview)
+{
+	GeditPrintPreviewPrivate *priv;
+
+	priv = preview->priv;
+
+	/* force size of the drawing area to make the scrolled window work */
+	gtk_layout_set_size (GTK_LAYOUT (priv->layout),
+			     priv->tile_w * priv->cols,
+			     priv->tile_h * priv->rows);
+
+	gtk_widget_queue_draw (preview->priv->layout);
+}
+
+static void
+set_rows_and_cols (GeditPrintPreview *preview,
+		   gint               rows,
+		   gint               cols)
+{
+	/* TODO: set the zoom appropriately */
+
+	preview->priv->rows = rows;
+	preview->priv->cols = cols;
+	update_layout_size (preview);
+}
+
+/* get the paper size in points: these must be used only
+ * after the widget has been mapped and the dpi is known */
+
+static double
+get_paper_width (GeditPrintPreview *preview)
+{
+	return preview->priv->paper_w * preview->priv->dpi;
+}
+
+static double
+get_paper_height (GeditPrintPreview *preview)
+{
+	return preview->priv->paper_h * preview->priv->dpi;
+}
+
+#define PAGE_PAD 12
+#define PAGE_SHADOW_OFFSET 5 
+
+static double
+get_tile_width (gint page_w)
+{
+	return page_w + 2 * PAGE_PAD;
+}
+
+static double
+get_tile_height (gint page_h)
+{
+	return page_h + 2 * PAGE_PAD;
+}
+
+static double
+get_page_width (gint tile_w)
+{
+	return MAX (1, tile_w - 2 * PAGE_PAD);
+}
+
+static double
+get_page_height (gint tile_h)
+{
+	return MAX (1, tile_h - 2 * PAGE_PAD);
+}
+
+/* Zoom should always be set with one of these two function
+ * so that the tile size is properly updated */
+
+static void
+set_zoom_factor (GeditPrintPreview *preview,
+	         double             zoom)
+{
+	GeditPrintPreviewPrivate *priv;	
+
+	priv = preview->priv;
+
+	priv->scale = zoom;
+
+	priv->tile_w = get_tile_width (floor (zoom * get_paper_width (preview) + 0.5));
+	priv->tile_h = get_tile_height (floor (zoom * get_paper_height (preview) + 0.5));
+
+	update_layout_size (preview);
+}
+
+static void
+set_zoom_fit_to_size (GeditPrintPreview *preview)
+{
+	GeditPrintPreviewPrivate *priv;	
+	double width, height;
+	double zoomx, zoomy;
+
+	priv = preview->priv;
+
+	g_object_get (gtk_layout_get_hadjustment (GTK_LAYOUT (priv->layout)),
+		      "page-size", &width,
+		      NULL);
+	g_object_get (gtk_layout_get_vadjustment (GTK_LAYOUT (priv->layout)),
+		      "page-size", &height,
+		      NULL);
+
+	width /= priv->cols;
+	height /= priv->rows;
+
+	zoomx = get_page_width (width) / get_paper_width (preview);
+	zoomy = get_page_height (height) / get_paper_height (preview);
+
+	if (zoomx <= zoomy)
+	{
+		priv->tile_w = width;
+		priv->tile_h = floor (0.5 + width * (priv->paper_h / priv->paper_w));
+		priv->scale = zoomx;
+	}
+	else
+	{
+		priv->tile_w = floor (0.5 + height * (priv->paper_w / priv->paper_h));
+		priv->tile_h = height;
+		priv->scale = zoomy;
+	}
+
+	gtk_widget_queue_draw (priv->layout);
+}
+
+static void
 goto_page (GeditPrintPreview *preview, gint page)
 {
 	gchar c[32];
-
-	g_print ("move to page %d\n", page);
 
 	g_snprintf (c, 32, "%d", page + 1);
 	gtk_entry_set_text (GTK_ENTRY (preview->priv->page_entry), c);
@@ -287,37 +408,6 @@ page_entry_focus_out (GtkWidget         *widget,
 }
 
 static void
-update_layout_size (GeditPrintPreview *preview)
-{
-	GeditPrintPreviewPrivate *priv;
-
-	priv = preview->priv;
-
-	g_print ("layout set size to %d, %d\n",
-		 priv->tile_w * priv->cols,
-		 priv->tile_h * priv->rows);
-
-	/* force size of the drawing area to make the scrolled window work */
-	gtk_layout_set_size (GTK_LAYOUT (priv->layout),
-			     priv->tile_w * priv->cols,
-			     priv->tile_h * priv->rows);
-}
-
-static void
-set_rows_and_cols (GeditPrintPreview *preview,
-		   gint               rows,
-		   gint               cols)
-{
-	/* TODO: set the zoom appropriately */
-
-	preview->priv->rows = rows;
-	preview->priv->cols = cols;
-	update_layout_size (preview);
-
-	gtk_widget_queue_draw (GTK_WIDGET (preview));
-}
-
-static void
 on_1x1_clicked (GtkMenuItem *i, GeditPrintPreview *preview)
 {
 	set_rows_and_cols (preview, 1, 1);
@@ -385,14 +475,13 @@ zoom_one_button_clicked (GtkWidget         *button,
 {
 	// FIXME: look at the old widget to see proper zoom stuff
 	set_zoom_factor (preview, 1);
-
-	gtk_widget_queue_draw (preview->priv->layout);
 }
 
 static void
 zoom_fit_button_clicked (GtkWidget         *button,
 			 GeditPrintPreview *preview)
 {
+	set_zoom_fit_to_size (preview);
 }
 
 static void
@@ -401,8 +490,6 @@ zoom_in_button_clicked (GtkWidget         *button,
 {
 	// FIXME: look at the old widget to see proper zoom stuff
 	set_zoom_factor (preview, preview->priv->scale * 2);
-
-	gtk_widget_queue_draw (preview->priv->layout);
 }
 
 static void
@@ -411,8 +498,6 @@ zoom_out_button_clicked (GtkWidget         *button,
 {
 	// FIXME: look at the old widget to see proper zoom stuff
 	set_zoom_factor (preview, preview->priv->scale / 2);
-
-	gtk_widget_queue_draw (preview->priv->layout);
 }
 
 static void
@@ -898,95 +983,6 @@ gedit_print_preview_init (GeditPrintPreview *preview)
 	priv->scale = 1.0;
 	priv->rows = 1;
 	priv->cols = 1;
-}
-
-/* get the paper size in points: these must be used only
- * after the widget has been mapped and the dpi is known */
-
-static double
-get_paper_width (GeditPrintPreview *preview)
-{
-	return preview->priv->paper_w * preview->priv->dpi;
-}
-
-static double
-get_paper_height (GeditPrintPreview *preview)
-{
-	return preview->priv->paper_h * preview->priv->dpi;
-}
-
-#define PAGE_PAD 12
-#define PAGE_SHADOW_OFFSET 5 
-
-static double
-get_tile_width (gint page_w)
-{
-	return page_w + 2 * PAGE_PAD;
-}
-
-static double
-get_tile_height (gint page_h)
-{
-	return page_h + 2 * PAGE_PAD;
-}
-
-static double
-get_page_width (gint tile_w)
-{
-	return MAX (1, tile_w - 2 * PAGE_PAD);
-}
-
-static double
-get_page_height (gint tile_h)
-{
-	return MAX (1, tile_h - 2 * PAGE_PAD);
-}
-
-static void
-set_zoom_factor (GeditPrintPreview *preview,
-	         double             zoom)
-{
-	GeditPrintPreviewPrivate *priv;	
-
-	priv = preview->priv;
-
-	priv->scale = zoom;
-
-	/* round up to avoid artifacts when clearing the background */
-	priv->tile_w = get_tile_width (floor (zoom * get_paper_width (preview) + 0.5));
-	priv->tile_h = get_tile_height (floor (zoom * get_paper_height (preview) + 0.5));
-
-	update_layout_size (preview);
-}
-
-/* used to fit-to-width */
-static void
-set_tile_width (GeditPrintPreview *preview,
-	        gint               width)
-{
-	GeditPrintPreviewPrivate *priv;	
-
-	priv = preview->priv;
-
-	priv->tile_w = width;
-	priv->tile_h = floor (0.5 + width * (priv->paper_h / priv->paper_w));
-
-	priv->scale = get_page_width (width) / priv->paper_w;
-}
-
-/* used to fit-to-height */
-static void
-set_tile_height (GeditPrintPreview *preview,
-	         gint               height)
-{
-	GeditPrintPreviewPrivate *priv;	
-
-	priv = preview->priv;
-
-	priv->tile_w = floor (0.5 + height * (priv->paper_w / priv->paper_h));
-	priv->tile_h = height;
-
-	priv->scale = get_page_height (height) / priv->paper_h;
 }
 
 static void
