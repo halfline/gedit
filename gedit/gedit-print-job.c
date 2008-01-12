@@ -35,7 +35,7 @@
 
 #include <glib/gi18n.h>
 
-#include <sys/types.h>#define GEDIT_TAB_GET_PRIVATE(object)(G_TYPE_INSTANCE_GET_PRIVATE ((object), GEDIT_TYPE_TAB, GeditTabPrivate))
+#include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <unistd.h>
@@ -52,7 +52,14 @@
 
 struct _GeditPrintJobPrivate
 {
+	GeditDocument     *doc;
 	GtkPrintOperation *operation;	
+};
+
+enum
+{
+	PROP_0,
+	PROP_DOCUMENT,
 };
 
 enum 
@@ -66,10 +73,65 @@ static guint print_job_signals[LAST_SIGNAL] = { 0 };
 
 G_DEFINE_TYPE (GeditPrintJob, gedit_print_job, G_TYPE_OBJECT)
 
+static void 
+gedit_print_job_get_property (GObject    *object,
+			      guint       prop_id,
+			      GValue     *value,
+			      GParamSpec *pspec)
+{
+	GeditPrintJob *job = GEDIT_PRINT_JOB (object);
+
+	switch (prop_id)
+	{
+		default:
+			G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
+			break;
+	}
+}
+
+static void 
+gedit_print_job_set_property (GObject      *object,
+			      guint         prop_id,
+			      const GValue *value,
+			      GParamSpec   *pspec)
+{
+	GeditPrintJob *job = GEDIT_PRINT_JOB (object);
+
+	switch (prop_id)
+	{
+		default:
+			G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
+			break;
+	}
+}
+
+static void
+gedit_print_job_finalize (GObject *object)
+{
+	GeditPrintJob *job = GEDIT_PRINT_JOB (object);
+
+	G_OBJECT_CLASS (gedit_print_job_parent_class)->finalize (object);
+}
 
 static void 
 gedit_print_job_class_init (GeditPrintJobClass *klass)
 {
+	GObjectClass *object_class;
+
+	object_class = G_OBJECT_CLASS (klass);
+
+	object_class->get_property = gedit_print_job_get_property;
+	object_class->set_property = gedit_print_job_set_property;
+	object_class->finalize = gedit_print_job_finalize;
+
+	g_object_class_install_property (object_class,
+					 PROP_DOCUMENT,
+					 g_param_spec_object ("document",
+							      "Gedit Document",
+							      "Gedit Document to print",
+							      GEDIT_TYPE_DOCUMENT,
+							      G_PARAM_READWRITE));
+
 	print_job_signals[PRINTING] =
 		g_signal_new ("printing",
 			      G_OBJECT_CLASS_TYPE (object_class),
