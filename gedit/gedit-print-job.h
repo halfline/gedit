@@ -1,5 +1,5 @@
 /*
- * gedit-print.h
+ * gedit-print-job.h
  * This file is part of gedit
  *
  * Copyright (C) 2000-2001 Chema Celorio, Paolo Maggi
@@ -26,15 +26,14 @@
  * list of people on the gedit Team.  
  * See the ChangeLog files for a list of changes. 
  *
- * $Id: gedit-print.h 5666 2007-06-29 19:52:25Z sfre $
+ * $Id$
  */
 
-#ifndef __GEDIT_PRINT_H__
-#define __GEDIT_PRINT_H__
+#ifndef __GEDIT_PRINT_JOB_H__
+#define __GEDIT_PRINT_JOB_H__
 
+#include <gtk/gtk.h>
 #include <gedit/gedit-document.h>
-#include <gedit/gtksourceprintjob.h>
-#include <libgnomeprintui/gnome-print-dialog.h>
 
 G_BEGIN_DECLS
 
@@ -123,4 +122,4 @@ gdouble                  gedit_print_job_get_progress           (GeditPrintJob  
 
 G_END_DECLS
 
-#endif /* __GEDIT_PRINT_H__ */
+#endif /* __GEDIT_PRINT_JOB_H__ */
