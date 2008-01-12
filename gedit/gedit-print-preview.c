@@ -57,6 +57,8 @@ struct _GeditPrintPreviewPrivate
 	GtkWidget   *page_entry;
 	GtkWidget   *last;
 	GtkToolItem *multi;
+	GtkToolItem *zoom_one;
+	GtkToolItem *zoom_fit;
 	GtkToolItem *zoom_in;
 	GtkToolItem *zoom_out;
 
@@ -79,13 +81,6 @@ struct _GeditPrintPreviewPrivate
 	guint n_pages;
 	guint cur_page;
 };
-
-enum {
-	CLOSE,
-	LAST_SIGNAL
-};
-
-static guint signals[LAST_SIGNAL] = { 0 };
 
 G_DEFINE_TYPE (GeditPrintPreview, gedit_print_preview, GTK_TYPE_VBOX)
 
@@ -147,7 +142,6 @@ gedit_print_preview_class_init (GeditPrintPreviewClass *klass)
 {
 	GObjectClass *object_class;
 	GtkWidgetClass *widget_class;
-	GtkBindingSet *binding_set;
 
 	object_class = G_OBJECT_CLASS (klass);
 	widget_class = GTK_WIDGET_CLASS (klass);
@@ -157,17 +151,6 @@ gedit_print_preview_class_init (GeditPrintPreviewClass *klass)
 	object_class->finalize = gedit_print_preview_finalize;
 
 	widget_class->grab_focus = gedit_print_preview_grab_focus;
-
-	signals[CLOSE] =  g_signal_new ("close",
-					G_OBJECT_CLASS_TYPE (klass),
-					G_SIGNAL_RUN_LAST | G_SIGNAL_ACTION,
-					G_STRUCT_OFFSET (GeditPrintPreviewClass, close),
-		  			NULL, NULL,
-		  			g_cclosure_marshal_VOID__VOID,
-					G_TYPE_NONE, 0);
-
-	binding_set = gtk_binding_set_by_class (klass);
-	gtk_binding_entry_add_signal (binding_set, GDK_Escape, 0, "close", 0);
 
 	g_type_class_add_private (object_class, sizeof(GeditPrintPreviewPrivate));	
 }
@@ -397,6 +380,22 @@ multi_button_clicked (GtkWidget         *button,
 }
 
 static void
+zoom_one_button_clicked (GtkWidget         *button,
+			 GeditPrintPreview *preview)
+{
+	// FIXME: look at the old widget to see proper zoom stuff
+	set_zoom_factor (preview, 1);
+
+	gtk_widget_queue_draw (preview->priv->layout);
+}
+
+static void
+zoom_fit_button_clicked (GtkWidget         *button,
+			 GeditPrintPreview *preview)
+{
+}
+
+static void
 zoom_in_button_clicked (GtkWidget         *button,
 			GeditPrintPreview *preview)
 {
@@ -541,22 +540,27 @@ create_bar (GeditPrintPreview *preview)
 	gtk_widget_show (GTK_WIDGET (i));
 	gtk_toolbar_insert (GTK_TOOLBAR (toolbar), i, -1);
 
-//	mp->priv->bz1 = GTK_WIDGET (i);
-//	gtk_tool_item_set_tooltip (i, GTK_TOOLBAR (toolbar)->tooltips,
-//				   _("Zoom 1:1"), "");
-//	g_signal_connect_swapped (i, "clicked",
-//		G_CALLBACK (preview_zoom_100_cmd), mp);
-//	gtk_widget_show (GTK_WIDGET (i));
-//	gtk_toolbar_insert (GTK_TOOLBAR (toolbar), i, -1);
-//	i = gtk_tool_button_new_from_stock (GTK_STOCK_ZOOM_FIT);
-//	mp->priv->bzf = GTK_WIDGET (i);
-//	gtk_tool_item_set_tooltip (i, GTK_TOOLBAR (toolbar)->tooltips,
-//				   _("Zoom to fit the whole page"), "");
-//	g_signal_connect_swapped (i, "clicked",
-//		G_CALLBACK (preview_zoom_fit_cmd), mp);
-//	gtk_widget_show (GTK_WIDGET (i));
-//	gtk_toolbar_insert (GTK_TOOLBAR (toolbar), i, -1);
-//	
+	priv->zoom_one = gtk_tool_button_new_from_stock (GTK_STOCK_ZOOM_100);
+	gtk_tool_item_set_tooltip (priv->zoom_one,
+				   GTK_TOOLBAR (toolbar)->tooltips,
+				   _("Zoom 1:1"), "");
+	gtk_toolbar_insert (GTK_TOOLBAR (toolbar), priv->zoom_one, -1);
+	g_signal_connect (priv->zoom_one,
+			  "clicked",
+			  G_CALLBACK (zoom_one_button_clicked),
+			  preview);
+	gtk_widget_show (GTK_WIDGET (priv->zoom_one));
+
+	priv->zoom_fit = gtk_tool_button_new_from_stock (GTK_STOCK_ZOOM_FIT);
+	gtk_tool_item_set_tooltip (priv->zoom_fit,
+				   GTK_TOOLBAR (toolbar)->tooltips,
+				   _("Zoom to fit the whole page"), "");
+	gtk_toolbar_insert (GTK_TOOLBAR (toolbar), priv->zoom_fit, -1);
+	g_signal_connect (priv->zoom_fit,
+			  "clicked",
+			  G_CALLBACK (zoom_fit_button_clicked),
+			  preview);
+	gtk_widget_show (GTK_WIDGET (priv->zoom_fit));
 
 	priv->zoom_in = gtk_tool_button_new_from_stock (GTK_STOCK_ZOOM_IN);
 	gtk_tool_item_set_tooltip (priv->zoom_in,
