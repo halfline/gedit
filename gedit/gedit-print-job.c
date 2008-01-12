@@ -154,7 +154,7 @@ gedit_print_job_class_init (GeditPrintJobClass *klass)
 					 g_param_spec_object ("view",
 							      "Gedit View",
 							      "Gedit View to print",
-							      GEDIT_TYPE_DOCUMENT,
+							      GEDIT_TYPE_VIEW,
 							      G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY));
 
 	print_job_signals[PRINTING] =
@@ -417,5 +417,13 @@ gedit_print_job_new (GeditView *view)
 					      NULL));
 
 	return job;
+}
+
+void
+gedit_print_job_cancel (GeditPrintJob *job)
+{
+	g_return_if_fail (GEDIT_IS_PRINT_JOB (job));
+
+	/* TODO */
 }
 
