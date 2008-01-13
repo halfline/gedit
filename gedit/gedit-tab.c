@@ -230,15 +230,6 @@ gedit_tab_finalize (GObject *object)
 {
 	GeditTab *tab = GEDIT_TAB (object);
 
-/* FIXME
-	if (tab->priv->print_job != NULL)
-	{
-		gedit_debug_message (DEBUG_TAB, "Cancelling printing");
-
-		gedit_print_job_cancel (tab->priv->print_job);
-		g_object_unref (tab->priv->print_job);
-	}
-*/
 	if (tab->priv->timer != NULL)
 		g_timer_destroy (tab->priv->timer);
 
