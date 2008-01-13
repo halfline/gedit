@@ -230,6 +230,7 @@ gedit_tab_finalize (GObject *object)
 {
 	GeditTab *tab = GEDIT_TAB (object);
 
+/* FIXME
 	if (tab->priv->print_job != NULL)
 	{
 		gedit_debug_message (DEBUG_TAB, "Cancelling printing");
@@ -237,7 +238,7 @@ gedit_tab_finalize (GObject *object)
 		gedit_print_job_cancel (tab->priv->print_job);
 		g_object_unref (tab->priv->print_job);
 	}
-
+*/
 	if (tab->priv->timer != NULL)
 		g_timer_destroy (tab->priv->timer);
 
@@ -2144,6 +2145,55 @@ _gedit_tab_save_as (GeditTab            *tab,
 	gedit_document_save_as (doc, uri, encoding, tab->priv->save_flags);
 }
 
+/* FIXME: show the message area only if the operation will be "long" */
+static void
+printing_cb (GeditPrintJob       *job,
+	     GeditPrintJobStatus  status,
+	     GeditTab            *tab)
+{	
+	g_return_if_fail (GEDIT_IS_PROGRESS_MESSAGE_AREA (tab->priv->message_area));	
+	
+	gtk_widget_show (tab->priv->message_area);
+	
+	gedit_progress_message_area_set_text (GEDIT_PROGRESS_MESSAGE_AREA (tab->priv->message_area),
+					      gedit_print_job_get_status_string (job));
+
+	gedit_progress_message_area_set_fraction (GEDIT_PROGRESS_MESSAGE_AREA (tab->priv->message_area),
+						  gedit_print_job_get_progress (job));
+}
+
+static void
+done_printing_cb (GeditPrintJob       *job,
+		  GeditPrintJobResult  result,
+		  const GError        *error,
+		  GeditTab            *tab)
+{
+	GeditView *view;
+	
+	g_return_if_fail (GEDIT_IS_PROGRESS_MESSAGE_AREA (tab->priv->message_area));
+
+	set_message_area (tab, NULL); /* destroy the message area */
+
+	// TODO: check status and error
+
+#if 0
+	if (tab->priv->print_preview != NULL)
+	{
+		/* If we were printing while showing the print preview,
+		   see bug #352658 */
+		gtk_widget_destroy (tab->priv->print_preview);
+		g_return_if_fail (tab->priv->state == GEDIT_TAB_STATE_PRINTING);
+	}
+#endif
+
+	gedit_tab_set_state (tab, GEDIT_TAB_STATE_NORMAL);
+
+	view = gedit_tab_get_view (tab);
+	gtk_widget_grab_focus (GTK_WIDGET (view));
+	
+ 	g_object_unref (tab->priv->print_job);
+}
+
 static void
 print_preview_destroyed (GtkWidget *preview,
 			 GeditTab  *tab)
@@ -2198,38 +2248,6 @@ set_print_preview (GeditTab  *tab,
 			  tab);
 }
 
-#define MIN_PAGES 15
-
-static void
-print_page_cb (GtkSourcePrintJob *pjob, GeditTab *tab)
-{
-	gchar *str;
-	gint page_num;
-	gint total;
-
-	g_return_if_fail (GEDIT_IS_PROGRESS_MESSAGE_AREA (tab->priv->message_area));	
-
-	total = gtk_source_print_job_get_page_count (pjob);
-	
-	if (total < MIN_PAGES)
-		return;
-
-	page_num = gtk_source_print_job_get_page (pjob);
-			
-	g_return_if_fail (GEDIT_IS_PROGRESS_MESSAGE_AREA (tab->priv->message_area));	
-	
-	gtk_widget_show (tab->priv->message_area);
-	
-	str = g_strdup_printf (_("Rendering page %d of %d..."), page_num, total);
-
-	gedit_progress_message_area_set_text (GEDIT_PROGRESS_MESSAGE_AREA (tab->priv->message_area),
-					      str);
-	g_free (str);
-	
-	gedit_progress_message_area_set_fraction (GEDIT_PROGRESS_MESSAGE_AREA (tab->priv->message_area),
-						  1.0 * page_num / total);
-}
-
 static void
 preview_finished_cb (GtkSourcePrintJob *pjob, GeditTab *tab)
 {
@@ -2252,38 +2270,7 @@ preview_finished_cb (GtkSourcePrintJob *pjob, GeditTab *tab)
 	gedit_tab_set_state (tab, GEDIT_TAB_STATE_SHOWING_PRINT_PREVIEW);
 }
 
-static void
-print_finished_cb (GtkSourcePrintJob *pjob, GeditTab *tab)
-{
-	GnomePrintJob *gjob;
-	GeditView *view;
 
-	g_return_if_fail (GEDIT_IS_PROGRESS_MESSAGE_AREA (tab->priv->message_area));
-
-	set_message_area (tab, NULL); /* destroy the message area */
-
-	gjob = gtk_source_print_job_get_print_job (pjob);
-
-	gnome_print_job_print (gjob);
- 	g_object_unref (gjob);
-
-	gedit_print_job_save_config (GEDIT_PRINT_JOB (pjob));
-
-	g_object_unref (pjob);
-
-	if (tab->priv->print_preview != NULL)
-	{
-		/* If we were printing while showing the print preview,
-		   see bug #352658 */
-		gtk_widget_destroy (tab->priv->print_preview);
-		g_return_if_fail (tab->priv->state == GEDIT_TAB_STATE_PRINTING);
-	}
-
-	gedit_tab_set_state (tab, GEDIT_TAB_STATE_NORMAL);
-
-	view = gedit_tab_get_view (tab);
-	gtk_widget_grab_focus (GTK_WIDGET (view));
-}
 #endif
 
 static void
@@ -2296,22 +2283,7 @@ print_cancelled (GeditMessageArea *area,
 	g_return_if_fail (GEDIT_IS_PROGRESS_MESSAGE_AREA (tab->priv->message_area));
 
 	gedit_print_job_cancel (tab->priv->print_job);
-	g_object_unref (tab->priv->print_job);
-
-	set_message_area (tab, NULL); /* destroy the message area */
-
-	if (tab->priv->print_preview != NULL)
-	{
-		/* If we were printing while showing the print preview,
-		   see bug #352658 */        	
-		gtk_widget_destroy (tab->priv->print_preview);
-		g_return_if_fail (tab->priv->state == GEDIT_TAB_STATE_PRINTING);
-	}
-
-	gedit_tab_set_state (tab, GEDIT_TAB_STATE_NORMAL);
-
-	view = gedit_tab_get_view (tab);
-	gtk_widget_grab_focus (GTK_WIDGET (view));
+	g_debug ("print_cancelled");
 }
 
 static void
@@ -2358,8 +2330,8 @@ gedit_tab_print_or_print_preview (GeditTab                *tab,
 
 	show_printing_message_area (tab, is_preview);
 
-//	g_signal_connect (pjob, "begin_page", (GCallback) print_page_cb, tab);
-//	g_signal_connect (pjob, "finished", (GCallback) preview_finished_cb, tab);
+	g_signal_connect (tab->priv->print_job, "printing", (GCallback) printing_cb, tab);
+	g_signal_connect (tab->priv->print_job, "done", (GCallback) done_printing_cb, tab);
 
 	if (is_preview)
 		gedit_tab_set_state (tab, GEDIT_TAB_STATE_PRINT_PREVIEWING);
@@ -2371,6 +2343,7 @@ gedit_tab_print_or_print_preview (GeditTab                *tab,
 				     GTK_WINDOW (gtk_widget_get_toplevel (GTK_WIDGET (tab))),
 				     &error);
 
+	// TODO: manage res in the correct way
 	if (res == GTK_PRINT_OPERATION_RESULT_ERROR)
 	{
 		/* FIXME: go in error state */

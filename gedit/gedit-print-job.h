@@ -117,7 +117,7 @@ GtkPrintOperationResult	 gedit_print_job_print			(GeditPrintJob            *job,
 
 void			 gedit_print_job_cancel                 (GeditPrintJob            *job);
 
-GeditView		*gedit_print_job_get_view		(GeditPrintJob            *job);
+// GeditView		*gedit_print_job_get_view		(GeditPrintJob            *job);
 								 
 const gchar		*gedit_print_job_get_status_string      (GeditPrintJob            *job);
 

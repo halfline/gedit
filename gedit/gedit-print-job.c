@@ -126,7 +126,15 @@ gedit_print_job_finalize (GObject *object)
 {
 	GeditPrintJob *job = GEDIT_PRINT_JOB (object);
 
+	g_debug ("Finalize.");
+	
 	g_free (job->priv->status_string);
+	
+	if (job->priv->compositor != NULL)
+		g_object_unref (job->priv->compositor);
+
+	if (job->priv->operation != NULL)
+		g_object_unref (job->priv->operation);
 
 	G_OBJECT_CLASS (gedit_print_job_parent_class)->finalize (object);
 }
@@ -295,7 +303,7 @@ draw_page_cb (GtkPrintOperation *operation,
 						    page_nr + 1,
 						    n_pages);
 	
-	job->priv->progress = (double)page_nr / (double)n_pages + 0.5;
+	job->priv->progress = page_nr / (2.0 * n_pages) + 0.5;
 	
 	g_signal_emit (job, print_job_signals[PRINTING], 0, job->priv->status);
 		
@@ -307,10 +315,52 @@ end_print_cb (GtkPrintOperation *operation,
 	      GtkPrintContext   *context,
 	      GeditPrintJob     *job)
 {
+	g_debug ("end_print_cb");
 	g_object_unref (job->priv->compositor);
 	job->priv->compositor = NULL;
 }
 
+static void
+done_cb (GtkPrintOperation       *operation,
+	 GtkPrintOperationResult  result,
+	 GeditPrintJob           *job)
+{
+	GError *error = NULL;
+	GeditPrintJobResult print_result;
+
+	g_debug ("done_cb");
+	
+	switch (result) 
+	{
+		case GTK_PRINT_OPERATION_RESULT_CANCEL:
+			print_result = GEDIT_PRINT_JOB_RESULT_CANCEL;
+			break;
+		
+		case GTK_PRINT_OPERATION_RESULT_APPLY:
+			print_result = GEDIT_PRINT_JOB_RESULT_OK;
+			// TODO: save settings
+			break;
+			
+		case GTK_PRINT_OPERATION_RESULT_ERROR:
+			print_result = GEDIT_PRINT_JOB_RESULT_ERROR;
+			gtk_print_operation_get_error (operation, &error);
+			break;
+			
+		default:
+			g_return_if_reached ();
+	}
+	
+	/* Avoid job is destroyed in the handler of the "done" message */
+	g_object_ref (job);
+	
+	g_signal_emit (job, print_job_signals[DONE], 0, print_result, error);
+	
+	g_object_unref (operation);
+	job->priv->operation = NULL;
+	
+	g_object_unref (job);
+}
+	      
 static GtkPrintSettings *
 get_print_settings (GeditPrintJob  *job,
 		    GError        **error)
@@ -377,12 +427,11 @@ gedit_print_job_print (GeditPrintJob            *job,
 			  "end-print", 
 			  G_CALLBACK (end_print_cb),
 			  job);
-/*
+
 	g_signal_connect (job->priv->operation,
 			  "done", 
 			  G_CALLBACK (done_cb),
 			  job);			  
-*/
 
 	// TODO
 
@@ -421,6 +470,24 @@ gedit_print_job_cancel (GeditPrintJob *job)
 {
 	g_return_if_fail (GEDIT_IS_PRINT_JOB (job));
 
-	/* TODO */
+	gtk_print_operation_cancel (job->priv->operation);
 }
+
+const gchar *
+gedit_print_job_get_status_string (GeditPrintJob *job)
+{
+	g_return_val_if_fail (GEDIT_IS_PRINT_JOB (job), NULL);
+	g_return_val_if_fail (job->priv->status_string != NULL, NULL);
+	
+	return job->priv->status_string;
+}
+
+gdouble
+gedit_print_job_get_progress (GeditPrintJob *job)
+{
+	g_return_val_if_fail (GEDIT_IS_PRINT_JOB (job), 0.0);
+
+	return job->priv->progress;
+}
+
 
