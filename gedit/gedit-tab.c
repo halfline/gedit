@@ -2220,6 +2220,33 @@ print_preview_destroyed (GtkWidget *preview,
 	}	
 }
 
+static void
+show_preview_cb (GeditPrintJob       *job,
+		 GeditPrintPreview   *preview,
+		 GeditTab            *tab)
+{
+//	g_return_if_fail (tab->priv->state == GEDIT_TAB_STATE_PRINT_PREVIEWING);
+	g_return_if_fail (tab->priv->print_preview == NULL);
+
+	set_message_area (tab, NULL); /* destroy the message area */
+
+	tab->priv->print_preview = GTK_WIDGET (preview);
+	gtk_box_pack_end (GTK_BOX (tab),
+			  tab->priv->print_preview,
+			  TRUE,
+			  TRUE,
+			  0);
+	gtk_widget_show (tab->priv->print_preview);
+	gtk_widget_grab_focus (tab->priv->print_preview);
+
+	g_signal_connect (tab->priv->print_preview,
+			  "destroy",
+			  G_CALLBACK (print_preview_destroyed),
+			  tab);	
+
+	gedit_tab_set_state (tab, GEDIT_TAB_STATE_SHOWING_PRINT_PREVIEW);
+}
+
 #if 0
 
 static void
@@ -2330,8 +2357,18 @@ gedit_tab_print_or_print_preview (GeditTab                *tab,
 
 	show_printing_message_area (tab, is_preview);
 
-	g_signal_connect (tab->priv->print_job, "printing", (GCallback) printing_cb, tab);
-	g_signal_connect (tab->priv->print_job, "done", (GCallback) done_printing_cb, tab);
+	g_signal_connect (tab->priv->print_job,
+			  "printing",
+			  G_CALLBACK (printing_cb),
+			  tab);
+	g_signal_connect (tab->priv->print_job,
+			  "show-preview",
+			  G_CALLBACK (show_preview_cb),
+			  tab);
+	g_signal_connect (tab->priv->print_job,
+			  "done",
+			  G_CALLBACK (done_printing_cb),
+			  tab);
 
 	if (is_preview)
 		gedit_tab_set_state (tab, GEDIT_TAB_STATE_PRINT_PREVIEWING);

@@ -88,16 +88,17 @@ typedef struct _GeditPrintJobClass GeditPrintJobClass;
 struct _GeditPrintJobClass 
 {
 	GObjectClass parent_class;
-	
+
         /* Signals */
 	void (* printing) (GeditPrintJob       *job,
 	                   GeditPrintJobStatus  status);
-	                   
+
+	void (* show_preview) (GeditPrintJob   *job,
+	                       GtkWidget       *preview);
+
         void (*done)      (GeditPrintJob       *job,
 		           GeditPrintJobResult  result,
                            const GError        *error);
-        
-        // TODO: add a "preview" signal
 };
 
 /*

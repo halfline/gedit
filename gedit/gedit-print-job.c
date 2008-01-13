@@ -39,6 +39,7 @@
 #include "gedit-print-job.h"
 #include "gedit-debug.h"
 #include "gedit-prefs-manager-app.h"
+#include "gedit-print-preview.h"
 #include "gedit-marshal.h"
 #include "gedit-utils.h"
 
@@ -51,7 +52,9 @@ struct _GeditPrintJobPrivate
 	
 	GtkPrintOperation        *operation;
 	GtkSourcePrintCompositor *compositor;
-	
+
+	GtkWidget                *preview;
+
 	GeditPrintJobStatus       status;
 	
 	gchar                    *status_string;
@@ -62,12 +65,13 @@ struct _GeditPrintJobPrivate
 enum
 {
 	PROP_0,
-	PROP_VIEW,
+	PROP_VIEW
 };
 
 enum 
 {
 	PRINTING,
+	SHOW_PREVIEW,
 	DONE,
 	LAST_SIGNAL
 };
@@ -169,6 +173,17 @@ gedit_print_job_class_init (GeditPrintJobClass *klass)
 			      1,
 			      G_TYPE_UINT);
 
+	print_job_signals[SHOW_PREVIEW] =
+		g_signal_new ("show-preview",
+			      G_OBJECT_CLASS_TYPE (object_class),
+			      G_SIGNAL_RUN_LAST,
+			      G_STRUCT_OFFSET (GeditPrintJobClass, show_preview),
+			      NULL, NULL,
+			      g_cclosure_marshal_VOID__OBJECT,
+			      G_TYPE_NONE,
+			      1,
+			      GTK_TYPE_WIDGET);
+
 	print_job_signals[DONE] =
 		g_signal_new ("done",
 			      G_OBJECT_CLASS_TYPE (object_class),
@@ -257,6 +272,31 @@ begin_print_cb (GtkPrintOperation *operation,
 	job->priv->progress = 0.0;
 	
 	g_signal_emit (job, print_job_signals[PRINTING], 0, job->priv->status);
+}
+
+static void
+preview_ready (GtkPrintOperationPreview *gtk_preview,
+	       GtkPrintContext          *context,
+	       GeditPrintJob            *job)
+{
+	g_signal_emit (job, print_job_signals[SHOW_PREVIEW], 0, job->priv->preview);
+}
+
+static gboolean 
+preview_cb (GtkPrintOperation        *op,
+	    GtkPrintOperationPreview *gtk_preview,
+	    GtkPrintContext          *context,
+	    GtkWindow                *parent,
+	    GeditPrintJob            *job)
+{
+	job->priv->preview = gedit_print_preview_new (op, gtk_preview, context);
+
+	g_signal_connect_after (gtk_preview,
+			        "ready",
+				G_CALLBACK (preview_ready),
+				job);
+
+	return TRUE;
 }
 
 static gboolean
@@ -414,7 +454,11 @@ gedit_print_job_print (GeditPrintJob            *job,
   	g_signal_connect (job->priv->operation,
 			  "begin-print", 
 			  G_CALLBACK (begin_print_cb),
-			  job); 
+			  job);
+	g_signal_connect (job->priv->operation,
+			  "preview",
+			  G_CALLBACK (preview_cb),
+			  job);
   	g_signal_connect (job->priv->operation,
 			  "paginate", 
 			  G_CALLBACK (paginate_cb),
