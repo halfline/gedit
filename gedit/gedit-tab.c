@@ -2160,10 +2160,22 @@ done_printing_cb (GeditPrintJob       *job,
 		  GeditTab            *tab)
 {
 	GeditView *view;
-	
-	g_return_if_fail (GEDIT_IS_PROGRESS_MESSAGE_AREA (tab->priv->message_area));
 
-	set_message_area (tab, NULL); /* destroy the message area */
+	g_return_if_fail (tab->priv->state == GEDIT_TAB_STATE_PRINT_PREVIEWING ||
+			  tab->priv->state == GEDIT_TAB_STATE_SHOWING_PRINT_PREVIEW ||
+			  tab->priv->state == GEDIT_TAB_STATE_PRINTING);
+
+	if (tab->priv->state == GEDIT_TAB_STATE_SHOWING_PRINT_PREVIEW)
+	{
+		/* print preview has been destroyed... */
+		tab->priv->print_preview = NULL;
+	}
+	else
+	{
+		g_return_if_fail (GEDIT_IS_PROGRESS_MESSAGE_AREA (tab->priv->message_area));
+
+		set_message_area (tab, NULL); /* destroy the message area */
+	}
 
 	// TODO: check status and error
 
@@ -2181,10 +2193,12 @@ done_printing_cb (GeditPrintJob       *job,
 
 	view = gedit_tab_get_view (tab);
 	gtk_widget_grab_focus (GTK_WIDGET (view));
-	
+
  	g_object_unref (tab->priv->print_job);
+	tab->priv->print_job = NULL;
 }
 
+#if 0
 static void
 print_preview_destroyed (GtkWidget *preview,
 			 GeditTab  *tab)
@@ -2210,6 +2224,7 @@ print_preview_destroyed (GtkWidget *preview,
 		g_return_if_fail (tab->priv->state == GEDIT_TAB_STATE_PRINTING);
 	}	
 }
+#endif
 
 static void
 show_preview_cb (GeditPrintJob       *job,
@@ -2230,11 +2245,12 @@ show_preview_cb (GeditPrintJob       *job,
 	gtk_widget_show (tab->priv->print_preview);
 	gtk_widget_grab_focus (tab->priv->print_preview);
 
+/* when the preview gets destroyed we get "done" signal
 	g_signal_connect (tab->priv->print_preview,
 			  "destroy",
 			  G_CALLBACK (print_preview_destroyed),
 			  tab);	
-
+*/
 	gedit_tab_set_state (tab, GEDIT_TAB_STATE_SHOWING_PRINT_PREVIEW);
 }
 

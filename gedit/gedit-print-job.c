@@ -43,15 +43,20 @@
 #include "gedit-marshal.h"
 #include "gedit-utils.h"
 
+#define GEDIT_PRINT_SETTINGS_KEY  "gedit-print-settings-key"
+#define GEDIT_PRINT_SETTINGS_FILE "gedit-print-settings"
+
 #define GEDIT_PRINT_JOB_GET_PRIVATE(object)(G_TYPE_INSTANCE_GET_PRIVATE ((object), GEDIT_TYPE_PRINT_JOB, GeditPrintJobPrivate))
 
 struct _GeditPrintJobPrivate
 {
 	GeditView                *view;
 	GeditDocument            *doc;
-	
+
 	GtkPrintOperation        *operation;
 	GtkSourcePrintCompositor *compositor;
+
+	GtkPrintSettings         *settings;
 
 	GtkWidget                *preview;
 
@@ -80,11 +85,98 @@ static guint print_job_signals[LAST_SIGNAL] = { 0 };
 
 G_DEFINE_TYPE (GeditPrintJob, gedit_print_job, G_TYPE_OBJECT)
 
-static void
-set_view (GeditPrintJob *job, GeditView *view) 
+static gchar *
+get_settings_filename (void)
 {
+	const gchar *home;
+
+	home = g_get_home_dir ();
+	if (home == NULL)
+	{
+		g_warning ("Could not get home directory\n");
+		return NULL;
+	}
+
+	return g_build_filename (home,
+				 ".gnome2",
+				 "gedit",
+				 GEDIT_PRINT_SETTINGS_FILE,
+				 NULL);
+}
+
+static void
+load_print_settings (GeditPrintJob *job)
+{
+	gchar *filename;
+	GError *error = NULL;
+
+	g_return_if_fail (job->priv->settings == NULL);
+
+	filename = get_settings_filename ();
+
+	job->priv->settings = gtk_print_settings_new_from_file (filename,
+								&error);
+	if (error)
+	{
+		/* TODO: ignore file not found error */
+		g_warning (error->message);
+		g_error_free (error);
+	}
+
+	g_free (filename);
+
+	/* fall back to default settings */
+	if (job->priv->settings == NULL)
+		job->priv->settings = gtk_print_settings_new ();
+}
+
+static void
+save_print_settings (GeditPrintJob *job)
+{
+	gchar *filename;
+	GError *error = NULL;
+
+	if (job->priv->settings == NULL)
+		return;
+
+	filename = get_settings_filename ();
+
+	gtk_print_settings_to_file (job->priv->settings,
+				    filename,
+				    &error);
+	if (error)
+	{
+		g_warning (error->message);
+		g_error_free (error);
+	}
+
+	g_free (filename);
+}
+
+static void
+set_view (GeditPrintJob *job, GeditView *view)
+{
+	gpointer data;
+
 	job->priv->view = view;
 	job->priv->doc = GEDIT_DOCUMENT (gtk_text_view_get_buffer (GTK_TEXT_VIEW (view)));
+
+	data = g_object_get_data (G_OBJECT (job->priv->doc),
+				  GEDIT_PRINT_SETTINGS_KEY);
+
+	if (data == NULL)	
+	{
+		load_print_settings (job);
+
+		g_object_set_data_full (G_OBJECT (job->priv->doc),
+					GEDIT_PRINT_SETTINGS_KEY,
+					g_object_ref (job->priv->settings),
+					(GDestroyNotify)g_object_unref);
+	}
+	else
+	{
+		job->priv->settings = GTK_PRINT_SETTINGS (data);
+	}
 }
 
 static void 
@@ -139,6 +231,9 @@ gedit_print_job_finalize (GObject *object)
 
 	if (job->priv->operation != NULL)
 		g_object_unref (job->priv->operation);
+
+	if (job->priv->settings != NULL)
+		g_object_unref (job->priv->settings);
 
 	G_OBJECT_CLASS (gedit_print_job_parent_class)->finalize (object);
 }
@@ -198,10 +293,6 @@ gedit_print_job_class_init (GeditPrintJobClass *klass)
 			      			      
 	g_type_class_add_private (object_class, sizeof (GeditPrintJobPrivate));
 }
-
-// Print setting and page setup vanno settati per document e fall back al file salvato
-// Vedi buffer_set
-#define GEDIT_PRINT_CONFIG "gedit-print-config-key"
 
 static void
 create_compositor (GeditPrintJob *job)
@@ -282,6 +373,13 @@ preview_ready (GtkPrintOperationPreview *gtk_preview,
 	g_signal_emit (job, print_job_signals[SHOW_PREVIEW], 0, job->priv->preview);
 }
 
+static void
+preview_destroyed (GtkWidget                *preview,
+		   GtkPrintOperationPreview *gtk_preview)
+{
+	gtk_print_operation_preview_end_preview (gtk_preview);
+}
+
 static gboolean 
 preview_cb (GtkPrintOperation        *op,
 	    GtkPrintOperationPreview *gtk_preview,
@@ -295,6 +393,12 @@ preview_cb (GtkPrintOperation        *op,
 			        "ready",
 				G_CALLBACK (preview_ready),
 				job);
+
+	/* FIXME: should this go in the preview widget itself? */
+	g_signal_connect (job->priv->preview,
+			  "destroy",
+			  G_CALLBACK (preview_destroyed),
+			  gtk_preview);
 
 	return TRUE;
 }
@@ -375,17 +479,17 @@ done_cb (GtkPrintOperation       *operation,
 		case GTK_PRINT_OPERATION_RESULT_CANCEL:
 			print_result = GEDIT_PRINT_JOB_RESULT_CANCEL;
 			break;
-		
+
 		case GTK_PRINT_OPERATION_RESULT_APPLY:
 			print_result = GEDIT_PRINT_JOB_RESULT_OK;
-			// TODO: save settings
+			save_print_settings (job);
 			break;
-			
+
 		case GTK_PRINT_OPERATION_RESULT_ERROR:
 			print_result = GEDIT_PRINT_JOB_RESULT_ERROR;
 			gtk_print_operation_get_error (operation, &error);
 			break;
-			
+
 		default:
 			g_return_if_reached ();
 	}
@@ -399,14 +503,6 @@ done_cb (GtkPrintOperation       *operation,
 	job->priv->operation = NULL;
 	
 	g_object_unref (job);
-}
-	      
-static GtkPrintSettings *
-get_print_settings (GeditPrintJob  *job,
-		    GError        **error)
-{
-	/* TODO */
-	return NULL;
 }
 
 static GtkPageSetup *
@@ -425,24 +521,22 @@ gedit_print_job_print (GeditPrintJob            *job,
 		       GError                  **error)
 {
 	gchar            *job_name;
-	GtkPrintSettings *settings;
 	GtkPageSetup     *page_setup;
 	
 	g_return_val_if_fail (job->priv->compositor == NULL, GTK_PRINT_OPERATION_RESULT_ERROR);
 	
 	/* Get print setting and page_setup */
-	settings = get_print_settings (job, error);
 	page_setup = get_page_setup (job, error);
 	
 	/* Creare print operation */
 	job->priv->operation = gtk_print_operation_new ();
-	
-	if (settings != NULL) 
-		gtk_print_operation_set_print_settings (job->priv->operation, settings);
-	    
+
+	gtk_print_operation_set_print_settings (job->priv->operation,
+						job->priv->settings);
+
 	if (page_setup != NULL)
 		gtk_print_operation_set_default_page_setup (job->priv->operation, page_setup);
-		
+	
 	job_name = gedit_document_get_short_name_for_display (job->priv->doc);
 	
 	gtk_print_operation_set_job_name (job->priv->operation, job_name);
@@ -471,7 +565,6 @@ gedit_print_job_print (GeditPrintJob            *job,
 			  "end-print", 
 			  G_CALLBACK (end_print_cb),
 			  job);
-
 	g_signal_connect (job->priv->operation,
 			  "done", 
 			  G_CALLBACK (done_cb),
