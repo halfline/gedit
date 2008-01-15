@@ -63,8 +63,10 @@ struct _GeditPrintJobPrivate
 	GeditPrintJobStatus       status;
 	
 	gchar                    *status_string;
-	
+
 	gdouble			  progress;
+
+	gboolean                  is_preview;
 };
 
 enum
@@ -421,11 +423,16 @@ paginate_cb (GtkPrintOperation *operation,
 		n_pages = gtk_source_print_compositor_get_n_pages (job->priv->compositor);
 		gtk_print_operation_set_n_pages (job->priv->operation, n_pages);
 	}
-	
-	job->priv->progress = gtk_source_print_compositor_get_pagination_progress (job->priv->compositor) / 2.0;
-     
+
+	job->priv->progress = gtk_source_print_compositor_get_pagination_progress (job->priv->compositor);
+
+	/* When previewing, the progress is just for pagination, when printing
+	 * it's split between pagination and rendering */
+	if (!job->priv->is_preview)
+		job->priv->progress /= 2.0;
+
 	g_signal_emit (job, print_job_signals[PRINTING], 0, job->priv->status);
-	
+
 	return res;
 }
 
@@ -436,21 +443,26 @@ draw_page_cb (GtkPrintOperation *operation,
 	      GeditPrintJob     *job)
 {
 	gint n_pages;
+
+	/* In preview, pages are drawn on the fly, so rendering is
+	 * not part of the progress */
+	if (!job->priv->is_preview)
+	{
+		g_free (job->priv->status_string);
 	
-	g_free (job->priv->status_string);
+		n_pages = gtk_source_print_compositor_get_n_pages (job->priv->compositor);
 	
-	n_pages = gtk_source_print_compositor_get_n_pages (job->priv->compositor);
+		job->priv->status = GEDIT_PRINT_JOB_STATUS_DRAWING;
 	
-	job->priv->status = GEDIT_PRINT_JOB_STATUS_DRAWING;
+		job->priv->status_string = g_strdup_printf ("Rendering page %d of %d...", 
+							    page_nr + 1,
+							    n_pages);
 	
-	job->priv->status_string = g_strdup_printf ("Rendering page %d of %d...", 
-						    page_nr + 1,
-						    n_pages);
-	
-	job->priv->progress = page_nr / (2.0 * n_pages) + 0.5;
-	
-	g_signal_emit (job, print_job_signals[PRINTING], 0, job->priv->status);
-		
+		job->priv->progress = page_nr / (2.0 * n_pages) + 0.5;
+
+		g_signal_emit (job, print_job_signals[PRINTING], 0, job->priv->status);
+	}	
+
 	gtk_source_print_compositor_draw_page (job->priv->compositor, context, page_nr);
 }
 
@@ -520,62 +532,67 @@ gedit_print_job_print (GeditPrintJob            *job,
 		       GtkWindow                *parent,
 		       GError                  **error)
 {
-	gchar            *job_name;
-	GtkPageSetup     *page_setup;
-	
+	GeditPrintJobPrivate *priv;
+	gchar *job_name;
+	GtkPageSetup *page_setup;
+
 	g_return_val_if_fail (job->priv->compositor == NULL, GTK_PRINT_OPERATION_RESULT_ERROR);
-	
+
+	priv = job->priv;
+
+	/* Check if we are previewing */
+	priv->is_preview = (action == GTK_PRINT_OPERATION_ACTION_PREVIEW);
+
 	/* Get print setting and page_setup */
 	page_setup = get_page_setup (job, error);
-	
+
 	/* Creare print operation */
 	job->priv->operation = gtk_print_operation_new ();
 
-	gtk_print_operation_set_print_settings (job->priv->operation,
-						job->priv->settings);
+	gtk_print_operation_set_print_settings (priv->operation,
+						priv->settings);
 
 	if (page_setup != NULL)
-		gtk_print_operation_set_default_page_setup (job->priv->operation, page_setup);
-	
-	job_name = gedit_document_get_short_name_for_display (job->priv->doc);
-	
-	gtk_print_operation_set_job_name (job->priv->operation, job_name);
-	
-	g_free (job_name);
-	
-	gtk_print_operation_set_allow_async (job->priv->operation, TRUE);
+		gtk_print_operation_set_default_page_setup (priv->operation,
+							    page_setup);
 
-  	g_signal_connect (job->priv->operation,
+	job_name = gedit_document_get_short_name_for_display (priv->doc);
+
+	gtk_print_operation_set_job_name (priv->operation, job_name);
+
+	g_free (job_name);
+
+	gtk_print_operation_set_allow_async (priv->operation, TRUE);
+
+  	g_signal_connect (priv->operation,
 			  "begin-print", 
 			  G_CALLBACK (begin_print_cb),
 			  job);
-	g_signal_connect (job->priv->operation,
+	g_signal_connect (priv->operation,
 			  "preview",
 			  G_CALLBACK (preview_cb),
 			  job);
-  	g_signal_connect (job->priv->operation,
+  	g_signal_connect (priv->operation,
 			  "paginate", 
 			  G_CALLBACK (paginate_cb),
 			  job);
-	g_signal_connect (job->priv->operation,
+	g_signal_connect (priv->operation,
 			  "draw-page", 
 			  G_CALLBACK (draw_page_cb),
 			  job);
-	g_signal_connect (job->priv->operation,
+	g_signal_connect (priv->operation,
 			  "end-print", 
 			  G_CALLBACK (end_print_cb),
 			  job);
-	g_signal_connect (job->priv->operation,
+	g_signal_connect (priv->operation,
 			  "done", 
 			  G_CALLBACK (done_cb),
 			  job);			  
 
-	// TODO
-
-	return 	gtk_print_operation_run (job->priv->operation, 
-					 action,
-					 parent,
-					 error);
+	return gtk_print_operation_run (priv->operation, 
+					action,
+					parent,
+					error);
 }
 
 static void
