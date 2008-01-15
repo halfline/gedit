@@ -2343,7 +2343,8 @@ show_printing_message_area (GeditTab *tab, gboolean preview)
 
 static void
 gedit_tab_print_or_print_preview (GeditTab                *tab,
-				  GtkPrintOperationAction  print_action)
+				  GtkPrintOperationAction  print_action,
+				  GtkPageSetup            *page_setup)
 {
 	GeditView *view;
 	gboolean is_preview;
@@ -2383,6 +2384,7 @@ gedit_tab_print_or_print_preview (GeditTab                *tab,
 
 	res = gedit_print_job_print (tab->priv->print_job,
 				     print_action,
+				     page_setup,
 				     GTK_WINDOW (gtk_widget_get_toplevel (GTK_WIDGET (tab))),
 				     &error);
 
@@ -2398,19 +2400,25 @@ gedit_tab_print_or_print_preview (GeditTab                *tab,
 }
 
 void 
-_gedit_tab_print (GeditTab *tab)
+_gedit_tab_print (GeditTab     *tab,
+		  GtkPageSetup *page_setup)
 {
 	g_return_if_fail (GEDIT_IS_TAB (tab));
 
-	gedit_tab_print_or_print_preview (tab, GTK_PRINT_OPERATION_ACTION_PRINT_DIALOG);
+	gedit_tab_print_or_print_preview (tab,
+					  GTK_PRINT_OPERATION_ACTION_PRINT_DIALOG,
+					  page_setup);
 }
 
 void
-_gedit_tab_print_preview (GeditTab *tab)
+_gedit_tab_print_preview (GeditTab     *tab,
+			  GtkPageSetup *page_setup)
 {
 	g_return_if_fail (GEDIT_IS_TAB (tab));
 
-	gedit_tab_print_or_print_preview (tab, GTK_PRINT_OPERATION_ACTION_PREVIEW);
+	gedit_tab_print_or_print_preview (tab,
+					  GTK_PRINT_OPERATION_ACTION_PREVIEW,
+					  page_setup);
 }
 
 void 

@@ -517,24 +517,16 @@ done_cb (GtkPrintOperation       *operation,
 	g_object_unref (job);
 }
 
-static GtkPageSetup *
-get_page_setup (GeditPrintJob  *job,
-		GError        **error)
-{
-	/* TODO */
-	return NULL;
-}
-
 /* Note that gedit_print_job_print can can only be called once on a given GeditPrintJob */
 GtkPrintOperationResult	 
 gedit_print_job_print (GeditPrintJob            *job,
 		       GtkPrintOperationAction   action,
+		       GtkPageSetup             *page_setup,
 		       GtkWindow                *parent,
 		       GError                  **error)
 {
 	GeditPrintJobPrivate *priv;
 	gchar *job_name;
-	GtkPageSetup *page_setup;
 
 	g_return_val_if_fail (job->priv->compositor == NULL, GTK_PRINT_OPERATION_RESULT_ERROR);
 
@@ -542,9 +534,6 @@ gedit_print_job_print (GeditPrintJob            *job,
 
 	/* Check if we are previewing */
 	priv->is_preview = (action == GTK_PRINT_OPERATION_ACTION_PREVIEW);
-
-	/* Get print setting and page_setup */
-	page_setup = get_page_setup (job, error);
 
 	/* Creare print operation */
 	job->priv->operation = gtk_print_operation_new ();
@@ -557,9 +546,7 @@ gedit_print_job_print (GeditPrintJob            *job,
 							    page_setup);
 
 	job_name = gedit_document_get_short_name_for_display (priv->doc);
-
 	gtk_print_operation_set_job_name (priv->operation, job_name);
-
 	g_free (job_name);
 
 	gtk_print_operation_set_allow_async (priv->operation, TRUE);

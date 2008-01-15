@@ -52,6 +52,11 @@ page_setup_done_cb (GtkPageSetup *setup,
 	if (setup != NULL)
 	{
 		g_print ("Page setup done\n");
+
+		if (page_setup)
+			g_object_unref (page_setup);
+
+		page_setup = setup;
 	}
 	else
 	{
@@ -90,7 +95,7 @@ _gedit_cmd_file_print_preview (GtkAction   *action,
 	if (tab == NULL)
 		return;
 
-	_gedit_tab_print_preview (tab);
+	_gedit_tab_print_preview (tab, page_setup);
 }
 
 void
@@ -105,6 +110,6 @@ _gedit_cmd_file_print (GtkAction   *action,
 	if (tab == NULL)
 		return;
 
-	_gedit_tab_print (tab);
+	_gedit_tab_print (tab, page_setup);
 }
 

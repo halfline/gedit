@@ -146,8 +146,10 @@ void		 _gedit_tab_save_as		(GeditTab            *tab,
 						 const gchar         *uri,
 						 const GeditEncoding *encoding);
 
-void		 _gedit_tab_print		(GeditTab            *tab);
-void		 _gedit_tab_print_preview	(GeditTab            *tab);
+void		 _gedit_tab_print		(GeditTab            *tab,
+						 GtkPageSetup        *page_setup);
+void		 _gedit_tab_print_preview	(GeditTab            *tab,
+						 GtkPageSetup        *page_setup);
 
 void		 _gedit_tab_mark_for_closing	(GeditTab	     *tab);
 
