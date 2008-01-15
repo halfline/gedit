@@ -2141,11 +2141,11 @@ static void
 printing_cb (GeditPrintJob       *job,
 	     GeditPrintJobStatus  status,
 	     GeditTab            *tab)
-{	
+{
 	g_return_if_fail (GEDIT_IS_PROGRESS_MESSAGE_AREA (tab->priv->message_area));	
-	
+
 	gtk_widget_show (tab->priv->message_area);
-	
+
 	gedit_progress_message_area_set_text (GEDIT_PROGRESS_MESSAGE_AREA (tab->priv->message_area),
 					      gedit_print_job_get_status_string (job));
 
@@ -2312,11 +2312,10 @@ print_cancelled (GeditMessageArea *area,
                  gint              response_id,
                  GeditTab         *tab)
 {
-	GeditView *view;
-
 	g_return_if_fail (GEDIT_IS_PROGRESS_MESSAGE_AREA (tab->priv->message_area));
 
 	gedit_print_job_cancel (tab->priv->print_job);
+
 	g_debug ("print_cancelled");
 }
 
