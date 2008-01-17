@@ -74,6 +74,8 @@ struct _GeditPrintPreviewPrivate
 	gint tile_w;
 	gint tile_h;
 
+	GtkPageOrientation orientation;
+
 	/* multipage support */
 	gint rows;
 	gint cols;
@@ -102,7 +104,7 @@ gedit_print_preview_get_property (GObject    *object,
 
 static void 
 gedit_print_preview_set_property (GObject      *object,
-				  guint         prop_id,
+				  guint	        prop_id,
 				  const GValue *value,
 				  GParamSpec   *pspec)
 {
@@ -169,8 +171,8 @@ update_layout_size (GeditPrintPreview *preview)
 
 static void
 set_rows_and_cols (GeditPrintPreview *preview,
-		   gint               rows,
-		   gint               cols)
+		   gint	              rows,
+		   gint	              cols)
 {
 	/* TODO: set the zoom appropriately */
 
@@ -197,28 +199,33 @@ get_paper_height (GeditPrintPreview *preview)
 #define PAGE_PAD 12
 #define PAGE_SHADOW_OFFSET 5 
 
-static double
-get_tile_width (gint page_w)
-{
-	return page_w + 2 * PAGE_PAD;
-}
+/* The tile size is the size of the area where a page
+ * will be drawn including the padding and idependent
+ * of the orientation */
 
-static double
-get_tile_height (gint page_h)
+/* updates the tile size to the current zoom and page size */
+static void
+update_tile_size (GeditPrintPreview *preview)
 {
-	return page_h + 2 * PAGE_PAD;
-}
+	GeditPrintPreviewPrivate *priv;	
+	gint w, h;
 
-static double
-get_page_width (gint tile_w)
-{
-	return MAX (1, tile_w - 2 * PAGE_PAD);
-}
+	priv = preview->priv;
 
-static double
-get_page_height (gint tile_h)
-{
-	return MAX (1, tile_h - 2 * PAGE_PAD);
+	w = 2 * PAGE_PAD + floor (priv->scale * get_paper_width (preview) + 0.5);
+	h = 2 * PAGE_PAD + floor (priv->scale * get_paper_height (preview) + 0.5);
+
+	if ((priv->orientation == GTK_PAGE_ORIENTATION_LANDSCAPE) ||
+	    (priv->orientation == GTK_PAGE_ORIENTATION_REVERSE_LANDSCAPE))
+	{
+		priv->tile_w = h;
+		priv->tile_h = w;
+	}
+	else
+	{
+		priv->tile_w = w;
+		priv->tile_h = h;	
+	}
 }
 
 /* Zoom should always be set with one of these two function
@@ -226,7 +233,7 @@ get_page_height (gint tile_h)
 
 static void
 set_zoom_factor (GeditPrintPreview *preview,
-	         double             zoom)
+		 double	            zoom)
 {
 	GeditPrintPreviewPrivate *priv;	
 
@@ -234,9 +241,7 @@ set_zoom_factor (GeditPrintPreview *preview,
 
 	priv->scale = zoom;
 
-	priv->tile_w = get_tile_width (floor (zoom * get_paper_width (preview) + 0.5));
-	priv->tile_h = get_tile_height (floor (zoom * get_paper_height (preview) + 0.5));
-
+	update_tile_size (preview);
 	update_layout_size (preview);
 }
 
@@ -259,8 +264,17 @@ set_zoom_fit_to_size (GeditPrintPreview *preview)
 	width /= priv->cols;
 	height /= priv->rows;
 
-	zoomx = get_page_width (width) / get_paper_width (preview);
-	zoomy = get_page_height (height) / get_paper_height (preview);
+	if ((priv->orientation == GTK_PAGE_ORIENTATION_LANDSCAPE) ||
+	    (priv->orientation == GTK_PAGE_ORIENTATION_REVERSE_LANDSCAPE))
+	{
+		zoomx = MAX (1, priv->tile_w - 2 * PAGE_PAD) / get_paper_height (preview);
+		zoomy = MAX (1, priv->tile_h - 2 * PAGE_PAD) / get_paper_width (preview);
+	}
+	else
+	{
+		zoomx = MAX (1, priv->tile_w - 2 * PAGE_PAD) / get_paper_width (preview);
+		zoomy = MAX (1, priv->tile_h - 2 * PAGE_PAD) / get_paper_height (preview);
+	}
 
 	if (zoomx <= zoomy)
 	{
@@ -449,7 +463,7 @@ on_2x2_clicked (GtkMenuItem *i, GeditPrintPreview *preview)
 }
 
 static void
-multi_button_clicked (GtkWidget         *button,
+multi_button_clicked (GtkWidget	 *button,
 		      GeditPrintPreview *preview)
 {
 	GtkWidget *m, *i;
@@ -461,26 +475,26 @@ multi_button_clicked (GtkWidget         *button,
 			  G_CALLBACK (gtk_widget_destroy),
 			  m);
 
-        i = gtk_menu_item_new_with_label ("1x1");
-        gtk_widget_show (i);
+	i = gtk_menu_item_new_with_label ("1x1");
+	gtk_widget_show (i);
 	gtk_menu_attach (GTK_MENU (m), i, 0, 1, 0, 1);
-        g_signal_connect (i, "activate", G_CALLBACK (on_1x1_clicked), preview);
+	g_signal_connect (i, "activate", G_CALLBACK (on_1x1_clicked), preview);
 
-        i = gtk_menu_item_new_with_label ("2x1");
-        gtk_widget_show (i);
+	i = gtk_menu_item_new_with_label ("2x1");
+	gtk_widget_show (i);
 	gtk_menu_attach (GTK_MENU (m), i, 0, 1, 1, 2);
-        g_signal_connect (i, "activate", G_CALLBACK (on_2x1_clicked), preview);
+	g_signal_connect (i, "activate", G_CALLBACK (on_2x1_clicked), preview);
 
-        i = gtk_menu_item_new_with_label ("1x2");
-        gtk_widget_show (i);
+	i = gtk_menu_item_new_with_label ("1x2");
+	gtk_widget_show (i);
 	gtk_menu_attach (GTK_MENU (m), i, 1, 2, 0, 1);
-        g_signal_connect (i, "activate", G_CALLBACK (on_1x2_clicked), preview);
+	g_signal_connect (i, "activate", G_CALLBACK (on_1x2_clicked), preview);
 
-        i = gtk_menu_item_new_with_label ("2x2");
-        gtk_widget_show (i);
+	i = gtk_menu_item_new_with_label ("2x2");
+	gtk_widget_show (i);
 	gtk_menu_attach (GTK_MENU (m), i, 1, 2, 1, 2);
-        g_signal_connect (i, "activate", G_CALLBACK (on_2x2_clicked), preview);
-       
+	g_signal_connect (i, "activate", G_CALLBACK (on_2x2_clicked), preview);
+
 	gtk_menu_popup (GTK_MENU (m),
 			NULL, NULL, NULL, preview, 0,
 			GDK_CURRENT_TIME);
@@ -577,7 +591,7 @@ create_bar (GeditPrintPreview *preview)
 	gtk_entry_set_width_chars (GTK_ENTRY (priv->page_entry), 3);
 	gtk_entry_set_max_length (GTK_ENTRY (priv->page_entry), 6);
 	gtk_widget_set_tooltip_text (priv->page_entry,
-	                             _("Current page (Alt+P)"));
+				     _("Current page (Alt+P)"));
 
 	g_signal_connect (priv->page_entry,
 			  "activate", 
@@ -795,17 +809,17 @@ preview_layout_key_press (GtkWidget         *widget,
 
 	switch (event->keyval) {
 	case '1':
-//		preview_zoom_100_cmd (preview);
+		set_zoom_fit_to_size (preview);
 		break;
 	case '+':
 	case '=':
 	case GDK_KP_Add:
-//		gpreview_zoom_in_cmd (NULL, preview);
+		zoom_in (preview);
 		break;
 	case '-':
 	case '_':
 	case GDK_KP_Subtract:
-//		gpreview_zoom_out_cmd (NULL, preview);
+		zoom_out (preview);
 		break;
 	case GDK_KP_Right:
 	case GDK_Right:
@@ -889,7 +903,7 @@ preview_layout_key_press (GtkWidget         *widget,
 		break;
 	case GDK_Escape:
 		gtk_widget_destroy (GTK_WIDGET (preview));
-	        break;
+		break;
 	case 'c':
 		if (event->state & GDK_MOD1_MASK)
 		{
@@ -941,8 +955,8 @@ create_preview_layout (GeditPrintPreview *preview)
 
 	gtk_widget_add_events (priv->layout,
 			       GDK_POINTER_MOTION_MASK |
-	                       GDK_BUTTON_PRESS_MASK |
-	                       GDK_KEY_PRESS_MASK);
+			       GDK_BUTTON_PRESS_MASK |
+			       GDK_KEY_PRESS_MASK);
 
 	GTK_WIDGET_SET_FLAGS (priv->layout, GTK_CAN_FOCUS);
 
@@ -1000,42 +1014,26 @@ gedit_print_preview_init (GeditPrintPreview *preview)
 }
 
 static void
-draw_page (cairo_t           *cr,
-	   double             x,
-	   double             y,
-	   gint               page_number,
-	   GeditPrintPreview *preview)
+draw_page_content (cairo_t            *cr,
+		   gint	               page_number,
+		   GeditPrintPreview  *preview)
 {
-	GeditPrintPreviewPrivate *priv;	
-
-	priv = preview->priv;
-
-	cairo_save (cr);
-
-	/* move to the page top left corner */
-	cairo_translate (cr, x + PAGE_PAD, y + PAGE_PAD);
-
 	/* scale to the desired size */
-	cairo_scale (cr, priv->scale, priv->scale);
+	cairo_scale (cr, preview->priv->scale, preview->priv->scale);
 
-	/* drop shadow */
-	cairo_set_source_rgb (cr, 0, 0, 0);
-	cairo_rectangle (cr,
-			 PAGE_SHADOW_OFFSET, PAGE_SHADOW_OFFSET,
-			 get_paper_width (preview), get_paper_height (preview));
-	cairo_fill (cr);
+	/* rotate acording to page orientation if needed */
+	if ((preview->priv->orientation == GTK_PAGE_ORIENTATION_LANDSCAPE) ||
+	    (preview->priv->orientation == GTK_PAGE_ORIENTATION_REVERSE_LANDSCAPE))
+	{
+		cairo_matrix_t matrix;
 
-	/* page frame */
-	cairo_set_source_rgb (cr, 1, 1, 1);
-	cairo_rectangle (cr,
-			 0, 0,
-			 get_paper_width (preview), get_paper_height (preview));
-	cairo_fill_preserve (cr);
-	cairo_set_source_rgb (cr, 0, 0, 0);
-	cairo_set_line_width (cr, 1);
-	cairo_stroke (cr);
+		cairo_matrix_init (&matrix,
+				   0, -1,
+				   1,  0,
+				   0,  get_paper_width (preview));
+		cairo_transform (cr, &matrix);
+	}
 
-	/* render the page content */
 	gtk_print_context_set_cairo_context (preview->priv->context,
 					     cr,
 					     preview->priv->dpi,
@@ -1043,6 +1041,66 @@ draw_page (cairo_t           *cr,
 
 	gtk_print_operation_preview_render_page (preview->priv->gtk_preview,
 						 page_number);
+}
+
+/* For the frame, we scale and rotate manually, since
+ * the line width should not depend on the zoom and
+ * the drop shadow should be on the bottom right no matter
+ * the orientation */
+static void
+draw_page_frame (cairo_t            *cr,
+		 GeditPrintPreview  *preview)
+{
+	double w, h;
+
+	w = get_paper_width (preview);
+	h = get_paper_height (preview);
+
+	if ((preview->priv->orientation == GTK_PAGE_ORIENTATION_LANDSCAPE) ||
+	    (preview->priv->orientation == GTK_PAGE_ORIENTATION_REVERSE_LANDSCAPE))
+	{
+		double tmp;
+
+		tmp = w;
+		w = h;
+		h = tmp;
+	}
+
+	w *= preview->priv->scale;
+	h *= preview->priv->scale;
+
+	/* drop shadow */
+	cairo_set_source_rgb (cr, 0, 0, 0);
+	cairo_rectangle (cr,
+			 PAGE_SHADOW_OFFSET, PAGE_SHADOW_OFFSET,
+			 w, h);
+	cairo_fill (cr);
+
+	/* page frame */
+	cairo_set_source_rgb (cr, 1, 1, 1);
+	cairo_rectangle (cr,
+			 0, 0,
+			 w, h);
+	cairo_fill_preserve (cr);
+	cairo_set_source_rgb (cr, 0, 0, 0);
+	cairo_set_line_width (cr, 1);
+	cairo_stroke (cr);
+}
+
+static void
+draw_page (cairo_t           *cr,
+	   double             x,
+	   double             y,
+	   gint	              page_number,
+	   GeditPrintPreview *preview)
+{
+	cairo_save (cr);
+
+	/* move to the page top left corner */
+	cairo_translate (cr, x + PAGE_PAD, y + PAGE_PAD);
+
+	draw_page_frame (cr, preview);
+	draw_page_content (cr, page_number, preview);
 
 	cairo_restore (cr);
 }
@@ -1165,6 +1223,8 @@ update_paper_size (GeditPrintPreview *preview,
 
 	preview->priv->paper_w = gtk_paper_size_get_width (paper_size, GTK_UNIT_INCH);
 	preview->priv->paper_h = gtk_paper_size_get_height (paper_size, GTK_UNIT_INCH);
+
+	preview->priv->orientation = gtk_page_setup_get_orientation (page_setup);
 }
 
 static void
@@ -1180,8 +1240,8 @@ preview_got_page_size (GtkPrintOperationPreview *gtk_preview,
 
 static cairo_status_t
 dummy_write_func (G_GNUC_UNUSED gpointer      closure,
-                  G_GNUC_UNUSED const guchar *data,
-                  G_GNUC_UNUSED guint         length)
+		  G_GNUC_UNUSED const guchar *data,
+		  G_GNUC_UNUSED guint         length)
 {
     return CAIRO_STATUS_SUCCESS;
 }
@@ -1190,8 +1250,8 @@ dummy_write_func (G_GNUC_UNUSED gpointer      closure,
 
 static cairo_surface_t *
 create_preview_surface_platform (GtkPaperSize *paper_size,
-                                 double       *dpi_x,
-                                 double       *dpi_y)
+				 double       *dpi_x,
+				 double       *dpi_y)
 {
     double width, height;
     cairo_surface_t *sf;
@@ -1202,14 +1262,14 @@ create_preview_surface_platform (GtkPaperSize *paper_size,
     *dpi_x = *dpi_y = PRINTER_DPI;
 
     sf = cairo_pdf_surface_create_for_stream (dummy_write_func, NULL,
-                                              width, height);
+					      width, height);
     return sf;
 }
 
 static cairo_surface_t *
 create_preview_surface (GeditPrintPreview *preview,
-                        double          *dpi_x,
-                        double          *dpi_y)
+			double	  *dpi_x,
+			double	  *dpi_y)
 {
     GtkPageSetup *page_setup;
     GtkPaperSize *paper_size;
