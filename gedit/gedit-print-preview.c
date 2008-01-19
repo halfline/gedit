@@ -267,13 +267,13 @@ set_zoom_fit_to_size (GeditPrintPreview *preview)
 	if ((priv->orientation == GTK_PAGE_ORIENTATION_LANDSCAPE) ||
 	    (priv->orientation == GTK_PAGE_ORIENTATION_REVERSE_LANDSCAPE))
 	{
-		zoomx = MAX (1, priv->tile_w - 2 * PAGE_PAD) / get_paper_height (preview);
-		zoomy = MAX (1, priv->tile_h - 2 * PAGE_PAD) / get_paper_width (preview);
+		zoomx = MAX (1, width - 2 * PAGE_PAD) / get_paper_height (preview);
+		zoomy = MAX (1, height - 2 * PAGE_PAD) / get_paper_width (preview);
 	}
 	else
 	{
-		zoomx = MAX (1, priv->tile_w - 2 * PAGE_PAD) / get_paper_width (preview);
-		zoomy = MAX (1, priv->tile_h - 2 * PAGE_PAD) / get_paper_height (preview);
+		zoomx = MAX (1, width - 2 * PAGE_PAD) / get_paper_width (preview);
+		zoomy = MAX (1, height - 2 * PAGE_PAD) / get_paper_height (preview);
 	}
 
 	if (zoomx <= zoomy)
@@ -289,7 +289,7 @@ set_zoom_fit_to_size (GeditPrintPreview *preview)
 		priv->scale = zoomy;
 	}
 
-	gtk_widget_queue_draw (priv->layout);
+	update_layout_size (preview);
 }
 
 #define ZOOM_IN_FACTOR (1.2)
