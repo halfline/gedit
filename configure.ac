@@ -170,7 +170,6 @@ PKG_CHECK_MODULES(GEDIT, [
 	gtksourceview-2.0 >= 2.0.0
 	libgnomeui-2.0 >= 2.16.0
 	libglade-2.0 >= 2.5.1
-	libgnomeprintui-2.2 >= 2.12.1
 	gnome-vfs-2.0 >= 2.16.0
 ])
 GEDIT_LIBS="${GEDIT_LIBS}"
