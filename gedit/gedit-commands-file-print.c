@@ -39,30 +39,8 @@
 
 #include "gedit-commands.h"
 #include "gedit-window.h"
+#include "gedit-tab.h"
 #include "gedit-debug.h"
-
-// FIXME: should these be per window? per tab? global?
-static GtkPageSetup *page_setup = NULL;
-static GtkPrintSettings *settings = NULL;
-
-static void
-page_setup_done_cb (GtkPageSetup *setup,
-		    GeditTab     *tab)
-{
-	if (setup != NULL)
-	{
-		g_print ("Page setup done\n");
-
-		if (page_setup)
-			g_object_unref (page_setup);
-
-		page_setup = setup;
-	}
-	else
-	{
-		g_print ("Page setup dismissed\n");
-	}
-}
 
 void
 _gedit_cmd_file_page_setup (GtkAction   *action,
@@ -76,11 +54,7 @@ _gedit_cmd_file_page_setup (GtkAction   *action,
 	if (tab == NULL)
 		return;
 
-	gtk_print_run_page_setup_dialog_async (GTK_WINDOW (window),
-		 			       page_setup,
-		 			       settings,
-					       (GtkPageSetupDoneFunc) page_setup_done_cb,
-					       tab);
+	_gedit_tab_page_setup (tab);
 }
 
 void
@@ -95,7 +69,7 @@ _gedit_cmd_file_print_preview (GtkAction   *action,
 	if (tab == NULL)
 		return;
 
-	_gedit_tab_print_preview (tab, page_setup);
+	_gedit_tab_print_preview (tab);
 }
 
 void
@@ -110,6 +84,6 @@ _gedit_cmd_file_print (GtkAction   *action,
 	if (tab == NULL)
 		return;
 
-	_gedit_tab_print (tab, page_setup);
+	_gedit_tab_print (tab);
 }
 

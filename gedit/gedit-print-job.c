@@ -43,8 +43,6 @@
 #include "gedit-marshal.h"
 #include "gedit-utils.h"
 
-#define GEDIT_PRINT_SETTINGS_KEY  "gedit-print-settings-key"
-#define GEDIT_PRINT_SETTINGS_FILE "gedit-print-settings"
 
 #define GEDIT_PRINT_JOB_GET_PRIVATE(object)(G_TYPE_INSTANCE_GET_PRIVATE ((object), GEDIT_TYPE_PRINT_JOB, GeditPrintJobPrivate))
 
@@ -87,98 +85,12 @@ static guint print_job_signals[LAST_SIGNAL] = { 0 };
 
 G_DEFINE_TYPE (GeditPrintJob, gedit_print_job, G_TYPE_OBJECT)
 
-static gchar *
-get_settings_filename (void)
-{
-	const gchar *home;
-
-	home = g_get_home_dir ();
-	if (home == NULL)
-	{
-		g_warning ("Could not get home directory\n");
-		return NULL;
-	}
-
-	return g_build_filename (home,
-				 ".gnome2",
-				 "gedit",
-				 GEDIT_PRINT_SETTINGS_FILE,
-				 NULL);
-}
-
-static void
-load_print_settings (GeditPrintJob *job)
-{
-	gchar *filename;
-	GError *error = NULL;
-
-	g_return_if_fail (job->priv->settings == NULL);
-
-	filename = get_settings_filename ();
-
-	job->priv->settings = gtk_print_settings_new_from_file (filename,
-								&error);
-	if (error)
-	{
-		/* TODO: ignore file not found error */
-		g_warning (error->message);
-		g_error_free (error);
-	}
-
-	g_free (filename);
-
-	/* fall back to default settings */
-	if (job->priv->settings == NULL)
-		job->priv->settings = gtk_print_settings_new ();
-}
-
-static void
-save_print_settings (GeditPrintJob *job)
-{
-	gchar *filename;
-	GError *error = NULL;
-
-	if (job->priv->settings == NULL)
-		return;
-
-	filename = get_settings_filename ();
-
-	gtk_print_settings_to_file (job->priv->settings,
-				    filename,
-				    &error);
-	if (error)
-	{
-		g_warning (error->message);
-		g_error_free (error);
-	}
-
-	g_free (filename);
-}
 
 static void
 set_view (GeditPrintJob *job, GeditView *view)
 {
-	gpointer data;
-
 	job->priv->view = view;
 	job->priv->doc = GEDIT_DOCUMENT (gtk_text_view_get_buffer (GTK_TEXT_VIEW (view)));
-
-	data = g_object_get_data (G_OBJECT (job->priv->doc),
-				  GEDIT_PRINT_SETTINGS_KEY);
-
-	if (data == NULL)	
-	{
-		load_print_settings (job);
-
-		g_object_set_data_full (G_OBJECT (job->priv->doc),
-					GEDIT_PRINT_SETTINGS_KEY,
-					g_object_ref (job->priv->settings),
-					(GDestroyNotify)g_object_unref);
-	}
-	else
-	{
-		job->priv->settings = GTK_PRINT_SETTINGS (data);
-	}
 }
 
 static void 
@@ -233,9 +145,6 @@ gedit_print_job_finalize (GObject *object)
 
 	if (job->priv->operation != NULL)
 		g_object_unref (job->priv->operation);
-
-	if (job->priv->settings != NULL)
-		g_object_unref (job->priv->settings);
 
 	G_OBJECT_CLASS (gedit_print_job_parent_class)->finalize (object);
 }
@@ -494,7 +403,6 @@ done_cb (GtkPrintOperation       *operation,
 
 		case GTK_PRINT_OPERATION_RESULT_APPLY:
 			print_result = GEDIT_PRINT_JOB_RESULT_OK;
-			save_print_settings (job);
 			break;
 
 		case GTK_PRINT_OPERATION_RESULT_ERROR:
@@ -522,6 +430,7 @@ GtkPrintOperationResult
 gedit_print_job_print (GeditPrintJob            *job,
 		       GtkPrintOperationAction   action,
 		       GtkPageSetup             *page_setup,
+		       GtkPrintSettings         *settings,
 		       GtkWindow                *parent,
 		       GError                  **error)
 {
@@ -535,11 +444,12 @@ gedit_print_job_print (GeditPrintJob            *job,
 	/* Check if we are previewing */
 	priv->is_preview = (action == GTK_PRINT_OPERATION_ACTION_PREVIEW);
 
-	/* Creare print operation */
+	/* Create print operation */
 	job->priv->operation = gtk_print_operation_new ();
 
-	gtk_print_operation_set_print_settings (priv->operation,
-						priv->settings);
+	if (settings)
+		gtk_print_operation_set_print_settings (priv->operation,
+							settings);
 
 	if (page_setup != NULL)
 		gtk_print_operation_set_default_page_setup (priv->operation,
@@ -631,4 +541,11 @@ gedit_print_job_get_progress (GeditPrintJob *job)
 	return job->priv->progress;
 }
 
+GtkPrintSettings *
+gedit_print_job_get_print_settings (GeditPrintJob *job)
+{
+	g_return_val_if_fail (GEDIT_IS_PRINT_JOB (job), NULL);
+
+	return gtk_print_operation_get_print_settings (job->priv->operation);
+}
 

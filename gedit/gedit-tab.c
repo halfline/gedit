@@ -2136,6 +2136,51 @@ _gedit_tab_save_as (GeditTab            *tab,
 	gedit_document_save_as (doc, uri, encoding, tab->priv->save_flags);
 }
 
+#define GEDIT_PAGE_SETUP_KEY "gedit-page-setup-key"
+#define GEDIT_PRINT_SETTINGS_KEY "gedit-print-settings-key"
+
+static GtkPageSetup *
+get_page_setup (GeditTab *tab)
+{
+	gpointer data;
+	GeditDocument *doc;
+
+	doc = gedit_tab_get_document (tab);
+
+	data = g_object_get_data (G_OBJECT (doc),
+				  GEDIT_PAGE_SETUP_KEY);
+
+	if (data == NULL)
+	{
+		return _gedit_app_get_default_page_setup (gedit_app_get_default());
+	}
+	else
+	{
+		return GTK_PAGE_SETUP (data);
+	}
+}
+
+static GtkPrintSettings *
+get_print_settings (GeditTab *tab)
+{
+	gpointer data;
+	GeditDocument *doc;
+
+	doc = gedit_tab_get_document (tab);
+
+	data = g_object_get_data (G_OBJECT (doc),
+				  GEDIT_PRINT_SETTINGS_KEY);
+
+	if (data == NULL)
+	{
+		return _gedit_app_get_default_print_settings (gedit_app_get_default());
+	}
+	else
+	{
+		return GTK_PRINT_SETTINGS (data);
+	}
+}
+
 /* FIXME: show the message area only if the operation will be "long" */
 static void
 printing_cb (GeditPrintJob       *job,
@@ -2178,6 +2223,27 @@ done_printing_cb (GeditPrintJob       *job,
 	}
 
 	// TODO: check status and error
+
+	/* Save the print settings */ 
+	if (result == GTK_PRINT_OPERATION_RESULT_APPLY)
+	{
+		GeditDocument *doc;
+		GtkPrintSettings *settings;
+
+		doc = gedit_tab_get_document (tab);
+
+		settings = gedit_print_job_get_print_settings (job);
+
+		/* remember them for this document */
+		g_object_set_data_full (G_OBJECT (doc),
+					GEDIT_PRINT_SETTINGS_KEY,
+					g_object_ref (settings),
+					(GDestroyNotify)g_object_unref);
+
+		/* make them the default */
+		_gedit_app_set_default_print_settings (gedit_app_get_default (),
+						       settings);
+	}
 
 #if 0
 	if (tab->priv->print_preview != NULL)
@@ -2342,12 +2408,55 @@ show_printing_message_area (GeditTab *tab, gboolean preview)
 }
 
 static void
+page_setup_done_cb (GtkPageSetup *setup,
+		    GeditTab     *tab)
+{
+	if (setup != NULL)
+	{
+		GeditDocument *doc;
+
+		doc = gedit_tab_get_document (tab);
+
+		/* remember it for this document */
+		g_object_set_data_full (G_OBJECT (doc),
+					GEDIT_PAGE_SETUP_KEY,
+					g_object_ref (setup),
+					(GDestroyNotify)g_object_unref);
+
+		/* make it the default */
+		_gedit_app_set_default_page_setup (gedit_app_get_default(),
+						   setup);
+	}
+}
+
+void 
+_gedit_tab_page_setup (GeditTab *tab)
+{
+	GtkPageSetup *setup;
+	GtkPrintSettings *settings;
+
+	g_return_if_fail (GEDIT_IS_TAB (tab));
+
+	setup = get_page_setup (tab);
+	settings = get_print_settings (tab);
+
+	gtk_print_run_page_setup_dialog_async (GTK_WINDOW (gtk_widget_get_toplevel (GTK_WIDGET (tab))),
+		 			       setup,
+		 			       settings,
+					       (GtkPageSetupDoneFunc) page_setup_done_cb,
+					       tab);
+
+	/* CHECK: should we unref setup and settings? */
+}
+
+static void
 gedit_tab_print_or_print_preview (GeditTab                *tab,
-				  GtkPrintOperationAction  print_action,
-				  GtkPageSetup            *page_setup)
+				  GtkPrintOperationAction  print_action)
 {
 	GeditView *view;
 	gboolean is_preview;
+	GtkPageSetup *setup;
+	GtkPrintSettings *settings;
 	GtkPrintOperationResult res;
 	GError *error = NULL;
 
@@ -2382,9 +2491,13 @@ gedit_tab_print_or_print_preview (GeditTab                *tab,
 	else
 		gedit_tab_set_state (tab, GEDIT_TAB_STATE_PRINTING);
 
+	setup = get_page_setup (tab);
+	settings = get_print_settings (tab);
+
 	res = gedit_print_job_print (tab->priv->print_job,
 				     print_action,
-				     page_setup,
+				     setup,
+				     settings,
 				     GTK_WINDOW (gtk_widget_get_toplevel (GTK_WIDGET (tab))),
 				     &error);
 
@@ -2400,25 +2513,29 @@ gedit_tab_print_or_print_preview (GeditTab                *tab,
 }
 
 void 
-_gedit_tab_print (GeditTab     *tab,
-		  GtkPageSetup *page_setup)
+_gedit_tab_print (GeditTab     *tab)
 {
 	g_return_if_fail (GEDIT_IS_TAB (tab));
 
+	/* FIXME: currently we can have just one printoperation going on
+	 * at a given time, so before starting the print we close the preview.
+	 * Would be nice to handle it properly though */
+	if (tab->priv->state == GEDIT_TAB_STATE_SHOWING_PRINT_PREVIEW)
+	{
+		gtk_widget_destroy (tab->priv->print_preview);
+	}
+
 	gedit_tab_print_or_print_preview (tab,
-					  GTK_PRINT_OPERATION_ACTION_PRINT_DIALOG,
-					  page_setup);
+					  GTK_PRINT_OPERATION_ACTION_PRINT_DIALOG);
 }
 
 void
-_gedit_tab_print_preview (GeditTab     *tab,
-			  GtkPageSetup *page_setup)
+_gedit_tab_print_preview (GeditTab     *tab)
 {
 	g_return_if_fail (GEDIT_IS_TAB (tab));
 
 	gedit_tab_print_or_print_preview (tab,
-					  GTK_PRINT_OPERATION_ACTION_PREVIEW,
-					  page_setup);
+					  GTK_PRINT_OPERATION_ACTION_PREVIEW);
 }
 
 void 
