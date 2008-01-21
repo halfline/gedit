@@ -205,6 +205,25 @@ gedit_print_job_class_init (GeditPrintJobClass *klass)
 	g_type_class_add_private (object_class, sizeof (GeditPrintJobPrivate));
 }
 
+static GObject *
+create_custom_widget_cb (GtkPrintOperation *operation, 
+			 GeditPrintJob     *job)
+{
+	GtkWidget *widget;
+
+	widget = gtk_label_new ("Implement me!");
+
+	return G_OBJECT (widget);
+}
+
+static void
+custom_widget_apply_cb (GtkPrintOperation *operation,
+			GtkWidget         *widget,
+			GeditPrintJob     *job)
+{
+	g_print ("custom widget apply");
+}
+
 static void
 create_compositor (GeditPrintJob *job)
 {
@@ -459,8 +478,19 @@ gedit_print_job_print (GeditPrintJob            *job,
 	gtk_print_operation_set_job_name (priv->operation, job_name);
 	g_free (job_name);
 
+	gtk_print_operation_set_custom_tab_label (priv->operation,
+						  _("Text Editor"));
+
 	gtk_print_operation_set_allow_async (priv->operation, TRUE);
 
+	g_signal_connect (priv->operation,
+			  "create-custom-widget", 
+			  G_CALLBACK (create_custom_widget_cb),
+			  job);
+	g_signal_connect (priv->operation,
+			  "custom-widget-apply", 
+			  G_CALLBACK (custom_widget_apply_cb), 
+			  job);
   	g_signal_connect (priv->operation,
 			  "begin-print", 
 			  G_CALLBACK (begin_print_cb),
