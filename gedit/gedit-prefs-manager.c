@@ -608,13 +608,31 @@ DEFINE_STRING_PREF (print_font_body,
 		    GPM_PRINT_FONT_BODY,
 		    GPM_DEFAULT_PRINT_FONT_BODY)
 
+const gchar *
+gedit_prefs_manager_get_default_print_font_body (void)
+{
+	return GPM_DEFAULT_PRINT_FONT_BODY;
+}
+
 DEFINE_STRING_PREF (print_font_header,
 		    GPM_PRINT_FONT_HEADER,
 		    GPM_DEFAULT_PRINT_FONT_HEADER)
 
+const gchar *
+gedit_prefs_manager_get_default_print_font_header (void)
+{
+	return GPM_DEFAULT_PRINT_FONT_HEADER;
+}
+
 DEFINE_STRING_PREF (print_font_numbers,
 		    GPM_PRINT_FONT_NUMBERS,
 		    GPM_DEFAULT_PRINT_FONT_NUMBERS)
+
+const gchar *
+gedit_prefs_manager_get_default_print_font_numbers (void)
+{
+	return GPM_DEFAULT_PRINT_FONT_NUMBERS;
+}
 
 /* Max number of files in "Recent Files" menu. 
  * This is configurable only using gconftool or gconf-editor 
