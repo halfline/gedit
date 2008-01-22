@@ -190,11 +190,16 @@ gedit-marshal.c: gedit-marshal.list $(GLIB_GENMARSHAL)
 	echo "#include \"gedit-marshal.h\"" > $@ && \
 	$(GLIB_GENMARSHAL) $< --body --prefix=gedit_marshal >> $@
 
-ui_DATA = gedit-ui.xml
 uidir = $(datadir)/gedit-2/ui/
+ui_DATA = gedit-ui.xml
+
+gladedir = $(datadir)/gedit-2/glade/
+glade_DATA =				\
+	gedit-print-preferences.glade
 
 EXTRA_DIST = 				\
 	$(ui_DATA)			\
+	$(glade_DATA)			\
 	gedit-enum-types.h.template	\
 	gedit-enum-types.c.template	\
 	gedit-marshal.list
