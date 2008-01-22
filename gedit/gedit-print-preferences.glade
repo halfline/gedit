@@ -388,10 +388,12 @@
                                 <property name="column_spacing">12</property>
                                 <property name="row_spacing">12</property>
                                 <child>
-                                  <widget class="GtkFontButton" id="fontbutton3">
+                                  <widget class="GtkFontButton" id="headers_fontbutton">
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="response_id">0</property>
+                                    <property name="use_font">True</property>
+                                    <property name="show_style">False</property>
                                   </widget>
                                   <packing>
                                     <property name="left_attach">1</property>
@@ -403,10 +405,12 @@
                                   </packing>
                                 </child>
                                 <child>
-                                  <widget class="GtkFontButton" id="fontbutton2">
+                                  <widget class="GtkFontButton" id="numbers_fontbutton">
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="response_id">0</property>
+                                    <property name="use_font">True</property>
+                                    <property name="show_style">False</property>
                                   </widget>
                                   <packing>
                                     <property name="left_attach">1</property>
@@ -418,10 +422,12 @@
                                   </packing>
                                 </child>
                                 <child>
-                                  <widget class="GtkFontButton" id="fontbutton1">
+                                  <widget class="GtkFontButton" id="body_fontbutton">
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="response_id">0</property>
+                                    <property name="use_font">True</property>
+                                    <property name="show_style">False</property>
                                   </widget>
                                   <packing>
                                     <property name="left_attach">1</property>
@@ -435,7 +441,7 @@
                                     <property name="xalign">0</property>
                                     <property name="label" translatable="yes">He_aders and footers:</property>
                                     <property name="use_underline">True</property>
-                                    <property name="mnemonic_widget">fontbutton3</property>
+                                    <property name="mnemonic_widget">headers_fontbutton</property>
                                   </widget>
                                   <packing>
                                     <property name="top_attach">2</property>
@@ -450,7 +456,7 @@
                                     <property name="xalign">0</property>
                                     <property name="label" translatable="yes">_Line numbers:</property>
                                     <property name="use_underline">True</property>
-                                    <property name="mnemonic_widget">fontbutton2</property>
+                                    <property name="mnemonic_widget">numbers_fontbutton</property>
                                   </widget>
                                   <packing>
                                     <property name="top_attach">1</property>
@@ -465,7 +471,7 @@
                                     <property name="xalign">0</property>
                                     <property name="label" translatable="yes">_Body:</property>
                                     <property name="use_underline">True</property>
-                                    <property name="mnemonic_widget">fontbutton1</property>
+                                    <property name="mnemonic_widget">body_fontbutton</property>
                                   </widget>
                                   <packing>
                                     <property name="x_options">GTK_FILL</property>

@@ -374,22 +374,6 @@ numbers_font_button_font_set (GtkFontButton *fb,
 	gedit_prefs_manager_set_print_font_numbers (gtk_font_button_get_font_name (fb));
 }
 
-static GtkWidget *
-font_button_new (void)
-{
-	GtkWidget *button;
-
-	button = gtk_font_button_new ();
-
-	gtk_font_button_set_use_font (GTK_FONT_BUTTON (button), TRUE);
-	gtk_font_button_set_show_style (GTK_FONT_BUTTON (button), FALSE);
-	gtk_font_button_set_show_size (GTK_FONT_BUTTON (button), TRUE);
-
-	gtk_widget_show (button);
-
-	return button;
-}
-
 static GObject *
 create_custom_widget_cb (GtkPrintOperation *operation, 
 			 GeditPrintJob     *job)
@@ -415,8 +399,11 @@ create_custom_widget_cb (GtkPrintOperation *operation,
 					     "do_not_split_checkbutton", &job->priv->do_not_split_checkbutton,
 					     "fonts_table", &job->priv->fonts_table,
 					     "body_font_label", &job->priv->body_font_label,
+					     "body_fontbutton", &job->priv->body_fontbutton,
 					     "headers_font_label", &job->priv->headers_font_label,
+					     "headers_fontbutton", &job->priv->headers_fontbutton,
 					     "numbers_font_label", &job->priv->numbers_font_label,
+					     "numbers_fontbutton", &job->priv->numbers_fontbutton,
 					     "restore_button", &job->priv->restore_button,
 					     NULL);
 
@@ -491,34 +478,8 @@ create_custom_widget_cb (GtkPrintOperation *operation,
 	gtk_widget_set_sensitive (job->priv->do_not_split_checkbutton, 
 				  can_set && (wrap_mode != GTK_WRAP_NONE));
 
-	/* Body font button */
-	job->priv->body_fontbutton = font_button_new ();
-	gtk_table_attach_defaults (GTK_TABLE (job->priv->fonts_table), 
-				   job->priv->body_fontbutton,
-				   1, 2, 0, 1);
-
-	/* Headers font button */
-	job->priv->headers_fontbutton = font_button_new ();
-	gtk_table_attach_defaults (GTK_TABLE (job->priv->fonts_table), 
-				   job->priv->headers_fontbutton,
-				   1, 2, 2, 3);
-
-	/* Numbers font button */
-	job->priv->numbers_fontbutton = font_button_new ();
-	gtk_table_attach_defaults (GTK_TABLE (job->priv->fonts_table), 
-				   job->priv->numbers_fontbutton,
-				   1, 2, 1, 2);
-
-	gtk_label_set_mnemonic_widget (GTK_LABEL (job->priv->body_font_label), 
-				       job->priv->body_fontbutton);
-	gtk_label_set_mnemonic_widget (GTK_LABEL (job->priv->headers_font_label), 
-				       job->priv->headers_fontbutton);
-	gtk_label_set_mnemonic_widget (GTK_LABEL (job->priv->numbers_font_label), 
-				       job->priv->numbers_fontbutton);
-
 	/* Set initial values */
 	font = gedit_prefs_manager_get_print_font_body ();
-	g_print ("setting body font to %s\n", font);
 	gtk_font_button_set_font_name (GTK_FONT_BUTTON (job->priv->body_fontbutton),
 				       font);
 	g_free (font);
