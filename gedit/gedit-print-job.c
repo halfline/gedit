@@ -634,6 +634,8 @@ preview_ready (GtkPrintOperationPreview *gtk_preview,
 	       GtkPrintContext          *context,
 	       GeditPrintJob            *job)
 {
+	job->priv->is_preview = TRUE;
+
 	g_signal_emit (job, print_job_signals[SHOW_PREVIEW], 0, job->priv->preview);
 }
 
