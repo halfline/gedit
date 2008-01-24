@@ -2225,7 +2225,7 @@ done_printing_cb (GeditPrintJob       *job,
 	// TODO: check status and error
 
 	/* Save the print settings */ 
-	if (result == GTK_PRINT_OPERATION_RESULT_APPLY)
+	if (result ==  GEDIT_PRINT_JOB_RESULT_OK)
 	{
 		GeditDocument *doc;
 		GtkPrintSettings *settings;
