@@ -203,8 +203,13 @@ load_page_setup (GeditApp *app)
 							      &error);
 	if (error)
 	{
-		/* TODO: ignore file not found error */
-		g_warning (error->message);
+		/* Ignore file not found error */
+		if (error->domain != G_FILE_ERROR ||
+		    error->code != G_FILE_ERROR_NOENT)
+		{
+			g_warning (error->message);
+		}
+
 		g_error_free (error);
 	}
 
@@ -270,8 +275,13 @@ load_print_settings (GeditApp *app)
 								      &error);
 	if (error)
 	{
-		/* TODO: ignore file not found error */
-		g_warning (error->message);
+		/* Ignore file not found error */
+		if (error->domain != G_FILE_ERROR ||
+		    error->code != G_FILE_ERROR_NOENT)
+		{
+			g_warning (error->message);
+		}
+
 		g_error_free (error);
 	}
 
@@ -413,6 +423,7 @@ window_destroy (GeditWindow *window,
 
 		save_accels ();
 
+		save_page_setup (app);
 		save_print_settings (app);
 
 		g_object_unref (app);
