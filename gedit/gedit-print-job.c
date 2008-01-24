@@ -44,7 +44,9 @@
 #include "gedit-utils.h"
 
 
-#define GEDIT_PRINT_JOB_GET_PRIVATE(object)(G_TYPE_INSTANCE_GET_PRIVATE ((object), GEDIT_TYPE_PRINT_JOB, GeditPrintJobPrivate))
+#define GEDIT_PRINT_JOB_GET_PRIVATE(object)(G_TYPE_INSTANCE_GET_PRIVATE ((object), \
+					    GEDIT_TYPE_PRINT_JOB, \
+					    GeditPrintJobPrivate))
 
 struct _GeditPrintJobPrivate
 {
@@ -190,7 +192,9 @@ gedit_print_job_class_init (GeditPrintJobClass *klass)
 							      "Gedit View",
 							      "Gedit View to print",
 							      GEDIT_TYPE_VIEW,
-							      G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY));
+							      G_PARAM_READWRITE |
+							      G_PARAM_STATIC_STRINGS |
+							      G_PARAM_CONSTRUCT_ONLY));
 
 	print_job_signals[PRINTING] =
 		g_signal_new ("printing",
