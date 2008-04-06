@@ -70,8 +70,6 @@ struct _GeditPluginInfo
 };
 
 GeditPluginInfo		*_gedit_plugin_info_new		(const gchar *file);
-void			 _gedit_plugin_info_ref		(GeditPluginInfo *info);
-void			 _gedit_plugin_info_unref	(GeditPluginInfo *info);
 
 
 #endif /* __GEDIT_PLUGIN_INFO_PRIV_H__ */

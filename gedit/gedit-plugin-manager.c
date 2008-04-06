@@ -127,6 +127,7 @@ about_button_cb (GtkWidget          *button,
 	gtk_window_set_transient_for (GTK_WINDOW (pm->priv->about),
 				      GTK_WINDOW (gtk_widget_get_toplevel (GTK_WIDGET(pm))));
 	gtk_widget_show (pm->priv->about);
+	gedit_plugin_info_free(info);
 }
 
 static void
@@ -150,6 +151,7 @@ configure_button_cb (GtkWidget          *button,
 	gedit_plugins_engine_configure_plugin (pm->priv->engine,
 					       info, toplevel);
 
+	gedit_plugin_info_free(info);
 	gedit_debug_message (DEBUG_PLUGINS, "Done");	
 }
 
@@ -179,6 +181,7 @@ plugin_manager_view_info_cell_cb (GtkTreeViewColumn *tree_column,
 		      "sensitive", gedit_plugin_info_is_available (info),
 		      NULL);
 
+	gedit_plugin_info_free(info);
 	g_free (text);
 }
 
@@ -203,6 +206,7 @@ plugin_manager_view_icon_cell_cb (GtkTreeViewColumn *tree_column,
 		      "icon-name", gedit_plugin_info_get_icon_name (info),
 		      "sensitive", gedit_plugin_info_is_available (info),
 		      NULL);
+	gedit_plugin_info_free(info);
 }
 
 
@@ -246,6 +250,8 @@ cursor_changed_cb (GtkTreeView *view,
 	gtk_widget_set_sensitive (GTK_WIDGET (pm->priv->configure_button),
 				  (info != NULL) && 
 				   gedit_plugin_info_is_configurable (info));
+
+	gedit_plugin_info_free(info);
 }
 
 static void
@@ -314,6 +320,7 @@ plugin_manager_populate_lists (GeditPluginManager *pm)
 
 		gtk_widget_set_sensitive (GTK_WIDGET (pm->priv->configure_button),
 					  gedit_plugin_info_is_configurable (info));
+		gedit_plugin_info_free(info);
 	}
 }
 
@@ -352,6 +359,8 @@ plugin_manager_set_active (GeditPluginManager *pm,
 			res = FALSE;
 		}
 	}
+	
+	gedit_plugin_info_free(info);
 
 	return res;
 }
@@ -453,6 +462,8 @@ name_search_cb (GtkTreeModel *model,
 	g_free (normalized_string);
 	g_free (case_normalized_key);
 	g_free (case_normalized_string);
+	
+	gedit_plugin_info_free(info);
 
 	return retval;
 }
@@ -540,6 +551,8 @@ create_tree_popup_menu (GeditPluginManager *pm)
 	gtk_menu_shell_append (GTK_MENU_SHELL (menu), item);
 	
 	gtk_widget_show_all (menu);
+	
+	gedit_plugin_info_free(info);
 	
 	return menu;
 }
@@ -629,12 +642,18 @@ model_name_sort_func (GtkTreeModel *model,
 		      gpointer      user_data)
 {
 	GeditPluginInfo *info1, *info2;
+	gint ret;
 	
 	gtk_tree_model_get (model, iter1, INFO_COLUMN, &info1, -1);
 	gtk_tree_model_get (model, iter2, INFO_COLUMN, &info2, -1);
 
-	return g_utf8_collate (gedit_plugin_info_get_name (info1),
-			       gedit_plugin_info_get_name (info2));
+	ret = g_utf8_collate (gedit_plugin_info_get_name (info1),
+			      gedit_plugin_info_get_name (info2));
+
+	gedit_plugin_info_free(info1);
+	gedit_plugin_info_free(info2);
+	
+	return ret;
 }
 
 static void
@@ -751,6 +770,8 @@ plugin_toggled_cb (GeditPluginsEngine *engine,
 		GeditPluginInfo *tinfo;
 		gtk_tree_model_get (model, &iter, INFO_COLUMN, &tinfo, -1);
 		info_found = info == tinfo;
+		
+		gedit_plugin_info_free(tinfo);
 	}
 
 	if (!info_found)
@@ -762,6 +783,9 @@ plugin_toggled_cb (GeditPluginsEngine *engine,
 			GeditPluginInfo *tinfo;
 			gtk_tree_model_get (model, &iter, INFO_COLUMN, &tinfo, -1);
 			info_found = info == tinfo;
+
+			gedit_plugin_info_free(tinfo);
+			
 		}
 		while (!info_found && gtk_tree_model_iter_next (model, &iter));
 	}

@@ -33,6 +33,7 @@
 #define __GEDIT_PLUGIN_INFO_H__
 
 #include <glib-object.h>
+#include "gedit-plugin.h"
 
 G_BEGIN_DECLS
 
@@ -48,11 +49,16 @@ gboolean 	 gedit_plugin_info_is_available		(GeditPluginInfo *info);
 gboolean	 gedit_plugin_info_is_configurable	(GeditPluginInfo *info);
 
 const gchar	*gedit_plugin_info_get_name		(GeditPluginInfo *info);
+const gchar	*gedit_plugin_info_get_module_name	(GeditPluginInfo *info);
 const gchar	*gedit_plugin_info_get_description	(GeditPluginInfo *info);
 const gchar	*gedit_plugin_info_get_icon_name	(GeditPluginInfo *info);
 const gchar    **gedit_plugin_info_get_authors		(GeditPluginInfo *info);
 const gchar	*gedit_plugin_info_get_website		(GeditPluginInfo *info);
 const gchar	*gedit_plugin_info_get_copyright	(GeditPluginInfo *info);
+GeditPlugin	*gedit_plugin_info_get_plugin		(GeditPluginInfo *info);
+
+GeditPluginInfo	*gedit_plugin_info_copy			(GeditPluginInfo *info);
+void             gedit_plugin_info_free			(GeditPluginInfo *info);
 
 G_END_DECLS
 

@@ -48,13 +48,6 @@ _gedit_plugin_info_ref (GeditPluginInfo *info)
 	g_atomic_int_inc (&info->refcount);
 }
 
-static GeditPluginInfo *
-gedit_plugin_info_copy (GeditPluginInfo *info)
-{
-	_gedit_plugin_info_ref (info);
-	return info;
-}
-
 void
 _gedit_plugin_info_unref (GeditPluginInfo *info)
 {
@@ -101,7 +94,7 @@ gedit_plugin_info_get_type (void)
 		the_type = g_boxed_type_register_static (
 					"GeditPluginInfo",
 					(GBoxedCopyFunc) gedit_plugin_info_copy,
-					(GBoxedFreeFunc) _gedit_plugin_info_unref);
+					(GBoxedFreeFunc) gedit_plugin_info_free);
 
 	return the_type;
 } 
@@ -325,6 +318,14 @@ gedit_plugin_info_get_name (GeditPluginInfo *info)
 }
 
 const gchar *
+gedit_plugin_info_get_module_name (GeditPluginInfo *info)
+{
+	g_return_val_if_fail (info != NULL, NULL);
+
+	return info->module_name;
+}
+
+const gchar *
 gedit_plugin_info_get_description (GeditPluginInfo *info)
 {
 	g_return_val_if_fail (info != NULL, NULL);
@@ -369,4 +370,28 @@ gedit_plugin_info_get_copyright (GeditPluginInfo *info)
 	g_return_val_if_fail (info != NULL, NULL);
 
 	return info->copyright;
+}
+
+GeditPlugin *
+gedit_plugin_info_get_plugin (GeditPluginInfo *info)
+{
+	g_return_val_if_fail (info != NULL, NULL);
+	
+	if (!info->active || !info->available)
+		return NULL;
+
+	return info->plugin;
+}
+
+GeditPluginInfo *
+gedit_plugin_info_copy (GeditPluginInfo *info)
+{
+	_gedit_plugin_info_ref (info);
+	return info;
+}
+
+void
+gedit_plugin_info_free (GeditPluginInfo *info)
+{
+	_gedit_plugin_info_unref (info);
 }
