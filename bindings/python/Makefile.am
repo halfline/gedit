@@ -6,7 +6,8 @@ noinst_LTLIBRARIES = \
 nodist_gedit_la_SOURCES = \
 	gedit.c			\
 	geditutils.c	\
-	geditcommands.c
+	geditcommands.c \
+	geditplugins.c
 
 gedit_la_LDFLAGS = \
 	-module -avoid-version
@@ -31,7 +32,7 @@ gedit_la_CFLAGS = \
 $(top_builddir)/gedit/gedit-enum-types.h:
 	cd $(top_builddir)/gedit && $(MAKE) gedit-enum-types.h
 
-gedit.c: gedit.defs gedit.override $(top_builddir)/gedit/gedit-enum-types.h
+gedit.c: gedit.defs gedit.override geditplugin.override $(top_builddir)/gedit/gedit-enum-types.h
 	( cd $(srcdir) && $(PYGTK_CODEGEN) \
 		--register $(PYGTK_DEFSDIR)/pango-types.defs \
 		--register $(PYGTK_DEFSDIR)/gdk-types.defs \
@@ -52,13 +53,20 @@ geditcommands.c: geditcommands.defs geditcommands.override gedit.defs
 		--override $*.override \
 		--prefix py$* $(<F) ) > $@ 
 
+geditplugins.c: geditplugins.defs geditplugins.override
+	( cd $(srcdir) && $(PYGTK_CODEGEN) \
+		--register gedit.defs \
+		--register $(PYGTK_DEFSDIR)/gtk-types.defs \
+		--override $*.override \
+		--prefix py$* $(<F) ) > $@ 
+
 BINDING_GEDIT_HEADERS_SRCDIR_IN = \
 	gedit/gedit-app.h		\
 	gedit/gedit-document.h		\
 	gedit/gedit-encodings.h		\
 	gedit/gedit-plugin.h		\
 	gedit/gedit-view.h		\
-	gedit/gedit-status-bar.h	\
+	gedit/gedit-statusbar.h	\
 	gedit/gedit-tab.h 		\
 	gedit/gedit-panel.h 		\
 	gedit/gedit-window.h 		\
@@ -72,11 +80,16 @@ BINDING_UTILS_HEADERS_SRCDIR_IN = \
 BINDING_COMMANDS_HEADERS_SRCDIR_IN = \
 	gedit/gedit-commands.h
 
+BINDING_PLUGINS_HEADERS_SRCDIR_IN = \
+	gedit/gedit-plugins-engine.h \
+	gedit/gedit-plugin-info.h
+	
 BINDING_HEADERS_BUILDDIR_IN = 
 
 BINDING_GEDIT_HEADERS_SRCDIR	:= $(addprefix $(top_srcdir)/,$(BINDING_GEDIT_HEADERS_SRCDIR_IN))
 BINDING_UTILS_HEADERS_SRCDIR	:= $(addprefix $(top_srcdir)/,$(BINDING_UTILS_HEADERS_SRCDIR_IN))
 BINDING_COMMANDS_HEADERS_SRCDIR	:= $(addprefix $(top_srcdir)/,$(BINDING_COMMANDS_HEADERS_SRCDIR_IN))
+BINDING_PLUGINS_HEADERS_SRCDIR	:= $(addprefix $(top_srcdir)/,$(BINDING_PLUGINS_HEADERS_SRCDIR_IN))
 
 BINDING_HEADERS_BUILDDIR	:= $(addprefix $(top_builddir)/,$(BINDING_HEADERS_BUILDDIR_IN))
 
@@ -84,11 +97,12 @@ regenerate-python-binding:
 	$(PYGTK_H2DEF) $(sort $(BINDING_GEDIT_HEADERS_SRCDIR) $(BINDING_HEADERS_BUILDDIR)) > gedit.defs.new
 	$(PYGTK_H2DEF) $(sort $(BINDING_UTILS_HEADERS_SRCDIR) $(BINDING_HEADERS_BUILDDIR)) > geditutils.defs.new
 	$(PYGTK_H2DEF) $(sort $(BINDING_COMMANDS_HEADERS_SRCDIR) $(BINDING_HEADERS_BUILDDIR)) > geditcommands.defs.new
-
+	$(PYGTK_H2DEF) $(sort $(BINDING_PLUGINS_HEADERS_SRCDIR) $(BINDING_HEADERS_BUILDDIR)) > geditplugins.defs.new
 BUILT_SOURCES = \
 	gedit.c		\
 	geditutils.c	\
-	geditcommands.c
+	geditcommands.c \
+	geditplugins.c
 
 EXTRA_DIST = \
 	gedit.override		\
@@ -96,7 +110,9 @@ EXTRA_DIST = \
 	geditutils.override	\
 	geditutils.defs		\
 	geditcommands.override \
-	geditcommands.defs
+	geditcommands.defs \
+	geditplugins.override \
+	geditplugins.defs
 
 CLEANFILES = $(BUILT_SOURCES)
 

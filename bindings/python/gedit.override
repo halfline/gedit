@@ -6,6 +6,7 @@ headers
 
 #include "gedit-language-manager.h"
 #include "gedit-plugin.h"
+#include "gedit-python-plugin.h"
 #include "gedit-app.h"
 #include "gedit-encodings.h"
 #include "gedit-enum-types.h"
@@ -58,6 +59,9 @@ _helper_wrap_gobject_gslist (const GSList *list)
     }
     return py_list;
 }
+%%
+include
+  geditplugin.override
 %%
 modulename gedit 
 %%
@@ -435,3 +439,19 @@ _wrap_gedit_debug(PyObject *self, PyObject *args, PyObject *kwargs)
     return Py_None;
 }
 %%
+override gedit_python_plugin_new
+static int
+_wrap_gedit_python_plugin_new(PyGObject *self)
+{
+	pygobject_construct (self, NULL);
+
+	if (!self->obj) {
+		PyErr_SetString (PyExc_RuntimeError, "could not create gedit.Plugin object");
+		return -1;
+	}
+	
+	_gedit_python_plugin_set_instance(GEDIT_PYTHON_PLUGIN(self->obj), (PyObject *)self);
+	return 0;
+}
+%%
+new-constructor GEDIT_TYPE_PYTHON_PLUGIN

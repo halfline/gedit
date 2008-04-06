@@ -1,0 +1,98 @@
+%%
+headers
+#define NO_IMPORT_PYGOBJECT
+#include "pygobject.h"
+#include <pygtk/pygtk.h>
+
+#include "gedit-plugins-engine.h"
+#include "gedit-plugin.h"
+#include "gedit-plugin-info.h"
+
+static PyObject *
+_helper_wrap_string_list (const gchar **list)
+{
+	PyObject *py_list;
+	PyObject *item;
+
+	if ((py_list = PyList_New (0)) == NULL) {
+		return NULL;
+	}
+
+	while (*list) {
+		item = Py_BuildValue ("s", *list);
+		
+		if (item == NULL) {
+			Py_DECREF (py_list);
+			return NULL;
+		}
+		
+		PyList_Append(py_list, item);
+		Py_DECREF(item);
+		++list;
+	}
+	
+	return py_list;
+}
+
+static PyObject *
+_helper_get_plugin_instance (PyObject *pyinfo)
+{
+	/*GeditPluginInfo *info;
+	GeditPlugin *plugin;
+	GeditPythonObject *obj;
+	
+	info = pyg_boxed_get(pyinfo, GeditPluginInfo);
+	plugin = gedit_plugin_info_get_plugin(info);*/
+	
+	/* There are three different cases to take into consideration:
+	   	1. The plugin is an actual GeditPythonPlugin (then the instance
+	   	   of that plugin is the actual python object)
+	   	2. The plugin is a C plugin, with python bindings (wrap the
+	   	   plugin as the python class)
+	   	3. The plugin is a C plugin, but doesn't have any bindings,
+	   	   in which case we return NULL
+	 */
+	 
+	/* Determine if this is a python plugin */
+	/*if (G_TYPE_FROM_INSTANCE(plugin) != GEDIT_TYPE_PLUGIN)
+	{
+		obj = (GeditPythonObject *)plugin;
+		Py_INCREF(obj->instance);
+		
+		return obj->instance;
+	}*/
+	 
+	/* Determine if the plugin has python bindings */
+}
+
+%%
+modulename gedit.plugins
+%%
+import gtk.Window as PyGtkWindow_Type
+import gobject.GObject as PyGObject_Type
+%%
+ignore-glob
+  _*
+  *_get_type
+  gedit_plugins_engine_get_plugin_list
+%%
+override gedit_plugin_info_get_authors
+PyObject *
+_wrap_gedit_plugin_info_get_authors (PyGObject *self)
+{
+    const gchar **list;
+    PyObject *py_list;
+
+    list = gedit_plugin_info_get_authors (GEDIT_PLUGIN_INFO (self->obj));
+
+    py_list = _helper_wrap_string_list (list);
+
+    return py_list;
+}
+%%
+override gedit_plugin_info_get_plugin
+static PyObject *
+_wrap_gedit_plugin_info_get_plugin(PyObject *self)
+{
+	return _helper_get_plugin_instance(self);
+}

@@ -1,0 +1,161 @@
+;; -*- scheme -*-
+
+; object definitions ...
+(define-object Engine
+  (in-module "Gedit")
+  (parent "GObject")
+  (c-name "GeditPluginsEngine")
+  (gtype-id "GEDIT_TYPE_PLUGINS_ENGINE")
+)
+
+(define-boxed PluginInfo
+  (in-module "Gedit")
+  (c-name "GeditPluginInfo")
+  (gtype-id "GEDIT_TYPE_PLUGIN_INFO")
+  (copy-func "gedit_plugin_info_copy")
+  (release-func "gedit_plugin_info_free")
+)
+
+
+;; From gedit-plugin-info.h
+
+(define-function gedit_plugin_info_get_type
+  (c-name "gedit_plugin_info_get_type")
+  (return-type "GType")
+)
+
+(define-method is_active
+  (of-object "GeditPluginInfo")
+  (c-name "gedit_plugin_info_is_active")
+  (return-type "gboolean")
+)
+
+(define-method is_available
+  (of-object "GeditPluginInfo")
+  (c-name "gedit_plugin_info_is_available")
+  (return-type "gboolean")
+)
+
+(define-method is_configurable
+  (of-object "GeditPluginInfo")
+  (c-name "gedit_plugin_info_is_configurable")
+  (return-type "gboolean")
+)
+
+(define-method get_name
+  (of-object "GeditPluginInfo")
+  (c-name "gedit_plugin_info_get_name")
+  (return-type "const-gchar*")
+)
+
+(define-method get_module_name
+  (of-object "GeditPluginInfo")
+  (c-name "gedit_plugin_info_get_module_name")
+  (return-type "const-gchar*")
+)
+
+(define-method get_description
+  (of-object "GeditPluginInfo")
+  (c-name "gedit_plugin_info_get_description")
+  (return-type "const-gchar*")
+)
+
+(define-method get_icon_name
+  (of-object "GeditPluginInfo")
+  (c-name "gedit_plugin_info_get_icon_name")
+  (return-type "const-gchar*")
+)
+
+(define-method get_authors
+  (of-object "GeditPluginInfo")
+  (c-name "gedit_plugin_info_get_authors")
+  (return-type "const-gchar**")
+)
+
+(define-method get_website
+  (of-object "GeditPluginInfo")
+  (c-name "gedit_plugin_info_get_website")
+  (return-type "const-gchar*")
+)
+
+(define-method get_copyright
+  (of-object "GeditPluginInfo")
+  (c-name "gedit_plugin_info_get_copyright")
+  (return-type "const-gchar*")
+)
+
+(define-method get_plugin
+  (of-object "GeditPluginInfo")
+  (c-name "gedit_plugin_info_get_plugin")
+  (return-type "GeditPlugin*")
+)
+
+(define-method copy
+  (of-object "GeditPluginInfo")
+  (c-name "gedit_plugin_info_copy")
+  (return-type "GeditPluginInfo*")
+)
+
+(define-method free
+  (of-object "GeditPluginInfo")
+  (c-name "gedit_plugin_info_free")
+  (return-type "none")
+)
+
+
+;; From gedit-plugins-engine.h
+
+(define-function gedit_plugins_engine_get_type
+  (c-name "gedit_plugins_engine_get_type")
+  (return-type "GType")
+)
+
+(define-function engine_get_default
+  (c-name "gedit_plugins_engine_get_default")
+  (return-type "GeditPluginsEngine*")
+)
+
+(define-method get_plugin_list
+  (of-object "GeditPluginsEngine")
+  (c-name "gedit_plugins_engine_get_plugin_list")
+  (return-type "const-GList*")
+)
+
+(define-method activate_plugin
+  (of-object "GeditPluginsEngine")
+  (c-name "gedit_plugins_engine_activate_plugin")
+  (return-type "gboolean")
+  (parameters
+    '("GeditPluginInfo*" "info")
+  )
+)
+
+(define-method deactivate_plugin
+  (of-object "GeditPluginsEngine")
+  (c-name "gedit_plugins_engine_deactivate_plugin")
+  (return-type "gboolean")
+  (parameters
+    '("GeditPluginInfo*" "info")
+  )
+)
+
+(define-method configure_plugin
+  (of-object "GeditPluginsEngine")
+  (c-name "gedit_plugins_engine_configure_plugin")
+  (return-type "none")
+  (parameters
+    '("GeditPluginInfo*" "info")
+    '("GtkWindow*" "parent")
+  )
+)
+
+(define-method get_plugin
+  (of-object "GeditPluginsEngine")
+  (c-name "gedit_plugins_engine_get_plugin")
+  (return-type "GeditPlugin*")
+  (parameters
+    '("const-gchar*" "name")
+  )
+)
+
+
