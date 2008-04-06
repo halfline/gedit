@@ -3,6 +3,7 @@
  * This file is part of gedit
  *
  * Copyright (C) 2005 Raphael Slinckx
+ * Copyright (C) 2008 Jesse van den Kieboom
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,26 +30,38 @@
 #include <pygobject.h>
 #include <string.h>
 
+#define GEDIT_PYTHON_PLUGIN_GET_PRIVATE(object)(G_TYPE_INSTANCE_GET_PRIVATE ((object), GEDIT_TYPE_PYTHON_PLUGIN, GeditPythonPluginPrivate))
+
 static GObjectClass *parent_class;
 
+struct _GeditPythonPluginPrivate 
+{
+	PyObject *instance;
+};
+
+static void	 gedit_python_plugin_class_init		(GeditPythonPluginClass *klass);
+static void	 gedit_python_plugin_init 		(GeditPythonPlugin      *plugin);
+
+G_DEFINE_TYPE (GeditPythonPlugin, gedit_python_plugin, GEDIT_TYPE_PLUGIN)
+
 static PyObject *
-call_python_method (GeditPythonObject *object,
-		    GeditWindow       *window,
-		    gchar             *method)
+call_python_method (GeditPythonPluginPrivate *priv,
+		    GeditWindow		     *window,
+		    gchar		     *method)
 {
 	PyObject *py_ret = NULL;
 
-	g_return_val_if_fail (PyObject_HasAttrString (object->instance, method), NULL);
+	g_return_val_if_fail (PyObject_HasAttrString (priv->instance, method), NULL);
 
 	if (window == NULL)
 	{
-		py_ret = PyObject_CallMethod (object->instance,
+		py_ret = PyObject_CallMethod (priv->instance,
 					      method,
 					      NULL);
 	}
 	else
 	{
-		py_ret = PyObject_CallMethod (object->instance,
+		py_ret = PyObject_CallMethod (priv->instance,
 					      method,
 					      "(N)",
 					      pygobject_new (G_OBJECT (window)));
@@ -92,11 +105,13 @@ impl_update_ui (GeditPlugin *plugin,
 		GeditWindow *window)
 {
 	PyGILState_STATE state = pyg_gil_state_ensure ();
-	GeditPythonObject *object = (GeditPythonObject *)plugin;
+	GeditPythonPluginPrivate *priv = GEDIT_PYTHON_PLUGIN_GET_PRIVATE(plugin);
 	
-	if (PyObject_HasAttrString (object->instance, "update_ui"))
+	gedit_debug_message (DEBUG_PLUGINS, "Update ui %d", priv->instance);
+	
+	if (PyObject_HasAttrString (priv->instance, "update_ui"))
 	{		
-		PyObject *py_ret = call_python_method (object, window, "update_ui");
+		PyObject *py_ret = call_python_method (priv, window, "update_ui");
 		
 		if (py_ret)
 		{
@@ -114,11 +129,13 @@ impl_deactivate (GeditPlugin *plugin,
 		 GeditWindow *window)
 {
 	PyGILState_STATE state = pyg_gil_state_ensure ();
-	GeditPythonObject *object = (GeditPythonObject *)plugin;
+	GeditPythonPluginPrivate *priv = GEDIT_PYTHON_PLUGIN_GET_PRIVATE(plugin);
 	
-	if (PyObject_HasAttrString (object->instance, "deactivate"))
+	gedit_debug_message (DEBUG_PLUGINS, "Deactivate %d", priv->instance);
+	
+	if (PyObject_HasAttrString (priv->instance, "deactivate"))
 	{		
-		PyObject *py_ret = call_python_method (object, window, "deactivate");
+		PyObject *py_ret = call_python_method (priv, window, "deactivate");
 		
 		if (py_ret)
 		{
@@ -136,11 +153,13 @@ impl_activate (GeditPlugin *plugin,
 	       GeditWindow *window)
 {
 	PyGILState_STATE state = pyg_gil_state_ensure ();
-	GeditPythonObject *object = (GeditPythonObject *)plugin;
+	GeditPythonPluginPrivate *priv = GEDIT_PYTHON_PLUGIN_GET_PRIVATE(plugin);
 	
-	if (PyObject_HasAttrString (object->instance, "activate"))
+	gedit_debug_message (DEBUG_PLUGINS, "Activate %d", priv->instance);
+		
+	if (PyObject_HasAttrString (priv->instance, "activate"))
 	{
-		PyObject *py_ret = call_python_method (object, window, "activate");
+		PyObject *py_ret = call_python_method (priv, window, "activate");
 
 		if (py_ret)
 		{
@@ -157,12 +176,14 @@ static GtkWidget *
 impl_create_configure_dialog (GeditPlugin *plugin)
 {
 	PyGILState_STATE state = pyg_gil_state_ensure ();
-	GeditPythonObject *object = (GeditPythonObject *)plugin;
+	GeditPythonPluginPrivate *priv = GEDIT_PYTHON_PLUGIN_GET_PRIVATE(plugin);
 	GtkWidget *ret = NULL;
 	
-	if (PyObject_HasAttrString (object->instance, "create_configure_dialog"))
+	gedit_debug_message (DEBUG_PLUGINS, "Configure dialog %d", priv->instance);
+	
+	if (PyObject_HasAttrString (priv->instance, "create_configure_dialog"))
 	{
-		PyObject *py_ret = call_python_method (object, NULL, "create_configure_dialog");
+		PyObject *py_ret = call_python_method (priv, NULL, "create_configure_dialog");
 	
 		if (py_ret)
 		{
@@ -184,6 +205,7 @@ impl_create_configure_dialog (GeditPlugin *plugin)
 		ret = GEDIT_PLUGIN_CLASS (parent_class)->create_configure_dialog (plugin);
  
 	pyg_gil_state_release (state);
+	
 	return ret;
 }
 
@@ -191,8 +213,8 @@ static gboolean
 impl_is_configurable (GeditPlugin *plugin)
 {
 	PyGILState_STATE state = pyg_gil_state_ensure ();
-	GeditPythonObject *object = (GeditPythonObject *) plugin;
-	PyObject *dict = object->instance->ob_type->tp_dict;	
+	GeditPythonPluginPrivate *priv = GEDIT_PYTHON_PLUGIN_GET_PRIVATE(plugin);
+	PyObject *dict = priv->instance->ob_type->tp_dict;	
 	gboolean result;
 	
 	if (dict == NULL)
@@ -206,80 +228,80 @@ impl_is_configurable (GeditPlugin *plugin)
 	
 	return result;
 }
-						
-static void 
-gedit_python_object_init (GeditPythonObject *object)
+
+void
+_gedit_python_plugin_set_instance (GeditPythonPlugin *plugin, 
+				  PyObject 	    *instance)
 {
-	GeditPythonObjectClass *class;
+	PyGILState_STATE state = pyg_gil_state_ensure ();
+	GeditPythonPluginPrivate *priv = GEDIT_PYTHON_PLUGIN_GET_PRIVATE(plugin);
+	
+	Py_XDECREF(priv->instance);
+
+	gedit_debug_message (DEBUG_PLUGINS, "Setting Python plugin PyObject instance %d (%d)", instance);
+	
+	/* CHECK: is the increment actually needed? */
+	Py_INCREF(instance);
+	GEDIT_PYTHON_PLUGIN_GET_PRIVATE(plugin)->instance = instance;
+	pyg_gil_state_release (state);
+}
+
+void
+_gedit_python_plugin_destroy (GeditPythonPlugin *plugin)
+{
+	PyGILState_STATE state;
+	PyObject *instance;
+	GeditPythonPluginPrivate *priv = GEDIT_PYTHON_PLUGIN_GET_PRIVATE (plugin);
+	
+	if (priv->instance)
+	{
+		state = pyg_gil_state_ensure ();
+		
+		instance = priv->instance;
+		priv->instance = 0;
+
+		Py_XDECREF (instance);
+		pyg_gil_state_release (state);
+	}
+	else
+		g_object_unref (plugin);
+}
+
+
+static void
+gedit_python_plugin_init (GeditPythonPlugin *plugin)
+{
+	GeditPythonPluginPrivate *priv = GEDIT_PYTHON_PLUGIN_GET_PRIVATE(plugin);
 
 	gedit_debug_message (DEBUG_PLUGINS, "Creating Python plugin instance");
-
-	class = (GeditPythonObjectClass*) (((GTypeInstance*) object)->g_class);
-
-	object->instance = PyObject_CallObject (class->type, NULL);
-	if (object->instance == NULL)
-		PyErr_Print();
+	priv->instance = 0;
 }
 
 static void
-gedit_python_object_finalize (GObject *object)
+gedit_python_plugin_finalize (GObject *object)
 {
+	PyGILState_STATE state = pyg_gil_state_ensure ();
+	GeditPythonPluginPrivate *priv = GEDIT_PYTHON_PLUGIN_GET_PRIVATE (object);
+	
 	gedit_debug_message (DEBUG_PLUGINS, "Finalizing Python plugin instance");
 
-	Py_DECREF (((GeditPythonObject *) object)->instance);
-
+	Py_XDECREF (GEDIT_PYTHON_PLUGIN_GET_PRIVATE(object)->instance);
 	G_OBJECT_CLASS (parent_class)->finalize (object);
 }
 
 static void
-gedit_python_object_class_init (GeditPythonObjectClass *klass,
-				gpointer                class_data)
+gedit_python_plugin_class_init (GeditPythonPluginClass *klass)
 {
 	GeditPluginClass *plugin_class = GEDIT_PLUGIN_CLASS (klass);
 
 	parent_class = g_type_class_peek_parent (klass);
 
-	klass->type = (PyObject*) class_data;
-
-	G_OBJECT_CLASS (klass)->finalize = gedit_python_object_finalize;
+	g_type_class_add_private (klass, sizeof (GeditPythonPluginPrivate));
+	G_OBJECT_CLASS (klass)->finalize = gedit_python_plugin_finalize;
 
 	plugin_class->activate = impl_activate;
 	plugin_class->deactivate = impl_deactivate;
 	plugin_class->update_ui = impl_update_ui;
 	plugin_class->create_configure_dialog = impl_create_configure_dialog;
 	plugin_class->is_configurable = impl_is_configurable;
-}
-
-GType
-gedit_python_object_get_type (GTypeModule *module, 
-			      PyObject    *type)
-{
-	GType gtype;
-	gchar *type_name;
-
-	GTypeInfo info = {
-		sizeof (GeditPythonObjectClass),
-		NULL,           /* base_init */
-		NULL,           /* base_finalize */
-		(GClassInitFunc) gedit_python_object_class_init,
-		NULL,           /* class_finalize */
-		type,           /* class_data */
-		sizeof (GeditPythonObject),
-		0,              /* n_preallocs */
-		(GInstanceInitFunc) gedit_python_object_init,
-	};
-
-	Py_INCREF (type);
-
-	type_name = g_strdup_printf ("%s+GeditPythonPlugin",
-				     PyString_AsString (PyObject_GetAttrString (type, "__name__")));
-
-	gedit_debug_message (DEBUG_PLUGINS, "Registering Python plugin instance: %s", type_name);
-	gtype = g_type_module_register_type (module, 
-					     GEDIT_TYPE_PLUGIN,
-					     type_name,
-					     &info, 0);
-	g_free (type_name);
-
-	return gtype;
 }

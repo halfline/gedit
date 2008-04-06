@@ -84,6 +84,8 @@ void	 	 gedit_plugins_engine_configure_plugin	(GeditPluginsEngine *engine,
 							 GeditPluginInfo    *info,
 							 GtkWindow          *parent);
 
+GeditPlugin     *gedit_plugins_engine_get_plugin	(GeditPluginsEngine *engine,
+							 const gchar 	    *name);
 /* 
  * new_window == TRUE if this function is called because a new top window
  * has been created

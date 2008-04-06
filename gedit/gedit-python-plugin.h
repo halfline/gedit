@@ -1,8 +1,9 @@
 /*
- * gedit-python-plugin.h
+ * gedit-plugin.h
  * This file is part of gedit
  *
- * Copyright (C) 2005 Raphael Slinckx
+ * Copyright (C) 2005 - Raphael Slinckx
+ * Copyright (C) 2007 - Jesse van den Kieboom
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,32 +20,65 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, 
  * Boston, MA 02111-1307, USA. 
  */
-#ifndef GEDIT_PYTHON_OBJECT_H
-#define GEDIT_PYTHON_OBJECT_H
 
-#include <Python.h>
+#ifndef __GEDIT_PYTHON_PLUGIN_H__
+#define __GEDIT_PYTHON_PLUGIN_H__
+
 #include <glib-object.h>
-#include "gedit-plugin.h"
+#include <pygobject.h>
+
+#include <gedit/gedit-plugin.h>
 
 G_BEGIN_DECLS
 
-typedef struct _GeditPythonObject		GeditPythonObject;
-typedef struct _GeditPythonObjectClass	GeditPythonObjectClass;
+/*
+ * Type checking and casting macros
+ */
+#define GEDIT_TYPE_PYTHON_PLUGIN		(gedit_python_plugin_get_type())
+#define GEDIT_PYTHON_PLUGIN(obj)		(G_TYPE_CHECK_INSTANCE_CAST((obj), GEDIT_TYPE_PYTHON_PLUGIN, GeditPythonPlugin))
+#define GEDIT_PYTHON_PLUGIN_CLASS(klass)	(G_TYPE_CHECK_CLASS_CAST((klass), GEDIT_TYPE_PYTHON_PLUGIN, GeditPythonPluginClass))
+#define GEDIT_IS_PYTHON_PLUGIN(obj)		(G_TYPE_CHECK_INSTANCE_TYPE((obj), GEDIT_TYPE_PYTHON_PLUGIN))
+#define GEDIT_IS_PYTHON_PLUGIN_CLASS(klass)	(G_TYPE_CHECK_CLASS_TYPE ((klass), GEDIT_TYPE_PYTHON_PLUGIN))
+#define GEDIT_PYTHON_PLUGIN_GET_CLASS(obj)	(G_TYPE_INSTANCE_GET_CLASS((obj), GEDIT_TYPE_PYTHON_PLUGIN, GeditPythonPluginClass))
 
-struct _GeditPythonObject
+/* Private structure type */
+typedef struct _GeditPythonPluginPrivate GeditPythonPluginPrivate;
+
+/*
+ * Main object structure
+ */
+typedef struct _GeditPythonPlugin GeditPythonPlugin;
+
+struct _GeditPythonPlugin 
 {
-	GeditPlugin parent_slot;
-	PyObject *instance;
+	GeditPlugin parent;
+	
+	/*< private > */
+	GeditPythonPluginPrivate *priv;
 };
 
-struct _GeditPythonObjectClass
+/*
+ * Class definition
+ */
+typedef struct _GeditPythonPluginClass GeditPythonPluginClass;
+
+struct _GeditPythonPluginClass 
 {
-	GeditPluginClass parent_slot;
-	PyObject *type;
+	GeditPluginClass parent_class;
 };
 
-GType gedit_python_object_get_type (GTypeModule *module, PyObject *type);
+/*
+ * Public methods
+ */
+GType	 gedit_python_plugin_get_type 		(void) G_GNUC_CONST;
+
+/*
+ * Private methods
+ */
+void	 _gedit_python_plugin_set_instance	(GeditPythonPlugin *plugin, 
+						 PyObject 	   *instance);
+void 	 _gedit_python_plugin_destroy		(GeditPythonPlugin *plugin);
 
 G_END_DECLS
 
-#endif
+#endif  /* __GEDIT_PYTHON_PLUGIN_H__ */

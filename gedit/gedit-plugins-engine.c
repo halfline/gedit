@@ -137,7 +137,7 @@ gedit_plugins_engine_load_dir (GeditPluginsEngine *engine,
 					   "Only the first will be considered.\n",
 					   info->module_name);
 
-				_gedit_plugin_info_unref (info);
+				gedit_plugin_info_free (info);
 
 				continue;
 			}
@@ -264,7 +264,7 @@ gedit_plugins_engine_finalize (GObject *object)
 	g_return_if_fail (engine->priv->gconf_client != NULL);
 
 	g_list_foreach (engine->priv->plugin_list,
-			(GFunc) _gedit_plugin_info_unref, NULL);
+			(GFunc) gedit_plugin_info_free, NULL);
 	g_list_free (engine->priv->plugin_list);
 
 	g_object_unref (engine->priv->gconf_client);
@@ -323,6 +323,38 @@ gedit_plugins_engine_get_plugin_list (GeditPluginsEngine *engine)
 	gedit_debug (DEBUG_PLUGINS);
 
 	return engine->priv->plugin_list;
+}
+
+static gint
+compare_plugin_name (GeditPluginInfo *info, 
+		      const gchar     *name)
+{
+	return strcmp(gedit_plugin_info_get_module_name(info), name);
+}
+
+GeditPlugin *
+gedit_plugins_engine_get_plugin	(GeditPluginsEngine *engine,
+				 const gchar 	    *name)
+{
+	GList *item;
+	GeditPluginInfo *info;
+	
+	gedit_debug(DEBUG_PLUGINS);
+	
+	item = g_list_find_custom(engine->priv->plugin_list,
+				  name,
+				  (GCompareFunc)compare_plugin_name);
+
+	if (!item)
+		return NULL;
+	
+	info = GEDIT_PLUGIN_INFO(item->data);
+	
+	/* CHECK: is this really what we want? */
+	if (!gedit_plugin_info_is_active(info))
+		return NULL;
+		
+	return gedit_plugin_info_get_plugin(info);
 }
 
 static gboolean

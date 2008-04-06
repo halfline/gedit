@@ -49,7 +49,7 @@ struct _GeditPythonModulePrivate
 {
 	gchar *module;
 	gchar *path;
-	GType type;
+	PyObject *type;
 };
 
 enum
@@ -72,8 +72,12 @@ extern PyMethodDef pygeditutils_functions[];
 void pygeditcommands_register_classes (PyObject *d);
 extern PyMethodDef pygeditcommands_functions[];
 
+/* Exported by pygeditplugins module */
+void pygeditplugins_register_classes (PyObject *d);
+extern PyMethodDef pygeditplugins_functions[];
+
 /* We retreive this to check for correct class hierarchy */
-static PyTypeObject *PyGeditPlugin_Type;
+static PyTypeObject *PyGeditPythonPlugin_Type;
 
 G_DEFINE_TYPE (GeditPythonModule, gedit_python_module, G_TYPE_TYPE_MODULE)
 
@@ -125,9 +129,11 @@ gedit_python_module_load (GTypeModule *gmodule)
 		if (!PyType_Check(value))
 			continue;
 
-		if (PyObject_IsSubclass (value, (PyObject*) PyGeditPlugin_Type))
+		if (PyObject_IsSubclass (value, (PyObject*) PyGeditPythonPlugin_Type))
 		{
-			priv->type = gedit_python_object_get_type (gmodule, value);
+			/* Store the class as the type */
+			Py_INCREF(value);
+			priv->type = value;
 			return TRUE;
 		}
 	}
@@ -138,22 +144,44 @@ gedit_python_module_load (GTypeModule *gmodule)
 static void
 gedit_python_module_unload (GTypeModule *module)
 {
-	GeditPythonModulePrivate *priv = GEDIT_PYTHON_MODULE_GET_PRIVATE (module);
 	gedit_debug_message (DEBUG_PLUGINS, "Unloading Python module");
-	
-	priv->type = 0;
+}
+
+static void
+destroy_pyobject (gpointer           data, 
+		  GeditPythonPlugin *plugin, 
+		  gboolean           is_last_ref)
+{
+	if (is_last_ref)
+		_gedit_python_plugin_destroy (plugin);
 }
 
 GObject *
 gedit_python_module_new_object (GeditPythonModule *module)
 {
 	GeditPythonModulePrivate *priv = GEDIT_PYTHON_MODULE_GET_PRIVATE (module);
-	gedit_debug_message (DEBUG_PLUGINS, "Creating object of type %s", g_type_name (priv->type));
-
+	GObject *object;
+	
 	if (priv->type == 0)
 		return NULL;
 
-	return g_object_new (priv->type, NULL);
+	PyObject *str = PyObject_Str (priv->type);
+	gedit_debug_message (DEBUG_PLUGINS, "Creating object of type %s", PyString_AsString(str));
+	Py_DECREF(str);
+
+	/* Create new python object, which inherits from GeditPythonPlugin,
+	   then get the actual gobject instance back */
+	PyObject *instance = PyObject_CallObject (priv->type, NULL);
+	
+	gedit_debug_message (DEBUG_PLUGINS, "Created %d", instance);
+	/* CHECKME: not sure if we want to decrease the reference here, but
+	   should be OK since GeditPythonPlugin adds a reference */
+	Py_XDECREF(instance);
+	
+	object = pygobject_get(instance);
+
+	g_object_add_toggle_ref (object, (GToggleNotify)destroy_pyobject, NULL);
+	return pygobject_get(instance);
 }
 
 static void
@@ -166,7 +194,15 @@ static void
 gedit_python_module_finalize (GObject *object)
 {
 	GeditPythonModulePrivate *priv = GEDIT_PYTHON_MODULE_GET_PRIVATE (object);
-	gedit_debug_message (DEBUG_PLUGINS, "Finalizing Python module %s", g_type_name (priv->type));
+	
+	if (priv->type)
+	{
+		PyObject *str = PyObject_Str (priv->type);
+		gedit_debug_message (DEBUG_PLUGINS, "Finalizing Python module %s", PyString_AsString(str));
+		
+		Py_DECREF(str);
+		Py_DECREF(priv->type);
+	}
 
 	g_free (priv->module);
 	g_free (priv->path);
@@ -394,7 +430,7 @@ gboolean
 gedit_python_init (void)
 {
 	PyObject *mdict, *tuple;
-	PyObject *gedit, *geditutils, *geditcommands;
+	PyObject *gedit, *geditutils, *geditcommands, *geditplugins;
 	PyObject *gettext, *install, *gettext_args;
 	struct sigaction old_sigint;
 	gint res;
@@ -504,8 +540,8 @@ gedit_python_init (void)
 	Py_DECREF(tuple);
 	
 	/* Retrieve the Python type for gedit.Plugin */
-	PyGeditPlugin_Type = (PyTypeObject *) PyDict_GetItemString (mdict, "Plugin"); 
-	if (PyGeditPlugin_Type == NULL)
+	PyGeditPythonPlugin_Type = (PyTypeObject *) PyDict_GetItemString (mdict, "Plugin"); 
+	if (PyGeditPythonPlugin_Type == NULL)
 	{
 		PyErr_Print ();
 
@@ -519,12 +555,19 @@ gedit_python_init (void)
 	/* import gedit.commands */
 	geditcommands = Py_InitModule ("gedit.commands", pygeditcommands_functions);
 	PyDict_SetItemString (mdict, "commands", geditcommands);
+	
+	/* import gedit.plugins */
+	geditplugins = Py_InitModule ("gedit.plugins", pygeditplugins_functions);
+	PyDict_SetItemString (mdict, "plugins", geditplugins);
 
 	mdict = PyModule_GetDict (geditutils);
 	pygeditutils_register_classes (mdict);
 	
 	mdict = PyModule_GetDict (geditcommands);
 	pygeditcommands_register_classes (mdict);
+	
+	mdict = PyModule_GetDict (geditplugins);
+	pygeditplugins_register_classes (mdict);
 
 	/* i18n support */
 	gettext = PyImport_ImportModule ("gettext");
