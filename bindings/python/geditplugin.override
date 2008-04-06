@@ -1,7 +1,7 @@
 %%
 headers
-  #include "gedit-plugin.h"
-  #include "gedit-window.h"
+#include "plugins/gedit-plugin.h"
+#include "gedit-window.h"
 %%
 override gedit_plugin_activate kwargs
 static PyObject *
@@ -10,7 +10,7 @@ _wrap_gedit_plugin_activate(PyGObject *self, PyObject *args, PyObject *kwargs)
 	gpointer klass, klass2;
 	static char *kwlist[] = { "window", NULL };
 	PyGObject *window;
-	PyObject *cls = ((PyObject *)self)->ob_type; // FIXME
+	PyObject *cls = (PyObject *)(((PyObject *)self)->ob_type);
 	
 	if (!PyArg_ParseTupleAndKeywords (args, 
 					  kwargs,
@@ -52,7 +52,7 @@ _wrap_gedit_plugin_deactivate(PyGObject *self, PyObject *args, PyObject *kwargs)
 	gpointer klass, klass2;
 	static char *kwlist[] = {"window", NULL};
 	PyGObject *window;
-	PyObject *cls = ((PyObject *)self)->ob_type;
+	PyObject *cls = (PyObject *)(((PyObject *)self)->ob_type);
 
 	if (!PyArg_ParseTupleAndKeywords (args, 
 					  kwargs,
@@ -94,7 +94,7 @@ _wrap_gedit_plugin_update_ui (PyGObject *self, PyObject *args, PyObject *kwargs)
 	gpointer klass, klass2;
 	static char *kwlist[] = {"window", NULL};
 	PyGObject *window;
-	PyObject *cls = ((PyObject *)self)->ob_type;
+	PyObject *cls = (PyObject *)(((PyObject *)self)->ob_type);
 
 	if (!PyArg_ParseTupleAndKeywords (args, 
 					  kwargs,
@@ -135,7 +135,7 @@ _wrap_gedit_plugin_is_configurable (PyGObject *self)
 {
 	int ret;
 	gpointer klass, klass2;
-	PyObject *cls = ((PyObject *)self)->ob_type;
+	PyObject *cls = (PyObject *)(((PyObject *)self)->ob_type);
 
 	klass = g_type_class_ref (pyg_type_from_object (cls));
 
@@ -166,7 +166,7 @@ _wrap_gedit_plugin_create_configure_dialog (PyGObject *self)
 {
 	GtkWidget *ret;
 	gpointer klass, klass2;
-	PyObject *cls = ((PyObject *)self)->ob_type;
+	PyObject *cls = (PyObject *)(((PyObject *)self)->ob_type);
 
 	klass = g_type_class_ref(pyg_type_from_object (cls));
 

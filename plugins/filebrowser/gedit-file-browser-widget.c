@@ -31,7 +31,7 @@
 #include <libgnomevfs/gnome-vfs.h>
 #include <libgnomeui/libgnomeui.h>
 #include <gedit/gedit-utils.h>
-#include <gedit/gedit-plugin.h>
+#include <gedit/plugins/gedit-plugin.h>
 
 #include "gedit-file-browser-utils.h"
 #include "gedit-file-browser-error.h"
@@ -97,6 +97,7 @@ typedef struct
 	gulong id;
 	GeditFileBrowserWidgetFilterFunc func;
 	gpointer user_data;
+	GDestroyNotify destroy_func;
 } FilterFunc;
 
 typedef struct 
@@ -239,7 +240,8 @@ free_name_icon (gpointer data)
 static FilterFunc *
 filter_func_new (GeditFileBrowserWidget * obj,
 		 GeditFileBrowserWidgetFilterFunc func,
-		 gpointer user_data)
+		 gpointer user_data,
+		 GDestroyNotify destroy_func)
 {
 	FilterFunc *result;
 
@@ -248,6 +250,7 @@ filter_func_new (GeditFileBrowserWidget * obj,
 	result->id = ++obj->priv->filter_id;
 	result->func = func;
 	result->user_data = user_data;
+	result->destroy_func = destroy_func;
 
 	return result;
 }
@@ -304,17 +307,28 @@ gedit_file_browser_widget_finalize (GObject * object)
 {
 	GeditFileBrowserWidget *obj = GEDIT_FILE_BROWSER_WIDGET (object);
 	GList *loc;
-
+	GSList *ffunc;
+	FilterFunc *filter;
+	
 	remove_path_items (obj);
 	gedit_file_browser_store_set_filter_func (obj->priv->file_store,
-						  NULL, NULL);
+						  NULL, NULL, NULL);
 
 	g_object_unref (obj->priv->manager);
 	g_object_unref (obj->priv->file_store);
 	g_object_unref (obj->priv->bookmarks_store);
 	g_object_unref (obj->priv->combo_model);
 
-	g_slist_foreach (obj->priv->filter_funcs, (GFunc) g_free, NULL);
+	for (ffunc = obj->priv->filter_funcs; ffunc; ffunc = ffunc->next)
+	{
+		filter = (FilterFunc *)(ffunc->data);
+		
+		if (filter->destroy_func)
+			filter->destroy_func(filter->user_data);
+		
+		g_free(filter);
+	}
+		
 	g_slist_free (obj->priv->filter_funcs);
 
 	for (loc = obj->priv->locations; loc; loc = loc->next)
@@ -1154,7 +1168,7 @@ create_tree (GeditFileBrowserWidget * obj)
 						  GEDIT_FILE_BROWSER_STORE_FILTER_MODE_HIDE_BINARY);
 	gedit_file_browser_store_set_filter_func (obj->priv->file_store,
 						  (GeditFileBrowserStoreFilterFunc)
-						  filter_real, obj);
+						  filter_real, obj, NULL);
 
 	sw = gtk_scrolled_window_new (NULL, NULL);
 	gtk_scrolled_window_set_shadow_type (GTK_SCROLLED_WINDOW (sw),
@@ -1730,6 +1744,7 @@ set_filter_pattern_real (GeditFileBrowserWidget * obj,
 			obj->priv->glob_filter_id =
 			    gedit_file_browser_widget_add_filter (obj,
 								  filter_glob,
+								  NULL,
 								  NULL);
 	}
 
@@ -1880,13 +1895,14 @@ gedit_file_browser_widget_get_filter_entry (GeditFileBrowserWidget * obj)
 gulong
 gedit_file_browser_widget_add_filter (GeditFileBrowserWidget * obj,
 				      GeditFileBrowserWidgetFilterFunc
-				      func, gpointer user_data)
+				      func, gpointer user_data,
+				      GDestroyNotify destroy_func)
 {
 	FilterFunc *f;
 	GtkTreeModel *model =
 	    gtk_tree_view_get_model (GTK_TREE_VIEW (obj->priv->treeview));
 
-	f = filter_func_new (obj, func, user_data);
+	f = filter_func_new (obj, func, user_data, destroy_func);
 	obj->priv->filter_funcs =
 	    g_slist_append (obj->priv->filter_funcs, f);
 

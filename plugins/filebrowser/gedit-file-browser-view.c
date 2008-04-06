@@ -20,7 +20,7 @@
  */
 
 #include <string.h>
-#include <gedit/gedit-plugin.h>
+#include <gedit/plugins/gedit-plugin.h>
 #include <gdk/gdkkeysyms.h>
 
 #include "gedit-file-browser-store.h"

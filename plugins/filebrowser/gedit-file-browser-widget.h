@@ -106,7 +106,8 @@ gedit_file_browser_widget_get_ui_manager            (GeditFileBrowserWidget * ob
 
 gulong gedit_file_browser_widget_add_filter         (GeditFileBrowserWidget * obj,
                                                      GeditFileBrowserWidgetFilterFunc func, 
-                                                     gpointer user_data);
+                                                     gpointer user_data,
+                                                     GDestroyNotify destroy_func);
 void gedit_file_browser_widget_remove_filter        (GeditFileBrowserWidget * obj,
                                                      gulong id);
 void gedit_file_browser_widget_set_filter_pattern   (GeditFileBrowserWidget * obj,

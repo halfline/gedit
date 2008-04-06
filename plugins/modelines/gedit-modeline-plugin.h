@@ -24,7 +24,7 @@
 
 #include <glib.h>
 #include <glib-object.h>
-#include <gedit/gedit-plugin.h>
+#include <gedit/plugins/gedit-plugin.h>
 
 G_BEGIN_DECLS
 

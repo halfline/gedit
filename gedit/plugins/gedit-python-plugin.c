@@ -107,8 +107,6 @@ impl_update_ui (GeditPlugin *plugin,
 	PyGILState_STATE state = pyg_gil_state_ensure ();
 	GeditPythonPluginPrivate *priv = GEDIT_PYTHON_PLUGIN_GET_PRIVATE(plugin);
 	
-	gedit_debug_message (DEBUG_PLUGINS, "Update ui %d", priv->instance);
-	
 	if (PyObject_HasAttrString (priv->instance, "update_ui"))
 	{		
 		PyObject *py_ret = call_python_method (priv, window, "update_ui");
@@ -131,8 +129,6 @@ impl_deactivate (GeditPlugin *plugin,
 	PyGILState_STATE state = pyg_gil_state_ensure ();
 	GeditPythonPluginPrivate *priv = GEDIT_PYTHON_PLUGIN_GET_PRIVATE(plugin);
 	
-	gedit_debug_message (DEBUG_PLUGINS, "Deactivate %d", priv->instance);
-	
 	if (PyObject_HasAttrString (priv->instance, "deactivate"))
 	{		
 		PyObject *py_ret = call_python_method (priv, window, "deactivate");
@@ -154,8 +150,6 @@ impl_activate (GeditPlugin *plugin,
 {
 	PyGILState_STATE state = pyg_gil_state_ensure ();
 	GeditPythonPluginPrivate *priv = GEDIT_PYTHON_PLUGIN_GET_PRIVATE(plugin);
-	
-	gedit_debug_message (DEBUG_PLUGINS, "Activate %d", priv->instance);
 		
 	if (PyObject_HasAttrString (priv->instance, "activate"))
 	{
@@ -178,8 +172,6 @@ impl_create_configure_dialog (GeditPlugin *plugin)
 	PyGILState_STATE state = pyg_gil_state_ensure ();
 	GeditPythonPluginPrivate *priv = GEDIT_PYTHON_PLUGIN_GET_PRIVATE(plugin);
 	GtkWidget *ret = NULL;
-	
-	gedit_debug_message (DEBUG_PLUGINS, "Configure dialog %d", priv->instance);
 	
 	if (PyObject_HasAttrString (priv->instance, "create_configure_dialog"))
 	{
@@ -237,8 +229,6 @@ _gedit_python_plugin_set_instance (GeditPythonPlugin *plugin,
 	GeditPythonPluginPrivate *priv = GEDIT_PYTHON_PLUGIN_GET_PRIVATE(plugin);
 	
 	Py_XDECREF(priv->instance);
-
-	gedit_debug_message (DEBUG_PLUGINS, "Setting Python plugin PyObject instance %d (%d)", instance);
 	
 	/* CHECK: is the increment actually needed? */
 	Py_INCREF(instance);
@@ -280,12 +270,15 @@ gedit_python_plugin_init (GeditPythonPlugin *plugin)
 static void
 gedit_python_plugin_finalize (GObject *object)
 {
-	PyGILState_STATE state = pyg_gil_state_ensure ();
+	PyGILState_STATE state;
 	GeditPythonPluginPrivate *priv = GEDIT_PYTHON_PLUGIN_GET_PRIVATE (object);
 	
 	gedit_debug_message (DEBUG_PLUGINS, "Finalizing Python plugin instance");
 
-	Py_XDECREF (GEDIT_PYTHON_PLUGIN_GET_PRIVATE(object)->instance);
+	state = pyg_gil_state_ensure ();
+	Py_XDECREF (priv->instance);
+	pyg_gil_state_release (state);
+	
 	G_OBJECT_CLASS (parent_class)->finalize (object);
 }
 

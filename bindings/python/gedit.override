@@ -5,8 +5,8 @@ headers
 #include <pygtk/pygtk.h>
 
 #include "gedit-language-manager.h"
-#include "gedit-plugin.h"
-#include "gedit-python-plugin.h"
+#include "plugins/gedit-plugin.h"
+#include "plugins/gedit-python-plugin.h"
 #include "gedit-app.h"
 #include "gedit-encodings.h"
 #include "gedit-enum-types.h"

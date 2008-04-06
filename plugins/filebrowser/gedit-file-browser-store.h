@@ -157,7 +157,8 @@ void gedit_file_browser_store_set_filter_mode         (GeditFileBrowserStore * m
                                                        GeditFileBrowserStoreFilterMode mode);
 void gedit_file_browser_store_set_filter_func         (GeditFileBrowserStore * model,
                                                        GeditFileBrowserStoreFilterFunc func, 
-                                                       gpointer user_data);
+                                                       gpointer user_data,
+                                                       GDestroyNotify func_notify);
 void gedit_file_browser_store_refilter                (GeditFileBrowserStore * model);
 GeditFileBrowserStoreFilterMode
 gedit_file_browser_store_filter_mode_get_default      (void);

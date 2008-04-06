@@ -27,7 +27,7 @@
 #include <glib-object.h>
 #include <pygobject.h>
 
-#include <gedit/gedit-plugin.h>
+#include "gedit-plugin.h"
 
 G_BEGIN_DECLS
 

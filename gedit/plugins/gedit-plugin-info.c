@@ -42,13 +42,13 @@
 #include "gedit-debug.h"
 #include "gedit-plugin.h"
 
-void
+static void
 _gedit_plugin_info_ref (GeditPluginInfo *info)
 {
 	g_atomic_int_inc (&info->refcount);
 }
 
-void
+static void
 _gedit_plugin_info_unref (GeditPluginInfo *info)
 {
 	if (!g_atomic_int_dec_and_test (&info->refcount))

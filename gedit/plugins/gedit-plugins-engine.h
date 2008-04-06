@@ -32,9 +32,9 @@
 #define __GEDIT_PLUGINS_ENGINE_H__
 
 #include <glib.h>
-#include "gedit-window.h"
-#include "gedit-plugin-info.h"
-#include "gedit-plugin.h"
+#include <gedit/gedit-window.h>
+#include <gedit/plugins/gedit-plugin-info.h>
+#include <gedit/plugins/gedit-plugin.h>
 
 G_BEGIN_DECLS
 

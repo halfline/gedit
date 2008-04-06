@@ -101,7 +101,7 @@ static void on_end_loading_cb            (GeditFileBrowserStore      * store,
                                           GtkTreeIter                * iter,
                                           GeditFileBrowserPluginData * data);
 
-GEDIT_PLUGIN_REGISTER_TYPE_WITH_CODE (GeditFileBrowserPlugin, filetree_plugin, 	\
+GEDIT_PLUGIN_REGISTER_TYPE_WITH_CODE (GeditFileBrowserPlugin, gedit_file_browser_plugin, 	\
 	gedit_file_browser_enum_and_flag_register_type (module);		\
 	gedit_file_browser_store_register_type         (module);		\
 	gedit_file_bookmarks_store_register_type       (module);		\
@@ -111,17 +111,17 @@ GEDIT_PLUGIN_REGISTER_TYPE_WITH_CODE (GeditFileBrowserPlugin, filetree_plugin, 	
 
 
 static void
-filetree_plugin_init (GeditFileBrowserPlugin * plugin)
+gedit_file_browser_plugin_init (GeditFileBrowserPlugin * plugin)
 {
 	plugin->priv = GEDIT_FILE_BROWSER_PLUGIN_GET_PRIVATE (plugin);
 }
 
 static void
-filetree_plugin_finalize (GObject * object)
+gedit_file_browser_plugin_finalize (GObject * object)
 {
 	//GeditFileBrowserPlugin * plugin = GEDIT_FILE_BROWSER_PLUGIN (object);
 	
-	G_OBJECT_CLASS (filetree_plugin_parent_class)->finalize (object);
+	G_OBJECT_CLASS (gedit_file_browser_plugin_parent_class)->finalize (object);
 }
 
 static GeditFileBrowserPluginData *
@@ -816,12 +816,12 @@ impl_deactivate (GeditPlugin * plugin, GeditWindow * window)
 }
 
 static void
-filetree_plugin_class_init (GeditFileBrowserPluginClass * klass)
+gedit_file_browser_plugin_class_init (GeditFileBrowserPluginClass * klass)
 {
 	GObjectClass  *object_class = G_OBJECT_CLASS (klass);
 	GeditPluginClass * plugin_class = GEDIT_PLUGIN_CLASS (klass);
 
-	object_class->finalize = filetree_plugin_finalize;
+	object_class->finalize = gedit_file_browser_plugin_finalize;
 
 	plugin_class->activate = impl_activate;
 	plugin_class->deactivate = impl_deactivate;

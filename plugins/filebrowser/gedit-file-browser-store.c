@@ -25,7 +25,7 @@
 
 #include <string.h>
 #include <glib/gi18n-lib.h>
-#include <gedit/gedit-plugin.h>
+#include <gedit/plugins/gedit-plugin.h>
 #include <gedit/gedit-utils.h>
 
 #include "gedit-file-browser-store.h"
@@ -94,6 +94,7 @@ struct _GeditFileBrowserStorePrivate
 	GeditFileBrowserStoreFilterMode filter_mode;
 	GeditFileBrowserStoreFilterFunc filter_func;
 	gpointer filter_user_data;
+	GDestroyNotify filter_destroy_func;
 
 	SortFunc sort_func;
 
@@ -212,6 +213,10 @@ gedit_file_browser_store_finalize (GObject * object)
 		((AsyncHandle *) (item->data))->alive = FALSE;
 
 	g_slist_free (obj->priv->async_handles);
+	
+	if (obj->priv->filter_destroy_func)
+		obj->priv->filter_destroy_func(obj->priv->filter_user_data);
+
 	G_OBJECT_CLASS (gedit_file_browser_store_parent_class)->
 	    finalize (object);
 }
@@ -380,6 +385,7 @@ gedit_file_browser_store_init (GeditFileBrowserStore * obj)
 	// Default filter mode is hiding the hidden files
 	obj->priv->filter_mode = gedit_file_browser_store_filter_mode_get_default ();
 	obj->priv->sort_func = model_sort_default;
+	obj->priv->filter_destroy_func = NULL;
 }
 
 static gboolean
@@ -2883,12 +2889,15 @@ gedit_file_browser_store_set_filter_mode (GeditFileBrowserStore * model,
 void
 gedit_file_browser_store_set_filter_func (GeditFileBrowserStore * model,
 					  GeditFileBrowserStoreFilterFunc
-					  func, gpointer user_data)
+					  func, gpointer user_data,
+					  GDestroyNotify destroy_func)
 {
 	g_return_if_fail (GEDIT_IS_FILE_BROWSER_STORE (model));
 
 	model->priv->filter_func = func;
 	model->priv->filter_user_data = user_data;
+	model->priv->filter_destroy_func = destroy_func;
+
 	model_refilter (model);
 }
 

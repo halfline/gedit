@@ -39,7 +39,7 @@
 
 #include <gedit/gedit-utils.h>
 #include <gedit/gedit-debug.h>
-#include <gedit/gedit-plugin.h>
+#include <gedit/plugins/gedit-plugin.h>
 
 #include <gdk/gdkkeysyms.h>
 #include <glib/gi18n.h>

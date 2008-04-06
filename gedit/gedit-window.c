@@ -52,7 +52,7 @@
 #include "gedit-prefs-manager-app.h"
 #include "gedit-panel.h"
 #include "gedit-documents-panel.h"
-#include "gedit-plugins-engine.h"
+#include "plugins/gedit-plugins-engine.h"
 #include "gedit-enum-types.h"
 
 #define LANGUAGE_NONE (const gchar *)"LangNone"

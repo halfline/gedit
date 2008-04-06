@@ -359,6 +359,7 @@ data/Makefile
 docs/Makefile
 docs/reference/Makefile
 gedit/dialogs/Makefile
+gedit/plugins/Makefile
 gedit/Makefile
 help/Makefile
 help/eu/Makefile
@@ -371,6 +372,7 @@ plugins/externaltools/tools/Makefile
 plugins/externaltools/data/Makefile
 plugins/externaltools/scripts/Makefile
 plugins/filebrowser/Makefile
+plugins/filebrowser/bindings/Makefile
 plugins/indent/Makefile
 plugins/Makefile
 plugins/modelines/Makefile

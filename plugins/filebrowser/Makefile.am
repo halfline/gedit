@@ -1,4 +1,8 @@
-# filebrowser
+SUBDIRS = 
+
+if ENABLE_PYTHON
+SUBDIRS += bindings
+endif
 
 plugindir = $(libdir)/gedit-2/plugins
 filebrowserdir = $(datadir)/gedit-2/plugins/filebrowser
