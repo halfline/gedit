@@ -47,7 +47,7 @@
 #include "gedit-debug.h"
 #include "gedit-encodings.h"
 #include "gedit-metadata-manager.h"
-#include "gedit-plugins-engine.h"
+#include "plugins/gedit-plugins-engine.h"
 #include "gedit-prefs-manager-app.h"
 #include "gedit-session.h"
 #include "gedit-utils.h"
