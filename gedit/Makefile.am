@@ -1,5 +1,5 @@
 ## Process this file with automake to produce Makefile.in
-SUBDIRS = dialogs plugins
+SUBDIRS = dialogs
 
 bin_PROGRAMS = gedit
 
@@ -33,12 +33,11 @@ gedit_LDADD = libgedit.la $(GEDIT_LIBS)
 gedit_LDFLAGS = -export-dynamic -no-undefined -export-symbols-regex "^[[^_]].*"
 
 
-libgedit_la_LDFLAGS = -export-dynamic -no-undefined -export-symbols-regex "^[[^_]].*"
+libgedit_la_LDFLAGS = -export-dynamic -no-undefined -export-symbols-regex "^[[^_]].*" 
 
 libgedit_la_LIBADD =			\
 	$(GEDIT_LIBS)			\
-	dialogs/libdialogs.la		\
-	plugins/libplugins.la
+	dialogs/libdialogs.la
 
 if ENABLE_PYTHON
 libgedit_la_LIBADD += \
@@ -55,6 +54,9 @@ NOINST_H_FILES =			\
 	gedit-commands.h		\
 	gedit-language-manager.h	\
 	gedit-style-scheme-manager.h	\
+	gedit-plugin-info-priv.h	\
+	gedit-plugin-manager.h		\
+	gedit-module.h			\
 	gedit-ui.h			\
 	gedit-window-private.h		\
 	gedit-documents-panel.h		\
@@ -74,6 +76,12 @@ NOINST_H_FILES =			\
 	gedittextregion.h		\
 	gedit-session.h
 
+if ENABLE_PYTHON
+NOINST_H_FILES += \
+	gedit-python-module.h		\
+	gedit-python-plugin.h
+endif
+
 INST_H_FILES =				\
 	gedit-app.h			\
 	gedit-convert.h			\
@@ -87,6 +95,9 @@ INST_H_FILES =				\
 	gedit-metadata-manager.h	\
 	gedit-notebook.h		\
 	gedit-panel.h			\
+	gedit-plugin.h			\
+	gedit-plugin-info.h		\
+	gedit-plugins-engine.h		\
 	gedit-prefs-manager-app.h	\
 	gedit-prefs-manager.h		\
 	gedit-progress-message-area.h	\
@@ -95,6 +106,11 @@ INST_H_FILES =				\
 	gedit-utils.h 			\
 	gedit-view.h 			\
 	gedit-window.h
+
+if ENABLE_PYTHON
+INST_H_FILES += \
+	gedit-plugin-python-utils.h
+endif
 
 headerdir = $(prefix)/include/gedit-@GEDIT_API_VERSION@/gedit
 
@@ -131,8 +147,14 @@ libgedit_la_SOURCES = 			\
 	gedit-language-manager.c	\
 	gedit-message-area.c		\
 	gedit-metadata-manager.c	\
+	gedit-module.c			\
 	gedit-notebook.c		\
 	gedit-panel.c			\
+	gedit-plugin-info.c		\
+	gedit-plugin.c			\
+	gedit-plugin-manager.c		\
+	gedit-plugins-engine.c		\
+	gedit-plugin-python-utils.c	\
 	gedit-prefs-manager-app.c	\
 	gedit-prefs-manager.c		\
 	gedit-prefs-manager-private.h	\
@@ -151,6 +173,15 @@ libgedit_la_SOURCES = 			\
 	gedittextregion.c		\
 	$(NOINST_H_FILES)		\
 	$(INST_H_FILES)
+
+
+if ENABLE_PYTHON
+libgedit_la_SOURCES += \
+	gedit-python-module.c		\
+	gedit-python-module.h		\
+	gedit-python-plugin.c		\
+	gedit-python-plugin.h	
+endif
 
 gedit-enum-types.h: gedit-enum-types.h.template $(INST_H_FILES) $(GLIB_MKENUMS)
 	(cd $(srcdir) && $(GLIB_MKENUMS) --template gedit-enum-types.h.template $(INST_H_FILES)) > $@
@@ -179,7 +210,7 @@ EXTRA_DIST = 				\
 	gedit-enum-types.c.template	\
 	gedit-marshal.list
 
-CLEANFILES = $(BUILT_SOURCES)
+CLEANFILES = $(BUILT_SOURCES)	
 
 dist-hook:
 	cd $(distdir); rm -f $(BUILT_SOURCES)

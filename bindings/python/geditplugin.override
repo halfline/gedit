@@ -1,6 +1,6 @@
 %%
 headers
-#include "plugins/gedit-plugin.h"
+#include "gedit-plugin.h"
 #include "gedit-window.h"
 %%
 override gedit_plugin_activate kwargs

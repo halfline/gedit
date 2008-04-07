@@ -31,7 +31,7 @@
 #include <libgnomevfs/gnome-vfs.h>
 #include <libgnomeui/libgnomeui.h>
 #include <gedit/gedit-utils.h>
-#include <gedit/plugins/gedit-plugin.h>
+#include <gedit/gedit-plugin.h>
 
 #include "gedit-file-browser-utils.h"
 #include "gedit-file-browser-error.h"

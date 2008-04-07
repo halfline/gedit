@@ -33,8 +33,8 @@
 
 #include <glib.h>
 #include <gedit/gedit-window.h>
-#include <gedit/plugins/gedit-plugin-info.h>
-#include <gedit/plugins/gedit-plugin.h>
+#include <gedit/gedit-plugin-info.h>
+#include <gedit/gedit-plugin.h>
 
 G_BEGIN_DECLS
 

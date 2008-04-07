@@ -16,6 +16,14 @@ INCLUDES = \
 	-DGEDIT_LOCALEDIR=\""$(prefix)/$(DATADIRNAME)/locale"\" 	\
 	-DGEDIT_FILE_BROWSER_DIR=\""$(filebrowserdir)/"\"
 
+if ENABLE_PYTHON
+INCLUDES += 				\
+	$(NO_STRICT_ALIASING_CFLAGS)	\
+	$(PYGTK_CFLAGS)			\
+	$(PYTHON_CFLAGS)		\
+	$(AM_CFLAGS)
+endif
+
 BUILT_SOURCES = \
 	gedit-file-browser-enum-types.h		\
 	gedit-file-browser-enum-types.c		\
@@ -45,6 +53,10 @@ libfilebrowser_la_SOURCES = \
 
 libfilebrowser_la_LDFLAGS = $(PLUGIN_LIBTOOL_FLAGS)
 libfilebrowser_la_LIBADD = $(GEDIT_LIBS)
+
+if ENABLE_PYTHON
+libfilebrowser_la_LIBADD += $(top_builddir)/plugins/filebrowser/bindings/filebrowser.la
+endif
 
 # Glade files (if you use glade for your plugin, list those files here)
 gladedir = $(datadir)/gedit-2/glade

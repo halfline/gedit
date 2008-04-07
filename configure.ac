@@ -359,7 +359,6 @@ data/Makefile
 docs/Makefile
 docs/reference/Makefile
 gedit/dialogs/Makefile
-gedit/plugins/Makefile
 gedit/Makefile
 help/Makefile
 help/eu/Makefile

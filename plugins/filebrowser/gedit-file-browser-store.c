@@ -25,8 +25,8 @@
 
 #include <string.h>
 #include <glib/gi18n-lib.h>
-#include <gedit/plugins/gedit-plugin.h>
 #include <gedit/gedit-utils.h>
+#include <gedit/gedit-plugin.h>
 
 #include "gedit-file-browser-store.h"
 #include "gedit-file-browser-marshal.h"

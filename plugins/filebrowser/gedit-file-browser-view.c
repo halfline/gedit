@@ -20,8 +20,8 @@
  */
 
 #include <string.h>
-#include <gedit/plugins/gedit-plugin.h>
 #include <gdk/gdkkeysyms.h>
+#include <gedit/gedit-plugin.h>
 
 #include "gedit-file-browser-store.h"
 #include "gedit-file-bookmarks-store.h"

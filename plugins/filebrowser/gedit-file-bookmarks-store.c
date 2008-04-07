@@ -23,7 +23,7 @@
 #include <glib/gi18n.h>
 #include <libgnomevfs/gnome-vfs.h>
 #include <gedit/gedit-utils.h>
-#include <gedit/plugins/gedit-plugin.h>
+#include <gedit/gedit-plugin.h>
 
 #include "gedit-file-bookmarks-store.h"
 #include "gedit-file-browser-utils.h"

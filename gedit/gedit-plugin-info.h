@@ -33,7 +33,7 @@
 #define __GEDIT_PLUGIN_INFO_H__
 
 #include <glib-object.h>
-#include <gedit/plugins/gedit-plugin.h>
+#include <gedit/gedit-plugin.h>
 
 G_BEGIN_DECLS
 

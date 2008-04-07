@@ -1,0 +1,568 @@
+;; -*- scheme -*-
+; object definitions ...
+(define-object BookmarksStore
+  (in-module "Gedit")
+  (parent "GtkTreeStore")
+  (c-name "GeditFileBookmarksStore")
+  (gtype-id "GEDIT_TYPE_FILE_BOOKMARKS_STORE")
+)
+
+(define-object Plugin
+  (in-module "Gedit")
+  (parent "GeditPlugin")
+  (c-name "GeditFileBrowserPlugin")
+  (gtype-id "GEDIT_TYPE_FILE_BROWSER_PLUGIN")
+)
+
+(define-object Store
+  (in-module "Gedit")
+  (parent "GObject")
+  (c-name "GeditFileBrowserStore")
+  (gtype-id "GEDIT_TYPE_FILE_BROWSER_STORE")
+)
+
+(define-object View
+  (in-module "Gedit")
+  (parent "GtkTreeView")
+  (c-name "GeditFileBrowserView")
+  (gtype-id "GEDIT_TYPE_FILE_BROWSER_VIEW")
+)
+
+(define-object Widget
+  (in-module "Gedit")
+  (parent "GtkVBox")
+  (c-name "GeditFileBrowserWidget")
+  (gtype-id "GEDIT_TYPE_FILE_BROWSER_WIDGET")
+)
+
+;; Enumerations and flags ...
+
+(define-enum Error
+  (in-module "Gedit")
+  (c-name "GeditFileBrowserError")
+  (gtype-id "GEDIT_TYPE_FILE_BROWSER_ERROR")
+  (values
+    '("none" "GEDIT_FILE_BROWSER_ERROR_NONE")
+    '("rename" "GEDIT_FILE_BROWSER_ERROR_RENAME")
+    '("delete" "GEDIT_FILE_BROWSER_ERROR_DELETE")
+    '("new-file" "GEDIT_FILE_BROWSER_ERROR_NEW_FILE")
+    '("new-directory" "GEDIT_FILE_BROWSER_ERROR_NEW_DIRECTORY")
+    '("open-directory" "GEDIT_FILE_BROWSER_ERROR_OPEN_DIRECTORY")
+    '("set-root" "GEDIT_FILE_BROWSER_ERROR_SET_ROOT")
+    '("load-directory" "GEDIT_FILE_BROWSER_ERROR_LOAD_DIRECTORY")
+    '("num" "GEDIT_FILE_BROWSER_ERROR_NUM")
+  )
+)
+
+(define-enum StoreColumn
+  (in-module "Gedit")
+  (c-name "GeditFileBrowserStoreColumn")
+  (gtype-id "GEDIT_TYPE_FILE_BROWSER_STORE_COLUMN")
+  (values
+    '("icon" "GEDIT_FILE_BROWSER_STORE_COLUMN_ICON")
+    '("name" "GEDIT_FILE_BROWSER_STORE_COLUMN_NAME")
+    '("uri" "GEDIT_FILE_BROWSER_STORE_COLUMN_URI")
+    '("flags" "GEDIT_FILE_BROWSER_STORE_COLUMN_FLAGS")
+    '("emblem" "GEDIT_FILE_BROWSER_STORE_COLUMN_EMBLEM")
+    '("num" "GEDIT_FILE_BROWSER_STORE_COLUMN_NUM")
+  )
+)
+
+(define-flags StoreFlag
+  (in-module "Gedit")
+  (c-name "GeditFileBrowserStoreFlag")
+  (gtype-id "GEDIT_TYPE_FILE_BROWSER_STORE_FLAG")
+  (values
+    '("is-directory" "GEDIT_FILE_BROWSER_STORE_FLAG_IS_DIRECTORY")
+    '("is-hidden" "GEDIT_FILE_BROWSER_STORE_FLAG_IS_HIDDEN")
+    '("is-text" "GEDIT_FILE_BROWSER_STORE_FLAG_IS_TEXT")
+    '("loaded" "GEDIT_FILE_BROWSER_STORE_FLAG_LOADED")
+    '("is-filtered" "GEDIT_FILE_BROWSER_STORE_FLAG_IS_FILTERED")
+    '("is-dummy" "GEDIT_FILE_BROWSER_STORE_FLAG_IS_DUMMY")
+  )
+)
+
+(define-enum StoreResult
+  (in-module "Gedit")
+  (c-name "GeditFileBrowserStoreResult")
+  (gtype-id "GEDIT_TYPE_FILE_BROWSER_STORE_RESULT")
+  (values
+    '("ok" "GEDIT_FILE_BROWSER_STORE_RESULT_OK")
+    '("no-change" "GEDIT_FILE_BROWSER_STORE_RESULT_NO_CHANGE")
+    '("error" "GEDIT_FILE_BROWSER_STORE_RESULT_ERROR")
+    '("no-trash" "GEDIT_FILE_BROWSER_STORE_RESULT_NO_TRASH")
+    '("num" "GEDIT_FILE_BROWSER_STORE_RESULT_NUM")
+  )
+)
+
+(define-flags StoreFilterMode
+  (in-module "Gedit")
+  (c-name "GeditFileBrowserStoreFilterMode")
+  (gtype-id "GEDIT_TYPE_FILE_BROWSER_STORE_FILTER_MODE")
+  (values
+    '("none" "GEDIT_FILE_BROWSER_STORE_FILTER_MODE_NONE")
+    '("hide-hidden" "GEDIT_FILE_BROWSER_STORE_FILTER_MODE_HIDE_HIDDEN")
+    '("hide-binary" "GEDIT_FILE_BROWSER_STORE_FILTER_MODE_HIDE_BINARY")
+  )
+)
+
+(define-enum ViewClickPolicy
+  (in-module "Gedit")
+  (c-name "GeditFileBrowserViewClickPolicy")
+  (gtype-id "GEDIT_TYPE_FILE_BROWSER_VIEW_CLICK_POLICY")
+  (values
+    '("double" "GEDIT_FILE_BROWSER_VIEW_CLICK_POLICY_DOUBLE")
+    '("single" "GEDIT_FILE_BROWSER_VIEW_CLICK_POLICY_SINGLE")
+  )
+)
+
+
+;; From gedit-file-bookmarks-store.h
+
+(define-function gedit_file_bookmarks_store_get_type
+  (c-name "gedit_file_bookmarks_store_get_type")
+  (return-type "GType")
+)
+
+(define-function gedit_file_bookmarks_store_register_type
+  (c-name "gedit_file_bookmarks_store_register_type")
+  (return-type "GType")
+  (parameters
+    '("GTypeModule*" "module")
+  )
+)
+
+(define-function gedit_file_bookmarks_store_new
+  (c-name "gedit_file_bookmarks_store_new")
+  (is-constructor-of "GeditFileBookmarksStore")
+  (return-type "GeditFileBookmarksStore*")
+)
+
+(define-method get_uri
+  (of-object "GeditFileBookmarksStore")
+  (c-name "gedit_file_bookmarks_store_get_uri")
+  (return-type "gchar*")
+  (parameters
+    '("GtkTreeIter*" "iter")
+  )
+)
+
+(define-method refresh
+  (of-object "GeditFileBookmarksStore")
+  (c-name "gedit_file_bookmarks_store_refresh")
+  (return-type "none")
+)
+
+
+
+;; From gedit-file-browser-error.h
+
+
+
+;; From gedit-file-browser-plugin.h
+
+(define-function gedit_file_browser_plugin_get_type
+  (c-name "gedit_file_browser_plugin_get_type")
+  (return-type "GType")
+)
+
+(define-method get_widget
+  (of-object "GeditFileBrowserPlugin")
+  (c-name "gedit_file_browser_plugin_get_widget")
+  (return-type "GeditFileBrowserWidget*")
+  (parameters
+    '("GeditWindow*" "window")
+  )
+)
+
+;; From gedit-file-browser-store.h
+
+(define-function gedit_file_browser_store_get_type
+  (c-name "gedit_file_browser_store_get_type")
+  (return-type "GType")
+)
+
+(define-function gedit_file_browser_store_register_type
+  (c-name "gedit_file_browser_store_register_type")
+  (return-type "GType")
+  (parameters
+    '("GTypeModule*" "module")
+  )
+)
+
+(define-function gedit_file_browser_store_new
+  (c-name "gedit_file_browser_store_new")
+  (is-constructor-of "GeditFileBrowserStore")
+  (return-type "GeditFileBrowserStore*")
+  (properties
+    '("root" (argname "str") (optional))
+  )
+)
+
+(define-method set_root_and_virtual_root
+  (of-object "GeditFileBrowserStore")
+  (c-name "gedit_file_browser_store_set_root_and_virtual_root")
+  (return-type "GeditFileBrowserStoreResult")
+  (parameters
+    '("gchar-const*" "root")
+    '("gchar-const*" "virtual_root")
+  )
+)
+
+(define-method set_root
+  (of-object "GeditFileBrowserStore")
+  (c-name "gedit_file_browser_store_set_root")
+  (return-type "GeditFileBrowserStoreResult")
+  (parameters
+    '("gchar-const*" "root")
+  )
+)
+
+(define-method set_virtual_root
+  (of-object "GeditFileBrowserStore")
+  (c-name "gedit_file_browser_store_set_virtual_root")
+  (return-type "GeditFileBrowserStoreResult")
+  (parameters
+    '("GtkTreeIter*" "iter")
+  )
+)
+
+(define-method set_virtual_root_from_string
+  (of-object "GeditFileBrowserStore")
+  (c-name "gedit_file_browser_store_set_virtual_root_from_string")
+  (return-type "GeditFileBrowserStoreResult")
+  (parameters
+    '("gchar-const*" "root")
+  )
+)
+
+(define-method set_virtual_root_up
+  (of-object "GeditFileBrowserStore")
+  (c-name "gedit_file_browser_store_set_virtual_root_up")
+  (return-type "GeditFileBrowserStoreResult")
+)
+
+(define-method set_virtual_root_top
+  (of-object "GeditFileBrowserStore")
+  (c-name "gedit_file_browser_store_set_virtual_root_top")
+  (return-type "GeditFileBrowserStoreResult")
+)
+
+(define-method get_iter_virtual_root
+  (of-object "GeditFileBrowserStore")
+  (c-name "gedit_file_browser_store_get_iter_virtual_root")
+  (return-type "gboolean")
+  (parameters
+    '("GtkTreeIter*" "iter")
+  )
+)
+
+(define-method get_iter_root
+  (of-object "GeditFileBrowserStore")
+  (c-name "gedit_file_browser_store_get_iter_root")
+  (return-type "gboolean")
+  (parameters
+    '("GtkTreeIter*" "iter")
+  )
+)
+
+(define-method get_root
+  (of-object "GeditFileBrowserStore")
+  (c-name "gedit_file_browser_store_get_root")
+  (return-type "gchar*")
+)
+
+(define-method get_virtual_root
+  (of-object "GeditFileBrowserStore")
+  (c-name "gedit_file_browser_store_get_virtual_root")
+  (return-type "gchar*")
+)
+
+(define-method iter_equal
+  (of-object "GeditFileBrowserStore")
+  (c-name "gedit_file_browser_store_iter_equal")
+  (return-type "gboolean")
+  (parameters
+    '("GtkTreeIter*" "iter1")
+    '("GtkTreeIter*" "iter2")
+  )
+)
+
+(define-method set_value
+  (of-object "GeditFileBrowserStore")
+  (c-name "gedit_file_browser_store_set_value")
+  (return-type "none")
+  (parameters
+    '("GtkTreeIter*" "iter")
+    '("gint" "column")
+    '("GValue*" "value")
+  )
+)
+
+(define-method get_filter_mode
+  (of-object "GeditFileBrowserStore")
+  (c-name "gedit_file_browser_store_get_filter_mode")
+  (return-type "GeditFileBrowserStoreFilterMode")
+)
+
+(define-method set_filter_mode
+  (of-object "GeditFileBrowserStore")
+  (c-name "gedit_file_browser_store_set_filter_mode")
+  (return-type "none")
+  (parameters
+    '("GeditFileBrowserStoreFilterMode" "mode")
+  )
+)
+
+(define-method set_filter_func
+  (of-object "GeditFileBrowserStore")
+  (c-name "gedit_file_browser_store_set_filter_func")
+  (return-type "none")
+  (parameters
+    '("GeditFileBrowserStoreFilterFunc" "func")
+    '("gpointer" "user_data")
+    '("GDestroyNotify" "destroy_func")
+  )
+)
+
+(define-method refilter
+  (of-object "GeditFileBrowserStore")
+  (c-name "gedit_file_browser_store_refilter")
+  (return-type "none")
+)
+
+(define-function gedit_file_browser_store_filter_mode_get_default
+  (c-name "gedit_file_browser_store_filter_mode_get_default")
+  (return-type "GeditFileBrowserStoreFilterMode")
+)
+
+(define-method refresh
+  (of-object "GeditFileBrowserStore")
+  (c-name "gedit_file_browser_store_refresh")
+  (return-type "none")
+)
+
+(define-method rename
+  (of-object "GeditFileBrowserStore")
+  (c-name "gedit_file_browser_store_rename")
+  (return-type "gboolean")
+  (parameters
+    '("GtkTreeIter*" "iter")
+    '("gchar-const*" "new_name")
+    '("GError**" "error")
+  )
+)
+
+(define-method delete
+  (of-object "GeditFileBrowserStore")
+  (c-name "gedit_file_browser_store_delete")
+  (return-type "GeditFileBrowserStoreResult")
+  (parameters
+    '("GtkTreeIter*" "iter")
+    '("gboolean" "trash")
+  )
+)
+
+(define-method delete_all
+  (of-object "GeditFileBrowserStore")
+  (c-name "gedit_file_browser_store_delete_all")
+  (return-type "GeditFileBrowserStoreResult")
+  (parameters
+    '("GList*" "rows")
+    '("gboolean" "trash")
+  )
+)
+
+(define-method new_file
+  (of-object "GeditFileBrowserStore")
+  (c-name "gedit_file_browser_store_new_file")
+  (return-type "gboolean")
+  (parameters
+    '("GtkTreeIter*" "parent")
+    '("GtkTreeIter*" "iter")
+  )
+)
+
+(define-method new_directory
+  (of-object "GeditFileBrowserStore")
+  (c-name "gedit_file_browser_store_new_directory")
+  (return-type "gboolean")
+  (parameters
+    '("GtkTreeIter*" "parent")
+    '("GtkTreeIter*" "iter")
+  )
+)
+
+
+
+;; From gedit-file-browser-view.h
+
+(define-function gedit_file_browser_view_get_type
+  (c-name "gedit_file_browser_view_get_type")
+  (return-type "GType")
+)
+
+(define-function gedit_file_browser_view_register_type
+  (c-name "gedit_file_browser_view_register_type")
+  (return-type "GType")
+  (parameters
+    '("GTypeModule*" "module")
+  )
+)
+
+(define-function gedit_file_browser_view_new
+  (c-name "gedit_file_browser_view_new")
+  (is-constructor-of "GeditFileBrowserView")
+  (return-type "GtkWidget*")
+)
+
+(define-method set_model
+  (of-object "GeditFileBrowserView")
+  (c-name "gedit_file_browser_view_set_model")
+  (return-type "none")
+  (parameters
+    '("GtkTreeModel*" "model")
+  )
+)
+
+(define-method start_rename
+  (of-object "GeditFileBrowserView")
+  (c-name "gedit_file_browser_view_start_rename")
+  (return-type "none")
+  (parameters
+    '("GtkTreeIter*" "iter")
+  )
+)
+
+(define-method set_click_policy
+  (of-object "GeditFileBrowserView")
+  (c-name "gedit_file_browser_view_set_click_policy")
+  (return-type "none")
+  (parameters
+    '("GeditFileBrowserViewClickPolicy" "policy")
+  )
+)
+
+
+
+;; From gedit-file-browser-widget.h
+
+(define-function gedit_file_browser_widget_get_type
+  (c-name "gedit_file_browser_widget_get_type")
+  (return-type "GType")
+)
+
+(define-function gedit_file_browser_widget_register_type
+  (c-name "gedit_file_browser_widget_register_type")
+  (return-type "GType")
+  (parameters
+    '("GTypeModule*" "module")
+  )
+)
+
+(define-function gedit_file_browser_widget_new
+  (c-name "gedit_file_browser_widget_new")
+  (is-constructor-of "GeditFileBrowserWidget")
+  (return-type "GtkWidget*")
+)
+
+(define-method show_bookmarks
+  (of-object "GeditFileBrowserWidget")
+  (c-name "gedit_file_browser_widget_show_bookmarks")
+  (return-type "none")
+)
+
+(define-method set_root
+  (of-object "GeditFileBrowserWidget")
+  (c-name "gedit_file_browser_widget_set_root")
+  (return-type "none")
+  (parameters
+    '("gchar-const*" "root")
+    '("gboolean" "virtual_root")
+  )
+)
+
+(define-method set_root_and_virtual_root
+  (of-object "GeditFileBrowserWidget")
+  (c-name "gedit_file_browser_widget_set_root_and_virtual_root")
+  (return-type "none")
+  (parameters
+    '("gchar-const*" "root")
+    '("gchar-const*" "virtual_root")
+  )
+)
+
+(define-method get_selected_directory
+  (of-object "GeditFileBrowserWidget")
+  (c-name "gedit_file_browser_widget_get_selected_directory")
+  (return-type "gboolean")
+  (parameters
+    '("GtkTreeIter*" "iter")
+  )
+)
+
+(define-method get_num_selected_files_or_directories
+  (of-object "GeditFileBrowserWidget")
+  (c-name "gedit_file_browser_widget_get_num_selected_files_or_directories")
+  (return-type "guint")
+)
+
+(define-method get_browser_store
+  (of-object "GeditFileBrowserWidget")
+  (c-name "gedit_file_browser_widget_get_browser_store")
+  (return-type "GeditFileBrowserStore*")
+)
+
+(define-method get_bookmarks_store
+  (of-object "GeditFileBrowserWidget")
+  (c-name "gedit_file_browser_widget_get_bookmarks_store")
+  (return-type "GeditFileBookmarksStore*")
+)
+
+(define-method get_browser_view
+  (of-object "GeditFileBrowserWidget")
+  (c-name "gedit_file_browser_widget_get_browser_view")
+  (return-type "GeditFileBrowserView*")
+)
+
+(define-method get_filter_entry
+  (of-object "GeditFileBrowserWidget")
+  (c-name "gedit_file_browser_widget_get_filter_entry")
+  (return-type "GtkWidget*")
+)
+
+(define-method get_ui_manager
+  (of-object "GeditFileBrowserWidget")
+  (c-name "gedit_file_browser_widget_get_ui_manager")
+  (return-type "GtkUIManager*")
+)
+
+(define-method add_filter
+  (of-object "GeditFileBrowserWidget")
+  (c-name "gedit_file_browser_widget_add_filter")
+  (return-type "gulong")
+  (parameters
+    '("GeditFileBrowserWidgetFilterFunc" "func")
+    '("gpointer" "user_data")
+  )
+)
+
+(define-method remove_filter
+  (of-object "GeditFileBrowserWidget")
+  (c-name "gedit_file_browser_widget_remove_filter")
+  (return-type "none")
+  (parameters
+    '("gulong" "id")
+  )
+)
+
+(define-method set_filter_pattern
+  (of-object "GeditFileBrowserWidget")
+  (c-name "gedit_file_browser_widget_set_filter_pattern")
+  (return-type "none")
+  (parameters
+    '("gchar-const*" "pattern")
+  )
+)
+
+

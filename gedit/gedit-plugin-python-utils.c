@@ -27,15 +27,16 @@
 #include "gedit-python-module.h"
 
 #define TYPE_PREFIX "Gedit"
+#define TYPE_SUFFIX "Plugin"
 
 PyObject *gedit_plugin_python_utils_init(GeditPlugin 			 *plugin,
 					 GeditPluginPythonUtilsClasses 	  classreg,
-					 const PyMethodDef 		 *functions,
+					 PyMethodDef	 		 *functions,
 					 GeditPluginPythonUtilsConstants  constreg,
 					 const gchar 			 *prefix)
 {
 	PyObject *plugins, *mdict, *module;
-	const gchar *name;
+	gchar *name, *ptr;
 	gchar *mname;
 	GeditPluginInfo *info;
 
@@ -66,15 +67,24 @@ PyObject *gedit_plugin_python_utils_init(GeditPlugin 			 *plugin,
 		return NULL;
 	}
 	
-	name = g_type_name (G_OBJECT_TYPE (plugin));
+	ptr = name = g_strdup (G_OBJECT_TYPE_NAME (plugin));
+
+	if (g_str_has_prefix (ptr, TYPE_PREFIX))
+		ptr = ptr + strlen(TYPE_PREFIX);
 	
-	if (g_str_has_prefix (name, TYPE_PREFIX))
-		name = name + strlen(TYPE_PREFIX);
+	if (g_str_has_suffix (ptr, TYPE_SUFFIX))
+		ptr[strlen(ptr) - strlen(TYPE_SUFFIX)] = 0;
 	
-	mname = g_strdup_printf ("gedit.plugins.%s", name);
+	mname = g_strconcat ("gedit.plugins.", ptr, NULL);
+
 	module = Py_InitModule (mname, functions);
 	g_free (mname);
 	
+	/* Set module name in gedit.plugins dict */
+	PyDict_SetItemString (mdict, ptr, module);
+	g_free (name);
+	
+	/* Register classes and const values in the dict of the module */
 	mdict = PyModule_GetDict (module);
 	
 	if (classreg)
@@ -82,6 +92,6 @@ PyObject *gedit_plugin_python_utils_init(GeditPlugin 			 *plugin,
 	
 	if (constreg)
 		constreg (module, prefix);
-	
+
 	return module;
 }

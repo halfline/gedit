@@ -24,7 +24,8 @@
 
 #include <glib.h>
 #include <glib-object.h>
-#include <gedit/plugins/gedit-plugin.h>
+#include <gedit/gedit-plugin.h>
+#include "gedit-file-browser-widget.h"
 
 G_BEGIN_DECLS
 /*
@@ -59,6 +60,11 @@ struct _GeditFileBrowserPluginClass
  * Public methods
  */
 GType gedit_file_browser_plugin_get_type              (void) G_GNUC_CONST;
+
+/* Utility functions */
+GeditFileBrowserWidget * gedit_file_browser_plugin_get_widget (
+						GeditFileBrowserPlugin 	*plugin,
+						GeditWindow		*window);
 
 /* All the plugins must implement this function */
 G_MODULE_EXPORT GType register_gedit_plugin (GTypeModule * module);

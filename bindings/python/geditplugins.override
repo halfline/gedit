@@ -4,10 +4,10 @@ headers
 #include "pygobject.h"
 #include <pygtk/pygtk.h>
 
-#include "plugins/gedit-plugins-engine.h"
-#include "plugins/gedit-plugin.h"
-#include "plugins/gedit-python-plugin.h"
-#include "plugins/gedit-plugin-info.h"
+#include "gedit-plugins-engine.h"
+#include "gedit-plugin.h"
+#include "gedit-python-plugin.h"
+#include "gedit-plugin-info.h"
 
 static PyObject *
 _helper_wrap_string_list (const gchar **list)

@@ -1,0 +1,351 @@
+%%
+headers
+#define NO_IMPORT_PYGOBJECT
+#include "pygobject.h"
+#include <pygtk/pygtk.h>
+
+#include "gedit-plugin.h"
+#include "gedit-window.h"
+#include "../gedit-file-browser-enum-types.h"
+#include "../gedit-file-browser-error.h"
+#include "../gedit-file-bookmarks-store.h"
+#include "../gedit-file-browser-store.h"
+#include "../gedit-file-browser-view.h"
+#include "../gedit-file-browser-widget.h"
+#include "../gedit-file-browser-plugin.h"
+
+typedef struct {
+	PyObject *func;
+	PyObject *data;
+} CustomNotify;
+
+static void
+pygedit_custom_destroy_notify (gpointer user_data)
+{
+	CustomNotify *cunote = user_data;
+	PyGILState_STATE state;
+
+	g_return_if_fail(user_data);
+	
+	state = pyg_gil_state_ensure();
+	Py_XDECREF(cunote->func);
+	Py_XDECREF(cunote->data);
+	pyg_gil_state_release(state);
+
+	g_free(cunote);
+}
+
+%%
+modulename gedit.plugins.FileBrowser
+%%
+import gtk.TreeModel as PyGtkTreeModel_Type
+import gtk.TreeStore as PyGtkTreeStore_Type
+import gedit.__Plugin as PyGeditPlugin_Type
+import gedit.Window as PyGeditWindow_Type
+import gobject.GObject as PyGObject_Type
+import gtk.TreeView as PyGtkTreeView_Type
+import gtk.VBox as PyGtkVBox_Type
+%%
+ignore-glob
+  _*
+  *_register_type
+  *_get_type
+%%
+override gedit_file_browser_store_set_value kwargs
+static PyObject *
+_wrap_gedit_file_browser_store_set_value (PyGObject *self, 
+					        PyObject *args,
+					        PyObject *kwargs)
+{
+	static char *kwlist[] = {"iter", "column", "value", NULL};
+	PyObject *iter, *pyvalue;
+	gint column;
+	GValue value = {0};
+
+	if (!PyArg_ParseTupleAndKeywords (args, 
+					  kwargs, 
+					  "OiO:GeditFileBrowserStore.set_value",
+					  kwlist, 
+					  &iter, 
+					  &column, 
+					  &pyvalue))
+		return NULL;
+
+	if (column < 0 || 
+	    column >= gtk_tree_model_get_n_columns (GTK_TREE_MODEL (self->obj))) {
+		PyErr_SetString (PyExc_ValueError, "column number is out of range");
+		return NULL;
+	}
+	
+	if (!pyg_boxed_check (iter, GTK_TYPE_TREE_ITER)) {
+		PyErr_SetString (PyExc_TypeError, "iter must be a GtkTreeIter");
+		return NULL;
+	}
+
+	g_value_init (&value, 
+		      gtk_tree_model_get_column_type (GTK_TREE_MODEL( self->obj),
+		      column));
+		      
+	if (pyg_value_from_pyobject (&value, pyvalue)) {
+		PyErr_SetString (PyExc_TypeError, 
+				 "value is of the wrong type for this column");
+		return NULL;
+	}
+	
+	gedit_file_browser_store_set_value (GEDIT_FILE_BROWSER_STORE (self->obj),
+					    pyg_boxed_get (iter, GtkTreeIter), 
+					    column, 
+					    &value);
+
+	g_value_unset(&value);
+	Py_INCREF(Py_None);
+
+	return Py_None;
+}
+%%
+override gedit_file_browser_store_delete_all kwargs
+static PyObject *
+_wrap_gedit_file_browser_store_delete_all (PyGObject *self, 
+					   PyObject *args,
+					   PyObject *kwargs)
+{
+	static char *kwlist[] = {"rows", "trash"};
+	PyObject *list, *trash;
+	PyObject *item;
+	GtkTreePath *path;
+	GList *clist = NULL;
+	gint len, i;
+	
+	if (!PyArg_ParseTupleAndKeywords (args, 
+					  kwargs, 
+					  "OO:GeditFileBrowserStore.delete_all",
+					  kwlist, 
+					  &list, 
+					  &trash))
+		return NULL;
+
+	/* Convert the python list to a GList of GtkTreePath */
+	if (!PySequence_Check (list)) {
+		PyErr_SetString (PyExc_TypeError, "first argument must be a sequence");
+        	return NULL;
+        }
+        
+	len = PySequence_Length (list);
+	
+	for (i = 0; i < len; i++) {
+		item = PySequence_GetItem(list, i);
+		
+		Py_DECREF(item);
+		
+		path = pygtk_tree_path_from_pyobject (item);
+		
+		if (!path) {
+			PyErr_SetString (PyExc_TypeError,
+					 "sequence item not a valid tree path");
+			g_list_free (clist);
+			return NULL;
+		}
+		
+		clist = g_list_append(clist, path);
+	}
+
+	gedit_file_browser_store_delete_all (GEDIT_FILE_BROWSER_STORE (self->obj),
+					     clist, 
+					     PyObject_IsTrue(trash));
+
+	g_list_foreach (clist, (GFunc)gtk_tree_path_free, NULL);
+	g_list_free(clist);
+	
+	Py_INCREF(Py_None);
+
+	return Py_None;
+}
+%%
+override gedit_file_browser_store_set_filter_func args
+static gboolean
+pygedit_file_browser_store_set_filter_func_cb (GeditFileBrowserStore *store,
+					       GtkTreeIter *iter,
+					       gpointer user_data)
+{
+	PyGILState_STATE state;
+	CustomNotify *cunote = (CustomNotify*)user_data;
+	PyObject *py_store, *py_iter;
+	gboolean ret = FALSE;
+	PyObject *retobj;
+
+	g_assert(cunote->func);
+
+	state = pyg_gil_state_ensure();
+
+	py_store = pygobject_new((GObject *)store);
+	py_iter = pyg_boxed_new(GTK_TYPE_TREE_ITER, iter, TRUE, TRUE);
+
+	if (cunote->data) {
+		retobj = PyEval_CallFunction (cunote->func, 
+					      "(NNO)", 
+					      py_store,
+					      py_iter, 
+					      cunote->data);
+	} else {
+		retobj = PyEval_CallFunction (cunote->func, 
+					      "(NN)", 
+					      py_store,
+					      py_iter);
+	}
+
+	if (retobj != NULL) {
+		ret = PyObject_IsTrue (retobj);
+		Py_DECREF(retobj);
+	} else {
+		PyErr_Print();
+	}
+
+	pyg_gil_state_release(state);
+	return ret;
+}
+
+static PyObject *
+_wrap_gedit_file_browser_store_set_filter_func (PyGObject *self, 
+						PyObject *args)
+{
+	PyObject *pyfunc, *pyarg = NULL;
+	CustomNotify *cunote;
+	gulong id;
+	
+	if (!PyArg_ParseTuple (args,  
+			       "O|O:GeditFileBrowserStore.set_filter_func",
+			       &pyfunc, 
+			       &pyarg))
+		return NULL;
+	
+	if (!PyCallable_Check (pyfunc)) {
+		PyErr_SetString(PyExc_TypeError, "func must be a callable object");
+		return NULL;
+	}
+	
+	cunote = g_new0(CustomNotify, 1);
+	cunote->func = pyfunc;
+	cunote->data = pyarg;
+	
+	Py_INCREF(cunote->func);
+	Py_XINCREF(cunote->data);
+
+	gedit_file_browser_store_set_filter_func (GEDIT_FILE_BROWSER_STORE (self->obj),
+						  pygedit_file_browser_store_set_filter_func_cb,
+						  cunote, 
+						  pygedit_custom_destroy_notify);
+
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+%%
+override gedit_file_browser_widget_add_filter args
+static gboolean
+pygedit_file_browser_widget_add_filter_cb (GeditFileBrowserWidget *widget,
+					   GeditFileBrowserStore *store,
+					   GtkTreeIter *iter,
+					   gpointer user_data)
+{
+	PyGILState_STATE state;
+	CustomNotify *cunote = (CustomNotify*)user_data;
+	PyObject *py_store, *py_widget, *py_iter;
+	gboolean ret = FALSE;
+	PyObject *retobj;
+
+	g_assert(cunote->func);
+
+	state = pyg_gil_state_ensure();
+
+	py_widget = pygobject_new((GObject *)widget);
+	py_store = pygobject_new((GObject *)store);
+	py_iter = pyg_boxed_new(GTK_TYPE_TREE_ITER, iter, TRUE, TRUE);
+
+	if (cunote->data) {
+		retobj = PyEval_CallFunction (cunote->func, 
+					      "(NNNO)", 
+					      py_widget,
+					      py_store,
+					      py_iter, 
+					      cunote->data);
+	} else {
+		retobj = PyEval_CallFunction (cunote->func, 
+					      "(NNN)", 
+					      py_widget,
+					      py_store,
+					      py_iter);
+	}
+
+	if (retobj != NULL) {
+		ret = PyObject_IsTrue (retobj);
+		Py_DECREF(retobj);
+	} else {
+		PyErr_Print();
+	}
+
+	pyg_gil_state_release(state);
+	return ret;
+}
+
+static PyObject *
+_wrap_gedit_file_browser_widget_add_filter (PyGObject *self, 
+					    PyObject *args)
+{
+	PyObject *pyfunc, *pyarg = NULL;
+	CustomNotify *cunote;
+	gulong id;
+	
+	if (!PyArg_ParseTuple (args,  
+			       "O|O:GeditFileBrowserWidget.add_filter",
+			       &pyfunc, 
+			       &pyarg))
+		return NULL;
+	
+	if (!PyCallable_Check (pyfunc)) {
+		PyErr_SetString(PyExc_TypeError, "func must be a callable object");
+		return NULL;
+	}
+	
+	cunote = g_new0(CustomNotify, 1);
+	cunote->func = pyfunc;
+	cunote->data = pyarg;
+	
+	Py_INCREF(cunote->func);
+	Py_XINCREF(cunote->data);
+
+	id = gedit_file_browser_widget_add_filter (GEDIT_FILE_BROWSER_WIDGET (self->obj),
+						   pygedit_file_browser_widget_add_filter_cb,
+						   cunote, 
+						   pygedit_custom_destroy_notify);
+
+	return Py_BuildValue("K", id);
+}
+%%
+override gedit_file_browser_store_new kwargs
+static int
+_wrap_gedit_file_browser_store_new(PyGObject *self, PyObject *args, PyObject *kwargs)
+{
+	static char *kwlist[] = {"root", NULL};
+	char *root = NULL;
+
+	if (!PyArg_ParseTupleAndKeywords (args, 
+					  kwargs, 
+					  "|s:GeditFileBrowserStore.__init__", 
+					  kwlist, 
+					  &root))
+		return -1;
+
+	if (root)
+		pygobject_construct (self, "root", root, NULL);
+	else
+		pygobject_construct (self, NULL);
+	
+	if (!self->obj) {
+		PyErr_SetString(PyExc_RuntimeError,
+				"could not create GeditFileBrowserStore object");
+		return -1;
+	}
+	
+	return 0;
+}
+%%
+new-constructor GEDIT_TYPE_FILE_BROWSER_STORE

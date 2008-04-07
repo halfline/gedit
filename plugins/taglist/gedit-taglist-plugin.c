@@ -38,7 +38,6 @@
 #include <glib/gi18n-lib.h>
 #include <gmodule.h>
 
-#include <gedit/plugins/gedit-plugin.h>
 #include <gedit/gedit-debug.h>
 
 #define WINDOW_DATA_KEY "GeditTaglistPluginWindowData"

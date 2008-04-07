@@ -23,7 +23,7 @@
 #ifndef __GEDIT_PLUGIN_PYTHON_UTILS_H__
 #define __GEDIT_PLUGIN_PYTHON_UTILS_H__
 
-#include <gedit/plugins/gedit-plugin.h>
+#include <gedit/gedit-plugin.h>
 #include <pygobject.h>
 
 /* Utility functions which C plugins can use to register python bindings */
@@ -32,7 +32,7 @@ typedef void (*GeditPluginPythonUtilsConstants)(PyObject *module, const gchar *s
 
 PyObject *gedit_plugin_python_utils_init (GeditPlugin				*plugin,
 					  GeditPluginPythonUtilsClasses		 classreg,
-					  const PyMethodDef			*functions,
+					  PyMethodDef				*functions,
 					  GeditPluginPythonUtilsConstants	 constreg,
 					  const gchar				*prefix);
 				     

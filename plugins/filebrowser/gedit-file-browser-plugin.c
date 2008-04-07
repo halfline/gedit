@@ -26,6 +26,7 @@
 
 #include <gedit/gedit-commands.h>
 #include <gedit/gedit-utils.h>
+#include <gedit/gedit-plugin-python-utils.h>
 #include <glib/gi18n-lib.h>
 #include <gedit/gedit-debug.h>
 #include <gconf/gconf-client.h>
@@ -46,6 +47,14 @@
 #define TERMINAL_EXEC_KEY		"/desktop/gnome/applications/terminal/exec"
 
 #define GEDIT_FILE_BROWSER_PLUGIN_GET_PRIVATE(object)	(G_TYPE_INSTANCE_GET_PRIVATE ((object), GEDIT_TYPE_FILE_BROWSER_PLUGIN, GeditFileBrowserPluginPrivate))
+
+#ifdef ENABLE_PYTHON
+#include <pygobject.h>
+
+extern PyMethodDef pyfilebrowser_functions[];
+void pyfilebrowser_register_classes(PyObject *d);
+void pyfilebrowser_add_constants(PyObject *module, const gchar *strip_prefix);
+#endif
 
 struct _GeditFileBrowserPluginPrivate 
 {
@@ -101,6 +110,8 @@ static void on_end_loading_cb            (GeditFileBrowserStore      * store,
                                           GtkTreeIter                * iter,
                                           GeditFileBrowserPluginData * data);
 
+static GeditPluginClass *parent_class;
+
 GEDIT_PLUGIN_REGISTER_TYPE_WITH_CODE (GeditFileBrowserPlugin, gedit_file_browser_plugin, 	\
 	gedit_file_browser_enum_and_flag_register_type (module);		\
 	gedit_file_browser_store_register_type         (module);		\
@@ -128,6 +139,18 @@ static GeditFileBrowserPluginData *
 get_plugin_data (GeditWindow * window)
 {
 	return (GeditFileBrowserPluginData *) (g_object_get_data (G_OBJECT (window), WINDOW_DATA_KEY));
+}
+
+GeditFileBrowserWidget *
+gedit_file_browser_plugin_get_widget (GeditFileBrowserPlugin 	*plugin,
+				      GeditWindow		*window)
+{
+	GeditFileBrowserPluginData * data = get_plugin_data (window);
+	
+	if (!data)
+		return NULL;
+	
+	return data->tree_widget;
 }
 
 static void
@@ -815,17 +838,43 @@ impl_deactivate (GeditPlugin * plugin, GeditWindow * window)
 	g_object_set_data (G_OBJECT (window), WINDOW_DATA_KEY, NULL);
 }
 
+#ifdef ENABLE_PYTHON
+static gboolean
+impl_register_binding (GeditPlugin * plugin, const gchar * language)
+{
+	if (g_strcmp0 (language, "python") != 0)
+		return GEDIT_PLUGIN_CLASS (parent_class)->register_binding (plugin, language);
+	
+	/* Register the actual bindings */
+	gedit_plugin_python_utils_init (plugin,
+					pyfilebrowser_register_classes,
+					pyfilebrowser_functions,
+					pyfilebrowser_add_constants,
+					"GEDIT_FILE_BROWSER_");
+
+	/* Chain up to let the plugin set the binding to be registered for
+	   python */
+	GEDIT_PLUGIN_CLASS (parent_class)->register_binding (plugin, language);
+	return TRUE;
+}
+#endif
+
 static void
 gedit_file_browser_plugin_class_init (GeditFileBrowserPluginClass * klass)
 {
 	GObjectClass  *object_class = G_OBJECT_CLASS (klass);
 	GeditPluginClass * plugin_class = GEDIT_PLUGIN_CLASS (klass);
 
+	parent_class = g_type_class_peek_parent (klass);
 	object_class->finalize = gedit_file_browser_plugin_finalize;
 
 	plugin_class->activate = impl_activate;
 	plugin_class->deactivate = impl_deactivate;
 	plugin_class->update_ui = impl_updateui;
+	
+	#ifdef ENABLE_PYTHON
+	plugin_class->register_binding = impl_register_binding;
+	#endif
 
 	g_type_class_add_private (object_class,
 				  sizeof (GeditFileBrowserPluginPrivate));
