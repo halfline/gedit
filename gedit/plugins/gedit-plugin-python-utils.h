@@ -32,7 +32,7 @@ typedef void (*GeditPluginPythonUtilsConstants)(PyObject *module, const gchar *s
 
 PyObject *gedit_plugin_python_utils_init (GeditPlugin				*plugin,
 					  GeditPluginPythonUtilsClasses		 classreg,
-					  PyMethodDef				*plugins,
+					  const PyMethodDef			*functions,
 					  GeditPluginPythonUtilsConstants	 constreg,
 					  const gchar				*prefix);
 				     

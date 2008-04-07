@@ -30,7 +30,7 @@
 
 PyObject *gedit_plugin_python_utils_init(GeditPlugin 			 *plugin,
 					 GeditPluginPythonUtilsClasses 	  classreg,
-					 PyMethodDef 			 *functions,
+					 const PyMethodDef 		 *functions,
 					 GeditPluginPythonUtilsConstants  constreg,
 					 const gchar 			 *prefix)
 {
