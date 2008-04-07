@@ -66,7 +66,7 @@ PyObject *gedit_plugin_python_utils_init(GeditPlugin 			 *plugin,
 		return NULL;
 	}
 	
-	name = g_type_name (plugin);
+	name = g_type_name (G_OBJECT_TYPE (plugin));
 	
 	if (g_str_has_prefix (name, TYPE_PREFIX))
 		name = name + strlen(TYPE_PREFIX);
