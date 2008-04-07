@@ -362,7 +362,6 @@ gedit_plugins_engine_get_plugin_info (GeditPluginsEngine *engine,
 				      const gchar 	 *name)
 {
 	GList *item;
-	GeditPluginInfo *info;
 	
 	gedit_debug(DEBUG_PLUGINS);
 	
@@ -688,6 +687,28 @@ gedit_plugins_engine_configure_plugin (GeditPluginsEngine *engine,
 		
 	gtk_window_set_modal (GTK_WINDOW (conf_dlg), TRUE);		     
 	gtk_widget_show (conf_dlg);
+}
+
+static gint
+match_plugin (GeditPluginInfo *info,
+	      GeditPlugin *plugin)
+{
+	/* return 0 if match, 1 otherwise */
+	return info->plugin != plugin;
+}
+
+GeditPluginInfo *
+_gedit_plugins_engine_info_for_plugin (GeditPluginsEngine *engine,
+				       GeditPlugin 	  *plugin)
+{
+	g_return_val_if_fail (GEDIT_IS_PLUGINS_ENGINE (engine), NULL);
+	g_return_val_if_fail (plugin != NULL, NULL);
+	
+	GList *item = g_list_find_custom (engine->priv->plugin_list,
+					  plugin,
+					  (GCompareFunc)match_plugin);
+	
+	return GEDIT_PLUGIN_INFO (item->data);
 }
 
 static void 

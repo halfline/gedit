@@ -15,7 +15,7 @@ INCLUDES = 							\
 	-DGEDIT_ICONDIR=\""$(datadir)/gedit-2/icons"\"
 
 if ENABLE_PYTHON
-INCLUDES += \
+INCLUDES += 					\
 	$(NO_STRICT_ALIASING_CFLAGS)		\
 	$(PYGTK_CFLAGS)				\
 	$(PYTHON_CFLAGS)			\
@@ -30,7 +30,7 @@ NOINST_H_FILES =				\
 	gedit-module.h
 
 if ENABLE_PYTHON
-NOINST_H_FILES += \
+NOINST_H_FILES += 				\
 	gedit-python-module.h			\
 	gedit-python-plugin.h 
 endif
@@ -40,6 +40,10 @@ INST_H_FILES = 					\
 	gedit-plugin-info.h			\
 	gedit-plugins-engine.h
 
+if ENABLE_PYTHON
+INST_H_FILES +=					\
+	gedit-plugin-python-utils.h
+endif
 
 headerdir = $(prefix)/include/gedit-@GEDIT_API_VERSION@/gedit/plugins
 
@@ -58,5 +62,6 @@ libplugins_la_SOURCES = 			\
 if ENABLE_PYTHON
 libplugins_la_SOURCES += 			\
 	gedit-python-module.c			\
-	gedit-python-plugin.c
+	gedit-python-plugin.c			\
+	gedit-plugin-python-utils.c
 endif	

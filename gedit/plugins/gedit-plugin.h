@@ -51,6 +51,9 @@ G_BEGIN_DECLS
 #define GEDIT_IS_PLUGIN_CLASS(klass)   (G_TYPE_CHECK_CLASS_TYPE ((klass), GEDIT_TYPE_PLUGIN))
 #define GEDIT_PLUGIN_GET_CLASS(obj)    (G_TYPE_INSTANCE_GET_CLASS((obj), GEDIT_TYPE_PLUGIN, GeditPluginClass))
 
+/* Private structure type */
+typedef struct _GeditPluginPrivate GeditPluginPrivate;
+
 /*
  * Main object structure
  */
@@ -59,6 +62,9 @@ typedef struct _GeditPlugin GeditPlugin;
 struct _GeditPlugin 
 {
 	GObject parent;
+	
+	/*< private > */
+	GeditPluginPrivate *priv;
 };
 
 /*
@@ -87,12 +93,13 @@ struct _GeditPluginClass
 	   the GeditPluginClass */
 	gboolean 	(*is_configurable)
 						(GeditPlugin *plugin);
+	gboolean	(*register_bindings)	(GeditPlugin *plugin, 
+						 const gchar *language);
 
 	/* Padding for future expansion */
 	void		(*_gedit_reserved1)	(void);
 	void		(*_gedit_reserved2)	(void);
 	void		(*_gedit_reserved3)	(void);
-	void		(*_gedit_reserved4)	(void);
 };
 
 /*
@@ -111,6 +118,13 @@ void 		 gedit_plugin_update_ui		(GeditPlugin *plugin,
 gboolean	 gedit_plugin_is_configurable	(GeditPlugin *plugin);
 GtkWidget	*gedit_plugin_create_configure_dialog		
 						(GeditPlugin *plugin);
+
+gboolean	 gedit_plugin_is_binding_registered
+						(GeditPlugin *plugin,
+					 	 const gchar *language);
+gboolean	 gedit_plugin_register_binding	(GeditPlugin *plugin,
+						 const gchar *language);
+						 
 
 /*
  * Utility macro used to register plugins

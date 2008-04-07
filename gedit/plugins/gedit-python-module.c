@@ -173,7 +173,6 @@ gedit_python_module_new_object (GeditPythonModule *module)
 	   then get the actual gobject instance back */
 	PyObject *instance = PyObject_CallObject (priv->type, NULL);
 	
-	gedit_debug_message (DEBUG_PLUGINS, "Created %d", instance);
 	/* CHECKME: not sure if we want to decrease the reference here, but
 	   should be OK since GeditPythonPlugin adds a reference */
 	Py_XDECREF(instance);

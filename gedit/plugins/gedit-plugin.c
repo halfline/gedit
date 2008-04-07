@@ -34,6 +34,12 @@
 
 #include "gedit-plugin.h"
 
+#define GEDIT_PLUGIN_GET_PRIVATE(object)(G_TYPE_INSTANCE_GET_PRIVATE ((object), GEDIT_TYPE_PLUGIN, GeditPluginPrivate))
+
+struct _GeditPluginPrivate {
+	GList *registered;
+};
+
 G_DEFINE_TYPE(GeditPlugin, gedit_plugin, G_TYPE_OBJECT)
 
 static void
@@ -55,21 +61,45 @@ is_configurable (GeditPlugin *plugin)
 		create_configure_dialog);
 }
 
+static gboolean
+register_bindings (GeditPlugin *plugin, const gchar *language)
+{
+	if (!gedit_plugin_is_binding_registered (plugin, language))
+		plugin->priv->registered = g_list_prepend (plugin->priv->registered, 
+							   g_strdup (language));
+	return FALSE;
+}
+
+static void
+gedit_plugin_finalize (GObject *object)
+{
+	GList *registered = GEDIT_PLUGIN(object)->priv->registered;
+
+	g_list_foreach (registered, (GFunc)g_free, NULL);
+	g_list_free (registered);
+}
+
 static void 
 gedit_plugin_class_init (GeditPluginClass *klass)
 {
+	g_type_class_add_private (klass, sizeof (GeditPluginPrivate));
+	G_OBJECT_CLASS (klass)->finalize = gedit_plugin_finalize;
+	
 	klass->activate = dummy;
 	klass->deactivate = dummy;
 	klass->update_ui = dummy;
 	
 	klass->create_configure_dialog = create_configure_dialog;
 	klass->is_configurable = is_configurable;
+
+	klass->register_bindings = register_bindings;
 }
 
 static void
 gedit_plugin_init (GeditPlugin *plugin)
 {
-	/* Empty */
+	plugin->priv = GEDIT_PLUGIN_GET_PRIVATE (plugin);
+	plugin->priv->registered = NULL;
 }
 
 void
@@ -116,4 +146,27 @@ gedit_plugin_create_configure_dialog (GeditPlugin *plugin)
 	g_return_val_if_fail (GEDIT_IS_PLUGIN (plugin), NULL);
 	
 	return GEDIT_PLUGIN_GET_CLASS (plugin)->create_configure_dialog (plugin);
+}
+
+gboolean
+gedit_plugin_register_binding (GeditPlugin *plugin, 
+			       const gchar *language)
+{
+	g_return_val_if_fail (GEDIT_IS_PLUGIN (plugin), FALSE);
+	
+	return GEDIT_PLUGIN_GET_CLASS (plugin)->register_bindings (plugin, language);
+}
+
+gboolean
+gedit_plugin_is_binding_registered (GeditPlugin *plugin, 
+				    const gchar *language)
+{
+	GList *item;
+	
+	g_return_val_if_fail (GEDIT_IS_PLUGIN (plugin), FALSE);
+	
+	item = g_list_find_custom (plugin->priv->registered,
+				   language,
+				   (GCompareFunc)g_strcmp0);
+	return item != NULL;
 }

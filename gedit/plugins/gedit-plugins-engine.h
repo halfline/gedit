@@ -97,6 +97,9 @@ void		 gedit_plugins_engine_update_plugins_ui (GeditPluginsEngine *engine,
 							 GeditWindow        *window, 
 							 gboolean            new_window);
 
+GeditPluginInfo *_gedit_plugins_engine_info_for_plugin 	(GeditPluginsEngine *engine,
+							 GeditPlugin *plugin);
+
 G_END_DECLS
 
 #endif  /* __GEDIT_PLUGINS_ENGINE_H__ */
