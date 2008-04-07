@@ -158,4 +158,12 @@
   )
 )
 
+(define-method get_plugin_info
+  (of-object "GeditPluginsEngine")
+  (c-name "gedit_plugins_engine_get_plugin_info")
+  (return-type "GeditPluginInfo*")
+  (parameters
+    '("const-gchar*" "name")
+  )
+)
 

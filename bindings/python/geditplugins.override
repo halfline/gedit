@@ -26,8 +26,8 @@ _helper_wrap_string_list (const gchar **list)
 			return NULL;
 		}
 		
-		PyList_Append(py_list, item);
-		Py_DECREF(item);
+		PyList_Append (py_list, item);
+		Py_DECREF (item);
 		++list;
 	}
 	
@@ -35,34 +35,37 @@ _helper_wrap_string_list (const gchar **list)
 }
 
 static PyObject *
-_helper_get_plugin_instance (PyObject *pyinfo)
+_helper_wrap_gboxed_glist (const GList *list)
 {
-	/*GeditPluginInfo *info;
-	GeditPlugin *plugin;
-	GeditPythonObject *obj;
+	PyObject *py_list;
+	const GList *tmp;
+
+	if ((py_list = PyList_New (0)) == NULL) {
+		return NULL;
+	}
 	
-	info = pyg_boxed_get(pyinfo, GeditPluginInfo);
-	plugin = gedit_plugin_info_get_plugin(info);*/
-	
-	/* There are three different cases to take into consideration:
-	   	1. The plugin is an actual GeditPythonPlugin (then the instance
-	   	   of that plugin is the actual python object)
-	   	2. The plugin is a C plugin, with python bindings (wrap the
-	   	   plugin as the python class)
-	   	3. The plugin is a C plugin, but doesn't have any bindings,
-	   	   in which case we return NULL
-	 */
-	 
-	/* Determine if this is a python plugin */
-	/*if (G_TYPE_FROM_INSTANCE(plugin) != GEDIT_TYPE_PLUGIN)
-	{
-		obj = (GeditPythonObject *)plugin;
-		Py_INCREF(obj->instance);
+	for (tmp = list; tmp != NULL; tmp = tmp->next) {
+		/* CHECKME: not sure if it should also make a copy, but I think
+		   it should ... */
+		PyObject *py_obj = pyg_boxed_new(GEDIT_TYPE_PLUGIN_INFO, tmp->data, TRUE, TRUE);
+
+		if (py_obj == NULL) {
+			Py_DECREF (py_list);
+			return NULL;
+		}
 		
-		return obj->instance;
-	}*/
-	 
-	/* Determine if the plugin has python bindings */
+		PyList_Append (py_list, py_obj);
+		Py_DECREF (py_obj);
+	}
+
+	return py_list;
+}
+
+static PyObject *
+_helper_get_plugin_instance (GeditPlugin *plugin)
+{
+	Py_INCREF (Py_None);
+	return Py_None;
 }
 
 %%
@@ -74,7 +77,8 @@ import gobject.GObject as PyGObject_Type
 ignore-glob
   _*
   *_get_type
-  gedit_plugins_engine_get_plugin_list
+  gedit_plugin_info_copy
+  gedit_plugin_info_free
 %%
 override gedit_plugin_info_get_authors
 PyObject *
@@ -94,5 +98,36 @@ override gedit_plugin_info_get_plugin
 static PyObject *
 _wrap_gedit_plugin_info_get_plugin(PyObject *self)
 {
-	return _helper_get_plugin_instance(self);
+	GeditPluginInfo *info = pyg_boxed_get(self, GeditPluginInfo);
+	
+	return _helper_get_plugin_instance(gedit_plugin_info_get_plugin(info));
+}
+%%
+override gedit_plugins_engine_get_plugin kwargs
+static PyObject *
+_wrap_gedit_plugins_engine_get_plugin(PyGObject *self, PyObject *args, PyObject *kwargs)
+{
+	static char *kwlist[] = {"name", NULL};
+	char *name;
+	GeditPlugin *plugin;
+
+	if (!PyArg_ParseTupleAndKeywords (args, 
+					  kwargs,
+					  "s:GeditPluginsEngine.get_plugin", 
+					  kwlist, 
+					  &name))
+		return NULL;
+
+	plugin = gedit_plugins_engine_get_plugin(GEDIT_PLUGINS_ENGINE(self->obj), name);
+	return _helper_get_plugin_instance(plugin);	
+}
+%%
+override gedit_plugins_engine_get_plugin_list
+static PyObject *
+_wrap_gedit_plugins_engine_get_plugin_list(PyGObject *self)
+{
+	const GList *list;
+	
+	list = gedit_plugins_engine_get_plugin_list (GEDIT_PLUGINS_ENGINE(self->obj));
+	return _helper_wrap_gboxed_glist (list);
 }

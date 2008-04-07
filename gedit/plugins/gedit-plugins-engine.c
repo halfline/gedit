@@ -326,8 +326,8 @@ gedit_plugins_engine_get_plugin_list (GeditPluginsEngine *engine)
 }
 
 static gint
-compare_plugin_name (GeditPluginInfo *info, 
-		      const gchar     *name)
+compare_plugin_module_name (GeditPluginInfo *info, 
+			    const gchar     *name)
 {
 	return strcmp(gedit_plugin_info_get_module_name(info), name);
 }
@@ -339,22 +339,41 @@ gedit_plugins_engine_get_plugin	(GeditPluginsEngine *engine,
 	GList *item;
 	GeditPluginInfo *info;
 	
-	gedit_debug(DEBUG_PLUGINS);
+	gedit_debug (DEBUG_PLUGINS);
 	
-	item = g_list_find_custom(engine->priv->plugin_list,
-				  name,
-				  (GCompareFunc)compare_plugin_name);
+	item = g_list_find_custom (engine->priv->plugin_list,
+				   name,
+				   (GCompareFunc)compare_plugin_module_name);
 
 	if (!item)
 		return NULL;
 	
-	info = GEDIT_PLUGIN_INFO(item->data);
+	info = GEDIT_PLUGIN_INFO (item->data);
 	
 	/* CHECK: is this really what we want? */
-	if (!gedit_plugin_info_is_active(info))
+	if (!gedit_plugin_info_is_active (info))
 		return NULL;
 		
-	return gedit_plugin_info_get_plugin(info);
+	return gedit_plugin_info_get_plugin (info);
+}
+
+GeditPluginInfo *
+gedit_plugins_engine_get_plugin_info (GeditPluginsEngine *engine,
+				      const gchar 	 *name)
+{
+	GList *item;
+	GeditPluginInfo *info;
+	
+	gedit_debug(DEBUG_PLUGINS);
+	
+	item = g_list_find_custom(engine->priv->plugin_list,
+				  name,
+				  (GCompareFunc)compare_plugin_module_name);
+
+	if (!item)
+		return NULL;
+	
+	return GEDIT_PLUGIN_INFO (item->data);
 }
 
 static gboolean

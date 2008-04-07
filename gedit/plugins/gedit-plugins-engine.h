@@ -84,6 +84,9 @@ void	 	 gedit_plugins_engine_configure_plugin	(GeditPluginsEngine *engine,
 							 GeditPluginInfo    *info,
 							 GtkWindow          *parent);
 
+GeditPluginInfo *gedit_plugins_engine_get_plugin_info	(GeditPluginsEngine *engine,
+							 const gchar 	    *name);
+
 GeditPlugin     *gedit_plugins_engine_get_plugin	(GeditPluginsEngine *engine,
 							 const gchar 	    *name);
 /* 
