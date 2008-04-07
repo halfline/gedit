@@ -93,7 +93,7 @@ struct _GeditPluginClass
 	   the GeditPluginClass */
 	gboolean 	(*is_configurable)
 						(GeditPlugin *plugin);
-	gboolean	(*register_bindings)	(GeditPlugin *plugin, 
+	gboolean	(*register_binding)	(GeditPlugin *plugin, 
 						 const gchar *language);
 
 	/* Padding for future expansion */

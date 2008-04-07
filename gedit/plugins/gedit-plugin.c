@@ -62,7 +62,8 @@ is_configurable (GeditPlugin *plugin)
 }
 
 static gboolean
-register_bindings (GeditPlugin *plugin, const gchar *language)
+register_binding (GeditPlugin *plugin, 
+		  const gchar *language)
 {
 	if (!gedit_plugin_is_binding_registered (plugin, language))
 		plugin->priv->registered = g_list_prepend (plugin->priv->registered, 
@@ -92,7 +93,7 @@ gedit_plugin_class_init (GeditPluginClass *klass)
 	klass->create_configure_dialog = create_configure_dialog;
 	klass->is_configurable = is_configurable;
 
-	klass->register_bindings = register_bindings;
+	klass->register_binding = register_binding;
 }
 
 static void
@@ -154,7 +155,7 @@ gedit_plugin_register_binding (GeditPlugin *plugin,
 {
 	g_return_val_if_fail (GEDIT_IS_PLUGIN (plugin), FALSE);
 	
-	return GEDIT_PLUGIN_GET_CLASS (plugin)->register_bindings (plugin, language);
+	return GEDIT_PLUGIN_GET_CLASS (plugin)->register_binding (plugin, language);
 }
 
 gboolean
