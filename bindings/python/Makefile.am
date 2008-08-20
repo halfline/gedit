@@ -58,13 +58,15 @@ BINDING_GEDIT_HEADERS_SRCDIR_IN = \
 	gedit/gedit-encodings.h		\
 	gedit/gedit-plugin.h		\
 	gedit/gedit-view.h		\
-	gedit/gedit-status-bar.h	\
+	gedit/gedit-statusbar.h		\
 	gedit/gedit-tab.h 		\
 	gedit/gedit-panel.h 		\
 	gedit/gedit-window.h 		\
 	gedit/gedit-help.h		\
 	gedit/gedit-debug.h		\
-	gedit/gedit-language-manager.h
+	gedit/gedit-language-manager.h	\
+	gedit/gedit-message-bus.h	\
+	gedit/gedit-message.h
 
 BINDING_UTILS_HEADERS_SRCDIR_IN = \
 	gedit/gedit-utils.h

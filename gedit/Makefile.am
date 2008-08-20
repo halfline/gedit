@@ -93,6 +93,8 @@ INST_H_FILES =				\
 	gedit-encodings-option-menu.h	\
 	gedit-file-chooser-dialog.h	\
 	gedit-help.h 			\
+	gedit-message.h			\
+	gedit-message-bus.h		\
 	gedit-message-area.h		\
 	gedit-metadata-manager.h	\
 	gedit-notebook.h		\
@@ -140,6 +142,8 @@ libgedit_la_SOURCES = 			\
 	gedit-history-entry.c		\
 	gedit-io-error-message-area.c	\
 	gedit-language-manager.c	\
+	gedit-message.c			\
+	gedit-message-bus.c		\
 	gedit-message-area.c		\
 	gedit-metadata-manager.c	\
 	gedit-module.c			\

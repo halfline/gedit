@@ -14,6 +14,20 @@
   (gtype-id "GEDIT_TYPE_DOCUMENT")
 )
 
+(define-object Message
+  (in-module "Gedit")
+  (parent "GObject")
+  (c-name "GeditMessage")
+  (gtype-id "GEDIT_TYPE_MESSAGE")
+)
+
+(define-object MessageBus
+  (in-module "Gedit")
+  (parent "GObject")
+  (c-name "GeditMessageBus")
+  (gtype-id "GEDIT_TYPE_MESSAGE_BUS")
+)
+
 (define-object Panel
   (in-module "Gedit")
   (parent "GtkVBox")
@@ -968,6 +982,254 @@
   (parameters
     '("GtkSourceLanguageManager*" "lm")
     '("const-gchar*" "mime_type")
+  )
+)
+
+
+;; From gedit-message-bus.h
+
+(define-function gedit_message_bus_get_type
+  (c-name "gedit_message_bus_get_type")
+  (return-type "GType")
+)
+
+(define-function message_bus_get
+  (c-name "gedit_message_bus_get")
+  (return-type "GeditMessageBus*")
+)
+
+(define-method connect
+  (of-object "GeditMessageBus")
+  (c-name "gedit_message_bus_connect")
+  (return-type "guint")
+  (parameters
+    '("const-gchar*" "domain")
+    '("const-gchar*" "name")
+    '("GeditMessageCallback" "callback")
+    '("gpointer" "userdata")
+  )
+)
+
+(define-method disconnect
+  (of-object "GeditMessageBus")
+  (c-name "gedit_message_bus_disconnect")
+  (return-type "none")
+  (parameters
+    '("guint" "id")
+  )
+)
+
+(define-method disconnect_by_func
+  (of-object "GeditMessageBus")
+  (c-name "gedit_message_bus_disconnect_by_func")
+  (return-type "none")
+  (parameters
+    '("const-gchar*" "domain")
+    '("const-gchar*" "name")
+    '("GeditMessageCallback" "callback")
+    '("gpointer" "userdata")
+  )
+)
+
+(define-method block
+  (of-object "GeditMessageBus")
+  (c-name "gedit_message_bus_block")
+  (return-type "none")
+  (parameters
+    '("guint" "id")
+  )
+)
+
+(define-method block_by_func
+  (of-object "GeditMessageBus")
+  (c-name "gedit_message_bus_block_by_func")
+  (return-type "none")
+  (parameters
+    '("const-gchar*" "domain")
+    '("const-gchar*" "name")
+    '("GeditMessageCallback" "callback")
+    '("gpointer" "userdata")
+  )
+)
+
+(define-method unblock
+  (of-object "GeditMessageBus")
+  (c-name "gedit_message_bus_unblock")
+  (return-type "none")
+  (parameters
+    '("guint" "id")
+  )
+)
+
+(define-method unblock_by_func
+  (of-object "GeditMessageBus")
+  (c-name "gedit_message_bus_unblock_by_func")
+  (return-type "none")
+  (parameters
+    '("const-gchar*" "domain")
+    '("const-gchar*" "name")
+    '("GeditMessageCallback" "callback")
+    '("gpointer" "userdata")
+  )
+)
+
+(define-method send_message
+  (of-object "GeditMessageBus")
+  (c-name "gedit_message_bus_send_message")
+  (return-type "none")
+  (parameters
+    '("GeditMessage*" "message")
+  )
+)
+
+(define-method send_message_sync
+  (of-object "GeditMessageBus")
+  (c-name "gedit_message_bus_send_message_sync")
+  (return-type "none")
+  (parameters
+    '("GeditMessage*" "message")
+  )
+)
+
+(define-method send
+  (of-object "GeditMessageBus")
+  (c-name "gedit_message_bus_send")
+  (return-type "none")
+  (parameters
+    '("const-gchar*" "domain")
+    '("const-gchar*" "name")
+  )
+  (varargs #t)
+)
+
+(define-method send_sync
+  (of-object "GeditMessageBus")
+  (c-name "gedit_message_bus_send_sync")
+  (return-type "GeditMessage*")
+  (parameters
+    '("const-gchar*" "domain")
+    '("const-gchar*" "name")
+  )
+  (varargs #t)
+)
+
+
+
+;; From gedit-message.h
+
+(define-function gedit_message_get_type
+  (c-name "gedit_message_get_type")
+  (return-type "GType")
+)
+
+(define-function gedit_message_new
+  (c-name "gedit_message_new")
+  (is-constructor-of "GeditMessage")
+  (return-type "GeditMessage*")
+  (parameters
+    '("const-gchar*" "domain")
+    '("const-gchar*" "name")
+  )
+  (varargs #t)
+)
+
+(define-function gedit_message_new_valist
+  (c-name "gedit_message_new_valist")
+  (return-type "GeditMessage*")
+  (parameters
+    '("const-gchar*" "domain")
+    '("const-gchar*" "name")
+    '("va_list" "var_args")
+  )
+)
+
+(define-method set_types
+  (of-object "GeditMessage")
+  (c-name "gedit_message_set_types")
+  (return-type "none")
+  (parameters
+    '("const-gchar**" "keys")
+    '("GType*" "types")
+    '("gint" "n_types")
+  )
+)
+
+(define-method get_domain
+  (of-object "GeditMessage")
+  (c-name "gedit_message_get_domain")
+  (return-type "const-gchar*")
+)
+
+(define-method get_name
+  (of-object "GeditMessage")
+  (c-name "gedit_message_get_name")
+  (return-type "const-gchar*")
+)
+
+(define-method get
+  (of-object "GeditMessage")
+  (c-name "gedit_message_get")
+  (return-type "none")
+  (parameters
+  )
+  (varargs #t)
+)
+
+(define-method get_valist
+  (of-object "GeditMessage")
+  (c-name "gedit_message_get_valist")
+  (return-type "none")
+  (parameters
+    '("va_list" "var_args")
+  )
+)
+
+(define-method get_value
+  (of-object "GeditMessage")
+  (c-name "gedit_message_get_value")
+  (return-type "none")
+  (parameters
+    '("const-gchar*" "key")
+    '("GValue*" "value")
+  )
+)
+
+(define-method set
+  (of-object "GeditMessage")
+  (c-name "gedit_message_set")
+  (return-type "none")
+  (parameters
+  )
+  (varargs #t)
+)
+
+(define-method set_valist
+  (of-object "GeditMessage")
+  (c-name "gedit_message_set_valist")
+  (return-type "none")
+  (parameters
+    '("va_list" "var_args")
+  )
+)
+
+(define-method set_value
+  (of-object "GeditMessage")
+  (c-name "gedit_message_set_value")
+  (return-type "none")
+  (parameters
+    '("const-gchar*" "key")
+    '("GValue*" "value")
+  )
+)
+
+(define-method set_valuesv
+  (of-object "GeditMessage")
+  (c-name "gedit_message_set_valuesv")
+  (return-type "none")
+  (parameters
+    '("const-gchar**" "keys")
+    '("GValue*" "values")
+    '("gint" "n_values")
   )
 )
 
