@@ -64,7 +64,7 @@ _helper_wrap_gobject_gslist (const GSList *list)
 static int
 _helper_wrap_message_types(PyObject *args, const gchar ***keys, GType **types, gint *num, gboolean direct)
 {
-    guint len, i;
+    guint len, i, pos;
     
     len = PyTuple_Size(args);
 
@@ -76,10 +76,12 @@ _helper_wrap_message_types(PyObject *args, const gchar ***keys, GType **types, g
     	PyObject *value;
 
     	*num = PyDict_Size(dict);
-    	*types = g_new(GType, num);
-        *keys = g_new(const gchar *, num);
+    	*types = g_new(GType, *num);
+        *keys = g_new(const gchar *, *num);
+        pos = 0;
+        i = 0;
         
-        while (PyDict_Next(dict, &i, &key, &value)) {
+        while (PyDict_Next(dict, &pos, &key, &value)) {
             *keys[i] = PyString_AsString(key);
             
             if (direct) {
@@ -95,6 +97,8 @@ _helper_wrap_message_types(PyObject *args, const gchar ***keys, GType **types, g
                 g_free(*keys);
                 return 0;
             }
+            
+            i++;
         }
     }
     else
@@ -135,7 +139,7 @@ _helper_wrap_message_types(PyObject *args, const gchar ***keys, GType **types, g
 }
 
 static int
-_helper_wrap_message_set_value(PyGObject *self, PyObject *pykey, PyObject *pyvalue)
+_helper_wrap_message_set_value(GeditMessage *message, PyObject *pykey, PyObject *pyvalue)
 {
     const gchar *key;
     GType gtype;
@@ -146,7 +150,7 @@ _helper_wrap_message_set_value(PyGObject *self, PyObject *pykey, PyObject *pyval
     if (key == NULL)
         return 0;
 
-    gtype = gedit_message_get_key_type(GEDIT_MESSAGE(self->obj), key);
+    gtype = gedit_message_get_key_type(message, key);
     
     if (gtype == 0) {
         PyErr_SetString(PyExc_TypeError, "invalid key");
@@ -161,14 +165,14 @@ _helper_wrap_message_set_value(PyGObject *self, PyObject *pykey, PyObject *pyval
         return 0;
     }
 
-    gedit_message_set_value(GEDIT_MESSAGE(self->obj), key, &value);
+    gedit_message_set_value(message, key, &value);
     g_value_unset(&value);
     
     return 1;
 }
 
 static int
-_helper_wrap_message_set_values(PyGObject *self, PyObject *args)
+_helper_wrap_message_set_values(GeditMessage *message, PyObject *args)
 {
     guint len, i;
     
@@ -179,9 +183,11 @@ _helper_wrap_message_set_values(PyGObject *self, PyObject *args)
     	/* do key -> value from mapping */
     	PyObject *dict = PyTuple_GetItem(args, 0);
     	PyObject *pykey, *pyvalue;
+    	
+    	i = 0;
 
         while (PyDict_Next(dict, &i, &pykey, &pyvalue)) {
-            if (!_helper_wrap_message_set_value(self, pykey, pyvalue))
+            if (!_helper_wrap_message_set_value(message, pykey, pyvalue))
                 return 0;
         }
     } else {
@@ -195,7 +201,7 @@ _helper_wrap_message_set_values(PyGObject *self, PyObject *args)
             PyObject *pykey = PyTuple_GetItem(args, i * 2);
             PyObject *pyvalue = PyTuple_GetItem(args, i * 2 + 1);
             
-            if (!_helper_wrap_message_set_value(self, pykey, pyvalue))
+            if (!_helper_wrap_message_set_value(message, pykey, pyvalue))
                 return 0;
         }
     }
@@ -243,6 +249,9 @@ _helper_wrap_create_message(PyObject *args)
 
     g_free(types);
     g_free(keys);
+    
+    _helper_wrap_message_set_values(message, slice);
+    Py_DECREF(slice);
 
     return message;
 }
@@ -751,7 +760,7 @@ _wrap_gedit_message_set_value(PyGObject *self, PyObject *args, PyObject *kwargs)
     if (!PyArg_ParseTupleAndKeywords(args, kwargs, "OO:GeditMessage.set_value", kwlist, &pykey, &pyvalue))
         return NULL;
     
-    if (!_helper_wrap_message_set_value(self, pykey, pyvalue))
+    if (!_helper_wrap_message_set_value(GEDIT_MESSAGE(self->obj), pykey, pyvalue))
         return NULL;
     
     Py_INCREF(Py_None);
@@ -761,7 +770,7 @@ _wrap_gedit_message_set_value(PyGObject *self, PyObject *args, PyObject *kwargs)
 override gedit_message_set args
 static PyObject *
 _wrap_gedit_message_set (PyGObject *self, PyObject *args) {
-    if (!_helper_wrap_message_set_values(self, args))
+    if (!_helper_wrap_message_set_values(GEDIT_MESSAGE(self->obj), args))
         return NULL;
     
     Py_INCREF(Py_None);
