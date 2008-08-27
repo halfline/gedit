@@ -1,0 +1,4 @@
+[Gedit Plugin Loader]
+Loader=C
+Module=cloader
+Copyright=Copyright © 2008 Jesse van den Kieboom

@@ -10,12 +10,7 @@ struct _GeditPluginLoaderCPrivate
 
 static void gedit_plugin_loader_iface_init (gpointer g_iface, gpointer iface_data);
 
-G_DEFINE_TYPE_EXTENDED (GeditPluginLoaderC, 
-			gedit_plugin_loader_c, 
-			G_TYPE_OBJECT,
-			0,
-			G_IMPLEMENT_INTERFACE (GEDIT_TYPE_PLUGIN_LOADER,
-					       gedit_plugin_loader_iface_init))
+GEDIT_PLUGIN_LOADER_REGISTER_TYPE (GeditPluginLoaderC, gedit_plugin_loader_c);
 
 static GeditPlugin *
 gedit_plugin_loader_iface_load (GeditPluginLoader *loader,

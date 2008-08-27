@@ -57,4 +57,47 @@ void gedit_plugin_loader_unload			(GeditPluginLoader 	*loader,
 
 void gedit_plugin_loader_garbage_collect	(GeditPluginLoader 	*loader);
 
+/**
+ * GEDIT_PLUGIN_LOADER_REGISTER_TYPE_WITH_CODE(PluginLoaderName, plugin_loader_name, CODE):
+ *
+ * Utility macro used to register plugins with additional code.
+ */
+#define GEDIT_PLUGIN_LOADER_REGISTER_TYPE_WITH_CODE(PluginLoaderName, plugin_loader_name, CODE) \
+	GEDIT_OBJECT_MODULE_REGISTER_TYPE_WITH_CODE (register_gedit_plugin_loader,	\
+						     PluginLoaderName,			\
+						     plugin_loader_name,		\
+						     G_TYPE_OBJECT,			\
+						     GEDIT_OBJECT_MODULE_IMPLEMENT_INTERFACE (cplugin_loader_iface, GEDIT_TYPE_PLUGIN_LOADER, gedit_plugin_loader_iface_init);	\
+						     CODE)
+/**
+ * GEDIT_PLUGIN_LOADER_REGISTER_TYPE(PluginName, plugin_name):
+ * 
+ * Utility macro used to register plugins.
+ */
+#define GEDIT_PLUGIN_LOADER_REGISTER_TYPE(PluginName, plugin_name)		\
+	GEDIT_PLUGIN_LOADER_REGISTER_TYPE_WITH_CODE(PluginName, plugin_name, ;)
+
+/**
+ * GEDIT_PLUGIN_LOADER_DEFINE_TYPE_WITH_CODE(ObjectName, object_name, PARENT_TYPE, CODE):
+ *
+ * Utility macro used to register gobject types in plugins with additional code.
+ */
+#define GEDIT_PLUGIN_LOADER_DEFINE_TYPE_WITH_CODE GEDIT_OBJECT_MODULE_DEFINE_TYPE_WITH_CODE
+
+/**
+ * GEDIT_PLUGIN_LOADER_DEFINE_TYPE(ObjectName, object_name, PARENT_TYPE):
+ *
+ * Utility macro used to register gobject types in plugins.
+ */
+#define GEDIT_PLUGIN_LOADER_DEFINE_TYPE(ObjectName, object_name, PARENT_TYPE)	\
+	GEDIT_PLUGIN_LOADER_DEFINE_TYPE_WITH_CODE(ObjectName, object_name, PARENT_TYPE, ;)
+
+/**
+ * GEDIT_PLUGIN_LOADER_IMPLEMENT_INTERFACE(TYPE_IFACE, iface_init):
+ *
+ * Utility macro used to register interfaces for gobject types in plugins.
+ */
+#define GEDIT_PLUGIN_LOADER_IMPLEMENT_INTERFACE(object_name, TYPE_IFACE, iface_init)	\
+	GEDIT_OBJECT_MODULE_IMPLEMENT_INTERFACE(object_name, TYPE_IFACE, iface_init)
+
 #endif /* __GEDIT_PLUGIN_LOADER_H__ */

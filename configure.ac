@@ -348,6 +348,9 @@ fi
 PLUGIN_LIBTOOL_FLAGS="-module -avoid-version"
 AC_SUBST(PLUGIN_LIBTOOL_FLAGS)
 
+LOADER_LIBTOOL_FLAGS="-module -avoid-version"
+AC_SUBST(LOADER_LIBTOOL_FLAGS)
+
 AC_CONFIG_FILES([
 Makefile
 bindings/Makefile
@@ -365,6 +368,8 @@ help/Makefile
 help/eu/Makefile
 help/ro/Makefile
 pixmaps/Makefile
+plugin-loaders/Makefile
+plugin-loaders/c/Makefile
 plugins/changecase/Makefile
 plugins/docinfo/Makefile
 plugins/externaltools/Makefile

@@ -42,10 +42,6 @@
 #include "gedit-debug.h"
 #include "gedit-plugin.h"
 
-#ifdef ENABLE_PYTHON
-#include "gedit-python-module.h"
-#endif
-
 void
 _gedit_plugin_info_ref (GeditPluginInfo *info)
 {

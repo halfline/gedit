@@ -30,6 +30,9 @@ struct _GeditPluginLoaderCClass {
 GType gedit_plugin_loader_c_get_type (void) G_GNUC_CONST;
 GeditPluginLoaderC *gedit_plugin_loader_c_new(void);
 
+/* All the loaders must implement this function */
+G_MODULE_EXPORT GType register_gedit_plugin_loader (GTypeModule * module);
+
 G_END_DECLS
 
 #endif /* __GEDIT_PLUGIN_LOADER_C_H__ */

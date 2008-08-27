@@ -70,7 +70,6 @@ NOINST_H_FILES =			\
 	gedit-local-document-saver.h	\
 	gedit-gio-document-saver.h	\
 	gedit-history-entry.h		\
-	gedit-plugin-loader-c.h		\
 	gedit-print-job.h		\
 	gedit-print-preview.h		\
 	gedit-io-error-message-area.h	\
@@ -155,7 +154,6 @@ libgedit_la_SOURCES = 			\
 	gedit-plugin-info.c		\
 	gedit-plugin.c			\
 	gedit-plugin-loader.c		\
-	gedit-plugin-loader-c.c		\
 	gedit-plugin-manager.c		\
 	gedit-plugins-engine.c		\
 	gedit-prefs-manager-app.c	\

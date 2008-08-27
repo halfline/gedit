@@ -44,7 +44,6 @@
 #include "gedit-app.h"
 #include "gedit-plugin-loader.h"
 #include "gedit-object-module.h"
-#include "gedit-plugin-loader-c.h"
 
 #define USER_GEDIT_LOCATION ".gnome2/gedit/"
 
@@ -324,9 +323,6 @@ gedit_plugins_engine_init (GeditPluginsEngine *engine)
 						       equal_downcase,
 						       (GDestroyNotify)g_free,
 						       (GDestroyNotify)loader_destroy);
-
-	/* add a c loader by default */
-	add_loader (engine, "c", GEDIT_PLUGIN_LOADER (gedit_plugin_loader_c_new ()), NULL);
 }
 
 void
@@ -462,7 +458,7 @@ load_loader (GeditPluginsEngine *engine,
 	}
 	
 	path = g_path_get_dirname (filename);
-	module = gedit_object_module_new (str, path, "gedit_plugin_loader_register");
+	module = gedit_object_module_new (str, path, "register_gedit_plugin_loader");
 	
 	g_free (path);
 	g_free (str);
