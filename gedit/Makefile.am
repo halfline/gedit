@@ -5,18 +5,19 @@ bin_PROGRAMS = gedit
 
 noinst_LTLIBRARIES = libgedit.la
 
-INCLUDES =							\
-	-I$(top_srcdir)						\
-	-I$(srcdir)						\
-	-I$(srcdir)/smclient					\
-	$(GEDIT_CFLAGS)						\
-	$(WARN_CFLAGS)						\
-	$(DISABLE_DEPRECATED_CFLAGS)				\
-	-DDATADIR=\""$(datadir)"\"				\
-	-DGEDIT_DATADIR=\""$(datadir)/gedit-2"\"		\
-	-DGEDIT_LOCALEDIR=\""$(prefix)/$(DATADIRNAME)/locale"\"	\
-	-DGEDIT_UIDIR=\""$(datadir)/gedit-2/ui/"\"		\
-	-DGEDIT_PLUGINDIR=\""$(libdir)/gedit-2/plugins"\"	\
+INCLUDES =								\
+	-I$(top_srcdir)							\
+	-I$(srcdir)							\
+	-I$(srcdir)/smclient						\
+	$(GEDIT_CFLAGS)							\
+	$(WARN_CFLAGS)							\
+	$(DISABLE_DEPRECATED_CFLAGS)					\
+	-DDATADIR=\""$(datadir)"\"					\
+	-DGEDIT_DATADIR=\""$(datadir)/gedit-2"\"			\
+	-DGEDIT_LOCALEDIR=\""$(prefix)/$(DATADIRNAME)/locale"\"		\
+	-DGEDIT_UIDIR=\""$(datadir)/gedit-2/ui/"\"			\
+	-DGEDIT_PLUGINDIR=\""$(libdir)/gedit-2/plugins"\"		\
+	-DGEDIT_LOADERDIR=\""$(libdir)/gedit-2/plugin-loaders"\"	\
 	-DGEDIT_ICONDIR=\""$(datadir)/gedit-2/icons"\"
 
 if ENABLE_PYTHON
@@ -58,7 +59,7 @@ NOINST_H_FILES =			\
 	gedit-plugin-info-priv.h	\
 	gedit-plugin-manager.h		\
 	gedit-plugins-engine.h		\
-	gedit-module.h			\
+	gedit-object-module.h		\
 	gedit-ui.h			\
 	gedit-window-private.h		\
 	gedit-documents-panel.h		\
@@ -69,6 +70,7 @@ NOINST_H_FILES =			\
 	gedit-local-document-saver.h	\
 	gedit-gio-document-saver.h	\
 	gedit-history-entry.h		\
+	gedit-plugin-loader-c.h		\
 	gedit-print-job.h		\
 	gedit-print-preview.h		\
 	gedit-io-error-message-area.h	\
@@ -78,11 +80,11 @@ NOINST_H_FILES =			\
 	gedittextregion.h		\
 	gedit-session.h
 
-if ENABLE_PYTHON
-NOINST_H_FILES += \
-	gedit-python-module.h		\
-	gedit-python-plugin.h 
-endif
+# if ENABLE_PYTHON
+# NOINST_H_FILES += \
+#	gedit-python-module.h		\
+#	gedit-python-plugin.h 
+# endif
 
 INST_H_FILES =				\
 	gedit-app.h			\
@@ -100,6 +102,7 @@ INST_H_FILES =				\
 	gedit-notebook.h		\
 	gedit-panel.h			\
 	gedit-plugin.h			\
+	gedit-plugin-loader.h		\
 	gedit-prefs-manager-app.h	\
 	gedit-prefs-manager.h		\
 	gedit-progress-message-area.h	\
@@ -146,11 +149,13 @@ libgedit_la_SOURCES = 			\
 	gedit-message-bus.c		\
 	gedit-message-area.c		\
 	gedit-metadata-manager.c	\
-	gedit-module.c			\
+	gedit-object-module.c		\
 	gedit-notebook.c		\
 	gedit-panel.c			\
 	gedit-plugin-info.c		\
 	gedit-plugin.c			\
+	gedit-plugin-loader.c		\
+	gedit-plugin-loader-c.c		\
 	gedit-plugin-manager.c		\
 	gedit-plugins-engine.c		\
 	gedit-prefs-manager-app.c	\
@@ -173,13 +178,13 @@ libgedit_la_SOURCES = 			\
 	$(INST_H_FILES)
 
 
-if ENABLE_PYTHON
-libgedit_la_SOURCES += \
-	gedit-python-module.c		\
-	gedit-python-module.h		\
-	gedit-python-plugin.c		\
-	gedit-python-plugin.h	
-endif
+# if ENABLE_PYTHON
+# libgedit_la_SOURCES += \
+#	gedit-python-module.c		\
+#	gedit-python-module.h		\
+#	gedit-python-plugin.c		\
+#	gedit-python-plugin.h	
+# endif
 
 gedit-enum-types.h: gedit-enum-types.h.template $(INST_H_FILES) $(GLIB_MKENUMS)
 	(cd $(srcdir) && $(GLIB_MKENUMS) --template gedit-enum-types.h.template $(INST_H_FILES)) > $@

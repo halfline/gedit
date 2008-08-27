@@ -343,14 +343,18 @@ gedit_message_bus_init (GeditMessageBus *self)
 }
 
 GeditMessageBus *
-gedit_message_bus_get (void)
+gedit_message_bus_get_default (void)
 {
-	static GeditMessageBus *bus = NULL;
+	static GeditMessageBus *default_bus = NULL;
 	
-	if (G_UNLIKELY (!bus))
-		bus = g_object_new (GEDIT_TYPE_MESSAGE_BUS, NULL);
+	if (G_UNLIKELY (default_bus == NULL))
+	{
+		default_bus = g_object_new (GEDIT_TYPE_MESSAGE_BUS, NULL);
+		g_object_add_weak_pointer (G_OBJECT (default_bus),
+				           (gpointer) &default_bus);
+	}
 	
-	return bus;
+	return default_bus;
 }
 
 guint

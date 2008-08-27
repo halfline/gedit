@@ -48,6 +48,8 @@ gboolean 	 gedit_plugin_info_is_active		(GeditPluginInfo *info);
 gboolean 	 gedit_plugin_info_is_available		(GeditPluginInfo *info);
 gboolean	 gedit_plugin_info_is_configurable	(GeditPluginInfo *info);
 
+const gchar	*gedit_plugin_info_get_module_name	(GeditPluginInfo *info);
+
 const gchar	*gedit_plugin_info_get_name		(GeditPluginInfo *info);
 const gchar	*gedit_plugin_info_get_description	(GeditPluginInfo *info);
 const gchar	*gedit_plugin_info_get_icon_name	(GeditPluginInfo *info);

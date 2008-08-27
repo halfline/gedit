@@ -1,0 +1,60 @@
+/*
+ * gedit-plugin-loader.h
+ * This file is part of gedit
+ *
+ * Copyright (C) 2008 - Jesse van den Kieboom
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, 
+ * Boston, MA 02111-1307, USA. 
+ */
+
+#ifndef __GEDIT_PLUGIN_LOADER_H__
+#define __GEDIT_PLUGIN_LOADER_H__
+
+#include <glib-object.h>
+#include <gedit/gedit-plugin.h>
+#include <gedit/gedit-plugin-info.h>
+
+#define GEDIT_TYPE_PLUGIN_LOADER                (gedit_plugin_loader_get_type ())
+#define GEDIT_PLUGIN_LOADER(obj)                (G_TYPE_CHECK_INSTANCE_CAST ((obj), GEDIT_TYPE_PLUGIN_LOADER, GeditPluginLoader))
+#define GEDIT_IS_PLUGIN_LOADER(obj)             (G_TYPE_CHECK_INSTANCE_TYPE ((obj), GEDIT_TYPE_PLUGIN_LOADER))
+#define GEDIT_PLUGIN_LOADER_GET_INTERFACE(inst) (G_TYPE_INSTANCE_GET_INTERFACE ((inst), GEDIT_TYPE_PLUGIN_LOADER, GeditPluginLoaderInterface))
+
+typedef struct _GeditPluginLoader GeditPluginLoader; /* dummy object */
+typedef struct _GeditPluginLoaderInterface GeditPluginLoaderInterface;
+
+struct _GeditPluginLoaderInterface {
+	GTypeInterface parent;
+
+	GeditPlugin *(*load) 	(GeditPluginLoader 	*loader,
+			     	 GeditPluginInfo	*info,
+			      	 const gchar       	*path);
+
+	void (*unload)		(GeditPluginLoader 	*loader,
+				 GeditPluginInfo       	*info);
+
+	void (*garbage_collect) (GeditPluginLoader	*loader);
+};
+
+GType gedit_plugin_loader_get_type (void);
+GeditPlugin *gedit_plugin_loader_load		(GeditPluginLoader 	*loader,
+						 GeditPluginInfo 	*info,
+						 const gchar		*path);
+void gedit_plugin_loader_unload			(GeditPluginLoader 	*loader,
+						 GeditPluginInfo	*info);
+
+void gedit_plugin_loader_garbage_collect	(GeditPluginLoader 	*loader);
+
+#endif /* __GEDIT_PLUGIN_LOADER_H__ */

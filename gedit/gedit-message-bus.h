@@ -34,7 +34,7 @@ typedef void (* GeditMessageCallback) 	(GeditMessageBus	*bus,
 
 GType gedit_message_bus_get_type (void) G_GNUC_CONST;
 
-GeditMessageBus *gedit_message_bus_get 	  (void);
+GeditMessageBus *gedit_message_bus_get_default 	  (void);
 guint gedit_message_bus_connect	 	  (GeditMessageBus	*bus, 
 					   const gchar		*domain,
 					   const gchar		*name,
