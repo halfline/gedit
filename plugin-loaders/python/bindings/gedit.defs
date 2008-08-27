@@ -35,11 +35,18 @@
   (gtype-id "GEDIT_TYPE_PANEL")
 )
 
-(define-object Plugin
+(define-object __Plugin
   (in-module "Gedit")
   (parent "GObject")
   (c-name "GeditPlugin")
   (gtype-id "GEDIT_TYPE_PLUGIN")
+)
+
+(define-object Plugin
+  (in-module "Gedit")
+  (parent "GeditPlugin")
+  (c-name "GeditPluginPython")
+  (gtype-id "GEDIT_TYPE_PLUGIN_PYTHON")
 )
 
 (define-object Statusbar
@@ -669,6 +676,19 @@
   (return-type "GtkWidget*")
 )
 
+;; From ../gedit/gedit-plugin-python.h
+
+(define-function gedit_plugin_python_get_type
+  (c-name "gedit_plugin_python_get_type")
+  (return-type "GType")
+)
+
+(define-function gedit_plugin_python_new
+  (c-name "gedit_plugin_python_new")
+  (is-constructor-of "GeditPluginPython")
+  (return-type "GObject*")
+)
+
 ;; From ../../gedit/gedit-status-bar.h
 
 (define-method flash_message
@@ -993,8 +1013,8 @@
   (return-type "GType")
 )
 
-(define-function message_bus_get
-  (c-name "gedit_message_bus_get")
+(define-function message_bus_get_default
+  (c-name "gedit_message_bus_get_default")
   (return-type "GeditMessageBus*")
 )
 

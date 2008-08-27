@@ -28,22 +28,20 @@ INCLUDES += \
 	$(AM_CFLAGS)
 endif
 
-gedit_SOURCES = gedit.c
+gedit_SOURCES = \
+	gedit.c			\
+	gedit-message-bus.c	\
+	gedit-message.c
+
 gedit_LDADD = libgedit.la smclient/libeggsmclient.la $(GEDIT_LIBS)
 
 gedit_LDFLAGS = -export-dynamic -no-undefined -export-symbols-regex "^[[^_]].*"
-
 
 libgedit_la_LDFLAGS = -export-dynamic -no-undefined -export-symbols-regex "^[[^_]].*"
 
 libgedit_la_LIBADD =			\
 	$(GEDIT_LIBS)			\
 	dialogs/libdialogs.la
-
-if ENABLE_PYTHON
-libgedit_la_LIBADD += \
-	$(top_builddir)/bindings/python/gedit.la
-endif
 
 BUILT_SOURCES = 			\
 	gedit-enum-types.c		\
@@ -78,12 +76,6 @@ NOINST_H_FILES =			\
 	sexy-icon-entry.h		\
 	gedittextregion.h		\
 	gedit-session.h
-
-# if ENABLE_PYTHON
-# NOINST_H_FILES += \
-#	gedit-python-module.h		\
-#	gedit-python-plugin.h 
-# endif
 
 INST_H_FILES =				\
 	gedit-app.h			\
@@ -144,8 +136,6 @@ libgedit_la_SOURCES = 			\
 	gedit-history-entry.c		\
 	gedit-io-error-message-area.c	\
 	gedit-language-manager.c	\
-	gedit-message.c			\
-	gedit-message-bus.c		\
 	gedit-message-area.c		\
 	gedit-metadata-manager.c	\
 	gedit-object-module.c		\
@@ -174,15 +164,6 @@ libgedit_la_SOURCES = 			\
 	gedittextregion.c		\
 	$(NOINST_H_FILES)		\
 	$(INST_H_FILES)
-
-
-# if ENABLE_PYTHON
-# libgedit_la_SOURCES += \
-#	gedit-python-module.c		\
-#	gedit-python-module.h		\
-#	gedit-python-plugin.c		\
-#	gedit-python-plugin.h	
-# endif
 
 gedit-enum-types.h: gedit-enum-types.h.template $(INST_H_FILES) $(GLIB_MKENUMS)
 	(cd $(srcdir) && $(GLIB_MKENUMS) --template gedit-enum-types.h.template $(INST_H_FILES)) > $@

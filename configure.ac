@@ -353,8 +353,6 @@ AC_SUBST(LOADER_LIBTOOL_FLAGS)
 
 AC_CONFIG_FILES([
 Makefile
-bindings/Makefile
-bindings/python/Makefile
 data/gedit.desktop.in
 data/gedit-bugreport.sh
 data/gedit.pc
@@ -370,6 +368,8 @@ help/ro/Makefile
 pixmaps/Makefile
 plugin-loaders/Makefile
 plugin-loaders/c/Makefile
+plugin-loaders/python/Makefile
+plugin-loaders/python/bindings/Makefile
 plugins/changecase/Makefile
 plugins/docinfo/Makefile
 plugins/externaltools/Makefile
