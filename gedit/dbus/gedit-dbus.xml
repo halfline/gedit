@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<node name="/org/gnome/gedit">
+  <interface name="org.gnome.gedit.MessageBus">
+    <method name="Send">
+      <arg type="s" name="domain" direction="in"/>
+      <arg type="s" name="name" direction="in"/>
+      <arg type="a{sv}" name="message" direction="in"/>
+    </method>
+    <method name="SendSync">
+      <annotation name="org.freedesktop.DBus.GLib.Async" value=""/>
+      <arg type="s" name="domain" direction="in"/>
+      <arg type="s" name="name" direction="in"/>
+      <arg type="a{sv}" name="message" direction="in"/>
+      <arg type="a{sv}" name="result" direction="out"/>
+    </method>
+  </interface>
+</node>
+

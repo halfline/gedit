@@ -176,6 +176,24 @@ GEDIT_LIBS="${GEDIT_LIBS}"
 AC_SUBST(GEDIT_LIBS)
 AC_SUBST(GEDIT_CFLAGS)
 
+AC_ARG_ENABLE([spell],
+	AS_HELP_STRING([--disable-dbus],[Disable dbus support (default: enabled)]),
+	[enable_dbus=$enableval],
+	[enable_dbus=yes])
+
+if test "x$enable_dbus" = "xyes" ; then
+	PKG_CHECK_MODULES(DBUS, [
+		dbus-glib-1 >= 0.74
+	])
+	
+	DBUS_LIBS="${DBUS_LIBS}"
+	AC_SUBST(DBUS_LIBS)
+	AC_SUBST(DBUS_CFLAGS)
+	
+	AC_DEFINE([ENABLE_DBUS],[1],[Define to compile with dbus support])
+fi
+
+AM_CONDITIONAL([ENABLE_DBUS],[test "x$enable_dbus" = "xyes"])
 
 dnl ================================================================
 dnl GConf related settings
@@ -361,6 +379,7 @@ docs/Makefile
 docs/reference/Makefile
 gedit/dialogs/Makefile
 gedit/smclient/Makefile
+gedit/dbus/Makefile
 gedit/Makefile
 help/Makefile
 help/eu/Makefile
@@ -404,6 +423,7 @@ Configuration:
 	Libattr enabled:	$have_attr
 	Python Plugins Support: $enable_python
 	Spell Plugin enabled:	$enable_enchant
+	DBus Support:		$enable_dbus
 "
 
 dnl uncomment this in developement releases

@@ -1,6 +1,10 @@
 ## Process this file with automake to produce Makefile.in
 SUBDIRS = dialogs smclient
 
+if ENABLE_DBUS
+SUBDIRS += dbus
+endif
+
 bin_PROGRAMS = gedit
 
 noinst_LTLIBRARIES = libgedit.la
@@ -20,20 +24,16 @@ INCLUDES =								\
 	-DGEDIT_LOADERDIR=\""$(libdir)/gedit-2/plugin-loaders"\"	\
 	-DGEDIT_ICONDIR=\""$(datadir)/gedit-2/icons"\"
 
-if ENABLE_PYTHON
-INCLUDES += \
-	$(NO_STRICT_ALIASING_CFLAGS)	\
-	$(PYGTK_CFLAGS)			\
-	$(PYTHON_CFLAGS)		\
-	$(AM_CFLAGS)
-endif
-
 gedit_SOURCES = \
 	gedit.c			\
 	gedit-message-bus.c	\
 	gedit-message.c
 
 gedit_LDADD = libgedit.la smclient/libeggsmclient.la $(GEDIT_LIBS)
+
+if ENABLE_DBUS
+gedit_LDADD += dbus/libdbus.la
+endif
 
 gedit_LDFLAGS = -export-dynamic -no-undefined -export-symbols-regex "^[[^_]].*"
 
@@ -119,6 +119,7 @@ libgedit_la_SOURCES = 			\
 	gedit-commands-help.c		\
 	gedit-commands-search.c		\
 	gedit-commands-view.c		\
+	gedit-commands-messages.c	\
 	gedit-convert.c			\
 	gedit-debug.c			\
 	gedit-document.c 		\

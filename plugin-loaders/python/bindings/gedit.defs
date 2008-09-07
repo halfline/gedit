@@ -1253,6 +1253,23 @@
   )
 )
 
+(define-method has_key
+  (of-object "GeditMessage")
+  (c-name "gedit_message_has_key")
+  (return-type "gboolean")
+  (parameters
+    '("const-gchar*" "key")
+  )
+)
+
+(define-method get_keys
+  (of-object "GeditMessage")
+  (c-name "gedit_message_get_keys")
+  (return-type "gchar**")
+  (parameters
+  )
+)
+
 ;; From ../../gedit/gedit-debug.h
 
 (define-function debug

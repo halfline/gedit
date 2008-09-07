@@ -54,6 +54,11 @@
 
 #include "bacon-message-connection.h"
 #include "eggsmclient.h"
+#include "gedit-message-bus.h"
+
+#ifdef ENABLE_DBUS
+#include "dbus/gedit-dbus.h"
+#endif
 
 static guint32 startup_timestamp = 0;
 static BaconMessageConnection *connection;
@@ -516,6 +521,13 @@ main (int argc, char *argv[])
 	{
 		g_warning ("Cannot create the 'gedit' connection.");
 	}
+
+	/* register command messages on the message bus */
+	_gedit_commands_messages_register ();
+	
+#ifdef ENABLE_DBUS
+	gedit_dbus_initialize ();
+#endif
 
 	gedit_debug_message (DEBUG_APP, "Set icon");
 	
