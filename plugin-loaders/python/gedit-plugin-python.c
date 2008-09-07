@@ -227,10 +227,8 @@ _gedit_plugin_python_set_instance (GeditPluginPython *plugin,
 {
 	PyGILState_STATE state = pyg_gil_state_ensure ();
 	
-	Py_XDECREF (plugin->priv->instance);
-	
-	/* CHECK: is the increment actually needed? */
-	Py_INCREF (instance);
+	/* we don't increment the instance here because we are the instance,
+	   when it dies, we also die */
 	plugin->priv->instance = instance;
 	pyg_gil_state_release (state);
 }
@@ -240,27 +238,6 @@ _gedit_plugin_python_get_instance (GeditPluginPython *plugin)
 {
 	return plugin->priv->instance;
 }
-
-void
-_gedit_plugin_python_destroy (GeditPluginPython *plugin)
-{
-	PyGILState_STATE state;
-	PyObject *instance;
-	
-	if (plugin->priv->instance)
-	{
-		state = pyg_gil_state_ensure ();
-		
-		instance = plugin->priv->instance;
-		plugin->priv->instance = 0;
-
-		Py_XDECREF (instance);
-		pyg_gil_state_release (state);
-	}
-	else
-		g_object_unref (plugin);
-}
-
 
 static void
 gedit_plugin_python_init (GeditPluginPython *plugin)

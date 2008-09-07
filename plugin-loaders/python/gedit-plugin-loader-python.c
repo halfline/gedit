@@ -26,6 +26,8 @@ struct _GeditPluginLoaderPythonPrivate
 typedef struct
 {
 	PyObject *type;
+	PyObject *module;
+	PyObject *instance;
 	gchar    *path;
 } PythonInfo;
 
@@ -49,13 +51,28 @@ static PyTypeObject *PyGeditPlugin_Type;
 
 GEDIT_PLUGIN_LOADER_REGISTER_TYPE (GeditPluginLoaderPython, gedit_plugin_loader_python);
 
-static void
-destroy_pyobject (gpointer           data, 
-                  GeditPluginPython *plugin, 
-                  gboolean           is_last_ref)
+
+static PyObject *
+find_python_plugin_type (GeditPluginInfo *info,
+			 PyObject        *pymodule)
 {
-        if (is_last_ref)
-                _gedit_plugin_python_destroy (plugin);
+	PyObject *locals, *key, *value;
+	Py_ssize_t pos = 0;
+	
+	locals = PyModule_GetDict (pymodule);
+
+	while (PyDict_Next (locals, &pos, &key, &value))
+	{
+		if (!PyType_Check(value))
+			continue;
+
+		if (PyObject_IsSubclass (value, (PyObject*) PyGeditPlugin_Type))
+			return value;
+	}
+	
+	g_warning ("No GeditPlugin derivative found in Python plugin '%s'",
+		   gedit_plugin_info_get_name (info));
+	return NULL;
 }
 
 static GeditPlugin *
@@ -69,23 +86,19 @@ new_plugin_from_info (GeditPluginLoaderPython *loader,
 	
 	if (pyinfo == NULL)
 		return NULL;
-	
-	PyObject *instance = PyObject_CallObject (pyinfo->type, NULL);
-	
-	/* CHECKME: not sure if we want to decrease the reference here, but
-           should be OK since GeditPythonPlugin adds a reference */
-        Py_XDECREF (instance);
-        
-        // FIXME: what does this do, and why?
-        object = pygobject_get (instance);
-        g_object_add_toggle_ref (object, (GToggleNotify)destroy_pyobject, NULL);
 
-	return GEDIT_PLUGIN (pygobject_get (instance));
+	pyinfo->instance = PyObject_CallObject (pyinfo->type, NULL);
+
+        object = pygobject_get (pyinfo->instance);
+
+	/* we return a reference here because the other is owned by python */
+	return GEDIT_PLUGIN (g_object_ref (object));
 }
 
 static GeditPlugin *
 add_python_info (GeditPluginLoaderPython *loader,
 		 GeditPluginInfo         *info,
+		 PyObject		 *module,
 		 const gchar             *path,
 		 PyObject                *type)
 {
@@ -94,6 +107,7 @@ add_python_info (GeditPluginLoaderPython *loader,
 	pyinfo = g_new (PythonInfo, 1);
 	pyinfo->path = g_strdup (path);
 	pyinfo->type = type;
+	pyinfo->module = module;
 	
 	Py_INCREF (pyinfo->type);
 	
@@ -108,10 +122,9 @@ gedit_plugin_loader_iface_load (GeditPluginLoader *loader,
 				const gchar       *path)
 {
 	GeditPluginLoaderPython *pyloader = GEDIT_PLUGIN_LOADER_PYTHON (loader);
-	PyObject *main_module, *main_locals, *locals, *key, *value;
+	PyObject *main_module, *main_locals, *pytype;
 	PyObject *pymodule, *fromlist;
 	gchar *module_name;
-	Py_ssize_t pos = 0;
 	GeditPlugin *result;
 	
 	if (pyloader->priv->init_failed)
@@ -128,10 +141,10 @@ gedit_plugin_loader_iface_load (GeditPluginLoader *loader,
 	if (result != NULL)
 		return result;
 	
-	main_module = PyImport_AddModule ("__main__");
+	main_module = PyImport_AddModule ("gedit.plugins");
 	if (main_module == NULL)
 	{
-		g_warning ("Could not get __main__.");
+		g_warning ("Could not get gedit.plugins.");
 		return NULL;
 	}
 	
@@ -153,32 +166,28 @@ gedit_plugin_loader_iface_load (GeditPluginLoader *loader,
 	   name. */
 	fromlist = PyTuple_New(0);
 	module_name = g_strdup (gedit_plugin_info_get_module_name (info));
+	
 	pymodule = PyImport_ImportModuleEx (module_name, 
 					    main_locals, 
 					    main_locals, 
 					    fromlist);
-	g_free (module_name);
+	
 	Py_DECREF(fromlist);
 
 	if (!pymodule)
 	{
+		g_free (module_name);
 		PyErr_Print ();
 		return NULL;
 	}
 
-	locals = PyModule_GetDict (pymodule);
+	PyDict_SetItemString (main_locals, module_name, pymodule);
+	g_free (module_name);
 	
-	while (PyDict_Next (locals, &pos, &key, &value))
-	{
-		if (!PyType_Check(value))
-			continue;
-
-		if (PyObject_IsSubclass (value, (PyObject*) PyGeditPlugin_Type))
-			return add_python_info (pyloader, info, path, value);
-	}
+	pytype = find_python_plugin_type (info, pymodule);
 	
-	g_warning ("No GeditPlugin derivative found in Python plugin '%s'",
-		   gedit_plugin_info_get_name (info));
+	if (pytype)
+		return add_python_info (pyloader, info, pymodule, path, pytype);
 
 	return NULL;
 }
@@ -187,11 +196,20 @@ static void
 gedit_plugin_loader_iface_unload (GeditPluginLoader *loader,
 				  GeditPluginInfo   *info)
 {
-	//GeditPluginLoaderPython *pyloader = GEDIT_PLUGIN_LOADER_PYTHON (loader);
+	GeditPluginLoaderPython *pyloader = GEDIT_PLUGIN_LOADER_PYTHON (loader);
+	PythonInfo *pyinfo;
+	PyGILState_STATE state;
 	
-	/* this is a no-op, since the type module will be properly unused as
-	   the last reference to the plugin dies. When the plugin is activated
-	   again, the library will be reloaded */
+	pyinfo = (PythonInfo *)g_hash_table_lookup (pyloader->priv->loaded_plugins, info);
+	
+	if (!pyinfo)
+		return;
+	
+	state = pyg_gil_state_ensure ();
+	Py_XDECREF (pyinfo->instance);
+	pyg_gil_state_release (state);
+	
+	pyinfo->instance = NULL;
 }
 
 static gboolean
@@ -383,7 +401,7 @@ static gboolean
 gedit_python_init (GeditPluginLoaderPython *loader)
 {
 	PyObject *mdict, *tuple;
-	PyObject *gedit, *geditutils, *geditcommands;
+	PyObject *gedit, *geditutils, *geditcommands, *geditplugins;
 	PyObject *gettext, *install, *gettext_args;
 	struct sigaction old_sigint;
 	gint res;
@@ -507,6 +525,10 @@ gedit_python_init (GeditPluginLoaderPython *loader)
 	geditcommands = Py_InitModule ("gedit.commands", pygeditcommands_functions);
 	PyDict_SetItemString (mdict, "commands", geditcommands);
 
+	/* initialize empty gedit.plugins module */
+	geditplugins = Py_InitModule ("gedit.plugins", NULL);
+	PyDict_SetItemString (mdict, "plugins", geditplugins);
+
 	mdict = PyModule_GetDict (geditutils);
 	pygeditutils_register_classes (mdict);
 	
@@ -570,7 +592,7 @@ static void
 destroy_python_info (PythonInfo *info)
 {
 	PyGILState_STATE state = pyg_gil_state_ensure ();
-	Py_DECREF (info->type);	
+	Py_XDECREF (info->type);	
 	pyg_gil_state_release (state);
 	
 	g_free (info->path);

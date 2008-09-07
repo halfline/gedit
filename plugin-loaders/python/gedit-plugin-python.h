@@ -79,7 +79,6 @@ GType	 gedit_plugin_python_get_type 		(void) G_GNUC_CONST;
 void	  _gedit_plugin_python_set_instance	(GeditPluginPython *plugin, 
 						 PyObject 	   *instance);
 PyObject *_gedit_plugin_python_get_instance	(GeditPluginPython *plugin);
-void 	  _gedit_plugin_python_destroy		(GeditPluginPython *plugin);
 
 G_END_DECLS
 
