@@ -41,6 +41,18 @@ struct _GeditMessageBusPrivate
 	guint next_id;
 };
 
+/* signals */
+enum
+{
+	DISPATCH,
+	LAST_SIGNAL
+};
+
+static guint message_bus_signals[LAST_SIGNAL];
+
+static void gedit_message_bus_dispatch_real (GeditMessageBus *bus,
+				 	     GeditMessage    *message);
+
 G_DEFINE_TYPE(GeditMessageBus, gedit_message_bus, G_TYPE_OBJECT)
 
 static void
@@ -90,6 +102,19 @@ gedit_message_bus_class_init (GeditMessageBusClass *klass)
 	GObjectClass *object_class = G_OBJECT_CLASS (klass);
 	
 	object_class->finalize = gedit_message_bus_finalize;
+	
+	klass->dispatch = gedit_message_bus_dispatch_real;
+
+	message_bus_signals[DISPATCH] =
+   		g_signal_new ("dispatch",
+			      G_OBJECT_CLASS_TYPE (object_class),
+			      G_SIGNAL_RUN_LAST,
+			      G_STRUCT_OFFSET (GeditMessageBusClass, dispatch),
+			      NULL, NULL,
+			      g_cclosure_marshal_VOID__OBJECT,
+			      G_TYPE_NONE,
+			      1,
+			      GEDIT_TYPE_MESSAGE);
 
 	g_type_class_add_private (object_class, sizeof(GeditMessageBusPrivate));
 }
@@ -229,22 +254,27 @@ dispatch_message_real (GeditMessageBus *bus,
 }
 
 static void
+gedit_message_bus_dispatch_real (GeditMessageBus *bus,
+				 GeditMessage    *message)
+{
+	const gchar *domain;
+	const gchar *name;
+	Message *msg;
+	
+	domain = gedit_message_get_domain (message);
+	name = gedit_message_get_name (message);
+
+	msg = lookup_message (bus, domain, name, FALSE);
+	
+	if (msg)
+		dispatch_message_real (bus, msg, message);
+}
+
+static void
 dispatch_message (GeditMessageBus *bus,
 		  GeditMessage    *message)
 {
-	Message *msg;
-	const gchar *domain;
-	const gchar *name;
-
-	domain = gedit_message_get_domain (message);
-	name = gedit_message_get_name (message);
-	
-	msg = lookup_message (bus, domain, name, FALSE);
-	
-	if (!msg)
-		return;
-	
-	dispatch_message_real (bus, msg, message);
+	g_signal_emit (bus, message_bus_signals[DISPATCH], 0, message);	
 }
 
 static gboolean
@@ -541,6 +571,7 @@ gedit_message_bus_send (GeditMessageBus *bus,
 	GeditMessage *message;
 	
 	va_start (var_args, name);
+
 	message = create_message (domain, name, var_args);
 	
 	gedit_message_bus_send_message (bus, message);

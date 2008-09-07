@@ -26,6 +26,9 @@ struct _GeditMessageBus {
 
 struct _GeditMessageBusClass {
 	GObjectClass parent_class;
+	
+	void (*dispatch)	(GeditMessageBus *bus,
+				 GeditMessage    *message);
 };
 
 typedef void (* GeditMessageCallback) 	(GeditMessageBus	*bus,
