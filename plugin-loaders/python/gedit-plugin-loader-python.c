@@ -26,7 +26,6 @@ struct _GeditPluginLoaderPythonPrivate
 typedef struct
 {
 	PyObject *type;
-	PyObject *module;
 	PyObject *instance;
 	gchar    *path;
 } PythonInfo;
@@ -107,7 +106,6 @@ add_python_info (GeditPluginLoaderPython *loader,
 	pyinfo = g_new (PythonInfo, 1);
 	pyinfo->path = g_strdup (path);
 	pyinfo->type = type;
-	pyinfo->module = module;
 	
 	Py_INCREF (pyinfo->type);
 	
