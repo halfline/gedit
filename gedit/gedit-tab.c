@@ -1048,7 +1048,8 @@ document_loaded (GeditDocument *document,
 			    		break;
 			    	}
 
-				g_object_unref (loc);
+				if (loc != NULL)
+					g_object_unref (loc);
 			}
 		}
 

@@ -130,7 +130,6 @@ on_message_commands_open (GeditMessageBus *bus,
 	
 	while (*ptr)
 	{
-		g_message ("Adding: %s", *ptr);
 		uri_list = g_slist_prepend (uri_list, *ptr);
 		ptr++;
 	}
