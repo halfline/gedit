@@ -47,6 +47,8 @@ class PythonConsolePlugin(gedit.Plugin):
 	
 	def deactivate(self, window):
 		console = window.get_data("PythonConsolePluginInfo")
+		console.stop()
+		
 		window.set_data("PythonConsolePluginInfo", None)
 		bottom = window.get_bottom_panel()
 		bottom.remove_item(console)

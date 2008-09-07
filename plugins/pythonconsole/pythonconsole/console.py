@@ -77,7 +77,9 @@ class PythonConsole(gtk.ScrolledWindow):
 		# Signals
 		self.view.connect("key-press-event", self.__key_press_event_cb)
 		buffer.connect("mark-set", self.__mark_set_cb)
-		
+	
+	def stop(self):
+		self.namespace = None
  		
 	def __key_press_event_cb(self, view, event):
 		if event.keyval == gtk.keysyms.d and event.state == gtk.gdk.CONTROL_MASK:
