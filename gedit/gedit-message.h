@@ -36,6 +36,9 @@ GeditMessage *gedit_message_new		(const gchar 	 *domain,
 GeditMessage *gedit_message_new_valist  (const gchar 	 *domain,
 					 const gchar 	 *name,
 					 va_list	  var_args);
+GeditMessage *gedit_message_new_hash	(const gchar	 *domain,
+					 const gchar	 *name,
+					 GHashTable	 *values);
 
 void gedit_message_set_types		(GeditMessage	 *message,
 					 const gchar 	**keys,
@@ -65,8 +68,15 @@ void gedit_message_set_valuesv		(GeditMessage	 *message,
 					 GValue		 *values,
 					 gint		  n_values);
 
+gboolean gedit_message_has_key		(GeditMessage	 *message,
+					 const gchar     *key);
+
+GStrv gedit_message_get_keys		(GeditMessage	 *message);
 GType gedit_message_get_key_type	(GeditMessage    *message,
 					 const gchar	 *key);
+
+GHashTable *gedit_message_get_hash	(GeditMessage	 *message);
+
 G_END_DECLS
 
 #endif /* __GEDIT_MESSAGE_H__ */

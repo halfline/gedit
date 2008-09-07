@@ -266,6 +266,45 @@ gedit_message_new_valist (const gchar *domain,
 	return message;
 }
 
+GeditMessage *
+gedit_message_new_hash (const gchar *domain,
+			const gchar *name,
+			GHashTable  *values)
+{
+	GeditMessage *message;
+	const gchar *key;
+	GList *keys;
+	GList *item;
+	GValue *value;
+	
+	message = g_object_new (GEDIT_TYPE_MESSAGE, "domain", domain, "name", name, NULL);	
+	keys = g_hash_table_get_keys (values);
+	
+	for (item = keys; item; item = item->next)
+	{
+		key = (const gchar *)(item->data);
+		value = g_hash_table_lookup (values, key);
+		
+		if (value == NULL)
+			continue;
+		
+		if (!gtype_supported (G_VALUE_TYPE (value)))
+		{
+			g_warning ("GType %s is not supported, ignoring key %s", 
+				   g_type_name (G_VALUE_TYPE (value)), 
+				   key);
+			continue;
+		}
+		
+		add_value (message, key, G_VALUE_TYPE (value));
+		gedit_message_set_value (message, key, value); 
+	}
+	
+	g_list_free (keys);
+	
+	return message;
+}
+
 void
 gedit_message_set_types (GeditMessage  *message,
 			 const gchar  **keys,
@@ -427,11 +466,7 @@ gedit_message_get_valist (GeditMessage *message,
 		container = value_lookup (message, key);
 	
 		if (!container)
-		{
-			g_warning ("%s: Invalid key `%s'",
-				   G_STRLOC,
-				   key);
-			
+		{		
 			/* skip value */
 			va_arg (var_args, gpointer);
 			continue;
@@ -499,4 +534,45 @@ gedit_message_get_key_type (GeditMessage    *message,
 	}
 	
 	return G_VALUE_TYPE (container);
+}
+
+GStrv
+gedit_message_get_keys (GeditMessage *message)
+{
+	GList *keys;
+	GList *item;
+	GStrv result;
+	gint i = 0;
+	
+	g_return_val_if_fail (GEDIT_IS_MESSAGE (message), NULL);
+	
+	result = g_new0 (gchar *, g_hash_table_size (message->priv->values) + 1);
+	
+	keys = g_hash_table_get_keys (message->priv->values);
+	
+	for (item = keys; item; item = item->next)
+		result[i++] = g_strdup ((gchar *)(item->data));
+	
+	g_list_free (keys);
+	return result;
+}
+
+GHashTable *
+gedit_message_get_hash (GeditMessage *message)
+{
+	g_return_val_if_fail (GEDIT_IS_MESSAGE (message), NULL);
+	return message->priv->values;
+}
+
+gboolean
+gedit_message_has_key (GeditMessage *message,
+		       const gchar  *key)
+{
+	GValue *container;
+	
+	g_return_val_if_fail (GEDIT_IS_MESSAGE (message), FALSE);
+	
+	container = value_lookup (message, key);
+	
+	return container != NULL;
 }
