@@ -567,8 +567,6 @@ save_active_plugin_list (GeditPluginsEngine *engine)
 	GList *l;
 	gboolean res;
 
-	return;
-
 	for (l = engine->priv->plugin_list; l != NULL; l = l->next)
 	{
 		GeditPluginInfo *info = (GeditPluginInfo *) l->data;
@@ -659,6 +657,7 @@ gedit_plugins_engine_activate_plugin (GeditPluginsEngine *engine,
 		return TRUE;
 
 	g_signal_emit (engine, signals[ACTIVATE_PLUGIN], 0, info);
+
 	if (gedit_plugin_info_is_active (info))
 		save_active_plugin_list (engine);
 
@@ -710,15 +709,19 @@ gedit_plugins_engine_deactivate_plugin (GeditPluginsEngine *engine,
 	return !gedit_plugin_info_is_active (info);
 }
 
-static void
-reactivate_all (GeditPluginsEngine *engine,
-		GeditWindow        *window)
+void
+_gedit_plugins_engine_activate_plugins (GeditPluginsEngine *engine,
+					GeditWindow        *window)
 {
 	GList *pl;
 	GSList *active_plugins = NULL;
-	
+
 	gedit_debug (DEBUG_PLUGINS);
+
+	g_return_if_fail (GEDIT_IS_PLUGINS_ENGINE (engine));
+	g_return_if_fail (GEDIT_IS_WINDOW (window));
 	
+	/* the first time, we get the 'active' plugins from gconf */
 	if (engine->priv->activate_from_gconf)
 	{
 		active_plugins = gconf_client_get_list (engine->priv->gconf_client,
@@ -730,7 +733,6 @@ reactivate_all (GeditPluginsEngine *engine,
 	for (pl = engine->priv->plugin_list; pl; pl = pl->next)
 	{
 		GeditPluginInfo *info = (GeditPluginInfo*)pl->data;
-
 		
 		if (engine->priv->activate_from_gconf && 
 		    g_slist_find_custom (active_plugins,
@@ -755,23 +757,49 @@ reactivate_all (GeditPluginsEngine *engine,
 	}
 	
 	gedit_debug_message (DEBUG_PLUGINS, "End");
+
+	/* also call update_ui after activation */
+	_gedit_plugins_engine_update_plugins_ui (engine, window);
 }
 
 void
-gedit_plugins_engine_update_plugins_ui (GeditPluginsEngine *engine,
-					GeditWindow        *window,
-					gboolean            new_window)
+_gedit_plugins_engine_deactivate_plugins (GeditPluginsEngine *engine,
+					  GeditWindow        *window)
+{
+	GList *pl;
+	
+	gedit_debug (DEBUG_PLUGINS);
+
+	g_return_if_fail (GEDIT_IS_PLUGINS_ENGINE (engine));
+	g_return_if_fail (GEDIT_IS_WINDOW (window));
+	
+	for (pl = engine->priv->plugin_list; pl; pl = pl->next)
+	{
+		GeditPluginInfo *info = (GeditPluginInfo*)pl->data;
+		
+		/* check if the plugin is actually active */
+		if (!gedit_plugin_info_is_active (info))
+			continue;
+		
+		/* call deactivate for the plugin for this window */
+		gedit_plugin_deactivate (info->plugin, window);
+	}
+	
+	gedit_debug_message (DEBUG_PLUGINS, "End");
+}
+
+void
+_gedit_plugins_engine_update_plugins_ui (GeditPluginsEngine *engine,
+					 GeditWindow        *window)
 {
 	GList *pl;
 
 	gedit_debug (DEBUG_PLUGINS);
 
+	g_return_if_fail (GEDIT_IS_PLUGINS_ENGINE (engine));
 	g_return_if_fail (GEDIT_IS_WINDOW (window));
 
-	if (new_window)
-		reactivate_all (engine, window);
-
-	/* updated ui of all the plugins that implement update_ui */
+	/* call update_ui for all active plugins */
 	for (pl = engine->priv->plugin_list; pl; pl = pl->next)
 	{
 		GeditPluginInfo *info = (GeditPluginInfo*)pl->data;
@@ -780,7 +808,6 @@ gedit_plugins_engine_update_plugins_ui (GeditPluginsEngine *engine,
 			continue;
 			
 	       	gedit_debug_message (DEBUG_PLUGINS, "Updating UI of %s", info->name);
-		
 		gedit_plugin_update_ui (info->plugin, window);
 	}
 }
