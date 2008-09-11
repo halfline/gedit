@@ -126,12 +126,14 @@ gedit_dbus_initialize (GError **error)
 			  	G_TYPE_UINT, &request_name_result,
 			  	G_TYPE_INVALID))
 	{
+		g_object_unref (bus_proxy);
 		return FALSE;
 	}
 	
 	if (request_name_result == DBUS_REQUEST_NAME_REPLY_EXISTS)
 	{
 		/* there is already a master gedit process */
+		g_object_unref (bus_proxy);
 		return FALSE;
 	}
 
@@ -142,8 +144,7 @@ gedit_dbus_initialize (GError **error)
 	bus = gedit_message_bus_get_default ();
 	g_signal_connect (bus, "dispatch", G_CALLBACK (on_dispatch_message), gbus);
 	
-	/* TODO: disconnect/reconnect signal when we maybe lose ownership, or
-	   bus goes down? */
+	g_object_unref (bus_proxy);
 	
 	return TRUE;
 }

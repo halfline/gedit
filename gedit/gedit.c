@@ -360,6 +360,8 @@ main (int argc, char *argv[])
 				/* dispatch complete, we can safely exit now */
 				gdk_notify_startup_complete ();
 
+				g_free (encoding_charset);
+				g_strfreev (remaining_args);
 				exit(0);
 			}
 		}
@@ -448,6 +450,9 @@ main (int argc, char *argv[])
 	g_object_unref (engine);
 	gedit_prefs_manager_app_shutdown ();
 	gedit_metadata_manager_shutdown ();
+	
+	g_free (encoding_charset);
+	g_strfreev (remaining_args);
 
 	return 0;
 }
