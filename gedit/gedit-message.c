@@ -576,3 +576,104 @@ gedit_message_has_key (GeditMessage *message,
 	
 	return container != NULL;
 }
+
+gboolean
+gedit_message_type_check (GeditMessage  *message,
+			  const gchar  **invalid_key,
+			  ...)
+{
+	const gchar *key;
+	va_list var_args;
+	gboolean ret = TRUE;
+	
+	g_return_val_if_fail (GEDIT_IS_MESSAGE (message), FALSE);
+	va_start (var_args, invalid_key);
+
+	while ((key = va_arg (var_args, const gchar *)) != NULL)
+	{
+		/* lookup the key */
+		GValue *container = value_lookup (message, key);
+		GType gtype;
+		
+		if (!container)
+		{
+			/* skip type */
+			va_arg (var_args, gpointer);
+			continue;
+		}
+		
+		gtype = va_arg (var_args, GType);
+		
+		if (!g_type_is_a (G_VALUE_TYPE (container), gtype) && 
+		    !g_value_type_transformable (G_VALUE_TYPE (container), gtype))
+		{
+			if (invalid_key)
+				*invalid_key = key;
+
+			ret = FALSE;
+			break;
+		}
+	}
+
+	va_end (var_args);
+	return ret;
+}
+
+gboolean
+gedit_message_get_type_safe (GeditMessage  *message,
+			     const gchar  **invalid_key,
+			     ...)
+{
+	const gchar *key;
+	va_list var_args;
+	gboolean ret = TRUE;
+	
+	g_return_val_if_fail (GEDIT_IS_MESSAGE (message), FALSE);
+	va_start (var_args, invalid_key);
+
+	while ((key = va_arg (var_args, const gchar *)) != NULL)
+	{
+		/* lookup the key */
+		GValue *container = value_lookup (message, key);
+		GType gtype;
+		GValue value = {0,};
+		gchar *error = NULL;
+		
+		if (!container)
+		{
+			/* skip type and container */
+			va_arg (var_args, gpointer);
+			va_arg (var_args, gpointer);
+			continue;
+		}
+		
+		gtype = va_arg (var_args, GType);
+		g_value_init (&value, gtype);
+
+		if (!set_value_real (&value, container))
+		{
+			if (invalid_key)
+				*invalid_key = key;
+
+			ret = FALSE;
+			break;
+		}
+		
+		G_VALUE_LCOPY (&value, var_args, 0, &error);
+		
+		if (error != NULL)
+		{
+			if (invalid_key)
+				*invalid_key = key;
+			
+			ret = FALSE;
+			g_free (error);
+			break;
+		}
+		
+		g_value_unset (&value);
+	}
+	
+	va_end (var_args);
+	return ret;
+}

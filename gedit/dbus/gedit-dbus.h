@@ -43,7 +43,7 @@ gboolean gedit_dbus_send_sync (GeditDBus             *bus,
 			       GHashTable            *message,
 			       DBusGMethodInvocation *invocation);
 
-gboolean gedit_dbus_initialize (void);
+gboolean gedit_dbus_initialize (GError **error);
 
 G_END_DECLS
 

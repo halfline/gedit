@@ -110,7 +110,6 @@ header_DATA = 				\
 
 libgedit_la_SOURCES = 			\
 	$(BUILT_SOURCES)		\
-	$(BACON_FILES)			\
 	gedit-app.c			\
 	gedit-commands-documents.c	\
 	gedit-commands-edit.c		\
@@ -199,8 +198,3 @@ install-exec-hook:
 	rm -f $(DESTDIR)$(bindir)/gnome-text-editor
 	ln -s gedit $(DESTDIR)$(bindir)/gnome-text-editor
 
-BACON_DIR=$(srcdir)/../../libbacon/src/
-BACON_FILES=bacon-message-connection.h bacon-message-connection.c
-
-regenerate-built-sources:
-	BACONFILES="$(BACON_FILES)" BACONDIR="$(BACON_DIR)" $(top_srcdir)/gedit/update-from-bacon.sh

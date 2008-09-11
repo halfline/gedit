@@ -55,21 +55,12 @@ display_open_if_needed (const gchar *name)
 	return display != NULL ? display : gdk_display_open (name);
 }
 
-static void
-on_message_commands_open (GeditMessageBus *bus, 
-			  GeditMessage    *message,
-			  gpointer         userdata)
+static GeditWindow *
+get_window_from_message (GeditMessage *message)
 {
-	GStrv uris = NULL;
-	gchar *encoding_charset = NULL;
-	gint line_position = 0;
 	gboolean new_window = FALSE;
-	const GeditEncoding *encoding = NULL;
-	GeditWindow *window;
 	GeditApp *app;
-	GSList *uri_list = NULL;
-	GStrv ptr;
-	guint32 startup_timestamp = 0;
+	const gchar *invalid_key;
 	
 	/* optional parameters, used to specify correct workspace/viewport */
 	GdkScreen *screen = NULL;
@@ -79,30 +70,20 @@ on_message_commands_open (GeditMessageBus *bus,
 	gint viewport_y = -1;
 	gchar *display_name = NULL;
 
-	gedit_message_get (message,
-			   "uris", &uris,
-			   "encoding", &encoding_charset,
-			   "line_position", &line_position,
-			   "new_window", &new_window,
-			   "screen_number", &screen_number,
-			   "workspace", &workspace,
-			   "viewport_x", &viewport_x,
-			   "viewport_y", &viewport_y,
-			   "display_name", &display_name,
-			   "startup_timestamp", &startup_timestamp,
-			   NULL);
-
-	if (uris == NULL)
-		return;
-	
-	if (*uris == NULL)
+	if (!gedit_message_get_type_safe (message,
+				          &invalid_key,
+				          "new_window", G_TYPE_BOOLEAN, &new_window,
+				          "screen_number", G_TYPE_INT, &screen_number,
+				          "workspace", G_TYPE_INT, &workspace,
+				          "viewport_x", G_TYPE_INT, &viewport_x,
+				          "viewport_y", G_TYPE_INT, &viewport_y,
+				          "display_name", G_TYPE_STRING, &display_name,
+				          NULL))
 	{
-		g_strfreev (uris);
-		return;
+		g_warning ("Message contains invalid value for key `%s'", invalid_key);
+		g_free (display_name);
+		return NULL;
 	}
-
-	if (encoding_charset != NULL)
-		encoding = gedit_encoding_get_from_charset (encoding_charset);
 
 	app = gedit_app_get_default ();
 	
@@ -116,15 +97,101 @@ on_message_commands_open (GeditMessageBus *bus,
 	}
 	
 	if (new_window)
-		window = gedit_app_create_window (app, screen);
+		return gedit_app_create_window (app, screen);
 	else if (screen != NULL)
-		window = _gedit_app_get_window_in_viewport (app,
-							    screen,
-							    workspace == -1 ? 0 : workspace,
-							    viewport_x == -1 ? 0 : viewport_x,
-							    viewport_y == -1 ? 0 : viewport_y);
+		return _gedit_app_get_window_in_viewport (app,
+							  screen,
+							  workspace == -1 ? 0 : workspace,
+							  viewport_x == -1 ? 0 : viewport_x,
+							  viewport_y == -1 ? 0 : viewport_y);
 	else
-		window = gedit_app_get_active_window (app);
+		return gedit_app_get_active_window (app);
+}
+
+static void
+set_interaction_time_and_present (GeditWindow *window,
+				  guint32      startup_timestamp)
+{
+	/* set the proper interaction time on the window.
+	 * Fall back to roundtripping to the X server when we
+	 * don't have the timestamp, e.g. when launched from
+	 * terminal. We also need to make sure that the window
+	 * has been realized otherwise it will not work. lame.
+	 */
+	if (!GTK_WIDGET_REALIZED (window))
+		gtk_widget_realize (GTK_WIDGET (window));
+
+	if (startup_timestamp <= 0)
+		startup_timestamp = gdk_x11_get_server_time (GTK_WIDGET (window)->window);
+
+	gdk_x11_window_set_user_time (GTK_WIDGET (window)->window,
+				      startup_timestamp);
+
+	gtk_window_present (GTK_WINDOW (window));
+}
+
+static void
+on_message_commands_open (GeditMessageBus *bus, 
+			  GeditMessage    *message,
+			  gpointer         userdata)
+{
+	GStrv uris = NULL;
+	gchar *encoding_charset = NULL;
+	gint line_position = 0;
+	const GeditEncoding *encoding = NULL;
+	GSList *uri_list = NULL;
+	const gchar *invalid_key;
+	GStrv ptr;
+	guint32 startup_timestamp = 0;
+	GeditWindow *window;
+
+	if (gedit_message_has_key (message, "uris") && 
+	    gedit_message_type_check (message, NULL, G_TYPE_STRV, "uris", NULL))
+	{
+		/* good, this is what we want, list of uris */
+		gedit_message_get (message, "uris", &uris, NULL);
+		
+	}
+	else if (gedit_message_has_key (message, "uri") &&
+	         gedit_message_type_check (message, NULL, G_TYPE_STRING, "uri", NULL))
+	{
+		/* single uri is also supported, we put it in uris */
+		uris = g_new0 (gchar *, 2);
+		gedit_message_get (message, "uri", uris, NULL);
+	}
+	
+	/* check if we got at least one uri */
+	if (uris == NULL || *uris == NULL)
+	{
+		g_strfreev (uris);
+		return;
+	}
+	
+	window = get_window_from_message (message);
+	
+	if (window == NULL)
+	{
+		g_strfreev (uris);
+		return;
+	}
+	
+	/* get all the other parameters */
+	if (!gedit_message_get_type_safe (message,
+				          &invalid_key,
+				          "encoding", G_TYPE_STRING, &encoding_charset,
+				          "line_position", G_TYPE_INT, &line_position,
+				          "startup_timestamp", G_TYPE_UINT, &startup_timestamp,
+				          NULL))
+	{
+		g_warning ("Message commands.open contains invalid value for key `%s'", invalid_key);
+
+		g_strfreev (uris);
+		g_free (encoding_charset);
+		return;
+	}
+
+	if (encoding_charset != NULL)
+		encoding = gedit_encoding_get_from_charset (encoding_charset);
 
 	ptr = uris;
 	
@@ -144,20 +211,89 @@ on_message_commands_open (GeditMessageBus *bus,
 	 * terminal. We also need to make sure that the window
 	 * has been realized otherwise it will not work. lame.
 	 */
-	if (!GTK_WIDGET_REALIZED (window))
-		gtk_widget_realize (GTK_WIDGET (window));
-
-	if (startup_timestamp <= 0)
-		startup_timestamp = gdk_x11_get_server_time (GTK_WIDGET (window)->window);
-
-	gdk_x11_window_set_user_time (GTK_WIDGET (window)->window,
-				      startup_timestamp);
-
-	gtk_window_present (GTK_WINDOW (window));
+	set_interaction_time_and_present (window, startup_timestamp);
 
 	g_strfreev (uris);
 	g_free (encoding_charset);
+
 	g_slist_free (uri_list);
+}
+
+static void
+on_message_commands_new_document (GeditMessageBus *bus,
+				  GeditMessage    *message,
+				  gpointer         userdata)
+{
+	GeditWindow *window;
+	const gchar *invalid_key;
+	guint32 startup_timestamp = 0;
+	
+	window = get_window_from_message (message);
+	
+	if (window == NULL)
+		return;
+
+	if (!gedit_message_get_type_safe (message,
+				          &invalid_key,
+				          "startup_timestamp", G_TYPE_UINT, &startup_timestamp,
+				          NULL))
+	{
+		g_warning ("Message contains invalid value for key `%s'", invalid_key);
+		return;
+	}
+	
+	gedit_window_create_tab (window, TRUE);
+	
+	/* set the proper interaction time on the window.
+	 * Fall back to roundtripping to the X server when we
+	 * don't have the timestamp, e.g. when launched from
+	 * terminal. We also need to make sure that the window
+	 * has been realized otherwise it will not work. lame.
+	 */
+	set_interaction_time_and_present (window, startup_timestamp);
+}
+
+static void
+on_message_commands_present (GeditMessageBus *bus,
+			     GeditMessage    *message,
+			     gpointer         userdata)
+{
+	GeditWindow *window;
+	const gchar *invalid_key;
+	guint32 startup_timestamp = 0;
+	gboolean new_document = FALSE;
+	GeditDocument *doc;
+
+	window = get_window_from_message (message);
+	
+	if (window == NULL)
+		return;
+
+	if (!gedit_message_get_type_safe (message,
+				          &invalid_key,
+				          "new_document", G_TYPE_BOOLEAN, &new_document,
+				          "startup_timestamp", G_TYPE_UINT, &startup_timestamp,
+				          NULL))
+	{
+		g_warning ("Message contains invalid value for key `%s'", invalid_key);
+		return;
+	}
+	
+	
+	doc = gedit_window_get_active_document (window);
+
+	if (doc == NULL ||
+	    !gedit_document_is_untouched (doc) ||
+	    new_document)
+		gedit_window_create_tab (window, TRUE);
+	
+	/* set the proper interaction time on the window.
+	 * Fall back to roundtripping to the X server when we
+	 * don't have the timestamp, e.g. when launched from
+	 * terminal. We also need to make sure that the window
+	 * has been realized otherwise it will not work. lame.
+	 */
+	set_interaction_time_and_present (window, startup_timestamp);
 }
 
 void
@@ -168,5 +304,18 @@ _gedit_commands_messages_register ()
 	/* register message handlers on the message bus */
 	bus = gedit_message_bus_get_default ();
 	
-	BUS_CONNECT ("commands", "open", on_message_commands_open);
+	/* open list of uris, or single uri */
+	BUS_CONNECT ("core", "open", on_message_commands_open);
+	
+	/* alias "open_uris", "open_uri", "load", "load_uris", "load_uri" */
+	BUS_CONNECT ("core", "open_uris", on_message_commands_open);
+	BUS_CONNECT ("core", "open_uri", on_message_commands_open);
+	BUS_CONNECT ("core", "load", on_message_commands_open);
+	BUS_CONNECT ("core", "load_uris", on_message_commands_open);
+	BUS_CONNECT ("core", "load_uri", on_message_commands_open);
+	
+	/* new document message, used by gedit startup */
+	BUS_CONNECT ("core", "new_document", on_message_commands_new_document);
+	
+	BUS_CONNECT ("core", "present", on_message_commands_present);
 }

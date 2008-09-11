@@ -52,7 +52,6 @@
 #include "gedit-utils.h"
 #include "gedit-window.h"
 
-#include "bacon-message-connection.h"
 #include "eggsmclient.h"
 #include "gedit-message-bus.h"
 
@@ -60,17 +59,12 @@
 #include "dbus/gedit-dbus.h"
 #endif
 
-static guint32 startup_timestamp = 0;
-static BaconMessageConnection *connection;
-
 /* command line */
-static gint line_position = 0;
 static gchar *encoding_charset = NULL;
-static const GeditEncoding *encoding;
 static gboolean new_window_option = FALSE;
 static gboolean new_document_option = FALSE;
 static gchar **remaining_args = NULL;
-static GSList *file_list = NULL;
+static gboolean standalone_option = FALSE;
 
 static const GOptionEntry options [] =
 {
@@ -83,6 +77,9 @@ static const GOptionEntry options [] =
 	{ "new-document", '\0', 0, G_OPTION_ARG_NONE, &new_document_option,
 	  N_("Create a new document in an existing instance of gedit"), NULL },
 
+	{ "standalone", '\0', 0, G_OPTION_ARG_NONE, &standalone_option,
+	  N_("Start gedit as a separate standalone process"), NULL },
+
 	{ G_OPTION_REMAINING, '\0', 0, G_OPTION_ARG_FILENAME_ARRAY, &remaining_args,
 	  NULL, N_("[FILE...]") }, /* collects file arguments */
 
@@ -90,50 +87,43 @@ static const GOptionEntry options [] =
 };
 
 static void
-gedit_get_command_line_data (void)
+gedit_get_command_line_data (GSList **files,
+			     gint    *line_position)
 {
-	if (remaining_args)
-	{
-		gint i;
+	gint i;
 
-		for (i = 0; remaining_args[i]; i++) 
+	*files = NULL;
+	*line_position = 0;
+
+	if (!remaining_args)
+		return;
+
+	for (i = 0; remaining_args[i]; i++) 
+	{
+		if (*remaining_args[i] == '+')
 		{
-			if (*remaining_args[i] == '+')
-			{
-				if (*(remaining_args[i] + 1) == '\0')
-					/* goto the last line of the document */
-					line_position = G_MAXINT;
-				else
-					line_position = atoi (remaining_args[i] + 1);
-			}
+			if (*(remaining_args[i] + 1) == '\0')
+				/* goto the last line of the document */
+				*line_position = G_MAXINT;
 			else
-			{
-				gchar *canonical_uri;
-				
-				canonical_uri = gedit_utils_make_canonical_uri_from_shell_arg (remaining_args[i]);
-				
-				if (canonical_uri != NULL)
-					file_list = g_slist_prepend (file_list, 
-								     canonical_uri);
-				else
-					g_print (_("%s: malformed file name or URI.\n"),
-						 remaining_args[i]);
-			} 
+				*line_position = atoi (remaining_args[i] + 1);
 		}
-
-		file_list = g_slist_reverse (file_list);
+		else
+		{
+			gchar *canonical_uri;
+			
+			canonical_uri = gedit_utils_make_canonical_uri_from_shell_arg (remaining_args[i]);
+			
+			if (canonical_uri != NULL)
+				*files = g_slist_prepend (*files, 
+							  canonical_uri);
+			else
+				g_print (_("%s: malformed file name or URI.\n"),
+					 remaining_args[i]);
+		} 
 	}
 
-	if (encoding_charset)
-	{
-		encoding = gedit_encoding_get_from_charset (encoding_charset);
-		if (encoding == NULL)
-			g_print (_("%s: invalid encoding.\n"),
-				 encoding_charset);
-
-		g_free (encoding_charset);
-		encoding_charset = NULL;
-	}
+	*files = g_slist_reverse (*files);
 }
 
 static guint32
@@ -172,276 +162,136 @@ get_startup_timestamp ()
 	return (retval > 0) ? retval : 0;
 }
 
-static GdkDisplay *
-display_open_if_needed (const gchar *name)
+static GeditMessage *
+make_message (GSList *files, gint line_position, guint32 startup_timestamp)
 {
-	GSList *displays;
-	GSList *l;
-	GdkDisplay *display = NULL;
-
-	displays = gdk_display_manager_list_displays (gdk_display_manager_get ());
-
-	for (l = displays; l != NULL; l = l->next)
-	{
-		if (strcmp (gdk_display_get_name ((GdkDisplay *) l->data), name) == 0)
-		{
-			display = l->data;
-			break;
-		}
-	}
-
-	g_slist_free (displays);
-
-	return display != NULL ? display : gdk_display_open (name);
-}
-
-/* serverside */
-static void
-on_message_received (const char *message,
-		     gpointer    data)
-{
-	gchar **commands;
-	gchar **params;
-	gint workspace;
-	gint viewport_x;
-	gint viewport_y;
-	gchar *display_name;
-	gint screen_number;
-	gint i;
-	GeditApp *app;
-	GeditWindow *window;
-	GdkDisplay *display;
-	GdkScreen *screen;
-
-	g_return_if_fail (message != NULL);
-
-	gedit_debug_message (DEBUG_APP, "Received message:\n%s\n", message);
-
-	commands = g_strsplit (message, "\v", -1);
-
-	/* header */
-	params = g_strsplit (commands[0], "\t", 6);
-	startup_timestamp = atoi (params[0]);
-	display_name = params[1];
-	screen_number = atoi (params[2]);
-	workspace = atoi (params[3]);
-	viewport_x = atoi (params[4]);
-	viewport_y = atoi (params[5]);
-
-	display = display_open_if_needed (display_name);
-	if (display == NULL)
-	{
-		g_warning ("Could not open display %s\n", display_name);
-		g_strfreev (params);
-		goto out;
-	}
-
-	screen = gdk_display_get_screen (display, screen_number);
-
-	g_strfreev (params);
-
-	/* body */
-	for (i = 1; commands[i] != NULL; i++)
-	{
-		params = g_strsplit (commands[i], "\t", -1);
-
-		if (strcmp (params[0], "NEW-WINDOW") == 0)
-		{
-			new_window_option = TRUE;
-		}
-		else if (strcmp (params[0], "NEW-DOCUMENT") == 0)
-		{
-			new_document_option = TRUE;
-		}
-		else if (strcmp (params[0], "OPEN-URIS") == 0)
-		{
-			gint n_uris, j;
-			gchar **uris;
-
-			line_position = atoi (params[1]);
-			if (params[2] != '\0');
-				encoding = gedit_encoding_get_from_charset (params[2]);
-
-			n_uris = atoi (params[3]);
-			uris = g_strsplit (params[4], " ", n_uris);
-
-			for (j = 0; j < n_uris; j++)
-				file_list = g_slist_prepend (file_list, uris[j]);
-			file_list = g_slist_reverse (file_list);
-
-			/* the list takes ownerhip of the strings,
-			 * only free the array */
-			g_free (uris);
-		}
-		else
-		{
-			g_warning ("Unexpected bacon command");
-		}
-
-		g_strfreev (params);
-	}
-
-	/* execute the commands */
-
-	app = gedit_app_get_default ();
-
-	if (new_window_option)
-	{
-		window = gedit_app_create_window (app, screen);
-	}
-	else
-	{
-		/* get a window in the current workspace (if exists) and raise it */
-		window = _gedit_app_get_window_in_viewport (app,
-							    screen,
-							    workspace,
-							    viewport_x,
-							    viewport_y);
-	}
-
-	if (file_list != NULL)
-	{
-		_gedit_cmd_load_files_from_prompt (window,
-						   file_list,
-						   encoding,
-						   line_position);
-
-		if (new_document_option)
-			gedit_window_create_tab (window, TRUE);
-	}
-	else
-	{
-		GeditDocument *doc;
-		doc = gedit_window_get_active_document (window);
-
-		if (doc == NULL ||
-		    !gedit_document_is_untouched (doc) ||
-		    new_document_option)
-			gedit_window_create_tab (window, TRUE);
-	}
-
-	/* set the proper interaction time on the window.
-	 * Fall back to roundtripping to the X server when we
-	 * don't have the timestamp, e.g. when launched from
-	 * terminal. We also need to make sure that the window
-	 * has been realized otherwise it will not work. lame.
-	 */
-	if (!GTK_WIDGET_REALIZED (window))
-		gtk_widget_realize (GTK_WIDGET (window));
-
-	if (startup_timestamp <= 0)
-		startup_timestamp = gdk_x11_get_server_time (GTK_WIDGET (window)->window);
-
-	gdk_x11_window_set_user_time (GTK_WIDGET (window)->window,
-				      startup_timestamp);
-
-	gtk_window_present (GTK_WINDOW (window));
-
-	/* free the file list and reset to default */
-	g_slist_foreach (file_list, (GFunc) g_free, NULL);
-	g_slist_free (file_list);
-	file_list = NULL;
-
- out:
-	g_strfreev (commands);
-
-	new_window_option = FALSE;
-	new_document_option = FALSE;
-	encoding = NULL;
-	line_position = 0;
-}
-
-/* clientside */
-static void
-send_bacon_message (void)
-{
+	GSList *file;
+	gchar **uris;
+	gint i = 0;
+	GeditMessage *message;
 	GdkScreen *screen;
 	GdkDisplay *display;
-	const gchar *display_name;
-	gint screen_number;
-	gint ws;
 	gint viewport_x;
 	gint viewport_y;
-	GString *command;
+	
+	/* insert uris as G_TYPE_STRV list */
+	uris = g_new0(gchar *, g_slist_length (files) + 1);
+	
+	for (file = files; file; file = file->next)
+		uris[i++] = g_strdup ((gchar *)file->data);
 
-	/* the messages have the following format:
-	 * <---                                  header                                     ---> <----            body             ----->
-	 * timestamp \t display_name \t screen_number \t workspace \t viewport_x \t viewport_y \v OP1 \t arg \t arg \v OP2 \t arg \t arg|...
-	 *
-	 * when the arg is a list of uri, they are separated by a space.
-	 * So the delimiters are \v for the commands, \t for the tokens in
-	 * a command and ' ' for the uris: note that such delimiters cannot
-	 * be part of an uri, this way parsing is easier.
-	 */
-
-	gedit_debug (DEBUG_APP);
-
+	/* initialize message with correct keys and types */
+	message = gedit_message_new ("core", "open",
+			   	     "uris", G_TYPE_STRV,
+			   	     "new_window", G_TYPE_BOOLEAN,
+			   	     "new_document", G_TYPE_BOOLEAN,
+			   	     "startup_timestamp", G_TYPE_UINT,
+			   	     "line_position", G_TYPE_INT,
+			   	     "encoding", G_TYPE_STRING,
+			   	     "screen_number", G_TYPE_INT,
+			   	     "workspace", G_TYPE_INT,
+			   	     "viewport_x", G_TYPE_INT,
+			   	     "viewport_y", G_TYPE_INT,
+			   	     "display_name", G_TYPE_STRING,
+			   	     NULL);
+	
 	screen = gdk_screen_get_default ();
 	display = gdk_screen_get_display (screen);
-
-	display_name = gdk_display_get_name (display);
-	screen_number = gdk_screen_get_number (screen);
-
-	gedit_debug_message (DEBUG_APP, "Display: %s", display_name);
-	gedit_debug_message (DEBUG_APP, "Screen: %d", screen_number);	
-
-	ws = gedit_utils_get_current_workspace (screen);
 	gedit_utils_get_current_viewport (screen, &viewport_x, &viewport_y);
+	
+	/* now set values for the message */
+	gedit_message_set (message,
+			   "uris", uris,
+			   "new_window", new_window_option,
+			   "new_document", new_document_option,
+			   "startup_timestamp", startup_timestamp,
+			   "line_position", line_position,
+			   "encoding", encoding_charset,
+			   "screen_number", gdk_screen_get_number (screen),
+			   "workspace", gedit_utils_get_current_workspace (screen),
+			   "viewport_x", viewport_x,
+			   "viewport_y", viewport_y,
+			   "display_name", gdk_display_get_name (display),
+			   NULL);
 
-	command = g_string_new (NULL);
+	return message;
+}
 
-	/* header */
-	g_string_append_printf (command,
-				"%" G_GUINT32_FORMAT "\t%s\t%d\t%d\t%d\t%d",
-				startup_timestamp,
-				display_name,
-				screen_number,
-				ws,
-				viewport_x,
-				viewport_y);
-
-	/* NEW-WINDOW command */
-	if (new_window_option)
+static gboolean
+dispatch_dbus (guint32 startup_timestamp)
+{
+	GSList *files;
+	gint line_position;
+	DBusGProxy *bus_proxy;
+	DBusGConnection *gbus;
+	GError *error = NULL;
+	GeditMessage *message;
+	GType gtype;
+	gboolean ret = TRUE;
+	
+	/* get files and line position */
+	gedit_get_command_line_data (&files, &line_position);
+	
+	gbus = dbus_g_bus_get (DBUS_BUS_SESSION, &error);
+	
+	if (!gbus)
 	{
-		command = g_string_append_c (command, '\v');
-		command = g_string_append (command, "NEW-WINDOW");
+		g_warning ("Could not dispatch to dbus: %s", error->message);
+		g_error_free (error);
+		return FALSE;
 	}
 
-	/* NEW-DOCUMENT command */
-	if (new_document_option)
+	/* Get the remote gedit message bus */
+	bus_proxy = dbus_g_proxy_new_for_name (gbus, 
+					       "org.gnome.gedit",
+					       "/org/gnome/gedit",
+					       "org.gnome.gedit.MessageBus");
+	
+	if (!bus_proxy)
 	{
-		command = g_string_append_c (command, '\v');
-		command = g_string_append (command, "NEW-DOCUMENT");
+		g_warning ("Could not get gedit dbus proxy object");
+		return FALSE;
 	}
 
-	/* OPEN_URIS command, optionally specify line_num and encoding */
-	if (file_list)
+	message = make_message (files, line_position, startup_timestamp);
+	gtype = dbus_g_type_get_map ("GHashTable", G_TYPE_STRING, G_TYPE_VALUE);
+
+	if (!dbus_g_proxy_call (bus_proxy, "Send", &error,
+			  	G_TYPE_STRING, "core",
+			  	G_TYPE_STRING, g_slist_length (files) != 0 ? "open" : "present",
+				gtype, gedit_message_get_hash (message),
+			  	G_TYPE_INVALID,
+			  	G_TYPE_INVALID))
 	{
-		GSList *l;
+		g_warning ("Sending message over dbus failed: %s", error->message);
+		g_error_free (error);
 
-		command = g_string_append_c (command, '\v');
-		command = g_string_append (command, "OPEN-URIS");
+		ret = FALSE;
+	}
 
-		g_string_append_printf (command,
-					"\t%d\t%s\t%u\t",
-					line_position,
-					encoding_charset ? encoding_charset : "",
-					g_slist_length (file_list));
-
-		for (l = file_list; l != NULL; l = l->next)
+	if (new_document_option && g_slist_length (files) != 0)
+	{
+		/* send also a new_document message */
+		if (!dbus_g_proxy_call (bus_proxy, "Send", &error,
+			  		G_TYPE_STRING, "core",
+			  		G_TYPE_STRING, "new_document",
+					gtype, gedit_message_get_hash (message),
+			  		G_TYPE_INVALID,
+			  		G_TYPE_INVALID))
 		{
-			command = g_string_append (command, l->data);
-			if (l->next != NULL)
-				command = g_string_append_c (command, ' ');
+			g_warning ("Sending message over dbus failed: %s", error->message);
+			g_error_free (error);
+
+			ret = FALSE;
 		}
 	}
 
-	gedit_debug_message (DEBUG_APP, "Bacon Message: %s", command->str);
+	/* cleanup */
+	g_object_unref (message);
+	g_slist_foreach (files, (GFunc)g_free, NULL);
+	g_slist_free (files);
 	
-	bacon_message_connection_send (connection,
-				       command->str);
-
-	g_string_free (command, TRUE);
+	return ret;
 }
 
 int
@@ -453,7 +303,8 @@ main (int argc, char *argv[])
 	GeditApp *app;
 	gboolean restored = FALSE;
 	GError *error = NULL;
-
+	guint32 startup_timestamp;
+	
 	/* Init glib threads asap */
 	g_thread_init (NULL);
 
@@ -485,49 +336,37 @@ main (int argc, char *argv[])
 		return 1;
 	}
 
-	gedit_debug_message (DEBUG_APP, "Create bacon connection");
-
-	connection = bacon_message_connection_new ("gedit");
-
-	if (connection != NULL)
+#ifdef ENABLE_DBUS
+	if (!standalone_option)
 	{
-		if (!bacon_message_connection_get_is_server (connection)) 
+		gboolean ret;
+		
+		gedit_debug_message (DEBUG_APP, "Start dbus service");
+		ret = gedit_dbus_initialize (&error);
+		
+		if (error)
 		{
+			g_warning ("Could not initialize dbus service: %s", error->message);
+			g_error_free (error);
+		}
+		
+		if (!ret)
+		{
+			/* this means there is already a master gedit process */
 			gedit_debug_message (DEBUG_APP, "I'm a client");
+			
+			if (dispatch_dbus (startup_timestamp))
+			{
+				/* dispatch complete, we can safely exit now */
+				gdk_notify_startup_complete ();
 
-			gedit_get_command_line_data ();
-
-			send_bacon_message ();
-
-			/* we never popup a window... tell startup-notification
-			 * that we are done.
-			 */
-			gdk_notify_startup_complete ();
-
-			bacon_message_connection_free (connection);
-
-			exit (0);
-		}
-		else 
-		{
-		  	gedit_debug_message (DEBUG_APP, "I'm a server");
-
-			bacon_message_connection_set_callback (connection,
-							       on_message_received,
-							       NULL);
+				exit(0);
+			}
 		}
 	}
-	else
-	{
-		g_warning ("Cannot create the 'gedit' connection.");
-	}
-
+#endif
 	/* register command messages on the message bus */
 	_gedit_commands_messages_register ();
-	
-#ifdef ENABLE_DBUS
-	gedit_dbus_initialize ();
-#endif
 
 	gedit_debug_message (DEBUG_APP, "Set icon");
 	
@@ -556,8 +395,11 @@ main (int argc, char *argv[])
 
 	if (!restored)
 	{
+		GSList *files;
+		gint line_position;
+
 		gedit_debug_message (DEBUG_APP, "Analyze command line data");
-		gedit_get_command_line_data ();
+		gedit_get_command_line_data (&files, &line_position);
 		
 		gedit_debug_message (DEBUG_APP, "Get default app");
 		app = gedit_app_get_default ();
@@ -565,11 +407,22 @@ main (int argc, char *argv[])
 		gedit_debug_message (DEBUG_APP, "Create main window");
 		window = gedit_app_create_window (app, NULL);
 
-		if (file_list != NULL)
+		if (files != NULL)
 		{
+			const GeditEncoding *encoding = NULL;
+
+			if (encoding_charset)
+			{
+				encoding = gedit_encoding_get_from_charset (encoding_charset);
+
+				if (encoding == NULL)
+					g_print (_("%s: invalid encoding.\n"),
+						 encoding_charset);
+			}
+	
 			gedit_debug_message (DEBUG_APP, "Load files");
 			_gedit_cmd_load_files_from_prompt (window, 
-							   file_list, 
+							   files, 
 							   encoding, 
 							   line_position);
 		}
@@ -582,22 +435,12 @@ main (int argc, char *argv[])
 		gedit_debug_message (DEBUG_APP, "Show window");
 		gtk_widget_show (GTK_WIDGET (window));
 
-		g_slist_foreach (file_list, (GFunc) g_free, NULL);
-		g_slist_free (file_list);
-		file_list = NULL;
-
-		g_free (encoding_charset);
-
-		new_window_option = FALSE;
-		new_document_option = FALSE;
-		encoding = NULL;
-		line_position = 0;
+		g_slist_foreach (files, (GFunc) g_free, NULL);
+		g_slist_free (files);
 	}
 
 	gedit_debug_message (DEBUG_APP, "Start gtk-main");		
 	gtk_main();
-
-	bacon_message_connection_free (connection);
 
 	/* We kept the original engine reference here. So let's unref it to
 	 * finalize it properly. 

@@ -98,22 +98,20 @@ gedit_dbus_send_sync (GeditDBus             *bus,
 }
 
 gboolean
-gedit_dbus_initialize ()
+gedit_dbus_initialize (GError **error)
 {
-	GError *error = NULL;
 	DBusGProxy *bus_proxy;
 	DBusGConnection *gbus;
 	guint request_name_result;
 	GeditMessageBus *bus;
 	
-	gbus = dbus_g_bus_get (DBUS_BUS_SESSION, &error);
+	if (error)
+		*error = NULL;
+	
+	gbus = dbus_g_bus_get (DBUS_BUS_SESSION, error);
 	
 	if (!gbus)
-	{
-		g_warning ("Could not connect to session bus: %s", error->message);
-		g_error_free (error);
 		return FALSE;
-	}
 
 	/* Register unique name */
 	bus_proxy = dbus_g_proxy_new_for_name (gbus, 
@@ -121,20 +119,23 @@ gedit_dbus_initialize ()
 					       "/org/freedesktop/DBus",
 					       "org.freedesktop.DBus");
 	
-	if (!dbus_g_proxy_call (bus_proxy, "RequestName", &error,
-			  G_TYPE_STRING, "org.gnome.gedit",
-			  G_TYPE_UINT, 0,
-			  G_TYPE_INVALID,
-			  G_TYPE_UINT, &request_name_result,
-			  G_TYPE_INVALID))
+	if (!dbus_g_proxy_call (bus_proxy, "RequestName", error,
+			  	G_TYPE_STRING, "org.gnome.gedit",
+			  	G_TYPE_UINT, DBUS_NAME_FLAG_DO_NOT_QUEUE,
+			  	G_TYPE_INVALID,
+			  	G_TYPE_UINT, &request_name_result,
+			  	G_TYPE_INVALID))
 	{
-		g_warning ("Failed to get name for connection: %s:", error->message);
-		g_error_free (error);
 		return FALSE;
 	}
 	
-	/* FIXME: check return value and do something when we are queued etc */
-	
+	if (request_name_result == DBUS_REQUEST_NAME_REPLY_EXISTS)
+	{
+		/* there is already a master gedit process */
+		return FALSE;
+	}
+
+	/* we are the master gedit process */	
 	dbus_g_connection_register_g_object (gbus, "/org/gnome/gedit", g_object_new (GEDIT_TYPE_DBUS, NULL));
 		
 	/* CHECK: maybe add a reference to the bus? */

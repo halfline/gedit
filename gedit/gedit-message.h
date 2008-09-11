@@ -76,6 +76,12 @@ GType gedit_message_get_key_type	(GeditMessage    *message,
 					 const gchar	 *key);
 
 GHashTable *gedit_message_get_hash	(GeditMessage	 *message);
+gboolean gedit_message_type_check	(GeditMessage	 *message,
+					 const gchar    **invalid_key,
+					 ...) G_GNUC_NULL_TERMINATED;
+gboolean gedit_message_get_type_safe	(GeditMessage	 *message,
+					 const gchar   **invalid_key,
+					 ...) G_GNUC_NULL_TERMINATED;
 
 G_END_DECLS
 
