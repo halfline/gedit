@@ -51,7 +51,7 @@
 #define GEDIT_PLUGINS_ENGINE_KEY GEDIT_PLUGINS_ENGINE_BASE_KEY "/active-plugins"
 
 #define PLUGIN_EXT	".gedit-plugin"
-#define LOADER_EXT	".gedit-plugin-loader"
+#define LOADER_EXT	G_MODULE_SUFFIX
 
 typedef struct
 {
@@ -178,7 +178,7 @@ load_all_real (GeditPluginsEngine *engine,
 	       gpointer            userdata)
 {
 	const gchar *home;
-	const gchar *pdirs_env;
+	const gchar *pdirs_env = NULL;
 	gchar **pdirs;
 	int i;
 
@@ -207,10 +207,10 @@ load_all_real (GeditPluginsEngine *engine,
 		if (!ret)
 			return;
 	}
+	
+	if (envname)
+		pdirs_env = g_getenv (envname);
 
-	pdirs_env = g_getenv (envname);
-
-	/* What if no env var is set? We use the default location(s)! */
 	if (pdirs_env == NULL)
 		pdirs_env = envdefault;
 
@@ -272,13 +272,12 @@ loader_destroy (LoaderInfo *info)
 static void
 add_loader (GeditPluginsEngine *engine,
 	    const gchar        *loader_name,
-	    GeditPluginLoader  *loader,
 	    GeditObjectModule  *module)
 {
 	LoaderInfo *info;
 
 	info = g_new (LoaderInfo, 1);
-	info->loader = loader;
+	info->loader = NULL;
 	info->module = module;
 
 	g_hash_table_insert (engine->priv->loaders, g_strdup (loader_name), info);
@@ -408,93 +407,66 @@ gedit_plugins_engine_class_init (GeditPluginsEngineClass *klass)
 static gboolean
 load_loader (GeditPluginsEngine *engine,
 	     const gchar        *filename,
-	     const gchar        *loader_name)
+	     gpointer		 data)
 {
-	GKeyFile *loader_file;
 	GeditObjectModule *module;
-	gchar *str;
+	gchar *base;
 	gchar *path;
-	GeditPluginLoader *loader;
+	const gchar *name;
+	GType type;
 	
-	loader_file = g_key_file_new ();
-	
-	if (!g_key_file_load_from_file (loader_file, filename, G_KEY_FILE_NONE, NULL))
-	{
-		g_warning ("Bad loader file: %s", filename);
-		g_key_file_free (loader_file);
-		return TRUE;
-	}
-	
-	/* get loader name */
-	str = g_key_file_get_string (loader_file,
-				     "Gedit Plugin Loader",
-				     "Loader",
-				     NULL);
-	
-	/* check if this is the loader we need */
-	if (str == NULL || g_ascii_strcasecmp (str, loader_name) != 0)
-	{
-		if (str == NULL || *str == '\0')
-			g_warning ("Could not find 'Loader' in %s", filename);
-
-		g_key_file_free (loader_file);
-		g_free (str);
-		return TRUE;
-	}
-	
-	/* get module name */
-	str = g_key_file_get_string (loader_file,
-				     "Gedit Plugin Loader",
-				     "Module",
-				     NULL);
-
-	if ((str == NULL) || (*str == '\0'))
-	{
-		g_warning ("Could not find 'Module' in %s", filename);
-
-		g_key_file_free (loader_file);
-		g_free (str);
-		return TRUE;
-	}
-	
+	/* try to load in the module */
 	path = g_path_get_dirname (filename);
-	module = gedit_object_module_new (str, path, "register_gedit_plugin_loader");
+	base = g_path_get_basename (filename);
+
+	module = gedit_object_module_new (base, path, "register_gedit_plugin_loader");
 	
+	g_free (base);
 	g_free (path);
-	g_free (str);
-	
+
 	/* make sure to load the type definition */
 	if (!g_type_module_use (G_TYPE_MODULE (module)))
 	{
 		g_object_unref (module);
-		g_warning ("Plugin loader module could not be loaded");
-		
-		add_loader (engine, loader_name, NULL, NULL);
-		return FALSE;
-	}
-	
-	/* create a new loader object */
-	loader = (GeditPluginLoader *)gedit_object_module_new_object (module, NULL);
-	
-	if (loader == NULL || !GEDIT_IS_PLUGIN_LOADER (loader))
-	{
-		g_warning ("Loader object is not a valid GeditPluginLoader instance");
-		
-		if (loader != NULL && G_IS_OBJECT (loader))
-			g_object_unref (loader);
+		g_warning ("Plugin loader module `%s' could not be loaded", filename);
 
-		g_type_module_unuse (G_TYPE_MODULE (module));
-		g_object_unref (module);
-		
-		add_loader (engine, loader_name, NULL, NULL);
-		return FALSE;
+		return TRUE;
 	}
 	
-	/* add the loader to the hash */
-	add_loader (engine, loader_name, loader, module);
+	/* get the exported type and check the name as exported by the 
+	 * loader interface */
+	type = gedit_object_module_get_object_type (module);
+	name = gedit_plugin_loader_type_get_name (type);
+	
+	g_message("Name: %s", name);
+	
+	add_loader (engine, name, module);	
 	g_type_module_unuse (G_TYPE_MODULE (module));
 
-	return FALSE;
+	return TRUE;
+}
+
+static void
+ensure_loader (LoaderInfo *info)
+{
+	if (info->loader == NULL && info->module != NULL)
+	{
+		/* create a new loader object */
+		GeditPluginLoader *loader;
+		loader = (GeditPluginLoader *)gedit_object_module_new_object (info->module, NULL);
+	
+		if (loader == NULL || !GEDIT_IS_PLUGIN_LOADER (loader))
+		{
+			g_warning ("Loader object is not a valid GeditPluginLoader instance");
+		
+			if (loader != NULL && G_IS_OBJECT (loader))
+				g_object_unref (loader);
+		}
+		else
+		{
+			info->loader = loader;
+		}
+	}
 }
 
 static GeditPluginLoader *
@@ -505,22 +477,38 @@ get_plugin_loader (GeditPluginsEngine *engine, GeditPluginInfo *info)
 	
 	loader_name = info->loader;
 
-	loader_info = (LoaderInfo *)g_hash_table_lookup (engine->priv->loaders, loader_name);
+	loader_info = (LoaderInfo *)g_hash_table_lookup (
+			engine->priv->loaders, 
+			loader_name);
 
-	if (loader_info)
-		return loader_info->loader;
-
-	/* loader could not be found in the hash, try to find it */
-	load_all_real (engine, 
-		       "plugin-loaders", 
-		       "GEDIT_LOADERS_PATH", 
-		       GEDIT_LOADERDIR,
-		       LOADER_EXT,
-		       (LoadDirCallback)load_loader,
-		       (gpointer)loader_name);
+	if (loader_info == NULL)
+	{
+		/* loader could not be found in the hash, try to find it by 
+		   scanning */
+		load_all_real (engine, 
+			       "plugin-loaders", 
+			       NULL, 
+			       GEDIT_LOADERDIR,
+			       LOADER_EXT,
+			       (LoadDirCallback)load_loader,
+			       NULL);
+		
+		loader_info = (LoaderInfo *)g_hash_table_lookup (
+				engine->priv->loaders, 
+				loader_name);
+	}
 	
-	loader_info = (LoaderInfo *)g_hash_table_lookup (engine->priv->loaders, loader_name);
-	return loader_info ? loader_info->loader : NULL;
+	
+	
+	if (loader_info == NULL)
+	{
+		/* cache non-existent so we don't scan again */
+		add_loader (engine, loader_name, NULL);
+		return NULL;
+	}
+	
+	ensure_loader (loader_info);
+	return loader_info->loader;
 }
 
 GeditPluginsEngine *

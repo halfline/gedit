@@ -60,6 +60,34 @@ gedit_plugin_loader_get_type (void)
 	return type;
 }
 
+const gchar *
+gedit_plugin_loader_type_get_name (GType type)
+{
+	GTypeClass *klass;
+	GeditPluginLoaderInterface *iface;
+	
+	klass = g_type_class_ref (type);
+	
+	if (klass == NULL)
+	{
+		g_warning ("Could not get class info for plugin loader");
+		return NULL;
+	}
+
+	iface = g_type_interface_peek (klass, GEDIT_TYPE_PLUGIN_LOADER);
+	
+	if (iface == NULL)
+	{
+		g_warning ("Could not get plugin loader interface");
+		g_type_class_unref (klass);
+		
+		return NULL;
+	}
+	
+	g_return_val_if_fail (iface->get_name != NULL, NULL);
+	return iface->get_name ();
+}
+
 GeditPlugin *
 gedit_plugin_loader_load (GeditPluginLoader *loader,
 			  GeditPluginInfo   *info,

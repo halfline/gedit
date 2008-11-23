@@ -77,7 +77,9 @@ gedit_object_module_load (GTypeModule *gmodule)
 	g_return_val_if_fail (path != NULL, FALSE);
 	gedit_debug_message (DEBUG_PLUGINS, "Module filename: %s", path);
 
-	module->priv->library = g_module_open (path, 0);
+	module->priv->library = g_module_open (path, 
+					       G_MODULE_BIND_LAZY |
+					       G_MODULE_BIND_LOCAL);
 	g_free (path);
 
 	if (module->priv->library == NULL)

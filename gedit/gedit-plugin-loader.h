@@ -38,17 +38,21 @@ typedef struct _GeditPluginLoaderInterface GeditPluginLoaderInterface;
 struct _GeditPluginLoaderInterface {
 	GTypeInterface parent;
 
-	GeditPlugin *(*load) 	(GeditPluginLoader 	*loader,
-			     	 GeditPluginInfo	*info,
-			      	 const gchar       	*path);
+	const gchar *(*get_name)		(void);
 
-	void (*unload)		(GeditPluginLoader 	*loader,
-				 GeditPluginInfo       	*info);
+	GeditPlugin *(*load) 		(GeditPluginLoader 	*loader,
+			     		 GeditPluginInfo	*info,
+			      		 const gchar       	*path);
 
-	void (*garbage_collect) (GeditPluginLoader	*loader);
+	void 	     (*unload)		(GeditPluginLoader 	*loader,
+					 GeditPluginInfo       	*info);
+
+	void         (*garbage_collect) 	(GeditPluginLoader	*loader);
 };
 
 GType gedit_plugin_loader_get_type (void);
+
+const gchar *gedit_plugin_loader_type_get_name	(GType 			 type);
 GeditPlugin *gedit_plugin_loader_load		(GeditPluginLoader 	*loader,
 						 GeditPluginInfo 	*info,
 						 const gchar		*path);

@@ -31,18 +31,3 @@ libpythonloader_la_LDFLAGS = $(LOADER_LIBTOOL_FLAGS)
 libpythonloader_la_LIBADD = \
 	$(GEDIT_LIBS) 			\
 	$(srcdir)/bindings/gedit.la
-
-loader_in_files = pythonloader.gedit-plugin-loader.desktop.in
-
-%.gedit-plugin-loader: %.gedit-plugin-loader.desktop.in $(INTLTOOL_MERGE) $(wildcard $(top_srcdir)/po/*po) ; $(INTLTOOL_MERGE) $(top_srcdir)/po $< $@ -d -u -c $(top_builddir)/po/.intltool-merge-cache
-
-loader_DATA = $(loader_in_files:.gedit-plugin-loader.desktop.in=.gedit-plugin-loader)
-
-EXTRA_DIST = \
-	$(loader_in_files)
-
-CLEANFILES = \
-	$(loader_DATA)
-
-DISTCLEANFILES = \
-	$(loader_DATA)

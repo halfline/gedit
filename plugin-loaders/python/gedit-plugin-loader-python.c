@@ -2,6 +2,9 @@
 #include "gedit-plugin-python.h"
 #include <gedit/gedit-object-module.h>
 
+#define NO_IMPORT_PYGOBJECT
+#define NO_IMPORT_PYGTK
+
 #include <Python.h>
 #include <pygobject.h>
 #include <pygtk/pygtk.h>
@@ -112,6 +115,12 @@ add_python_info (GeditPluginLoaderPython *loader,
 	g_hash_table_insert (loader->priv->loaded_plugins, info, pyinfo);
 	
 	return new_plugin_from_info (loader, info);
+}
+
+static const gchar *
+gedit_plugin_loader_iface_get_name (void)
+{
+	return "Python";
 }
 
 static GeditPlugin *
@@ -248,6 +257,7 @@ gedit_plugin_loader_iface_init (gpointer g_iface,
 {
 	GeditPluginLoaderInterface *iface = (GeditPluginLoaderInterface *)g_iface;
 	
+	iface->get_name = gedit_plugin_loader_iface_get_name;
 	iface->load = gedit_plugin_loader_iface_load;
 	iface->unload = gedit_plugin_loader_iface_unload;
 	iface->garbage_collect = gedit_plugin_loader_iface_garbage_collect;

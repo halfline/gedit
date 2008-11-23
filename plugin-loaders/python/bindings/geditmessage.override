@@ -35,7 +35,8 @@ _helper_wrap_get_string (PyObject *obj)
 static int
 _helper_wrap_message_types(PyObject *args, gchar ***keys, GType **types, gint *num, gboolean direct)
 {
-    guint len, i, pos;
+    guint len, i;
+    Py_ssize_t pos;
     
     len = PyTuple_Size(args);
 
@@ -180,7 +181,8 @@ _helper_wrap_message_set_value(GeditMessage *message, PyObject *pykey, PyObject 
 static int
 _helper_wrap_message_set_values(GeditMessage *message, PyObject *args)
 {
-    guint len, i;
+    guint len;
+    Py_ssize_t i;
     
     len = PyTuple_Size(args);
 
@@ -218,7 +220,8 @@ _helper_wrap_message_set_values(GeditMessage *message, PyObject *args)
 static GeditMessage *
 _helper_wrap_create_message(PyObject *args)
 {
-    guint len, num;
+    guint len;
+    gint num;
     gchar *domain;
     gchar *name;
     GType *types;
@@ -316,7 +319,7 @@ override gedit_message_set_types args
 static PyObject *
 _wrap_gedit_message_set_types(PyGObject *self, PyObject *args)
 {
-    guint num;
+    gint num;
     GType *types;
     gchar **keys;
 

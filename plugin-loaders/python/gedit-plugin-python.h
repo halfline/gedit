@@ -24,6 +24,8 @@
 #ifndef __GEDIT_PLUGIN_PYTHON_H__
 #define __GEDIT_PLUGIN_PYTHON_H__
 
+#define NO_IMPORT_PYGOBJECT
+
 #include <glib-object.h>
 #include <pygobject.h>
 

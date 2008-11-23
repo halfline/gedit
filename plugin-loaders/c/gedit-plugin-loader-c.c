@@ -12,6 +12,12 @@ static void gedit_plugin_loader_iface_init (gpointer g_iface, gpointer iface_dat
 
 GEDIT_PLUGIN_LOADER_REGISTER_TYPE (GeditPluginLoaderC, gedit_plugin_loader_c);
 
+static const gchar *
+gedit_plugin_loader_iface_get_name (void)
+{
+	return "C";
+}
+
 static GeditPlugin *
 gedit_plugin_loader_iface_load (GeditPluginLoader *loader,
 				GeditPluginInfo   *info,
@@ -71,6 +77,7 @@ gedit_plugin_loader_iface_init (gpointer g_iface,
 {
 	GeditPluginLoaderInterface *iface = (GeditPluginLoaderInterface *)g_iface;
 	
+	iface->get_name = gedit_plugin_loader_iface_get_name;
 	iface->load = gedit_plugin_loader_iface_load;
 	iface->unload = gedit_plugin_loader_iface_unload;
 }

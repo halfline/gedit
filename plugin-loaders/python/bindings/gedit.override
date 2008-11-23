@@ -1,7 +1,6 @@
 %%
 headers
-#define NO_IMPORT_PYGOBJECT
-#include "pygobject.h"
+#include <pygobject.h>
 #include <pygtk/pygtk.h>
 
 #include <gedit/gedit-language-manager.h>
