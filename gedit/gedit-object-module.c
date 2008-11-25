@@ -83,7 +83,7 @@ gedit_object_module_load (GTypeModule *gmodule)
 
 	if (module->priv->library == NULL)
 	{
-		g_warning (g_module_error());
+		g_warning ("%s: %s", module->priv->module_name, g_module_error());
 
 		return FALSE;
 	}
@@ -92,7 +92,7 @@ gedit_object_module_load (GTypeModule *gmodule)
 	if (!g_module_symbol (module->priv->library, module->priv->type_registration,
 			      (void *) &register_func))
 	{
-		g_warning (g_module_error());
+		g_warning ("%s: %s", module->priv->module_name, g_module_error());
 		g_module_close (module->priv->library);
 
 		return FALSE;
