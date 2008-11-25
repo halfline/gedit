@@ -431,6 +431,7 @@ _wrap_gedit_debug(PyObject *self, PyObject *args, PyObject *kwargs)
                                  PyString_AsString (filename),
                                  PyInt_AsLong (lineno),
                                  PyString_AsString (funcname),
+                                 "%s",
                                  message);
     }
     Py_DECREF (traceback);
