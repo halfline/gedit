@@ -438,8 +438,6 @@ load_loader (GeditPluginsEngine *engine,
 	type = gedit_object_module_get_object_type (module);
 	name = gedit_plugin_loader_type_get_name (type);
 	
-	g_message("Name: %s", name);
-	
 	add_loader (engine, name, module);	
 	g_type_module_unuse (G_TYPE_MODULE (module));
 
