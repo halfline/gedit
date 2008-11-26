@@ -151,6 +151,8 @@ void		_gedit_cmd_file_close_tab 		(GeditTab    *tab,
 void		_gedit_cmd_file_save_documents_list	(GeditWindow *window,
 							 GList       *docs);
 
+//void		_gedit_commands_messages_register	(void);
+
 G_END_DECLS
 
 #endif /* __GEDIT_COMMANDS_H__ */ 

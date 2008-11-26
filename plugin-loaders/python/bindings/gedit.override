@@ -61,6 +61,7 @@ _helper_wrap_gobject_gslist (const GSList *list)
 }
 %%
 include
+  geditmessage.override
   geditplugin.override
 %%
 modulename gedit 

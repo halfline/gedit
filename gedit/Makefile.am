@@ -21,7 +21,9 @@ INCLUDES =								\
 	-DGEDIT_ICONDIR=\""$(datadir)/gedit-2/icons"\"
 
 gedit_SOURCES = \
-	gedit.c
+	gedit.c \
+	gedit-message.c \
+	gedit-message-bus.c
 
 gedit_LDADD = libgedit.la $(GEDIT_LIBS)
  
@@ -84,7 +86,9 @@ INST_H_FILES =				\
 	gedit-encodings-option-menu.h	\
 	gedit-file-chooser-dialog.h	\
 	gedit-help.h 			\
+	gedit-message.h			\
 	gedit-message-area.h		\
+	gedit-message-bus.h		\
 	gedit-metadata-manager.h	\
 	gedit-notebook.h		\
 	gedit-panel.h			\

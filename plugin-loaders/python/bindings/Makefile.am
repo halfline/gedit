@@ -33,7 +33,7 @@ gedit_la_CFLAGS = \
 $(top_builddir)/gedit/gedit-enum-types.h:
 	cd $(top_builddir)/gedit && $(MAKE) gedit-enum-types.h
 
-gedit.c: gedit.defs gedit.override geditplugin.override $(top_builddir)/gedit/gedit-enum-types.h
+gedit.c: gedit.defs gedit.override geditplugin.override geditmessage.override $(top_builddir)/gedit/gedit-enum-types.h
 	( cd $(srcdir) && $(PYGTK_CODEGEN) \
 		--register $(PYGTK_DEFSDIR)/pango-types.defs \
 		--register $(PYGTK_DEFSDIR)/gdk-types.defs \

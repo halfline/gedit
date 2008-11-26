@@ -520,6 +520,9 @@ main (int argc, char *argv[])
 		g_warning ("Cannot create the 'gedit' connection.");
 	}
 
+	/* register message bus commands */
+	//_gedit_commands_messages_register ();
+
 	gedit_debug_message (DEBUG_APP, "Set icon");
 	
 	gtk_icon_theme_append_search_path (gtk_icon_theme_get_default (),
