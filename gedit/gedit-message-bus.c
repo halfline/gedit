@@ -8,26 +8,11 @@
 
 typedef struct
 {
-	gchar *domain;
-	gchar *name;
+	gchar *object_path;
+	gchar *method;
 
 	GList *listeners;
 } Message;
-
-typedef struct
-{
-	gchar *key;
-	GType type;
-	gboolean required;
-} PolicyItem;
-
-typedef struct
-{
-	gchar *domain;
-	gchar *name;
-	
-	GList *policies; /* list of PolicyItem */
-} Policy;
 
 typedef struct
 {
@@ -55,13 +40,15 @@ struct _GeditMessageBusPrivate
 
 	guint next_id;
 	
-	GHashTable *policies;
+	GHashTable *types; /* mapping from identifier to GeditMessageType */
 };
 
 /* signals */
 enum
 {
 	DISPATCH,
+	REGISTERED,
+	UNREGISTERED,
 	LAST_SIGNAL
 };
 
@@ -71,28 +58,6 @@ static void gedit_message_bus_dispatch_real (GeditMessageBus *bus,
 				 	     GeditMessage    *message);
 
 G_DEFINE_TYPE(GeditMessageBus, gedit_message_bus, G_TYPE_OBJECT)
-
-static void
-policy_item_free (PolicyItem *pitem)
-{
-	g_free (pitem->key);
-	g_free (pitem);
-}
-
-static void
-policy_free (Policy *policy)
-{
-	GList *item;
-	
-	g_free (policy->domain);
-	g_free (policy->name);
-	
-	for (item = policy->policies; item; item = item->next)
-		policy_item_free ((PolicyItem *)item->data);
-	
-	g_list_free (policy->policies);
-	g_free (policy);
-}
 
 static void
 listener_free (Listener *listener)
@@ -106,8 +71,8 @@ listener_free (Listener *listener)
 static void
 message_free (Message *message)
 {
-	g_free (message->name);
-	g_free (message->domain);
+	g_free (message->method);
+	g_free (message->object_path);
 	
 	g_list_foreach (message->listeners, (GFunc)listener_free, NULL);
 	g_list_free (message->listeners);
@@ -146,6 +111,17 @@ gedit_message_bus_class_init (GeditMessageBusClass *klass)
 	
 	klass->dispatch = gedit_message_bus_dispatch_real;
 
+	/**
+	 * GeditMessageBus::dispatch:
+	 * @bus: a #GeditMessageBus
+	 * @message: the #GeditMessage to dispatch
+	 *
+	 * The "dispatch" signal is emitted when a message is to be dispatched.
+	 * The message is dispatched in the default handler of this signal. 
+	 * Primary use of this signal is to customize the dispatch of a message
+	 * (for instance to automatically dispatch all messages over DBus).
+	 *2
+	 */
 	message_bus_signals[DISPATCH] =
    		g_signal_new ("dispatch",
 			      G_OBJECT_CLASS_TYPE (object_class),
@@ -157,43 +133,79 @@ gedit_message_bus_class_init (GeditMessageBusClass *klass)
 			      1,
 			      GEDIT_TYPE_MESSAGE);
 
-	g_type_class_add_private (object_class, sizeof(GeditMessageBusPrivate));
-}
+	/**
+	 * GeditMessageBus::registered:
+	 * @bus: a #GeditMessageBus
+	 * @object_path: the object path
+	 * @method: the registered method at @object_path
+	 *
+	 * The "registered" signal is emitted when a message has been registered
+	 * on the bus (@method has been registered at @object_path)
+	 *
+	 */
+	message_bus_signals[REGISTERED] =
+   		g_signal_new ("registered",
+			      G_OBJECT_CLASS_TYPE (object_class),
+			      G_SIGNAL_RUN_LAST,
+			      G_STRUCT_OFFSET (GeditMessageBusClass, registered),
+			      NULL, NULL,
+			      g_cclosure_marshal_VOID__BOXED,
+			      G_TYPE_NONE,
+			      1,
+			      GEDIT_TYPE_MESSAGE_TYPE);
 
-inline static gchar *
-msg_identifier (const gchar *domain,
-		const gchar *name)
-{
-	return g_strconcat (domain, "::", name, NULL);
+	/**
+	 * GeditMessageBus::unregistered:
+	 * @bus: a #GeditMessageBus
+	 * @object_path: the object path
+	 * @method: the unregistered method at @object_path
+	 *
+	 * The "unregistered" signal is emitted when a message has been 
+	 * unregistered from the bus (@method has been unregistered from 
+	 * @object_path)
+	 *
+	 */
+	message_bus_signals[UNREGISTERED] =
+   		g_signal_new ("unregistered",
+			      G_OBJECT_CLASS_TYPE (object_class),
+			      G_SIGNAL_RUN_LAST,
+			      G_STRUCT_OFFSET (GeditMessageBusClass, unregistered),
+			      NULL, NULL,
+			      g_cclosure_marshal_VOID__BOXED,
+			      G_TYPE_NONE,
+			      1,
+			      GEDIT_TYPE_MESSAGE_TYPE);
+
+	g_type_class_add_private (object_class, sizeof(GeditMessageBusPrivate));
 }
 
 static Message *
 message_new (GeditMessageBus *bus,
-	     const gchar     *domain,
-	     const gchar     *name)
+	     const gchar     *object_path,
+	     const gchar     *method)
 {
 	Message *message = g_new (Message, 1);
 	
-	message->domain = g_strdup (domain);
-	message->name = g_strdup (name);
+	message->object_path = g_strdup (object_path);
+	message->method = g_strdup (method);
 	message->listeners = NULL;
 
 	g_hash_table_insert (bus->priv->messages, 
-			     msg_identifier (domain, name),
+			     gedit_message_type_identifier (object_path, method),
 			     message);
 	return message;
 }
 
 static Message *
 lookup_message (GeditMessageBus *bus,
-	       const gchar      *domain,
-	       const gchar      *name,
+	       const gchar      *object_path,
+	       const gchar      *method,
 	       gboolean          create)
 {
 	gchar *identifier;
 	Message *message;
 	
-	identifier = msg_identifier (domain, name);
+	identifier = gedit_message_type_identifier (object_path, method);
 	message = (Message *)g_hash_table_lookup (bus->priv->messages, identifier);
 	g_free (identifier);
 
@@ -201,7 +213,7 @@ lookup_message (GeditMessageBus *bus,
 		return NULL;
 	
 	if (!message)
-		message = message_new (bus, domain, name);
+		message = message_new (bus, object_path, method);
 	
 	return message;
 }
@@ -298,14 +310,14 @@ static void
 gedit_message_bus_dispatch_real (GeditMessageBus *bus,
 				 GeditMessage    *message)
 {
-	const gchar *domain;
-	const gchar *name;
+	const gchar *object_path;
+	const gchar *method;
 	Message *msg;
 	
-	domain = gedit_message_get_domain (message);
-	name = gedit_message_get_name (message);
+	object_path = gedit_message_get_object_path (message);
+	method = gedit_message_get_method (message);
 
-	msg = lookup_message (bus, domain, name, FALSE);
+	msg = lookup_message (bus, object_path, method, FALSE);
 	
 	if (msg)
 		dispatch_message_real (bus, msg, message);
@@ -365,8 +377,8 @@ process_by_id (GeditMessageBus  *bus,
 
 static void
 process_by_match (GeditMessageBus      *bus,
-	          const gchar          *domain,
-	          const gchar          *name,
+	          const gchar          *object_path,
+	          const gchar          *method,
 	          GeditMessageCallback  callback,
 	          gpointer              userdata,
 	          MatchCallback         processor)
@@ -374,11 +386,11 @@ process_by_match (GeditMessageBus      *bus,
 	Message *message;
 	GList *item;
 	
-	message = lookup_message (bus, domain, name, FALSE);
+	message = lookup_message (bus, object_path, method, FALSE);
 	
 	if (!message)
 	{
-		g_warning ("No such handler registered for %s::%s", domain, name);
+		g_warning ("No such handler registered for %s.%s", object_path, method);
 		return;
 	}
 	
@@ -394,7 +406,7 @@ process_by_match (GeditMessageBus      *bus,
 		}
 	}
 	
-	g_warning ("No such handler registered for %s::%s", domain, name);
+	g_warning ("No such handler registered for %s.%s", object_path, method);
 }
 
 static void
@@ -412,12 +424,20 @@ gedit_message_bus_init (GeditMessageBus *self)
 	 					   NULL,
 	 					   (GDestroyNotify)g_free);
 	 					   
-	self->priv->policies = g_hash_table_new_full (g_str_hash,
-						      g_str_equal,
-						      (GDestroyNotify)g_free,
-						      (GDestroyNotify)policy_free);
+	self->priv->types = g_hash_table_new_full (g_str_hash,
+						   g_str_equal,
+						   (GDestroyNotify)g_free,
+						   (GDestroyNotify)gedit_message_type_unref);
 }
 
+/**
+ * gedit_message_bus_get_default:
+ *
+ * Get the default application #GeditMessageBus
+ *
+ * Return value: the default #GeditMessageBus
+ *
+ */
 GeditMessageBus *
 gedit_message_bus_get_default (void)
 {
@@ -433,112 +453,239 @@ gedit_message_bus_get_default (void)
 	return default_bus;
 }
 
-void
+/**
+ * gedit_message_bus_new:
+ * 
+ * Create a new message bus. Use #gedit_message_bus_get_default to get the
+ * default, application wide, message bus. Creating a new bus is useful for
+ * associating a specific bus with for instance a #GeditWindow
+ *
+ * Return value: a new #GeditMessageBus
+ *
+ */
+GeditMessageBus *
+gedit_message_bus_new (void)
+{
+	return GEDIT_MESSAGE_BUS (g_object_new (GEDIT_TYPE_MESSAGE_BUS, NULL));
+}
+
+/**
+ * gedit_message_bus_lookup:
+ * @bus: a #GeditMessageBus
+ * @object_path: the object path
+ * @method: the method
+ *
+ * Get the registered #GeditMessageType for @method at @object_path. The 
+ * returned #GeditMessageType is owned by the bus and should not be unreffed.
+ *
+ * Return value: the registered #GeditMessageType or %NULL if no message type
+ *               is registered for @method at @object_path
+ *
+ */
+GeditMessageType *
+gedit_message_bus_lookup (GeditMessageBus *bus,
+			  const gchar	  *object_path,
+			  const gchar	  *method)
+{
+	gchar *identifier;
+	
+	g_return_val_if_fail (GEDIT_IS_MESSAGE_BUS (bus), NULL);
+	g_return_val_if_fail (object_path != NULL, NULL);
+	g_return_val_if_fail (method != NULL, NULL);
+
+	identifier = gedit_message_type_identifier (object_path, method);
+	return g_hash_table_lookup (bus->priv->types, identifier);
+}
+
+/**
+ * gedit_message_bus_register:
+ * @bus: a #GeditMessageBus
+ * @object_path: the object path
+ * @method: the method to register
+ * @num_optional: the number of optional arguments
+ * @...: NULL terminated list of key/gtype method argument pairs
+ *
+ * Register a message on the bus. A message must be registered on the bus before
+ * it can be send. This function registers the type arguments for @method at 
+ * @object_path. The arguments are specified with @... which should contain
+ * pairs of const gchar *key and GType terminated by NULL. The last 
+ * @num_optional arguments are registered as optional (and are thus not
+ * required when sending a message).
+ *
+ * This function emits a #GeditMessageBus::registered signal
+ *
+ * Return value: the registered #GeditMessageType. The returned reference is
+ *               owned by the bus. If you want to keep it alive after
+ *               unregistering, use #gedit_message_type_ref
+ *
+ */
+GeditMessageType *
 gedit_message_bus_register (GeditMessageBus *bus,
-			    const gchar     *domain,
-			    const gchar	    *name,
+			    const gchar     *object_path,
+			    const gchar	    *method,
 			    guint	     num_optional,
 			    ...)
 {
 	gchar *identifier;
 	gpointer data;
-	Policy *policy;
 	va_list var_args;
-	const gchar *key;
-	GList *item;
+	GeditMessageType *message_type;
+
+	g_return_val_if_fail (GEDIT_IS_MESSAGE_BUS (bus), NULL);
 	
-	g_return_if_fail (GEDIT_IS_MESSAGE_BUS (bus));
-	
-	identifier = msg_identifier (domain, name);
-	data = g_hash_table_lookup (bus->priv->policies, identifier);
-	
-	if (data != NULL)
+	if (gedit_message_bus_is_registered (bus, object_path, method))
 	{
-		/* policy is already registered */
-		g_free (identifier);
-		return;
+		g_warning ("Message type for '%s.%s' is already registered", object_path, method);
+		return NULL;
 	}
+
+	identifier = gedit_message_type_identifier (object_path, method);
+	data = g_hash_table_lookup (bus->priv->types, identifier);
 	
-	policy = g_new(Policy, 1);
-	policy->domain = g_strdup (domain);
-	policy->name = g_strdup (name);
-	policy->policies = NULL;
-	
-	/* construct policy items */
 	va_start (var_args, num_optional);
-
-	/* read in required items */
-	while ((key = va_arg (var_args, const gchar *)) != NULL)
-	{
-		GType gtype;
-		PolicyItem *pitem;
-		
-		gtype = va_arg (var_args, GType);
-		
-		if (!_gedit_message_gtype_supported (gtype))
-		{
-			g_warning ("Type `%s' is not supported on the message bus",
-				   g_type_name (gtype));
-			continue;
-		}
-		
-		pitem = g_new(PolicyItem, 1);
-		pitem->key = g_strdup (key);
-		pitem->type = gtype;
-
-		policy->policies = g_list_prepend (policy->policies, pitem);
-	}
+	message_type = gedit_message_type_new_valist (object_path, 
+						      method,
+						      num_optional,
+						      var_args);
+	va_end (var_args);
 	
-	for (item = policy->policies; num_optional-- > 0 && item; item = item->next)
-		((PolicyItem *)item->data)->required = FALSE;
+	if (message_type)
+		g_hash_table_insert (bus->priv->types, identifier, message_type);
+	else
+		g_free (identifier);
 	
-	policy->policies = g_list_reverse (policy->policies);
-	g_hash_table_insert (bus->priv->policies, identifier, policy);
+	g_signal_emit (bus, message_bus_signals[REGISTERED], 0, message_type);
+	return message_type;	
 }
 
+/**
+ * gedit_message_bus_unregister:
+ * @bus: a #GeditMessageBus
+ * @message_type: the #GeditMessageType to unregister
+ *
+ * Unregisters a previously registered message type. This is especially useful 
+ * for plugins which should unregister message types when they are deactivated.
+ *
+ * This function emits the #GeditMessageBus::unregistered signal
+ *
+ */
 void
-gedit_message_bus_unregister (GeditMessageBus *bus,
-			      const gchar     *domain,
-			      const gchar     *name)
+gedit_message_bus_unregister (GeditMessageBus  *bus,
+			      GeditMessageType *message_type)
 {
 	gchar *identifier;
 	
 	g_return_if_fail (GEDIT_IS_MESSAGE_BUS (bus));
 
-	identifier = msg_identifier (domain, name);
-	g_hash_table_remove (bus->priv->policies, name);
+	identifier = gedit_message_type_identifier (gedit_message_type_get_object_path (message_type), 
+						    gedit_message_type_get_method (message_type));
+	
+	// Keep message type alive for signal emission
+	gedit_message_type_ref (message_type);
+
+	if (g_hash_table_remove (bus->priv->types, identifier))
+		g_signal_emit (bus, message_bus_signals[UNREGISTERED], 0, message_type);
+	
+	gedit_message_type_unref (message_type);
 	g_free (identifier);
 }
 
-void
-gedit_message_bus_unregister_all (GeditMessageBus *bus,
-			          const gchar     *domain)
+typedef struct 
 {
-	GList *pols;
-	GList *item;
-	g_return_if_fail (GEDIT_IS_MESSAGE_BUS (bus));
+	GeditMessageBus *bus;
+	const gchar *object_path;
+} UnregisterInfo;
 
-	pols = g_hash_table_get_values (bus->priv->policies);
-	
-	for (item = pols; item; item = item->next)
-	{
-		Policy *policy = (Policy *)item->data;
-		
-		if (strcmp (policy->domain, domain) == 0)
-		{
-			gchar *identifier = msg_identifier (policy->domain, policy->name);
-			g_hash_table_remove (bus->priv->policies, identifier);
-			g_free (identifier);
-		}
+static void
+unregister_each (const gchar      *identifier,
+		 GeditMessageType *message_type,
+		 UnregisterInfo   *info)
+{
+	if (strcmp (gedit_message_type_get_object_path (message_type),
+		    info->object_path) == 0)
+	{	
+		gedit_message_bus_unregister (info->bus, message_type);
 	}
-	
-	g_list_free (pols);
 }
 
+/**
+ * gedit_message_bus_unregister_all:
+ * @bus: a #GeditMessageBus
+ * @object_path: the object path
+ *
+ * Unregisters all message types for @object_path. This is especially useful for
+ * plugins which should unregister message types when they are deactivated.
+ *
+ * This function emits the #GeditMessageBus::unregistered signal for all
+ * unregistered message types
+ *
+ */
+void
+gedit_message_bus_unregister_all (GeditMessageBus *bus,
+			          const gchar     *object_path)
+{
+	UnregisterInfo info = {bus, object_path};
+
+	g_return_if_fail (GEDIT_IS_MESSAGE_BUS (bus));
+	g_return_if_fail (object_path != NULL);
+
+	g_hash_table_foreach (bus->priv->types, 
+			      (GHFunc)unregister_each,
+			      &info);
+}
+
+/**
+ * gedit_message_bus_is_registered:
+ * @bus: a #GeditMessageBus
+ * @object_path: the object path
+ * @method: the method
+ *
+ * Check whether a message type @method at @object_path is registered on the 
+ * bus
+ *
+ * Return value: %TRUE if the @method at @object_path is a registered message 
+ *               type on the bus
+ *
+ */
+gboolean
+gedit_message_bus_is_registered (GeditMessageBus	*bus,
+				 const gchar	*object_path,
+				 const gchar	*method)
+{
+	gchar *identifier;
+	gboolean ret;
+	
+	g_return_val_if_fail (GEDIT_IS_MESSAGE_BUS (bus), FALSE);
+	g_return_val_if_fail (object_path != NULL, FALSE);
+	g_return_val_if_fail (method != NULL, FALSE);
+
+	identifier = gedit_message_type_identifier (object_path, method);
+	ret = g_hash_table_lookup (bus->priv->types, identifier) != NULL;
+	
+	g_free(identifier);
+	return ret;
+}
+
+/**
+ * gedit_message_bus_connect:
+ * @bus: a #GeditMessageBus
+ * @object_path: the object path
+ * @method: the method
+ * @callback: function to be called when message @method at @object_path is sent
+ * @userdata: userdata to use for the callback
+ * @destroy_data: function to evoke with @userdata as argument when @userdata
+ *                needs to be freed
+ *
+ * Connect a callback handler to be evoked when message @method at @object_path
+ * is sent over the bus.
+ *
+ * Return value: the callback identifier
+ *
+ */
 guint
 gedit_message_bus_connect (GeditMessageBus	*bus, 
-		           const gchar		*domain,
-		           const gchar		*name,
+		           const gchar		*object_path,
+		           const gchar		*method,
 		           GeditMessageCallback  callback,
 		           gpointer		 userdata,
 		           GDestroyNotify	 destroy_data)
@@ -546,16 +693,24 @@ gedit_message_bus_connect (GeditMessageBus	*bus,
 	Message *message;
 
 	g_return_val_if_fail (GEDIT_IS_MESSAGE_BUS (bus), 0);
-	g_return_val_if_fail (domain != NULL, 0);
-	g_return_val_if_fail (name != NULL, 0);
+	g_return_val_if_fail (object_path != NULL, 0);
+	g_return_val_if_fail (method != NULL, 0);
 	g_return_val_if_fail (callback != NULL, 0);
 	
 	/* lookup the message and create if it does not exist yet */
-	message = lookup_message (bus, domain, name, TRUE);
+	message = lookup_message (bus, object_path, method, TRUE);
 	
 	return add_listener (bus, message, callback, userdata, destroy_data);
 }
 
+/**
+ * gedit_message_bus_disconnect:
+ * @bus: a #GeditMessageBus
+ * @id: the callback id as returned by #gedit_message_bus_connect
+ *
+ * Disconnects a previously connected message callback
+ *
+ */
 void
 gedit_message_bus_disconnect (GeditMessageBus *bus,
 			      guint            id)
@@ -565,18 +720,40 @@ gedit_message_bus_disconnect (GeditMessageBus *bus,
 	process_by_id (bus, id, remove_listener);
 }
 
+/**
+ * gedit_message_bus_disconnect_by_func:
+ * @bus: a #GeditMessageBus
+ * @object_path: the object path
+ * @method: the method
+ * @callback: the connected callback
+ * @userdata: the userdata with which the callback was connected
+ *
+ * Disconnects a previously connected message callback by matching the 
+ * provided callback function and userdata. See also 
+ * #gedit_message_bus_disconnect
+ *
+ */
 void
 gedit_message_bus_disconnect_by_func (GeditMessageBus      *bus,
-				      const gchar	   *domain,
-				      const gchar	   *name,
+				      const gchar	   *object_path,
+				      const gchar	   *method,
 				      GeditMessageCallback  callback,
 				      gpointer		    userdata)
 {
 	g_return_if_fail (GEDIT_IS_MESSAGE_BUS (bus));
 	
-	process_by_match (bus, domain, name, callback, userdata, remove_listener);
+	process_by_match (bus, object_path, method, callback, userdata, remove_listener);
 }
 
+/**
+ * gedit_message_bus_block:
+ * @bus: a #GeditMessageBus
+ * @id: the callback id
+ *
+ * Blocks evoking the callback specified by @id. Unblock the callback by
+ * using #gedit_message_bus_unblock
+ *
+ */
 void
 gedit_message_bus_block (GeditMessageBus *bus,
 			 guint		  id)
@@ -586,18 +763,38 @@ gedit_message_bus_block (GeditMessageBus *bus,
 	process_by_id (bus, id, block_listener);
 }
 
+/**
+ * gedit_message_bus_block_by_func:
+ * @bus: a #GeditMessageBus
+ * @object_path: the object path
+ * @method: the method
+ * @callback: the callback to block
+ * @userdata: the userdata with which the callback was connected
+ *
+ * Blocks evoking the callback that matches provided @callback and @userdata.
+ * Unblock the callback using #gedit_message_unblock_by_func
+ *
+ */
 void
 gedit_message_bus_block_by_func (GeditMessageBus      *bus,
-				 const gchar	      *domain,
-				 const gchar	      *name,
+				 const gchar	      *object_path,
+				 const gchar	      *method,
 				 GeditMessageCallback  callback,
 				 gpointer	       userdata)
 {
 	g_return_if_fail (GEDIT_IS_MESSAGE_BUS (bus));
 	
-	process_by_match (bus, domain, name, callback, userdata, block_listener);
+	process_by_match (bus, object_path, method, callback, userdata, block_listener);
 }
 
+/**
+ * gedit_message_bus_unblock:
+ * @bus: a #GeditMessageBus
+ * @id: the callback id
+ *
+ * Unblocks the callback specified by @id
+ *
+ */
 void
 gedit_message_bus_unblock (GeditMessageBus *bus,
 			   guint	    id)
@@ -607,81 +804,50 @@ gedit_message_bus_unblock (GeditMessageBus *bus,
 	process_by_id (bus, id, unblock_listener);
 }
 
+/**
+ * gedit_message_bus_unblock_by_func:
+ * @bus: a #GeditMessageBus
+ * @object_path: the object path
+ * @method: the method
+ * @callback: the callback to block
+ * @userdata: the userdata with which the callback was connected
+ *
+ * Unblocks the callback that matches provided @callback and @userdata
+ *
+ */
 void
 gedit_message_bus_unblock_by_func (GeditMessageBus      *bus,
-				   const gchar	        *domain,
-				   const gchar	        *name,
+				   const gchar	        *object_path,
+				   const gchar	        *method,
 				   GeditMessageCallback  callback,
 				   gpointer	         userdata)
 {
 	g_return_if_fail (GEDIT_IS_MESSAGE_BUS (bus));
 	
-	process_by_match (bus, domain, name, callback, userdata, unblock_listener);
+	process_by_match (bus, object_path, method, callback, userdata, unblock_listener);
 }
 
 static gboolean
-check_message_policy (GeditMessageBus *bus,
-		      GeditMessage    *message)
+validate_message (GeditMessage *message)
 {
-	const gchar *domain = gedit_message_get_domain (message);
-	const gchar *name = gedit_message_get_name (message);
-	
-	gchar *identifier = msg_identifier (domain, name);
-	Policy *policy = (Policy *)g_hash_table_lookup (bus->priv->policies, identifier);
-	PolicyItem *pitem;
-	GList *item;
-	
-	g_free (identifier);
-
-	if (policy == NULL)
+	if (!gedit_message_validate (message))
 	{
-		g_warning ("Policy for '%s::%s' could not be found", domain, name);
+		g_warning ("Message '%s.%s' is invalid", gedit_message_get_object_path (message),
+							 gedit_message_get_method (message));
 		return FALSE;
-	}
-	
-	/* check all required and optional arguments */
-	for (item = policy->policies; item; item = item->next)
-	{
-		GType gtype;
-		gboolean haskey;
-		
-		pitem = (PolicyItem *)item->data;
-		
-		/* check if key exists */
-		haskey = gedit_message_has_key (message, pitem->key);
-		
-		if (pitem->required && !haskey)
-		{
-			g_warning ("Required key %s not found for %s::%s", pitem->key, domain, name);
-			return FALSE;
-		}
-		else if (!haskey && !pitem->required)
-		{
-			continue;
-		}
-		
-		gtype = gedit_message_get_key_type (message, pitem->key);
-		
-		if (!g_type_is_a (pitem->type, gtype) && 
-		    !g_value_type_transformable (pitem->type, gtype))
-		{
-			g_warning ("Invalid key type for %s::%s, expected %s, got %s", domain, name, g_type_name (pitem->type), g_type_name (gtype));
-			return FALSE;
-		}
 	}
 	
 	return TRUE;
 }
 
-void
-gedit_message_bus_send_message (GeditMessageBus *bus,
-			        GeditMessage    *message)
+static void
+send_message_real (GeditMessageBus *bus,
+		   GeditMessage    *message)
 {
-	g_return_if_fail (GEDIT_IS_MESSAGE_BUS (bus));
-	g_return_if_fail (GEDIT_IS_MESSAGE (message));
-	
-	if (!check_message_policy (bus, message))
+	if (!validate_message (message))
+	{
 		return;
+	}
 	
 	bus->priv->message_queue = g_list_prepend (bus->priv->message_queue, 
 						   g_object_ref (message));
@@ -693,249 +859,153 @@ gedit_message_bus_send_message (GeditMessageBus *bus,
 						      NULL);
 }
 
+/**
+ * gedit_message_bus_send_message:
+ * @bus: a #GeditMessageBus
+ * @message: the message to send
+ *
+ * This sends the provided @message asynchronously over the bus. To send
+ * a message synchronously, use #gedit_message_bus_send_message_sync. The 
+ * convenience function #gedit_message_bus_send can be used to easily send
+ * a message without constructing the message object explicitly first.
+ *
+ */
+void
+gedit_message_bus_send_message (GeditMessageBus *bus,
+			        GeditMessage    *message)
+{
+	g_return_if_fail (GEDIT_IS_MESSAGE_BUS (bus));
+	g_return_if_fail (GEDIT_IS_MESSAGE (message));
+	
+	send_message_real (bus, message);
+}
+
+static void
+send_message_sync_real (GeditMessageBus *bus,
+                        GeditMessage    *message)
+{
+	if (!validate_message (message))
+	{
+		return;
+	}
+	
+	dispatch_message (bus, message);
+}
+
+/**
+ * gedit_message_bus_send_message:
+ * @bus: a #GeditMessageBus
+ * @message: the message to send
+ *
+ * This sends the provided @message synchronously over the bus. To send
+ * a message asynchronously, use #gedit_message_bus_send_message. The 
+ * convenience function #gedit_message_bus_send_sync can be used to easily send
+ * a message without constructing the message object explicitly first.
+ *
+ */
 void
 gedit_message_bus_send_message_sync (GeditMessageBus *bus,
 			             GeditMessage    *message)
 {
 	g_return_if_fail (GEDIT_IS_MESSAGE_BUS (bus));
 	g_return_if_fail (GEDIT_IS_MESSAGE (message));
-	
-	if (!check_message_policy (bus, message))
-		return;
 
-	dispatch_message (bus, message);
-}
-
-static GType
-policy_find_type (Policy      *policy, 
-		  const gchar *key)
-{
-	GList *item;
-	
-	for (item = policy->policies; item; item = item->next)
-	{
-		PolicyItem *pitem = (PolicyItem *)item->data;
-		
-		if (strcmp (pitem->key, key) == 0)
-			return pitem->type;
-	}
-	
-	return 0;
+	send_message_sync_real (bus, message);	
 }
 
 static GeditMessage *
 create_message (GeditMessageBus *bus,
-		const gchar     *domain,
-		const gchar     *name,
+		const gchar     *object_path,
+		const gchar     *method,
 		va_list          var_args)
 {
-	const gchar **keys = NULL;
-	GType *types = NULL;
-	GValue *values = NULL;
-	gint num = 0;
-	const gchar *key;
-	gchar *identifier;
-	GeditMessage *message;
-	Policy *policy;
-	gint i;
+	GeditMessageType *message_type;
 	
-	identifier = msg_identifier (domain, name);
-	policy = g_hash_table_lookup (bus->priv->policies, identifier);
-	g_free (identifier);
+	message_type = gedit_message_bus_lookup (bus, object_path, method);
 	
-	if (policy == NULL)
+	if (!message_type)
 	{
-		g_warning ("Policy for %s::%s not found", domain, name);
+		g_warning ("Could not find message type for '%s.%s'", object_path, method);
 		return NULL;
 	}
-	
-	while ((key = va_arg (var_args, const gchar *)) != NULL)
-	{
-		gchar *error = NULL;
-		GType gtype;
-		GValue value = {0,};
-		
-		gtype = policy_find_type (policy, key);
-		
-		if (!gtype)
-		{
-			g_warning ("Key %s not registered in policy for %s::%s", key, domain, name);
-			return NULL;
-		}
-		
-		g_value_init (&value, gtype);
-		G_VALUE_COLLECT (&value, var_args, 0, &error);
-		
-		if (error)
-		{
-			g_warning ("%s: %s", G_STRLOC, error);
-			g_free (error);
-			
-			/* leak value, might have gone bad */
-			continue;
-		}
-		
-		num++;
-		
-		keys = g_realloc (keys, sizeof(gchar *) * num);
-		types = g_realloc (types, sizeof(GType) * num);
-		values = g_realloc (values, sizeof(GValue) * num);
-		
-		keys[num - 1] = key;
-		types[num - 1] = gtype;
-		
-		memset (&values[num - 1], 0, sizeof(GValue));
-		g_value_init (&values[num - 1], types[num - 1]);
-		g_value_copy (&value, &values[num - 1]);
-		
-		g_value_unset (&value);
-	}
-		
-	message = gedit_message_new (domain, name, NULL);
-	gedit_message_set_types (message, keys, types, num);
-	gedit_message_set_valuesv (message, keys, values, num);
-	
-	g_free (keys);
-	g_free (types);
-	
-	for (i = 0; i < num; i++)
-		g_value_unset (&values[i]);
 
-	g_free (values);
-	
-	return message;
+	return gedit_message_type_instantiate_valist (message_type, 
+						      var_args);
 }
 
+/**
+ * gedit_message_bus_send:
+ * @bus: a #GeditMessageBus
+ * @object_path: the object path
+ * @method: the method
+ * @...: NULL terminated list of key/value pairs
+ *
+ * This provides a convenient way to quickly send a message @method at 
+ * @object_path asynchronously over the bus. @... specifies key (string) value 
+ * pairs used to construct the message arguments. To send a message 
+ * synchronously use #gedit_message_bus_send_sync
+ *
+ */
 void
 gedit_message_bus_send (GeditMessageBus *bus,
-			const gchar     *domain,
-			const gchar     *name,
+			const gchar     *object_path,
+			const gchar     *method,
 			...)
 {
 	va_list var_args;
 	GeditMessage *message;
 	
-	va_start (var_args, name);
+	va_start (var_args, method);
 
-	message = create_message (bus, domain, name, var_args);
+	message = create_message (bus, object_path, method, var_args);
 	
 	if (message)
 	{
-		gedit_message_bus_send_message (bus, message);
+		send_message_real (bus, message);
 		g_object_unref (message);
+	}
+	else
+	{
+		g_warning ("Could not instantiate message");
 	}
 
 	va_end (var_args);
 }
 
+/**
+ * gedit_message_bus_send_sync:
+ * @bus: a #GeditMessageBus
+ * @object_path: the object path
+ * @method: the method
+ * @...: NULL terminated list of key/value pairs
+ *
+ * This provides a convenient way to quickly send a message @method at 
+ * @object_path synchronously over the bus. @... specifies key (string) value 
+ * pairs used to construct the message arguments. To send a message 
+ * asynchronously use #gedit_message_bus_send
+ *
+ * Return value: the constructed #GeditMessage. The caller owns a reference
+ *               to the #GeditMessage and should call g_object_unref when
+ *               it is no longer needed.
+ */
 GeditMessage *
 gedit_message_bus_send_sync (GeditMessageBus *bus,
-			     const gchar     *domain,
-			     const gchar     *name,
+			     const gchar     *object_path,
+			     const gchar     *method,
 			     ...)
 {
 	va_list var_args;
 	GeditMessage *message;
 	
-	va_start (var_args, name);
-	message = create_message (bus, domain, name, var_args);
+	va_start (var_args, method);
+	message = create_message (bus, object_path, method, var_args);
 	
 	if (message)
-		gedit_message_bus_send_message_sync (bus, message);
+		send_message_sync_real (bus, message);
 
 	va_end (var_args);
 	
 	return message;
 }
 
-typedef struct
-{
-	gchar *domain;
-	gchar *name;
-	GeditMessageBus *bus;
-} PropertyProxy;
-
-static void
-property_proxy_message (GObject         *object,
-			GParamSpec      *spec,
-			PropertyProxy   *proxy)
-{
-	GeditMessage *message;
-	GValue value = {0,};
-	
-	message = gedit_message_new (proxy->domain,
-				     proxy->name,
-				     spec->name, spec->value_type,
-				     NULL);
-
-	g_value_init (&value, spec->value_type);
-	g_object_get_property (object, spec->name, &value);
-	gedit_message_set_value (message, spec->name, &value);
-	    
-	gedit_message_bus_send_message (proxy->bus, message);
-
-	g_object_unref (message);
-	g_value_unset (&value);
-}
-
-static PropertyProxy *
-property_proxy_new (GeditMessageBus *bus,
-		    const gchar     *domain,
-		    const gchar     *name)
-{
-	PropertyProxy *proxy;
-	
-	proxy = g_new (PropertyProxy, 1);
-	proxy->domain = g_strdup (domain);
-	proxy->name = g_strdup (name);
-	proxy->bus = bus;
-	
-	return proxy;
-}
-
-static void
-property_proxy_free (PropertyProxy *proxy,
-		     GClosure      *closure)
-{
-	g_free (proxy->domain);
-	g_free (proxy->name);
-	g_free (proxy);
-}
-
-void 
-gedit_message_bus_proxy_property (GeditMessageBus *bus,
-				  const gchar     *domain,
-				  const gchar     *name,
-				  GObject	  *object,
-				  const gchar 	  *property)
-{
-	GParamSpec *spec;
-	gchar *detailed;
-	
-	spec = g_object_class_find_property (G_OBJECT_GET_CLASS (object), 
-					     property);
-
-	if (!spec)
-	{
-		g_warning ("Could not connect proxy because property `%s' does not exist for %s", 
-			   property,
-			   g_type_name (G_OBJECT_TYPE (object)));
-		return;
-	}
-	
-	if (!_gedit_message_gtype_supported (spec->value_type))
-	{
-		g_warning ("Type of property `%s' is not supported on the message bus",
-			   g_type_name (spec->value_type));
-		return;
-	}
-	
-	detailed = g_strconcat ("notify::", property, NULL);
-	g_signal_connect_data (object, 
-			       detailed, 
-			       G_CALLBACK (property_proxy_message), 
-			       property_proxy_new (bus, domain, name),
-			       (GClosureNotify)property_proxy_free,
-			       0);
-	g_free (detailed);
-}
+// ex:ts=8:noet:

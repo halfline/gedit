@@ -46,7 +46,9 @@ struct _GeditWindowPrivate
 	GtkWidget      *bottom_panel;
 
 	GtkWidget      *hpaned;
-	GtkWidget      *vpaned;	
+	GtkWidget      *vpaned;
+	
+	GeditMessageBus *message_bus;
 
 	/* statusbar and context ids for statusbar messages */
 	GtkWidget      *statusbar;	

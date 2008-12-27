@@ -3,6 +3,7 @@
 
 #include <glib-object.h>
 #include <gedit/gedit-message.h>
+#include <gedit/gedit-message-type.h>
 
 G_BEGIN_DECLS
 
@@ -27,36 +28,49 @@ struct _GeditMessageBus {
 struct _GeditMessageBusClass {
 	GObjectClass parent_class;
 	
-	void (*dispatch)	(GeditMessageBus *bus,
-				 GeditMessage    *message);
+	void (*dispatch)			(GeditMessageBus  *bus,
+					 GeditMessage     *message);
+	void (*registered)		(GeditMessageBus  *bus,
+					 GeditMessageType *message_type);
+	void (*unregistered)		(GeditMessageBus  *bus,
+					 GeditMessageType *message_type);
 };
 
-typedef void (* GeditMessageCallback) 	(GeditMessageBus	*bus,
-					 GeditMessage		*message,
-					 gpointer		 userdata);
+typedef void (* GeditMessageCallback) 	(GeditMessageBus	 *bus,
+					 GeditMessage	 *message,
+					 gpointer	  userdata);
 
 GType gedit_message_bus_get_type (void) G_GNUC_CONST;
 
-GeditMessageBus *gedit_message_bus_get_default 	  (void);
+GeditMessageBus *gedit_message_bus_get_default	(void);
+GeditMessageBus *gedit_message_bus_new		(void);
 
 /* registering messages */
-void gedit_message_bus_register    	  (GeditMessageBus	*bus,
-					   const gchar 		*domain,
-					   const gchar		*name,
-					   guint		 num_optional,
-					   ...) G_GNUC_NULL_TERMINATED;
+GeditMessageType *gedit_message_bus_lookup	(GeditMessageBus 	*bus,
+						 const gchar		*object_path,
+						 const gchar		*method);
+GeditMessageType *gedit_message_bus_register	(GeditMessageBus		*bus,
+					   	 const gchar 		*object_path,
+					  	 const gchar		*method,
+					  	 guint		 	 num_optional,
+					  	 ...) G_GNUC_NULL_TERMINATED;
 
 void gedit_message_bus_unregister	  (GeditMessageBus	*bus,
-					   const gchar 		*domain,
-					   const gchar		*name);
+					   GeditMessageType	*message_type);
 
 void gedit_message_bus_unregister_all	  (GeditMessageBus	*bus,
-					   const gchar		*domain);
+					   const gchar		*object_path);
+
+gboolean gedit_message_bus_is_registered	  (GeditMessageBus	*bus,
+					   const gchar		*object_path,
+					   const gchar		*method);
+
+
 
 /* connecting to message events */		   
 guint gedit_message_bus_connect	 	  (GeditMessageBus	*bus, 
-					   const gchar		*domain,
-					   const gchar		*name,
+					   const gchar		*object_path,
+					   const gchar		*method,
 					   GeditMessageCallback	 callback,
 					   gpointer		 userdata,
 					   GDestroyNotify        destroy_data);
@@ -65,8 +79,8 @@ void gedit_message_bus_disconnect	  (GeditMessageBus	*bus,
 					   guint		 id);
 
 void gedit_message_bus_disconnect_by_func (GeditMessageBus	*bus,
-					   const gchar		*domain,
-					   const gchar		*name,
+					   const gchar		*object_path,
+					   const gchar		*method,
 					   GeditMessageCallback	 callback,
 					   gpointer		 userdata);
 
@@ -74,42 +88,36 @@ void gedit_message_bus_disconnect_by_func (GeditMessageBus	*bus,
 void gedit_message_bus_block		  (GeditMessageBus	*bus,
 					   guint		 id);
 void gedit_message_bus_block_by_func	  (GeditMessageBus	*bus,
-					   const gchar		*domain,
-					   const gchar		*name,
+					   const gchar		*object_path,
+					   const gchar		*method,
 					   GeditMessageCallback	 callback,
 					   gpointer		 userdata);
 
 void gedit_message_bus_unblock		  (GeditMessageBus	*bus,
 					   guint		 id);
 void gedit_message_bus_unblock_by_func	  (GeditMessageBus	*bus,
-					   const gchar		*domain,
-					   const gchar		*name,
+					   const gchar		*object_path,
+					   const gchar		*method,
 					   GeditMessageCallback	 callback,
 					   gpointer		 userdata);
 
 /* sending messages */
 void gedit_message_bus_send_message	  (GeditMessageBus	*bus,
 					   GeditMessage		*message);
-
 void gedit_message_bus_send_message_sync  (GeditMessageBus	*bus,
 					   GeditMessage		*message);
 					  
 void gedit_message_bus_send		  (GeditMessageBus	*bus,
-					   const gchar		*domain,
-					   const gchar		*name,
+					   const gchar		*object_path,
+					   const gchar		*method,
 					   ...) G_GNUC_NULL_TERMINATED;
 GeditMessage *gedit_message_bus_send_sync (GeditMessageBus	*bus,
-					   const gchar		*domain,
-					   const gchar		*name,
+					   const gchar		*object_path,
+					   const gchar		*method,
 					   ...) G_GNUC_NULL_TERMINATED;
-
-/* automatic property proxy over the bus */
-void gedit_message_bus_proxy_property	  (GeditMessageBus 	*bus,
-					   const gchar          *domain,
-					   const gchar          *name,
-					   GObject		*object,
-					   const gchar 		*property);
 
 G_END_DECLS
 
 #endif /* __GEDIT_MESSAGE_BUS_H__ */
+
+// ex:ts=8:noet:

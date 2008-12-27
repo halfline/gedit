@@ -4,6 +4,7 @@ SUBDIRS = dialogs smclient
 bin_PROGRAMS = gedit
 
 noinst_LTLIBRARIES = libgedit.la
+noinst_PROGRAMS = msgtest
 
 INCLUDES =								\
 	-I$(top_srcdir)							\
@@ -20,23 +21,35 @@ INCLUDES =								\
 	-DGEDIT_LOADERDIR=\""$(libdir)/gedit-2/plugin-loaders"\"	\
 	-DGEDIT_ICONDIR=\""$(datadir)/gedit-2/icons"\"
 
-gedit_SOURCES = \
-	gedit.c \
-	gedit-message.c \
-	gedit-message-bus.c
+gedit_SOURCES = 			\
+	gedit.c 			\
+	gedit-message.c 		\
+	gedit-message-bus.c		\
+	gedit-message-type.c
 
-gedit_LDADD = libgedit.la $(GEDIT_LIBS)
+gedit_LDADD = libgedit.la $(GEDIT_LIBS) $(EGG_SMCLIENT_LIBS)
+
+msgtest_SOURCES =			\
+	msgtest.c			\
+	gedit-message.c			\
+	gedit-message-bus.c		\
+	gedit-message-type.c
+
+msgtest_LDADD = $(GEDIT_LIBS)
  
 if PLATFORM_WIN32
 gedit_LDFLAGS = -Wl,--export-all-symbols -Wl,--out-implib,libgedit-$(GEDIT_API_VERSION).a
 else
-
 gedit_LDFLAGS = -export-dynamic -no-undefined -export-symbols-regex "^[[^_]].*"
+endif
+
+if PLATFORM_OSX
+gedit_LDFLAGS += -framework Carbon
 endif
 
 libgedit_la_LDFLAGS = -export-dynamic -no-undefined -export-symbols-regex "^[[^_]].*"
 
-libgedit_la_LIBADD = \
+libgedit_la_LIBADD = 			\
 	dialogs/libdialogs.la		\
 	smclient/libeggsmclient.la
 
@@ -89,6 +102,7 @@ INST_H_FILES =				\
 	gedit-message.h			\
 	gedit-message-area.h		\
 	gedit-message-bus.h		\
+	gedit-message-type.h		\
 	gedit-metadata-manager.h	\
 	gedit-notebook.h		\
 	gedit-panel.h			\
