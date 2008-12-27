@@ -38,12 +38,6 @@ GeditTab
 @GEDIT_TAB_STATE_EXTERNALLY_MODIFIED_NOTIFICATION: 
 @GEDIT_TAB_NUM_OF_STATES: 
 
-<!-- ##### STRUCT GeditTabPrivate ##### -->
-<para>
-
-</para>
-
-
 <!-- ##### STRUCT GeditTab ##### -->
 <para>
 

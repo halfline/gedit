@@ -1,6 +1,5 @@
 <SECTION>
 <FILE>gedit-app</FILE>
-GeditAppPrivate
 <TITLE>GeditApp</TITLE>
 GeditApp
 GeditLockdownMask
@@ -24,7 +23,6 @@ GEDIT_APP_GET_CLASS
 <SECTION>
 <FILE>gedit-document</FILE>
 GeditSearchFlags
-GeditDocumentPrivate
 <TITLE>GeditDocument</TITLE>
 GeditDocument
 GeditDocumentSaveFlags
@@ -72,7 +70,6 @@ GEDIT_DOCUMENT_GET_CLASS
 
 <SECTION>
 <FILE>gedit-encodings-option-menu</FILE>
-GeditEncodingsOptionMenuPrivate
 <TITLE>GeditEncodingsOptionMenu</TITLE>
 GeditEncodingsOptionMenu
 gedit_encodings_option_menu_new
@@ -90,7 +87,6 @@ GEDIT_ENCODINGS_OPTION_MENU_GET_CLASS
 
 <SECTION>
 <FILE>gedit-file-chooser-dialog</FILE>
-GeditFileChooserDialogPrivate
 <TITLE>GeditFileChooserDialog</TITLE>
 GeditFileChooserDialog
 gedit_file_chooser_dialog_new
@@ -107,7 +103,6 @@ GEDIT_FILE_CHOOSER_DIALOG_GET_CLASS
 
 <SECTION>
 <FILE>gedit-message-area</FILE>
-GeditMessageAreaPrivate
 <TITLE>GeditMessageArea</TITLE>
 GeditMessageArea
 gedit_message_area_new
@@ -214,7 +209,6 @@ GEDIT_MESSAGE_GET_CLASS
 
 <SECTION>
 <FILE>gedit-notebook</FILE>
-GeditNotebookPrivate
 <TITLE>GeditNotebook</TITLE>
 GeditNotebook
 gedit_notebook_new
@@ -240,7 +234,6 @@ GEDIT_NOTEBOOK_GET_CLASS
 
 <SECTION>
 <FILE>gedit-panel</FILE>
-GeditPanelPrivate
 <TITLE>GeditPanel</TITLE>
 GeditPanel
 gedit_panel_new
@@ -287,7 +280,6 @@ GEDIT_PLUGIN_DEFINE_TYPE
 
 <SECTION>
 <FILE>gedit-print-job-preview</FILE>
-GeditPrintJobPreviewPrivate
 <TITLE>GeditPrintJobPreview</TITLE>
 GeditPrintJobPreview
 gedit_print_job_preview_new
@@ -320,7 +312,6 @@ GEDIT_PRINT_JOB_GET_CLASS
 
 <SECTION>
 <FILE>gedit-progress-message-area</FILE>
-GeditProgressMessageAreaPrivate
 <TITLE>GeditProgressMessageArea</TITLE>
 GeditProgressMessageArea
 gedit_progress_message_area_new
@@ -341,7 +332,6 @@ GEDIT_PROGRESS_MESSAGE_AREA_GET_CLASS
 
 <SECTION>
 <FILE>gedit-statusbar</FILE>
-GeditStatusbarPrivate
 <TITLE>GeditStatusbar</TITLE>
 GeditStatusbar
 gedit_statusbar_new
@@ -364,7 +354,6 @@ GEDIT_STATUSBAR_GET_CLASS
 <SECTION>
 <FILE>gedit-tab</FILE>
 GeditTabState
-GeditTabPrivate
 <TITLE>GeditTab</TITLE>
 GeditTab
 gedit_tab_get_view
@@ -387,7 +376,6 @@ GEDIT_TAB_GET_CLASS
 
 <SECTION>
 <FILE>gedit-view</FILE>
-GeditViewPrivate
 <TITLE>GeditView</TITLE>
 GeditView
 gedit_view_new
@@ -412,7 +400,6 @@ GEDIT_VIEW_GET_CLASS
 <SECTION>
 <FILE>gedit-window</FILE>
 GeditWindowState
-GeditWindowPrivate
 <TITLE>GeditWindow</TITLE>
 GeditWindow
 gedit_window_create_tab
@@ -433,6 +420,7 @@ gedit_window_get_bottom_panel
 gedit_window_get_statusbar
 gedit_window_get_ui_manager
 gedit_window_get_state
+gedit_window_get_message_bus
 gedit_window_get_tab_from_uri
 <SUBSECTION Standard>
 GEDIT_WINDOW

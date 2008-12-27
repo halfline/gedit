@@ -26,12 +26,6 @@ GeditDocument
 @GEDIT_SEARCH_ENTIRE_WORD: 
 @GEDIT_SEARCH_CASE_SENSITIVE: 
 
-<!-- ##### STRUCT GeditDocumentPrivate ##### -->
-<para>
-
-</para>
-
-
 <!-- ##### STRUCT GeditDocument ##### -->
 <para>
 

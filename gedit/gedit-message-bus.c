@@ -14,6 +14,82 @@
  * when a message is received (see #gedit_message_bus_connect).
  *
  */
+
+/**
+ * SECTION:gedit-message-bus
+ * @short_description: internal message communication bus
+ * @include: gedit/gedit-message-bus.h
+ *
+ * gedit has a communication bus very similar to DBus. Its primary use is to
+ * allow easy communication between plugins, but it can also be used to expose
+ * gedit functionality to external applications by providing DBus bindings for
+ * the internal gedit message bus.
+ *
+ * There are two different communication busses available. The default bus
+ * (see gedit_message_bus_get_default()) is an application wide communication
+ * bus. In addition, each #GeditWindow has a separate, private bus
+ * (see gedit_window_get_message_bus()). This makes it easier for plugins to
+ * communicate to other plugins in the same window.
+ *
+ * The concept of the message bus is very simple. You can register a message
+ * type on the bus, specified as a Method at a specific Object Path with a
+ * certain set of Method Arguments. You can then connect callback functions
+ * for this message type on the bus. Whenever a message with the Object Path
+ * and Method for which callbacks are connected is sent over the bus, the
+ * callbacks are called. There is no distinction between Methods and Signals
+ * (signals are simply messages where sender and receiver have switched places).
+ *
+ * <example>
+ * <title>Registering a message type</title>
+ * <programlisting>
+ * GeditMessageBus *bus = gedit_message_bus_get_default ();
+ *
+ * // Register 'method' at '/plugins/example' with one required
+ * // string argument 'arg1'
+ * GeditMessageType *message_type = gedit_message_bus_register ("/plugins/example", "method", 
+ *                                                              0, 
+ *                                                              "arg1", G_TYPE_STRING,
+ *                                                              NULL);
+ * </programlisting>
+ * </example>
+ * <example>
+ * <title>Connecting a callback</title>
+ * <programlisting>
+ * static void
+ * example_method_cb (GeditMessageBus *bus,
+ *                    GeditMessage    *message,
+ *                    gpointer         userdata)
+ * {
+ * 	gchar *arg1 = NULL;
+ *	
+ * 	gedit_message_get (message, "arg1", &arg1, NULL);
+ * 	g_message ("Evoked /plugins/example.method with: %s", arg1);
+ * 	g_free (arg1);
+ * }
+ *
+ * GeditMessageBus *bus = gedit_message_bus_get_default ();
+ * 
+ * guint id = gedit_message_bus_connect (bus, 
+ *                                       "/plugins/example", "method",
+ *                                       example_method_cb,
+ *                                       NULL,
+ *                                       NULL);
+ *                                        
+ * </programlisting>
+ * </example>
+ * <example>
+ * <title>Sending a message</title>
+ * <programlisting>
+ * GeditMessageBus *bus = gedit_message_bus_get_default ();
+ *
+ * gedit_message_bus_send (bus, 
+ *                         "/plugins/example", "method", 
+ *                         "arg1", "Hello World", 
+ *                         NULL);
+ * </programlisting>
+ * </example>
+ */
+ 
 #define GEDIT_MESSAGE_BUS_GET_PRIVATE(object)(G_TYPE_INSTANCE_GET_PRIVATE((object), GEDIT_TYPE_MESSAGE_BUS, GeditMessageBusPrivate))
 
 typedef struct

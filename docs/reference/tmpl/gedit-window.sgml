@@ -29,12 +29,6 @@ GeditWindow
 @GEDIT_WINDOW_STATE_ERROR: 
 @GEDIT_WINDOW_STATE_SAVING_SESSION: 
 
-<!-- ##### STRUCT GeditWindowPrivate ##### -->
-<para>
-
-</para>
-
-
 <!-- ##### STRUCT GeditWindow ##### -->
 <para>
 
@@ -243,6 +237,15 @@ GeditWindow
 
 
 <!-- ##### FUNCTION gedit_window_get_state ##### -->
+<para>
+
+</para>
+
+@window: 
+@Returns: 
+
+
+<!-- ##### FUNCTION gedit_window_get_message_bus ##### -->
 <para>
 
 </para>
