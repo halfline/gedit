@@ -146,11 +146,10 @@ gedit_message_bus_class_init (GeditMessageBusClass *klass)
 	/**
 	 * GeditMessageBus::registered:
 	 * @bus: a #GeditMessageBus
-	 * @object_path: the object path
-	 * @method: the registered method at @object_path
+	 * @message_type: the registered #GeditMessageType
 	 *
 	 * The "registered" signal is emitted when a message has been registered
-	 * on the bus (@method has been registered at @object_path)
+	 * on the bus.
 	 *
 	 */
 	message_bus_signals[REGISTERED] =
@@ -167,12 +166,10 @@ gedit_message_bus_class_init (GeditMessageBusClass *klass)
 	/**
 	 * GeditMessageBus::unregistered:
 	 * @bus: a #GeditMessageBus
-	 * @object_path: the object path
-	 * @method: the unregistered method at @object_path
+	 * @message_type: the unregistered #GeditMessageType
 	 *
 	 * The "unregistered" signal is emitted when a message has been 
-	 * unregistered from the bus (@method has been unregistered from 
-	 * @object_path)
+	 * unregistered from the bus.
 	 *
 	 */
 	message_bus_signals[UNREGISTERED] =
