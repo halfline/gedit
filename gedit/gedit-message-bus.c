@@ -4,6 +4,16 @@
 #include <stdarg.h>
 #include <gobject/gvaluecollector.h>
 
+/**
+ * GeditMessageCallback:
+ * @bus: the #GeditMessageBus on which the message was sent
+ * @message: the #GeditMessage which was sent
+ * @userdata: the supplied user data when connecting the callback
+ *
+ * Callback signature used for connecting callback functions to be called
+ * when a message is received (see #gedit_message_bus_connect).
+ *
+ */
 #define GEDIT_MESSAGE_BUS_GET_PRIVATE(object)(G_TYPE_INSTANCE_GET_PRIVATE((object), GEDIT_TYPE_MESSAGE_BUS, GeditMessageBusPrivate))
 
 typedef struct
@@ -893,7 +903,7 @@ send_message_sync_real (GeditMessageBus *bus,
 }
 
 /**
- * gedit_message_bus_send_message:
+ * gedit_message_bus_send_message_sync:
  * @bus: a #GeditMessageBus
  * @message: the message to send
  *

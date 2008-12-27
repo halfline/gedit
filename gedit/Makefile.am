@@ -22,20 +22,14 @@ INCLUDES =								\
 	-DGEDIT_ICONDIR=\""$(datadir)/gedit-2/icons"\"
 
 gedit_SOURCES = 			\
-	gedit.c 			\
-	gedit-message.c 		\
-	gedit-message-bus.c		\
-	gedit-message-type.c
+	gedit.c 
 
 gedit_LDADD = libgedit.la $(GEDIT_LIBS) $(EGG_SMCLIENT_LIBS)
 
 msgtest_SOURCES =			\
-	msgtest.c			\
-	gedit-message.c			\
-	gedit-message-bus.c		\
-	gedit-message-type.c
+	msgtest.c
 
-msgtest_LDADD = $(GEDIT_LIBS)
+msgtest_LDADD = libgedit.la $(GEDIT_LIBS) $(EGG_SMCLIENT_LIBS)
  
 if PLATFORM_WIN32
 gedit_LDFLAGS = -Wl,--export-all-symbols -Wl,--out-implib,libgedit-$(GEDIT_API_VERSION).a
@@ -151,6 +145,9 @@ libgedit_la_SOURCES = 			\
 	gedit-io-error-message-area.c	\
 	gedit-language-manager.c	\
 	gedit-message-area.c		\
+	gedit-message.c 		\
+	gedit-message-bus.c		\
+	gedit-message-type.c		\
 	gedit-metadata-manager.c	\
 	gedit-object-module.c		\
 	gedit-notebook.c		\

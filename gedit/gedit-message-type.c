@@ -20,7 +20,7 @@ struct _GeditMessageType
 };
 
 /**
- * gedit_message_type_unref:
+ * gedit_message_type_ref:
  * @message_type: the #GeditMessageType
  *
  * Increases the reference count on @message_type
@@ -149,7 +149,7 @@ gedit_message_type_is_supported (GType type)
 }
 
 /**
- * gedit_message_type_newv:
+ * gedit_message_type_new_valist:
  * @object_path: the object path
  * @method: the method
  * @num_optional: number of optional arguments
@@ -188,7 +188,7 @@ gedit_message_type_new_valist (const gchar *object_path,
 }
 
 /**
- * gedit_message_type_newv:
+ * gedit_message_type_new:
  * @object_path: the object path
  * @method: the method
  * @num_optional: number of optional arguments
@@ -196,7 +196,7 @@ gedit_message_type_new_valist (const gchar *object_path,
  *
  * Create a new #GeditMessageType for @method at @object_path. Argument names
  * and values are supplied by the NULL terminated variable argument list.
- * The last @num_optional provided arguments are considered optional
+ * The last @num_optional provided arguments are considered optional.
  *
  * Return value: the newly constructed #GeditMessageType
  *
@@ -217,6 +217,17 @@ gedit_message_type_new (const gchar *object_path,
 	return message_type;
 }
 
+/**
+ * gedit_message_type_set:
+ * @message_type: the #GeditMessageType
+ * @num_optional: number of optional arguments
+ * @...: key/gtype pair variable argument list
+ *
+ * Sets argument names/types supplied by the NULL terminated variable
+ * argument list. The last @num_optional provided arguments are considered
+ * optional.
+ *
+ */
 void
 gedit_message_type_set (GeditMessageType *message_type,
 			guint		 num_optional,
@@ -229,6 +240,17 @@ gedit_message_type_set (GeditMessageType *message_type,
 	va_end (va_args);
 }
 
+/**
+ * gedit_message_type_set_valist:
+ * @message_type: the #GeditMessageType
+ * @num_optional: number of optional arguments
+ * @var_args: key/gtype pair variable argument list
+ *
+ * Sets argument names/types supplied by the NULL terminated variable
+ * argument list @var_args. The last @num_optional provided arguments are 
+ * considered optional.
+ *
+ */
 void 
 gedit_message_type_set_valist (GeditMessageType *message_type,
 			       guint             num_optional,
@@ -292,7 +314,7 @@ gedit_message_type_set_valist (GeditMessageType *message_type,
 }
 
 /**
- * gedit_message_type_instantiate:
+ * gedit_message_type_instantiate_valist:
  * @message_type: the #GeditMessageType
  * @va_args: NULL terminated variable list of key/value pairs
  *

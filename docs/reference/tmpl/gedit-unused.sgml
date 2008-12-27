@@ -91,6 +91,20 @@ gedit-recent
 
 @obj: 
 
+<!-- ##### MACRO GEDIT_MESSAGE_BUS_CONST ##### -->
+<para>
+
+</para>
+
+@obj: 
+
+<!-- ##### MACRO GEDIT_MESSAGE_CONST ##### -->
+<para>
+
+</para>
+
+@obj: 
+
 <!-- ##### MACRO GEDIT_PANEL_CONST ##### -->
 <para>
 
@@ -125,6 +139,12 @@ gedit-recent
 </para>
 
 @obj: 
+
+<!-- ##### MACRO GEDIT_TYPE_MESSAGE_TYPE ##### -->
+<para>
+
+</para>
+
 
 <!-- ##### MACRO GEDIT_WINDOW_CONST ##### -->
 <para>
@@ -337,6 +357,18 @@ gedit-recent
 </para>
 
 
+<!-- ##### STRUCT GeditMessageBusPrivate ##### -->
+<para>
+
+</para>
+
+
+<!-- ##### STRUCT GeditMessagePrivate ##### -->
+<para>
+
+</para>
+
+
 <!-- ##### STRUCT GeditPrintJobPreview ##### -->
 <para>
 
@@ -360,6 +392,23 @@ gedit-recent
 
 </para>
 
+
+<!-- ##### FUNCTION gedit_message_get_key_type ##### -->
+<para>
+
+</para>
+
+@message: 
+@key: 
+@Returns: 
+
+<!-- ##### FUNCTION gedit_message_get_message_type ##### -->
+<para>
+
+</para>
+
+@message: 
+@Returns: 
 
 <!-- ##### FUNCTION gedit_prefs_manager_background_color_can_set ##### -->
 <para>

@@ -14,9 +14,6 @@ G_BEGIN_DECLS
 #define GEDIT_IS_MESSAGE_CLASS(klass)		(G_TYPE_CHECK_CLASS_TYPE ((klass), GEDIT_TYPE_MESSAGE))
 #define GEDIT_MESSAGE_GET_CLASS(obj)		(G_TYPE_INSTANCE_GET_CLASS ((obj), GEDIT_TYPE_MESSAGE, GeditMessageClass))
 
-/* forward declaration of GeditMessageType */
-struct _GeditMessageType;
-
 typedef struct _GeditMessage		GeditMessage;
 typedef struct _GeditMessageClass	GeditMessageClass;
 typedef struct _GeditMessagePrivate	GeditMessagePrivate;
@@ -61,13 +58,8 @@ const gchar *gedit_message_get_method	(GeditMessage	 *message);
 gboolean gedit_message_has_key		(GeditMessage	 *message,
 					 const gchar     *key);
 
-//GStrv gedit_message_get_keys		(GeditMessage	 *message);
-GType gedit_message_get_key_type		(GeditMessage    *message,
-					 const gchar	 *key);
-
 gboolean gedit_message_validate		(GeditMessage	 *message);
 
-//GHashTable *gedit_message_get_hash	(GeditMessage	 *message);
 
 G_END_DECLS
 

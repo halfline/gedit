@@ -247,7 +247,7 @@ gedit_message_get_object_path (GeditMessage *message)
 }
 
 /**
- * gedit_message_set_value:
+ * gedit_message_set:
  * @message: the #GeditMessage
  * @...: a NULL terminated variable list of key/value pairs
  *
@@ -269,7 +269,7 @@ gedit_message_set (GeditMessage *message,
 }
 
 /**
- * gedit_message_set_value:
+ * gedit_message_set_valist:
  * @message: the #GeditMessage
  * @var_args: a NULL terminated variable list of key/value pairs
  *
@@ -374,7 +374,7 @@ gedit_message_set_valuesv (GeditMessage	 *message,
 }
 
 /**
- * gedit_message_get_valist:
+ * gedit_message_get:
  * @message: the #GeditMessage
  * @...: a NULL variable argument list of key/value container pairs
  *
