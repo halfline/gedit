@@ -1,5 +1,40 @@
 #include "gedit-message-type.h"
 
+/**
+ * SECTION:gedit-message-type
+ * @short_description: message type description
+ * @include: gedit/gedit-message-type.h
+ *
+ * A message type is a prototype description for a #GeditMessage used to
+ * transmit messages on a #GeditMessageBus. The message type describes
+ * the Object Path, Method and Arguments of the message.
+ *
+ * A message type can contain any number of required and optional arguments.
+ * To instantiate a #GeditMessage from a #GeditMessageType, use 
+ * gedit_message_type_instantiate().
+ *
+ * Registering a new message type on a #GeditMessageBus with
+ * gedit_message_bus_register() internally creates a new #GeditMessageType. When
+ * then using gedit_message_bus_send(), an actual instantiation of the 
+ * registered type is internally created and send over the bus.
+ *
+ * <example>
+ * <programlisting>
+ * // Defining a new message type
+ * GeditMessageType *message_type = gedit_message_type_new ("/plugins/example",
+ *                                                          "method",
+ *                                                          0,
+ *                                                          "arg1", G_TYPE_STRING,
+ *                                                          NULL);
+ *
+ * // Instantiating an actual message from the type
+ * GeditMessage *message = gedit_message_type_instantiate (message_type,
+ *                                                         "arg1", "Hello World",
+ *                                                         NULL);
+ * </programlisting>
+ * </example>
+ *
+ */
 typedef struct
 {
 	GType type;

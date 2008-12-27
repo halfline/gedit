@@ -4,6 +4,21 @@
 #include <string.h>
 #include <gobject/gvaluecollector.h>
 
+/**
+ * SECTION:gedit-message
+ * @short_description: message bus message object
+ * @include: gedit/gedit-message.h
+ *
+ * Communication on a #GeditMessageBus is done through messages. Messages are
+ * sent over the bus and received by connecting callbacks on the message bus.
+ * A #GeditMessage is an instantiation of a #GeditMessageType, containing
+ * values for the arguments as specified in the message type.
+ *
+ * A message can be seen as a method call, or signal emission depending on
+ * who is the sender and who is the receiver. There is no explicit distinction
+ * between methods and signals.
+ *
+ */
 #define GEDIT_MESSAGE_GET_PRIVATE(object)(G_TYPE_INSTANCE_GET_PRIVATE((object), GEDIT_TYPE_MESSAGE, GeditMessagePrivate))
 
 enum {
