@@ -11,7 +11,7 @@
  * @userdata: the supplied user data when connecting the callback
  *
  * Callback signature used for connecting callback functions to be called
- * when a message is received (see #gedit_message_bus_connect).
+ * when a message is received (see gedit_message_bus_connect()).
  *
  */
 
@@ -182,8 +182,10 @@ gedit_message_bus_finalize (GObject *object)
 		g_source_remove (bus->priv->idle_id);
 	
 	message_queue_free (bus->priv->message_queue);
+
 	g_hash_table_destroy (bus->priv->messages);
 	g_hash_table_destroy (bus->priv->idmap);
+	g_hash_table_destroy (bus->priv->types);
 	
 	G_OBJECT_CLASS (gedit_message_bus_parent_class)->finalize (object);
 }
@@ -516,7 +518,7 @@ gedit_message_bus_init (GeditMessageBus *self)
 /**
  * gedit_message_bus_get_default:
  *
- * Get the default application #GeditMessageBus
+ * Get the default application #GeditMessageBus.
  *
  * Return value: the default #GeditMessageBus
  *
@@ -539,9 +541,9 @@ gedit_message_bus_get_default (void)
 /**
  * gedit_message_bus_new:
  * 
- * Create a new message bus. Use #gedit_message_bus_get_default to get the
+ * Create a new message bus. Use gedit_message_bus_get_default() to get the
  * default, application wide, message bus. Creating a new bus is useful for
- * associating a specific bus with for instance a #GeditWindow
+ * associating a specific bus with for instance a #GeditWindow.
  *
  * Return value: a new #GeditMessageBus
  *
@@ -571,13 +573,17 @@ gedit_message_bus_lookup (GeditMessageBus *bus,
 			  const gchar	  *method)
 {
 	gchar *identifier;
+	GeditMessageType *message_type;
 	
 	g_return_val_if_fail (GEDIT_IS_MESSAGE_BUS (bus), NULL);
 	g_return_val_if_fail (object_path != NULL, NULL);
 	g_return_val_if_fail (method != NULL, NULL);
 
 	identifier = gedit_message_type_identifier (object_path, method);
-	return g_hash_table_lookup (bus->priv->types, identifier);
+	message_type = GEDIT_MESSAGE_TYPE (g_hash_table_lookup (bus->priv->types, identifier));
+	
+	g_free (identifier);
+	return message_type;
 }
 
 /**
@@ -590,16 +596,16 @@ gedit_message_bus_lookup (GeditMessageBus *bus,
  *
  * Register a message on the bus. A message must be registered on the bus before
  * it can be send. This function registers the type arguments for @method at 
- * @object_path. The arguments are specified with @... which should contain
- * pairs of const gchar *key and GType terminated by NULL. The last 
- * @num_optional arguments are registered as optional (and are thus not
+ * @object_path. The arguments are specified with the variable arguments which 
+ * should contain pairs of const gchar *key and GType terminated by %NULL. The 
+ * last @num_optional arguments are registered as optional (and are thus not
  * required when sending a message).
  *
- * This function emits a #GeditMessageBus::registered signal
+ * This function emits a #GeditMessageBus::registered signal.
  *
  * Return value: the registered #GeditMessageType. The returned reference is
  *               owned by the bus. If you want to keep it alive after
- *               unregistering, use #gedit_message_type_ref
+ *               unregistering, use gedit_message_type_ref().
  *
  */
 GeditMessageType *
@@ -649,7 +655,7 @@ gedit_message_bus_register (GeditMessageBus *bus,
  * Unregisters a previously registered message type. This is especially useful 
  * for plugins which should unregister message types when they are deactivated.
  *
- * This function emits the #GeditMessageBus::unregistered signal
+ * This function emits the #GeditMessageBus::unregistered signal.
  *
  */
 void
@@ -700,7 +706,7 @@ unregister_each (const gchar      *identifier,
  * plugins which should unregister message types when they are deactivated.
  *
  * This function emits the #GeditMessageBus::unregistered signal for all
- * unregistered message types
+ * unregistered message types.
  *
  */
 void
@@ -724,7 +730,7 @@ gedit_message_bus_unregister_all (GeditMessageBus *bus,
  * @method: the method
  *
  * Check whether a message type @method at @object_path is registered on the 
- * bus
+ * bus.
  *
  * Return value: %TRUE if the @method at @object_path is a registered message 
  *               type on the bus
@@ -789,9 +795,9 @@ gedit_message_bus_connect (GeditMessageBus	*bus,
 /**
  * gedit_message_bus_disconnect:
  * @bus: a #GeditMessageBus
- * @id: the callback id as returned by #gedit_message_bus_connect
+ * @id: the callback id as returned by gedit_message_bus_connect()
  *
- * Disconnects a previously connected message callback
+ * Disconnects a previously connected message callback.
  *
  */
 void
@@ -813,7 +819,7 @@ gedit_message_bus_disconnect (GeditMessageBus *bus,
  *
  * Disconnects a previously connected message callback by matching the 
  * provided callback function and userdata. See also 
- * #gedit_message_bus_disconnect
+ * gedit_message_bus_disconnect().
  *
  */
 void
@@ -834,7 +840,7 @@ gedit_message_bus_disconnect_by_func (GeditMessageBus      *bus,
  * @id: the callback id
  *
  * Blocks evoking the callback specified by @id. Unblock the callback by
- * using #gedit_message_bus_unblock
+ * using gedit_message_bus_unblock().
  *
  */
 void
@@ -855,7 +861,7 @@ gedit_message_bus_block (GeditMessageBus *bus,
  * @userdata: the userdata with which the callback was connected
  *
  * Blocks evoking the callback that matches provided @callback and @userdata.
- * Unblock the callback using #gedit_message_unblock_by_func
+ * Unblock the callback using gedit_message_unblock_by_func().
  *
  */
 void
@@ -875,7 +881,7 @@ gedit_message_bus_block_by_func (GeditMessageBus      *bus,
  * @bus: a #GeditMessageBus
  * @id: the callback id
  *
- * Unblocks the callback specified by @id
+ * Unblocks the callback specified by @id.
  *
  */
 void
@@ -895,7 +901,7 @@ gedit_message_bus_unblock (GeditMessageBus *bus,
  * @callback: the callback to block
  * @userdata: the userdata with which the callback was connected
  *
- * Unblocks the callback that matches provided @callback and @userdata
+ * Unblocks the callback that matches provided @callback and @userdata.
  *
  */
 void
@@ -948,8 +954,8 @@ send_message_real (GeditMessageBus *bus,
  * @message: the message to send
  *
  * This sends the provided @message asynchronously over the bus. To send
- * a message synchronously, use #gedit_message_bus_send_message_sync. The 
- * convenience function #gedit_message_bus_send can be used to easily send
+ * a message synchronously, use gedit_message_bus_send_message_sync(). The 
+ * convenience function gedit_message_bus_send() can be used to easily send
  * a message without constructing the message object explicitly first.
  *
  */
@@ -981,8 +987,8 @@ send_message_sync_real (GeditMessageBus *bus,
  * @message: the message to send
  *
  * This sends the provided @message synchronously over the bus. To send
- * a message asynchronously, use #gedit_message_bus_send_message. The 
- * convenience function #gedit_message_bus_send_sync can be used to easily send
+ * a message asynchronously, use gedit_message_bus_send_message(). The 
+ * convenience function gedit_message_bus_send_sync() can be used to easily send
  * a message without constructing the message object explicitly first.
  *
  */
@@ -1024,9 +1030,9 @@ create_message (GeditMessageBus *bus,
  * @...: NULL terminated list of key/value pairs
  *
  * This provides a convenient way to quickly send a message @method at 
- * @object_path asynchronously over the bus. @... specifies key (string) value 
- * pairs used to construct the message arguments. To send a message 
- * synchronously use #gedit_message_bus_send_sync
+ * @object_path asynchronously over the bus. The variable argument list 
+ * specifies key (string) value pairs used to construct the message arguments. 
+ * To send a message synchronously use gedit_message_bus_send_sync().
  *
  */
 void
@@ -1063,13 +1069,13 @@ gedit_message_bus_send (GeditMessageBus *bus,
  * @...: NULL terminated list of key/value pairs
  *
  * This provides a convenient way to quickly send a message @method at 
- * @object_path synchronously over the bus. @... specifies key (string) value 
- * pairs used to construct the message arguments. To send a message 
- * asynchronously use #gedit_message_bus_send
+ * @object_path synchronously over the bus. The variable argument list 
+ * specifies key (string) value pairs used to construct the message 
+ * arguments. To send a message asynchronously use gedit_message_bus_send().
  *
  * Return value: the constructed #GeditMessage. The caller owns a reference
- *               to the #GeditMessage and should call g_object_unref when
- *               it is no longer needed.
+ *               to the #GeditMessage and should call g_object_unref() when
+ *               it is no longer needed
  */
 GeditMessage *
 gedit_message_bus_send_sync (GeditMessageBus *bus,

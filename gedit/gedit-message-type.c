@@ -58,7 +58,7 @@ struct _GeditMessageType
  * gedit_message_type_ref:
  * @message_type: the #GeditMessageType
  *
- * Increases the reference count on @message_type
+ * Increases the reference count on @message_type.
  *
  * Return value: @message_type
  *
@@ -77,7 +77,7 @@ gedit_message_type_ref (GeditMessageType *message_type)
  * @message_type: the #GeditMessageType
  *
  * Decreases the reference count on @message_type. When the reference count
- * drops to 0, @message_type is destroyed
+ * drops to 0, @message_type is destroyed.
  *
  */
 void 
@@ -122,7 +122,7 @@ gedit_message_type_get_type (void)
  * @object_path: the object path
  * @method: the method
  *
- * Get the string identifier for @method at @object_path
+ * Get the string identifier for @method at @object_path.
  *
  * Return value: the identifier for @method at @object_path
  *
@@ -138,7 +138,7 @@ gedit_message_type_identifier (const gchar *object_path,
  * gedit_message_type_is_supported:
  * @type: the #GType
  *
- * Returns if @type is #GType supported by the message system
+ * Returns if @type is #GType supported by the message system.
  *
  * Return value: %TRUE if @type is a supported #GType
  *
@@ -192,7 +192,7 @@ gedit_message_type_is_supported (GType type)
  *
  * Create a new #GeditMessageType for @method at @object_path. Argument names
  * and values are supplied by the NULL terminated variable argument list.
- * The last @num_optional provided arguments are considered optional
+ * The last @num_optional provided arguments are considered optional.
  *
  * Return value: the newly constructed #GeditMessageType
  *
@@ -208,8 +208,9 @@ gedit_message_type_new_valist (const gchar *object_path,
 	g_return_val_if_fail (object_path != NULL, NULL);
 	g_return_val_if_fail (method != NULL, NULL);
 
-	message_type = g_new(GeditMessageType, 1);
+	message_type = g_new0(GeditMessageType, 1);
 	
+	message_type->ref_count = 1;
 	message_type->object_path = g_strdup(object_path);
 	message_type->method = g_strdup(method);
 	message_type->num_arguments = 0;
@@ -265,7 +266,7 @@ gedit_message_type_new (const gchar *object_path,
  */
 void
 gedit_message_type_set (GeditMessageType *message_type,
-			guint		 num_optional,
+			guint		  num_optional,
 			...)
 {
 	va_list va_args;
@@ -354,7 +355,7 @@ gedit_message_type_set_valist (GeditMessageType *message_type,
  * @va_args: NULL terminated variable list of key/value pairs
  *
  * Instantiate a new message from the message type with specific values
- * for the message arguments
+ * for the message arguments.
  *
  * Return value: the newly created message
  *
@@ -379,7 +380,7 @@ gedit_message_type_instantiate_valist (GeditMessageType *message_type,
  * @...: NULL terminated variable list of key/value pairs
  *
  * Instantiate a new message from the message type with specific values
- * for the message arguments
+ * for the message arguments.
  *
  * Return value: the newly created message
  *
@@ -402,7 +403,7 @@ gedit_message_type_instantiate (GeditMessageType *message_type,
  * gedit_message_type_get_object_path:
  * @message_type: the #GeditMessageType
  *
- * Get the message type object path
+ * Get the message type object path.
  *
  * Return value: the message type object path
  *
@@ -417,7 +418,7 @@ gedit_message_type_get_object_path (GeditMessageType *message_type)
  * gedit_message_type_get_method:
  * @message_type: the #GeditMessageType
  *
- * Get the message type method
+ * Get the message type method.
  *
  * Return value: the message type method
  *
@@ -433,7 +434,7 @@ gedit_message_type_get_method (GeditMessageType *message_type)
  * @message_type: the #GeditMessageType
  * @key: the argument key
  *
- * Get the argument key #GType
+ * Get the argument key #GType.
  *
  * Return value: the #GType of @key
  *
@@ -470,7 +471,7 @@ foreach_gtype (const gchar  *key,
  * @func: the callback function
  * @user_data: user data supplied to the callback function
  *
- * Calls @func for each argument in the message type
+ * Calls @func for each argument in the message type.
  *
  */
 void 

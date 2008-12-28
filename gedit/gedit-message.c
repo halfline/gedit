@@ -125,7 +125,7 @@ gedit_message_class_init (GeditMessageClass *klass)
 	/**
 	 * GeditMessage:object_path:
 	 *
-	 * The messages object path (e.g. /gedit/object/path)
+	 * The messages object path (e.g. /gedit/object/path).
 	 *
 	 */
 	g_object_class_install_property (object_class, PROP_OBJECT_PATH,
@@ -139,7 +139,7 @@ gedit_message_class_init (GeditMessageClass *klass)
 	/**
 	 * GeditMessage:method:
 	 *
-	 * The messages method
+	 * The messages method.
 	 *
 	 */
 	g_object_class_install_property (object_class, PROP_METHOD,
@@ -153,7 +153,7 @@ gedit_message_class_init (GeditMessageClass *klass)
 	/**
 	 * GeditMEssage:type:
 	 *
-	 * The message type
+	 * The message type.
 	 *
 	 */
 	g_object_class_install_property (object_class, PROP_TYPE,
@@ -231,7 +231,7 @@ value_lookup (GeditMessage *message,
  * gedit_message_get_method:
  * @message: the #GeditMessage
  *
- * Get the message method
+ * Get the message method.
  *
  * Return value: the message method
  *
@@ -248,7 +248,7 @@ gedit_message_get_method (GeditMessage *message)
  * gedit_message_get_object_path:
  * @message: the #GeditMessage
  *
- * Get the message object path
+ * Get the message object path.
  *
  * Return value: the message object path
  *
@@ -267,7 +267,7 @@ gedit_message_get_object_path (GeditMessage *message)
  * @...: a NULL terminated variable list of key/value pairs
  *
  * Set values of message arguments. The supplied @var_args should contain
- * pairs of keys and argument values
+ * pairs of keys and argument values.
  *
  */
 void
@@ -289,7 +289,7 @@ gedit_message_set (GeditMessage *message,
  * @var_args: a NULL terminated variable list of key/value pairs
  *
  * Set values of message arguments. The supplied @var_args should contain
- * pairs of keys and argument values
+ * pairs of keys and argument values.
  *
  */
 void
@@ -338,7 +338,7 @@ gedit_message_set_valist (GeditMessage *message,
  * @key: the argument key
  * @value: the argument value
  *
- * Set value of message argument @key to @value
+ * Set value of message argument @key to @value.
  *
  */
 void
@@ -395,7 +395,7 @@ gedit_message_set_valuesv (GeditMessage	 *message,
  *
  * Get values of message arguments. The supplied @var_args should contain
  * pairs of keys and pointers to variables which are set to the argument
- * value for the specified key
+ * value for the specified key.
  *
  */
 void 
@@ -418,7 +418,7 @@ gedit_message_get (GeditMessage	*message,
  *
  * Get values of message arguments. The supplied @var_args should contain
  * pairs of keys and pointers to variables which are set to the argument
- * value for the specified key
+ * value for the specified key.
  *
  */
 void
@@ -471,7 +471,7 @@ gedit_message_get_valist (GeditMessage *message,
  * @value: value return container
  *
  * Get the value of a specific message argument. @value will be initialized
- * with the correct type
+ * with the correct type.
  *
  */
 void 
@@ -502,7 +502,7 @@ gedit_message_get_value (GeditMessage *message,
  * @message: the #GeditMessage
  * @key: the argument key
  *
- * Get the type of a message argument
+ * Get the type of a message argument.
  *
  * Return value: the type of @key
  *
@@ -522,7 +522,7 @@ gedit_message_get_key_type (GeditMessage    *message,
  * @message: the #GeditMessage
  * @key: the argument key
  *
- * Check whether the message has a specific key
+ * Check whether the message has a specific key.
  *
  * Return value: %TRUE if @message has argument @key
  *
@@ -563,7 +563,7 @@ validate_key (const gchar  *key,
  * gedit_message_validate:
  * @message: the #GeditMessage
  *
- * Validates the message arguments according to the message type
+ * Validates the message arguments according to the message type.
  *
  * Return value: %TRUE if the message is valid
  *
