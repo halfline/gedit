@@ -155,9 +155,9 @@ _helper_message_set_values(GeditMessage *message, PyObject *args, PyObject *kwar
 static GeditMessage *
 _helper_wrap_create_message(GeditMessageBus *bus, PyObject *args, PyObject *kwargs)
 {
-    PyObject *pypath, *pymethod;
+    PyObject *pypath, *pymethod, *pydict;
     
-    if (!PyArg_ParseTuple(args, "OO:GeditMessage.create", &pypath, &pymethod))
+    if (!PyArg_ParseTuple(args, "OO|O:GeditMessage.create", &pypath, &pymethod, &pydict))
         return NULL;
     
     gchar *object_path = _helper_wrap_get_string(pypath);
@@ -244,15 +244,15 @@ _message_type_set(PyObject *key, PyObject *value, MessageTypeSetInfo *info)
 static int
 _wrap_gedit_message_type_new(PyGObject *self, PyObject *args, PyObject *kwargs)
 {
-    PyObject *pypath, *pymethod, *optional;
+    PyObject *pypath, *pymethod, *optional = NULL, *pydict;
     guint len;
     
-    if (!PyArg_ParseTuple(args, "OOO:GeditMessageType.new", &pypath, &pymethod, &optional))
+    if (!PyArg_ParseTuple(args, "OO|OO:GeditMessageType.new", &pypath, &pymethod, &optional, &pydict))
         return -1;
     
     GeditMessageType *message_type = GEDIT_MESSAGE_TYPE(g_object_new(pyg_type_from_object((PyObject *) self), NULL));
     
-    MessageTypeSetInfo info = {message_type, PySequence_Check(optional) ? optional : NULL};
+    MessageTypeSetInfo info = {message_type, optional && PySequence_Check(optional) ? optional : NULL};
     _helper_parse_pairs (args, kwargs, (ParsePairFunc)_message_type_set, &info);
     
     self->obj = (GObject *)message_type;    
@@ -370,11 +370,11 @@ override gedit_message_bus_register kwargs
 static PyObject *
 _wrap_gedit_message_bus_register(PyGObject *self, PyObject *args, PyObject *kwargs)
 {
-    PyObject *pypath, *pymethod, *optional;
+    PyObject *pypath, *pymethod, *optional = NULL, *pydict;
     guint len;
     GeditMessageBus *bus = GEDIT_MESSAGE_BUS(self->obj);
 
-    if (!PyArg_ParseTuple(args, "OOO:GeditMessageBus.register", &pypath, &pymethod, &optional))
+    if (!PyArg_ParseTuple(args, "OO|OO:GeditMessageBus.register", &pypath, &pymethod, &optional, &pydict))
         return NULL;
     
     gchar *object_path = _helper_wrap_get_string(pypath);
@@ -391,7 +391,7 @@ _wrap_gedit_message_bus_register(PyGObject *self, PyObject *args, PyObject *kwar
     	return NULL;
     }
     
-    MessageTypeSetInfo info = {message_type, PySequence_Check(optional) ? optional : NULL};
+    MessageTypeSetInfo info = {message_type, optional && PySequence_Check(optional) ? optional : NULL};
     _helper_parse_pairs (args, kwargs, (ParsePairFunc)_message_type_set, &info);
     
     return pyg_boxed_new(GEDIT_TYPE_MESSAGE_TYPE, message_type, TRUE, TRUE);
