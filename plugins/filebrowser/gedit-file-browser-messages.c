@@ -338,7 +338,7 @@ custom_message_filter_func (GeditFileBrowserWidget *widget,
 	gedit_message_bus_send_message_sync (wdata->bus, data->message);
 	gedit_message_get (data->message, "filter", &filter, NULL);
 	
-	return filter;
+	return !filter;
 }
 
 static void
