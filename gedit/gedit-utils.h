@@ -37,6 +37,8 @@
 #include <gtk/gtk.h>
 #include <atk/atk.h>
 #include <gedit/gedit-encodings.h>
+#include <gtksourceview/gtksourceview.h>
+#include "gedit-settings.h"
 
 G_BEGIN_DECLS
 
@@ -153,6 +155,23 @@ gboolean	 gedit_utils_decode_uri 		(const gchar *uri,
 
 /* Turns data from a drop into a list of well formatted uris */
 gchar 	       **gedit_utils_drop_get_uris		(GtkSelectionData *selection_data);
+
+GtkWrapMode	 gedit_utils_get_wrap_mode_from_string	(const gchar *str);
+gchar		*gedit_utils_get_wrap_str		(guint mode);
+
+GtkSourceSmartHomeEndType gedit_utils_get_smart_home_end_from_string (const gchar *str);
+
+GeditToolbarSetting gedit_utils_get_toolbar_style_from_string (const gchar *str);
+
+GSList		*gedit_utils_get_encodings_from_list_str (const GSList *enc_str);
+GSList		*gedit_utils_get_str_list_from_encondings (const GSList *enc);
+
+GSList		*gedit_utils_get_list_from_settings	(GSettings   *settings,
+							 const gchar *key);
+
+void		 gedit_utils_set_list_into_settings	(GSettings    *settings,
+							 const gchar  *key,
+							 const GSList *list);
 
 G_END_DECLS
 

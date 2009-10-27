@@ -43,6 +43,7 @@
 #include "gedit-marshal.h"
 #include "gedit-utils.h"
 #include "gedit-enum-types.h"
+#include "gedit-settings.h"
 #include "gedit-gio-document-saver.h"
 
 G_DEFINE_ABSTRACT_TYPE(GeditDocumentSaver, gedit_document_saver, G_TYPE_OBJECT)
@@ -149,6 +150,12 @@ gedit_document_saver_dispose (GObject *object)
 		saver->location = NULL;
 	}
 
+	if (saver->editor_settings != NULL)
+	{
+		g_object_unref (saver->editor_settings);
+		saver->editor_settings = NULL;
+	}
+
 	G_OBJECT_CLASS (gedit_document_saver_parent_class)->dispose (object);
 }
 
@@ -230,6 +237,10 @@ static void
 gedit_document_saver_init (GeditDocumentSaver *saver)
 {
 	saver->used = FALSE;
+	
+	saver->editor_settings = gedit_app_get_settings (gedit_app_get_default (),
+							 "preferences", "editor",
+							 NULL);
 }
 
 GeditDocumentSaver *
@@ -306,7 +317,8 @@ gedit_document_saver_save (GeditDocumentSaver     *saver,
 	if ((saver->flags & GEDIT_DOCUMENT_SAVE_PRESERVE_BACKUP) != 0)
 		saver->keep_backup = FALSE;
 	else
-		saver->keep_backup = gedit_prefs_manager_get_create_backup_copy ();
+		g_settings_get (saver->editor_settings, GS_CREATE_BACKUP_COPY,
+				&saver->keep_backup);
 
 	GEDIT_DOCUMENT_SAVER_GET_CLASS (saver)->save (saver, old_mtime);
 }

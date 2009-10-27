@@ -57,6 +57,8 @@ struct _GeditDocumentSaver
 
 	/*< private >*/
 	GFileInfo		 *info;
+	GSettings		 *editor_settings;
+
 	GeditDocument		 *document;
 	gboolean		  used;
 

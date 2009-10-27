@@ -51,7 +51,7 @@ dnl make sure we keep ACLOCAL_FLAGS around for maintainer builds to work
 AC_SUBST(ACLOCAL_AMFLAGS, "$ACLOCAL_FLAGS -I m4")
 
 dnl active plugins for gedit.schemas
-ACTIVE_PLUGINS="docinfo,modelines,filebrowser,spell,time"
+ACTIVE_PLUGINS="'docinfo', 'modelines', 'filebrowser', 'spell', 'time'"
 AC_SUBST(ACTIVE_PLUGINS)
 
 dnl toolbar style for gedit schemas
@@ -63,7 +63,7 @@ AC_MSG_CHECKING([for Win32 platform])
 case "$host" in
   *-*-mingw*|*-*-cygwin*)
     platform_win32=yes
-    TOOLBAR_STYLE="GEDIT_TOOLBAR_ICONS"
+    TOOLBAR_STYLE="'GEDIT_TOOLBAR_ICONS'"
     ;;
   *)
     platform_win32=no
@@ -77,7 +77,7 @@ case "$host" in
   *-*-mingw*)
     os_win32=yes
     AC_CHECK_TOOL(WINDRES, windres)
-    ACTIVE_PLUGINS="${ACTIVE_PLUGINS},checkupdate"
+    ACTIVE_PLUGINS="${ACTIVE_PLUGINS}, 'checkupdate'"
     ;;
   *)
     os_win32=no
@@ -105,7 +105,7 @@ gdk_windowing=`$PKG_CONFIG --variable=target gdk-2.0`
 AC_MSG_CHECKING([for native Mac OS X])
 if test "$gdk_windowing" = "quartz"; then
 	os_osx=yes
-	ACTIVE_PLUGINS="${ACTIVE_PLUGINS},checkupdate"
+	ACTIVE_PLUGINS="${ACTIVE_PLUGINS}, 'checkupdate'"
 else
 	os_osx=no
 fi
@@ -293,6 +293,11 @@ GEDIT_LIBS="$GEDIT_LIBS $X11_LIBS"
 AC_SUBST(GEDIT_CFLAGS)
 AC_SUBST(GEDIT_LIBS)
 
+AC_SUBST(gsettingsschemadir,
+         `pkg-config --variable gsettingsschemadir gio-2.0`)
+AC_SUBST(gsettingsupdateschemacache,
+         `pkg-config --variable gsettingsupdateschemacache gio-2.0`)
+
 dnl FIXME: Remove this when removing gedit-message-area
 
 if $PKG_CONFIG --atleast-version 2.17.1 gtk+-2.0; then
@@ -328,12 +333,6 @@ fi
 
 AC_SUBST(EGG_SMCLIENT_CFLAGS)
 AC_SUBST(EGG_SMCLIENT_LIBS)
-
-dnl ================================================================
-dnl GConf related settings
-dnl ================================================================
-
-AM_GCONF_SOURCE_2
 
 dnl ================================================================
 dnl Python
@@ -514,7 +513,7 @@ Makefile
 data/gedit.desktop.in
 data/gedit-bugreport.sh
 data/gedit.pc
-data/gedit.schemas.in
+data/org.gnome.gedit.schemas
 data/Makefile
 docs/Makefile
 docs/reference/Makefile

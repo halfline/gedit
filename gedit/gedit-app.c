@@ -38,13 +38,13 @@
 #include <glib/gi18n.h>
 
 #include "gedit-app.h"
-#include "gedit-prefs-manager-app.h"
 #include "gedit-commands.h"
 #include "gedit-notebook.h"
 #include "gedit-debug.h"
 #include "gedit-utils.h"
 #include "gedit-enum-types.h"
 #include "gedit-dirs.h"
+#include "gedit-settings.h"
 
 #ifdef OS_OSX
 #include <ige-mac-integration.h>
@@ -71,6 +71,8 @@ struct _GeditAppPrivate
 
 	GtkPageSetup      *page_setup;
 	GtkPrintSettings  *print_settings;
+	
+	GSettings         *settings;
 };
 
 G_DEFINE_TYPE(GeditApp, gedit_app, G_TYPE_OBJECT)
@@ -88,6 +90,20 @@ gedit_app_finalize (GObject *object)
 		g_object_unref (app->priv->print_settings);
 
 	G_OBJECT_CLASS (gedit_app_parent_class)->finalize (object);
+}
+
+static void
+gedit_app_dispose (GObject *object)
+{
+	GeditApp *app = GEDIT_APP (object); 
+
+	if (app->priv->settings != NULL)
+	{
+		g_object_unref (app->priv->settings);
+		app->priv->settings = NULL;
+	}
+
+	G_OBJECT_CLASS (gedit_app_parent_class)->dispose (object);
 }
 
 static void
@@ -115,6 +131,7 @@ gedit_app_class_init (GeditAppClass *klass)
 	GObjectClass *object_class = G_OBJECT_CLASS (klass);
 
 	object_class->finalize = gedit_app_finalize;
+	object_class->dispose = gedit_app_dispose;
 	object_class->get_property = gedit_app_get_property;
 	
 	g_object_class_install_property (object_class,
@@ -336,9 +353,12 @@ gedit_app_init (GeditApp *app)
 	app->priv = GEDIT_APP_GET_PRIVATE (app);
 
 	load_accels ();
+	
+	/* Load settings */
+	app->priv->settings = gedit_settings_new ();
 
 	/* initial lockdown state */
-	app->priv->lockdown = gedit_prefs_manager_get_lockdown ();
+	app->priv->lockdown = gedit_settings_get_lockdown (GEDIT_SETTINGS (app->priv->settings));
 }
 
 static void
@@ -523,17 +543,17 @@ gedit_app_create_window_real (GeditApp    *app,
 		GdkWindowState state;
 		gint w, h;
 
-		state = gedit_prefs_manager_get_window_state ();
+		state = gedit_settings_get_window_state ();
 
 		if ((state & GDK_WINDOW_STATE_MAXIMIZED) != 0)
 		{
-			gedit_prefs_manager_get_default_window_size (&w, &h);
+			gedit_settings_get_default_window_size (&w, &h);
 			gtk_window_set_default_size (GTK_WINDOW (window), w, h);
 			gtk_window_maximize (GTK_WINDOW (window));
 		}
 		else
 		{
-			gedit_prefs_manager_get_window_size (&w, &h);
+			gedit_settings_get_window_size (&w, &h);
 			gtk_window_set_default_size (GTK_WINDOW (window), w, h);
 			gtk_window_unmaximize (GTK_WINDOW (window));
 		}
@@ -900,5 +920,39 @@ _gedit_app_set_default_print_settings (GeditApp         *app,
 		g_object_unref (app->priv->print_settings);
 
 	app->priv->print_settings = g_object_ref (settings);
+}
+
+GSettings *
+gedit_app_get_settings (GeditApp    *app,
+			const gchar *path_list,
+			...)
+{
+	GSettings   *settings;
+	va_list      args;
+	const gchar *path;
+
+	g_return_val_if_fail (GEDIT_IS_APP (app), NULL);
+
+	settings = app->priv->settings;
+	g_object_ref (settings);
+	
+	va_start (args, path_list);
+	for (path = path_list; path; path = va_arg (args, const gchar *))
+	{
+		GSettings *aux;
+		
+		aux = g_settings_get_settings (settings, path);
+		g_object_unref (settings);
+		settings = aux;
+		
+		if (settings == NULL)
+		{
+			va_end (args);
+			return NULL;
+		}
+	}
+	va_end (args);
+	
+	return settings;
 }
 

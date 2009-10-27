@@ -45,7 +45,6 @@
 #include "gedit-utils.h"
 #include "gedit-document.h"
 #include "gedit-io-error-message-area.h"
-#include "gedit-prefs-manager.h"
 #include <gedit/gedit-encodings-combo-box.h>
 
 #if !GTK_CHECK_VERSION (2, 17, 1)
@@ -1004,6 +1003,8 @@ gedit_no_backup_saving_error_message_area_new (GFile        *location,
 	gchar *full_formatted_uri;
 	gchar *uri_for_display;
 	gchar *temp_uri_for_display;
+	gboolean create_backup_copy;
+	GSettings *editor_settings;
 
 	g_return_val_if_fail (G_IS_FILE (location), NULL);
 	g_return_val_if_fail (error != NULL, NULL);
@@ -1057,9 +1058,14 @@ gedit_no_backup_saving_error_message_area_new (GFile        *location,
 	vbox = gtk_vbox_new (FALSE, 6);
 	gtk_box_pack_start (GTK_BOX (hbox_content), vbox, TRUE, TRUE, 0);
 
-	// FIXME: review this messages
+	editor_settings = gedit_app_get_settings (gedit_app_get_default (),
+						  "preferences", "editor", NULL);
 
-	if (gedit_prefs_manager_get_create_backup_copy ())
+	g_settings_get (editor_settings, GS_CREATE_BACKUP_COPY, &create_backup_copy);
+	g_object_unref (editor_settings);
+
+	// FIXME: review this messages
+	if (create_backup_copy)
 		primary_text = g_strdup_printf (_("Could not create a backup file while saving %s"),
 						uri_for_display);
 	else

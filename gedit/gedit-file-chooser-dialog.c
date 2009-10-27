@@ -43,9 +43,9 @@
 #include "gedit-file-chooser-dialog.h"
 #include "gedit-encodings-combo-box.h"
 #include "gedit-language-manager.h"
-#include "gedit-prefs-manager-app.h"
 #include "gedit-debug.h"
 #include "gedit-enum-types.h"
+#include "gedit-settings.h"
 
 #define GEDIT_FILE_CHOOSER_DIALOG_GET_PRIVATE(object)(G_TYPE_INSTANCE_GET_PRIVATE ((object), GEDIT_TYPE_FILE_CHOOSER_DIALOG, GeditFileChooserDialogPrivate))
 
@@ -250,7 +250,7 @@ filter_changed (GeditFileChooserDialog *dialog,
 {
 	GtkFileFilter *filter;
 
-	if (!gedit_prefs_manager_active_file_filter_can_set ())
+	if (!gedit_settings_active_file_filter_can_set ())
 		return;
 
 	filter = gtk_file_chooser_get_filter (GTK_FILE_CHOOSER (dialog));
@@ -267,7 +267,7 @@ filter_changed (GeditFileChooserDialog *dialog,
 
 		gedit_debug_message (DEBUG_COMMANDS, "Active filter: %s (%d)", name, id);
 
-		gedit_prefs_manager_set_active_file_filter (id);
+		gedit_settings_set_active_file_filter (id);
 	}
 }
 
@@ -391,7 +391,7 @@ gedit_file_chooser_dialog_new_valist (const gchar          *title,
 				GEDIT_ENCODINGS_COMBO_BOX (GEDIT_FILE_CHOOSER_DIALOG (result)->priv->option_menu),
 				encoding);
 
-	active_filter = gedit_prefs_manager_get_active_file_filter ();
+	active_filter = gedit_settings_get_active_file_filter ();
 	gedit_debug_message (DEBUG_COMMANDS, "Active filter: %d", active_filter);
 
 	/* Filters */

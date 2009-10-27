@@ -48,7 +48,6 @@
 #include "gedit-utils.h"
 
 #include "gedit-document.h"
-#include "gedit-prefs-manager.h"
 #include "gedit-debug.h"
 
 /* For the workspace/viewport stuff */
@@ -1519,4 +1518,219 @@ gedit_utils_decode_uri (const gchar *uri,
 		*path = g_uri_unescape_segment (hier_part_start, hier_part_end, "/");
 	
 	return TRUE;
+}
+
+GtkWrapMode
+gedit_utils_get_wrap_mode_from_string (const gchar *str)
+{
+	GtkWrapMode res;
+
+	g_return_val_if_fail (str != NULL, GTK_WRAP_WORD);
+	
+	if (strcmp (str, "GTK_WRAP_NONE") == 0)
+		res = GTK_WRAP_NONE;
+	else
+	{
+		if (strcmp (str, "GTK_WRAP_CHAR") == 0)
+			res = GTK_WRAP_CHAR;
+		else
+			res = GTK_WRAP_WORD;
+	}
+
+	return res;
+}
+
+gchar *
+gedit_utils_get_wrap_str (guint mode)
+{
+	gchar *str;
+
+	switch (mode)
+	{
+		case GTK_WRAP_NONE:
+			str = g_strdup ("GTK_WRAP_NONE");
+			break;
+
+		case GTK_WRAP_CHAR:
+			str = g_strdup ("GTK_WRAP_CHAR");
+			break;
+
+		default: /* GTK_WRAP_WORD */
+			str = g_strdup ("GTK_WRAP_WORD");
+	}
+	
+	return str;
+}
+
+GtkSourceSmartHomeEndType
+gedit_utils_get_smart_home_end_from_string (const gchar *str)
+{
+	GtkSourceSmartHomeEndType res;
+
+	g_return_val_if_fail (str != NULL, GTK_SOURCE_SMART_HOME_END_AFTER);
+
+	if (strcmp (str, "DISABLED") == 0)
+		res = GTK_SOURCE_SMART_HOME_END_DISABLED;
+	else if (strcmp (str, "BEFORE") == 0)
+		res = GTK_SOURCE_SMART_HOME_END_BEFORE;
+	else if (strcmp (str, "ALWAYS") == 0)
+		res = GTK_SOURCE_SMART_HOME_END_ALWAYS;
+	else
+		res = GTK_SOURCE_SMART_HOME_END_AFTER;
+
+	return res;
+}
+
+GeditToolbarSetting
+gedit_utils_get_toolbar_style_from_string (const gchar *str)
+{
+	GeditToolbarSetting res;
+
+	g_return_val_if_fail (str != NULL, 0);
+
+	if (strcmp (str, "GEDIT_TOOLBAR_ICONS") == 0)
+		res = GEDIT_TOOLBAR_ICONS;
+	else
+	{
+		if (strcmp (str, "GEDIT_TOOLBAR_ICONS_AND_TEXT") == 0)
+			res = GEDIT_TOOLBAR_ICONS_AND_TEXT;
+		else 
+		{
+			if (strcmp (str, "GEDIT_TOOLBAR_ICONS_BOTH_HORIZ") == 0)
+				res = GEDIT_TOOLBAR_ICONS_BOTH_HORIZ;
+			else
+				res = GEDIT_TOOLBAR_SYSTEM;
+		}
+	}
+	
+	return res;
+}
+
+/* Encodings */
+
+static gboolean
+data_exists (GSList         *list,
+	     const gpointer  data)
+{
+	while (list != NULL)
+	{
+		if (list->data == data)
+			return TRUE;
+
+		list = g_slist_next (list);
+	}
+
+	return FALSE;
+}
+
+GSList *
+gedit_utils_get_encodings_from_list_str (const GSList *enc_str)
+{
+	GSList *res = NULL;
+	GSList *l;
+	const GeditEncoding *enc;
+	
+	for (l = (GSList *)enc_str; l != NULL; l = g_slist_next (l))
+	{
+		const gchar *charset = l->data;
+
+		if (strcmp (charset, "CURRENT") == 0)
+			g_get_charset (&charset);
+
+		g_return_val_if_fail (charset != NULL, NULL);
+		enc = gedit_encoding_get_from_charset (charset);
+
+		if (enc != NULL)
+		{
+			if (!data_exists (res, (gpointer)enc))
+				res = g_slist_prepend (res, (gpointer)enc);
+
+		}
+	}
+
+	return g_slist_reverse (res);
+}
+
+GSList *
+gedit_utils_get_str_list_from_encondings (const GSList *enc_list)
+{
+	GSList *list = NULL;
+	GSList *l;
+
+	for (l = (GSList *)enc_list; l != NULL; l = g_slist_next (l))
+	{
+		const GeditEncoding *enc;
+		const gchar *charset;
+		
+		enc = (const GeditEncoding *)l->data;
+
+		charset = gedit_encoding_get_charset (enc);
+		g_return_val_if_fail (charset != NULL, NULL);
+
+		list = g_slist_prepend (list, g_strdup (charset));
+	}
+
+	return g_slist_reverse (list);
+}
+
+GSList *
+gedit_utils_get_list_from_settings (GSettings   *settings,
+				    const gchar *key)
+{
+	GSList *list = NULL;
+	GVariant *variant;
+	const gchar **values;
+	gint n_items;
+	gint i = 0;
+	
+	g_return_val_if_fail (G_IS_SETTINGS (settings), NULL);
+	g_return_val_if_fail (key != NULL, NULL);
+	
+	variant = g_settings_get_value (settings, key);
+	g_return_val_if_fail (variant != NULL, NULL);
+	
+	values = g_variant_get_strv (variant, &n_items);
+	
+	while (i < n_items)
+	{
+		list = g_slist_prepend (list, g_strdup (values[i]));
+		i++;
+	}
+	
+	g_free (values);
+	g_variant_unref (variant);
+	
+	return g_slist_reverse (list);
+}
+
+void
+gedit_utils_set_list_into_settings (GSettings    *settings,
+				    const gchar  *key,
+				    const GSList *list)
+{
+	GVariant *variant;
+	gchar **values;
+	GSList *l;
+	gint i;
+	gint len;
+	
+	g_return_if_fail (G_IS_SETTINGS (settings));
+	g_return_if_fail (key != NULL);
+	g_return_if_fail (list != NULL);
+	
+	len = g_slist_length ((GSList *)list);
+	
+	values = g_new (gchar *, len);
+	
+	for (l = (GSList *)list, i = 0; l != NULL; l = g_slist_next (l), i++);
+	{
+		values[i] = l->data;
+	}
+	
+	variant = g_variant_new_strv ((const gchar * const *)values, len);
+	
+	g_settings_set_value (settings, key, variant);
+	
+	g_free (values);
+	g_variant_unref (variant);
 }
