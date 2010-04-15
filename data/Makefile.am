@@ -3,7 +3,10 @@ desktop_in_files = gedit.desktop.in
 desktop_DATA 	 = $(desktop_in_files:.desktop.in=.desktop)
 @INTLTOOL_DESKTOP_RULE@
 
-gsettingsschema_DATA = org.gnome.gedit.schemas
+gsettingsschema_in_files = org.gnome.gedit.gschema.in
+gsettingsschema_DATA = $(gsettingsschema_in_files:.gschema.in=.gschema)
+org.gnome.gedit.gschema: org.gnome.gedit.gschema.in
+	gsettings-schema-convert -f $< -o $@
 
 man_MANS = gedit.1
 

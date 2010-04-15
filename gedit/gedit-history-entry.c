@@ -366,7 +366,7 @@ gedit_history_entry_load_history (GeditHistoryEntry *entry)
 	const gchar **items;
 	GtkListStore *store;
 	GtkTreeIter iter;
-	gint i;
+	gsize i;
 
 	g_return_if_fail (GEDIT_IS_HISTORY_ENTRY (entry));
 
@@ -421,7 +421,7 @@ gedit_history_entry_init (GeditHistoryEntry *entry)
 	priv->completion = NULL;
 	
 	gedit = g_settings_new ("org.gnome.gedit");
-	priv->settings = g_settings_get_settings (gedit, "history");
+	priv->settings = g_settings_get_child (gedit, "history");
 	g_object_unref (gedit);
 }
 

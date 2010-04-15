@@ -192,7 +192,7 @@ on_auto_save_changed (GSettings              *settings,
 
 	gedit_debug (DEBUG_PREFS);
 	
-	g_settings_get (settings, key, &value);
+	g_settings_get (settings, key, "b", &value);
 
 	if (value)
 	{
@@ -212,7 +212,7 @@ setup_editor_page (GeditPreferencesDialog *dlg)
 	gedit_debug (DEBUG_PREFS);
 
 	/* Get values */
-	g_settings_get (dlg->priv->editor, GS_AUTO_SAVE, &auto_save);
+	g_settings_get (dlg->priv->editor, GS_AUTO_SAVE, "b", &auto_save);
 
 	/* Set widget sensitivity */
 	gtk_widget_set_sensitive (dlg->priv->auto_save_spinbutton,
@@ -272,7 +272,7 @@ wrap_mode_checkbutton_toggled (GtkToggleButton        *button,
 		
 		wrap_str = gedit_utils_get_wrap_str (GTK_WRAP_NONE);
 	
-		g_settings_set (dlg->priv->editor, GS_WRAP_MODE, wrap_str);
+		g_settings_set (dlg->priv->editor, GS_WRAP_MODE, "s", wrap_str);
 		g_free (wrap_str);
 		
 		gtk_widget_set_sensitive (dlg->priv->split_checkbutton, 
@@ -304,7 +304,7 @@ wrap_mode_checkbutton_toggled (GtkToggleButton        *button,
 			wrap_str = gedit_utils_get_wrap_str (GTK_WRAP_CHAR);
 		}
 		
-		g_settings_set (dlg->priv->editor, GS_WRAP_MODE, wrap_str);
+		g_settings_set (dlg->priv->editor, GS_WRAP_MODE, "s", wrap_str);
 		g_free (wrap_str);
 	}
 }
@@ -319,7 +319,7 @@ right_margin_checkbutton_toggled (GtkToggleButton        *button,
 
 	active = gtk_toggle_button_get_active (button);
 	
-	g_settings_set (dlg->priv->editor, GS_DISPLAY_RIGHT_MARGIN, active);
+	g_settings_set (dlg->priv->editor, GS_DISPLAY_RIGHT_MARGIN, "b", active);
 
 	gtk_widget_set_sensitive (dlg->priv->right_margin_position_hbox,
 				  active);
@@ -336,11 +336,11 @@ setup_view_page (GeditPreferencesDialog *dlg)
 	gedit_debug (DEBUG_PREFS);
 	
 	/* Get values */
-	g_settings_get (dlg->priv->editor, GS_WRAP_MODE, &wrap_mode_str);
+	g_settings_get (dlg->priv->editor, GS_WRAP_MODE, "s", &wrap_mode_str);
 	g_settings_get (dlg->priv->editor, GS_DISPLAY_RIGHT_MARGIN,
-			&display_right_margin);
+			"b", &display_right_margin);
 	g_settings_get (dlg->priv->editor, GS_RIGHT_MARGIN_POSITION,
-			&right_margin_position);
+			"u", &right_margin_position);
 	
 	/* Set initial state */
 	wrap_mode = gedit_utils_get_wrap_mode_from_string (wrap_mode_str);
@@ -423,7 +423,7 @@ on_use_default_font_changed (GSettings              *settings,
 	
 	gedit_debug (DEBUG_PREFS);
 
-	g_settings_get (settings, key, &value);
+	g_settings_get (settings, key, "b", &value);
 
 	if (value)
 	{
@@ -458,7 +458,8 @@ setup_font_colors_page_font_section (GeditPreferencesDialog *dlg)
 	/* Get values */
 	toplevel = gedit_app_get_settings (gedit_app_get_default (), NULL);
 	system_font = gedit_settings_get_system_font (GEDIT_SETTINGS (toplevel));
-	g_settings_get (dlg->priv->editor, GS_USE_DEFAULT_FONT, &use_default_font);
+	g_settings_get (dlg->priv->editor, GS_USE_DEFAULT_FONT,
+			"b", &use_default_font);
 	g_object_unref (toplevel);
 
 	label = g_strdup_printf(_("_Use the system fixed width font (%s)"),
@@ -525,7 +526,7 @@ style_scheme_changed (GtkWidget              *treeview,
 	gtk_tree_model_get (GTK_TREE_MODEL (dlg->priv->schemes_treeview_model),
 			    &iter, ID_COLUMN, &id, -1);
 
-	g_settings_set (dlg->priv->editor, GS_SCHEME, id);
+	g_settings_set (dlg->priv->editor, GS_SCHEME, "s", id);
 
 	set_buttons_sensisitivity_according_to_scheme (dlg, id);
 
@@ -543,7 +544,7 @@ ensure_color_scheme_id (GeditPreferencesDialog *dlg,
 	{
 		gchar *pref_id;
 
-		g_settings_get (dlg->priv->editor, GS_SCHEME, &pref_id);
+		g_settings_get (dlg->priv->editor, GS_SCHEME, "s", &pref_id);
 		
 		scheme = gtk_source_style_scheme_manager_get_scheme (manager,
 								     pref_id);
@@ -664,7 +665,7 @@ add_scheme_chooser_response_cb (GtkDialog              *chooser,
 		return;
 	}
 	
-	g_settings_set (dlg->priv->editor, GS_SCHEME, scheme_id);
+	g_settings_set (dlg->priv->editor, GS_SCHEME, "s", scheme_id);
 
 	scheme_id = populate_color_scheme_list (dlg, scheme_id);
 
@@ -804,7 +805,7 @@ uninstall_scheme_clicked (GtkButton              *button,
 			
 			if (real_new_id != NULL)
 			{
-				g_settings_set (dlg->priv->editor, GS_SCHEME, real_new_id);
+				g_settings_set (dlg->priv->editor, GS_SCHEME, "s", real_new_id);
 			}
 		}
 

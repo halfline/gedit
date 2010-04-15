@@ -230,7 +230,7 @@ update_menu (GeditEncodingsOptionMenu *option_menu)
 	menu = gtk_menu_new ();
 
 	tmp = gedit_utils_get_list_from_settings (option_menu->priv->enc_settings,
-						  GS_ENCONDING_SHOW_IN_MENU);
+						  GS_ENCODING_SHOW_IN_MENU);
 
 	encodings = list = gedit_utils_get_encodings_from_list_str (tmp);
 	

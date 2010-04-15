@@ -702,7 +702,7 @@ set_language (GeditDocument     *doc,
 		gboolean syntax_hl;
 		
 		g_settings_get (doc->priv->editor_settings, GS_SYNTAX_HIGHLIGHTING,
-				&syntax_hl);
+				"b", &syntax_hl);
 		
 		gtk_source_buffer_set_highlight_syntax (GTK_SOURCE_BUFFER (doc),
 							syntax_hl);
@@ -756,7 +756,7 @@ get_default_style_scheme (GSettings *editor_settings)
 	GtkSourceStyleSchemeManager *manager;
 
 	manager = gedit_get_style_scheme_manager ();
-	g_settings_get (editor_settings, GS_SCHEME, &scheme_id);
+	g_settings_get (editor_settings, GS_SCHEME, "s", &scheme_id);
 	def_style = gtk_source_style_scheme_manager_get_scheme (manager,
 								scheme_id);
 
@@ -941,11 +941,11 @@ gedit_document_init (GeditDocument *doc)
 	doc->priv->newline_type = GEDIT_DOCUMENT_NEWLINE_TYPE_DEFAULT;
 
 	g_settings_get (doc->priv->editor_settings, GS_MAX_UNDO_ACTIONS,
-			&undo_actions);
+			"u", &undo_actions);
 	g_settings_get (doc->priv->editor_settings, GS_BRACKET_MATCHING,
-			&bracket_matching);
+			"b", &bracket_matching);
 	g_settings_get (doc->priv->editor_settings, GS_SEARCH_HIGHLIGHTING,
-			&search_hl);
+			"b", &search_hl);
 
 	gtk_source_buffer_set_max_undo_levels (GTK_SOURCE_BUFFER (doc), 
 					       undo_actions);
@@ -1323,7 +1323,7 @@ document_loader_loaded (GeditDocumentLoader *loader,
 		                  gedit_document_loader_get_newline_type (loader));
 
 		g_settings_get (doc->priv->editor_settings, GS_RESTORE_CURSOR_POSITION,
-				&restore_cursor);
+				"b", &restore_cursor);
 
 		/* move the cursor at the requested line if any */
 		if (doc->priv->requested_line_pos > 0)

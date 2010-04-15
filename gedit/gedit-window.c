@@ -585,9 +585,9 @@ set_toolbar_style (GeditWindow *window,
 	gchar *toolbar_style_str;
 	
 	g_settings_get (window->priv->ui_settings, GS_TOOLBAR_VISIBLE,
-			&toolbar_visible);
+			"b", &toolbar_visible);
 	g_settings_get (window->priv->ui_settings, GS_TOOLBAR_BUTTONS_STYLE,
-			&toolbar_style_str);
+			"s", &toolbar_style_str);
 	
 	if (origin == NULL)
 		visible = toolbar_visible;
@@ -755,7 +755,7 @@ set_sensitivity_according_to_tab (GeditWindow *window,
 	gedit_debug (DEBUG_WINDOW);
 	
 	g_settings_get (window->priv->editor_settings, GS_SYNTAX_HIGHLIGHTING,
-			&enable_syntax_highlighting);
+			"b", &enable_syntax_highlighting);
 
 	lockdown = gedit_app_get_lockdown (gedit_app_get_default ());
 
@@ -1310,7 +1310,8 @@ update_recent_files_menu (GeditWindow *window)
 
 	gedit_debug (DEBUG_WINDOW);
 
-	g_settings_get (window->priv->ui_settings, GS_MAX_RECENTS, &max_recents);
+	g_settings_get (window->priv->ui_settings, GS_MAX_RECENTS,
+			"u", &max_recents);
 
 	g_return_if_fail (p->recents_action_group != NULL);
 
@@ -1448,7 +1449,7 @@ toolbar_visibility_changed (GtkWidget   *toolbar,
 
 	visible = GTK_WIDGET_VISIBLE (toolbar);
 
-	g_settings_set (window->priv->ui_settings, GS_TOOLBAR_VISIBLE, visible);
+	g_settings_set (window->priv->ui_settings, GS_TOOLBAR_VISIBLE, "b", visible);
 
 	action = gtk_action_group_get_action (window->priv->always_sensitive_action_group,
 					      "ViewToolbar");
@@ -1470,7 +1471,8 @@ setup_toolbar_open_button (GeditWindow *window,
 
 	recent_manager = gtk_recent_manager_get_default ();
 	
-	g_settings_get (window->priv->ui_settings, GS_MAX_RECENTS, &max_recents);
+	g_settings_get (window->priv->ui_settings, GS_MAX_RECENTS,
+			"u", &max_recents);
 
 	/* recent files menu tool button */
 	toolbar_recent_menu = gtk_recent_chooser_menu_new_for_manager (recent_manager);
@@ -1862,7 +1864,7 @@ set_statusbar_style (GeditWindow *window,
 
 	if (origin == NULL)
 		g_settings_get (window->priv->ui_settings, GS_STATUSBAR_VISIBLE,
-				&visible);
+				"b", &visible);
 	else
 		visible = GTK_WIDGET_VISIBLE (origin->priv->statusbar);
 
@@ -1889,7 +1891,7 @@ statusbar_visibility_changed (GtkWidget   *statusbar,
 
 	visible = GTK_WIDGET_VISIBLE (statusbar);
 
-	g_settings_set (window->priv->ui_settings, GS_STATUSBAR_VISIBLE, visible);
+	g_settings_set (window->priv->ui_settings, GS_STATUSBAR_VISIBLE, "b", visible);
 
 	action = gtk_action_group_get_action (window->priv->always_sensitive_action_group,
 					      "ViewStatusbar");
@@ -2683,7 +2685,7 @@ _gedit_window_set_lockdown (GeditWindow       *window,
 
 	/* start/stop autosave in each existing tab */
 	g_settings_get (window->priv->editor_settings, GS_AUTO_SAVE,
-			&autosave);
+			"b", &autosave);
 	gtk_container_foreach (GTK_CONTAINER (window->priv->notebook),
 			       update_tab_autosave,
 			       &autosave);
@@ -3679,7 +3681,7 @@ side_panel_visibility_changed (GtkWidget   *side_panel,
 	visible = GTK_WIDGET_VISIBLE (side_panel);
 
 	g_settings_set (window->priv->ui_settings, GS_SIDE_PANE_VISIBLE,
-			visible);
+			"b", visible);
 
 	action = gtk_action_group_get_action (window->priv->panes_action_group,
 	                                      "ViewSidePane");
@@ -3733,7 +3735,7 @@ bottom_panel_visibility_changed (GeditPanel  *bottom_panel,
 	visible = GTK_WIDGET_VISIBLE (bottom_panel);
 
 	g_settings_set (window->priv->ui_settings, GS_BOTTOM_PANE_VISIBLE,
-			visible);
+			"b", visible);
 
 	action = gtk_action_group_get_action (window->priv->panes_action_group,
 					      "ViewBottomPane");
@@ -3823,9 +3825,9 @@ init_panels_visibility (GeditWindow *window)
 					    active_page);
 
 	g_settings_get (window->priv->ui_settings, GS_SIDE_PANE_VISIBLE,
-			&side_pane_visible);
+			"b", &side_pane_visible);
 	g_settings_get (window->priv->ui_settings, GS_BOTTOM_PANE_VISIBLE,
-			&bottom_pane_visible);
+			"b", &bottom_pane_visible);
 
 	if (side_pane_visible)
 	{

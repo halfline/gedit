@@ -1652,7 +1652,7 @@ gedit_utils_get_encodings_from_list_str (const GSList *enc_str)
 }
 
 GSList *
-gedit_utils_get_str_list_from_encondings (const GSList *enc_list)
+gedit_utils_get_str_list_from_encodings (const GSList *enc_list)
 {
 	GSList *list = NULL;
 	GSList *l;
@@ -1680,7 +1680,7 @@ gedit_utils_get_list_from_settings (GSettings   *settings,
 	GSList *list = NULL;
 	GVariant *variant;
 	const gchar **values;
-	gint n_items;
+	gsize n_items;
 	gint i = 0;
 	
 	g_return_val_if_fail (G_IS_SETTINGS (settings), NULL);

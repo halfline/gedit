@@ -164,7 +164,7 @@ GtkSourceSmartHomeEndType gedit_utils_get_smart_home_end_from_string (const gcha
 GeditToolbarSetting gedit_utils_get_toolbar_style_from_string (const gchar *str);
 
 GSList		*gedit_utils_get_encodings_from_list_str (const GSList *enc_str);
-GSList		*gedit_utils_get_str_list_from_encondings (const GSList *enc);
+GSList		*gedit_utils_get_str_list_from_encodings (const GSList *enc);
 
 GSList		*gedit_utils_get_list_from_settings	(GSettings   *settings,
 							 const gchar *key);
@@ -176,5 +176,3 @@ void		 gedit_utils_set_list_into_settings	(GSettings    *settings,
 G_END_DECLS
 
 #endif /* __GEDIT_UTILS_H__ */
-
-

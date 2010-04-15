@@ -513,7 +513,7 @@ Makefile
 data/gedit.desktop.in
 data/gedit-bugreport.sh
 data/gedit.pc
-data/org.gnome.gedit.schemas
+data/org.gnome.gedit.gschema.in
 data/Makefile
 docs/Makefile
 docs/reference/Makefile

@@ -360,7 +360,7 @@ gedit_view_init (GeditView *view)
 
 	/* Get setting values */
 	g_settings_get (view->priv->editor_settings, GS_USE_DEFAULT_FONT,
-			&use_default_font);
+			"b", &use_default_font);
 
 	/*
 	 *  Set tab, fonts, wrap mode, colors, etc. according
@@ -371,7 +371,7 @@ gedit_view_init (GeditView *view)
 		gchar *editor_font;
 
 		g_settings_get (view->priv->editor_settings, GS_EDITOR_FONT,
-				&editor_font);
+				"s", &editor_font);
 
 		gedit_view_set_font (view, FALSE, editor_font);
 
@@ -383,24 +383,27 @@ gedit_view_init (GeditView *view)
 	}
  
 	g_settings_get (view->priv->editor_settings,GS_DISPLAY_LINE_NUMBERS,
-			&display_line_numbers);
-	g_settings_get (view->priv->editor_settings,GS_AUTO_INDENT, &auto_indent);
-	g_settings_get (view->priv->editor_settings, GS_TABS_SIZE, &tabs_size);
+			"b", &display_line_numbers);
+	g_settings_get (view->priv->editor_settings,GS_AUTO_INDENT,
+			"b", &auto_indent);
+	g_settings_get (view->priv->editor_settings, GS_TABS_SIZE,
+			"u", &tabs_size);
 	g_settings_get (view->priv->editor_settings, GS_INSERT_SPACES,
-			&insert_spaces);
+			"b", &insert_spaces);
 	g_settings_get (view->priv->editor_settings, GS_DISPLAY_RIGHT_MARGIN,
-			&display_right_margin);
+			"b", &display_right_margin);
 	g_settings_get (view->priv->editor_settings, GS_RIGHT_MARGIN_POSITION,
-			&right_margin_position);
+			"u", &right_margin_position);
 	g_settings_get (view->priv->editor_settings, GS_HIGHLIGHT_CURRENT_LINE,
-			&hl_current_line);
+			"b", &hl_current_line);
 
-	g_settings_get (view->priv->editor_settings, GS_WRAP_MODE, &wrap_str);
+	g_settings_get (view->priv->editor_settings, GS_WRAP_MODE,
+			"s", &wrap_str);
 	wrap_mode = gedit_utils_get_wrap_mode_from_string (wrap_str);
 	g_free (wrap_str);
 	
 	g_settings_get (view->priv->editor_settings, GS_SMART_HOME_END,
-			&smart_home_str);
+			"s", &smart_home_str);
 	smart_home_end = gedit_utils_get_smart_home_end_from_string (smart_home_str);
 	g_free (smart_home_str);
 

@@ -1,0 +1,68 @@
+schema org.gnome.gedit:
+  path /apps/gedit/
+  
+  child preferences:
+    child editor:
+      key use_default_font = @b true
+      key editor_font = @s 'Monospace 12'
+      key scheme = @s 'classic'
+      key create_backup_copy = @b true
+      key auto_save = @b false
+      key auto_save_interval = @u 10
+      key undo_actions_limit = @u 25
+      key max_undo_actions = @u 2000
+      key wrap_mode = @s 'GTK_WRAP_WORD'
+      key tabs_size = @u 8
+      key insert_spaces = @b false
+      key auto_indent = @b false
+      key display_line_numbers = @b false
+      key highlight_current_line = @b false
+      key bracket_matching = @b false
+      key display_right_margin = @b false
+      key right_margin_position = @u 80
+      key smart_home_end = @s 'after'
+      key writable_vfs_schemes = @as ['dav', 'davs', 'ftp', 'sftp', 'smb', 'ssh']
+      key restore_cursor_position = @b true
+      key syntax_highlighting = @b true
+      key search_highlighting = @b true
+
+    child ui:
+      key toolbar_visible = @b true
+      key toolbar_buttons_style = @s @TOOLBAR_STYLE@
+      key statusbar_visible = @b true
+      key side_pane_visible = @b false
+      key bottom_pane_visible = @b false
+      key max_recents = @u 5
+
+    child print:
+      key print_syntax_highlighting = @b true
+      key print_header = @b true
+      key print_wrap_mode = @s 'GTK_WRAP_WORD'
+      key print_line_numbers = @u 0
+      key print_font_body_pango = @s 'Monospace 9'
+      key print_font_header_pango = @s 'Sans 11'
+      key print_font_numbers_pango = @s 'Sans 8'
+
+    child encodings:
+      key auto_detected = @as ['UTF-8', 'CURRENT', 'ISO-8859-15', 'UTF-16']
+      key shown_in_menu = @as ['ISO-8859-15']
+
+  child plugins:
+    key active_plugins = @as [@ACTIVE_PLUGINS@]
+
+  child history:
+    key gedit2_search_for_entry = @as ['']
+    key gedit2_replace_with_entry = @as ['']
+
+schema org.gnome.Desktop.Lockdown:
+  path /desktop/gnome/lockdown
+  
+  key disable_command_line = @b false
+  key disable_printing = @b false
+  key disable_print_setup = @b false
+  key disable_save_to_disk = @b false
+
+schema org.gnome.Desktop.Interface:
+  path /desktop/gnome/interface
+  
+  key monospace_font_name = @s 'Monospace 10'

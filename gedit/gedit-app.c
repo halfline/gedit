@@ -941,7 +941,7 @@ gedit_app_get_settings (GeditApp    *app,
 	{
 		GSettings *aux;
 		
-		aux = g_settings_get_settings (settings, path);
+		aux = g_settings_get_child (settings, path);
 		g_object_unref (settings);
 		settings = aux;
 		

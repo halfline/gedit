@@ -145,8 +145,8 @@ G_END_DECLS
 #define GS_PRINT_FONT_BODY_PANGO	"print_font_body_pango"
 #define GS_PRINT_FONT_HEADER_PANGO	"print_font_header_pango"
 #define GS_PRINT_FONT_NUMBERS_PANGO	"print_font_numbers_pango"
-#define GS_ENCONDING_AUTO_DETECTED	"auto_detected"
-#define GS_ENCONDING_SHOW_IN_MENU	"show_in_menu"
+#define GS_ENCODING_AUTO_DETECTED	"auto_detected"
+#define GS_ENCODING_SHOW_IN_MENU	"show_in_menu"
 #define GS_ACTIVE_PLUGINS		"active_plugins"
 
 #endif /* __GEDIT_SETTINGS_H__ */

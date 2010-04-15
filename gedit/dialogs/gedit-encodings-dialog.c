@@ -259,7 +259,7 @@ init_shown_in_menu_tree_model (GeditEncodingsDialog *dialog)
 
 	/* add data to the list store */
 	tmp = gedit_utils_get_list_from_settings (dialog->priv->enc_settings,
-						  GS_ENCONDING_SHOW_IN_MENU);
+						  GS_ENCODING_SHOW_IN_MENU);
 
 	list = gedit_utils_get_encodings_from_list_str (tmp);
 	
@@ -304,10 +304,10 @@ response_handler (GtkDialog            *dialog,
 	{
 		GSList *enc_str;
 		
-		enc_str = gedit_utils_get_str_list_from_encondings (dlg->priv->show_in_menu_list);
+		enc_str = gedit_utils_get_str_list_from_encodings (dlg->priv->show_in_menu_list);
 	
 		gedit_utils_set_list_into_settings (dlg->priv->enc_settings,
-						    GS_ENCONDING_SHOW_IN_MENU,
+						    GS_ENCODING_SHOW_IN_MENU,
 						    enc_str);
 		
 		g_slist_foreach (enc_str, (GFunc) g_free, NULL);

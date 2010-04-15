@@ -388,7 +388,7 @@ set_view_properties_according_to_state (GeditTab      *tab,
 	gboolean hl_current_line;
 	
 	g_settings_get (tab->priv->editor, GS_HIGHLIGHT_CURRENT_LINE,
-			&hl_current_line);
+			"b", &hl_current_line);
 
 	val = ((state == GEDIT_TAB_STATE_NORMAL) &&
 	       (tab->priv->print_preview == NULL) &&
@@ -1550,9 +1550,9 @@ gedit_tab_init (GeditTab *tab)
 					GTK_POLICY_AUTOMATIC);
 
 	/* Manage auto save data */
-	g_settings_get (tab->priv->editor, GS_AUTO_SAVE, &auto_save);
+	g_settings_get (tab->priv->editor, GS_AUTO_SAVE, "b", &auto_save);
 	g_settings_get (tab->priv->editor, GS_AUTO_SAVE_INTERVAL,
-			&auto_save_interval);
+			"u", &auto_save_interval);
 	
 	lockdown = gedit_app_get_lockdown (gedit_app_get_default ());
 	tab->priv->auto_save = auto_save &&
