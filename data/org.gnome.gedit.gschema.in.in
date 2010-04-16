@@ -55,7 +55,7 @@ schema org.gnome.gedit:
     key gedit2_replace_with_entry = @as ['']
 
 schema org.gnome.Desktop.Lockdown:
-  path /desktop/gnome/lockdown
+  path /desktop/gnome/lockdown/
   
   key disable_command_line = @b false
   key disable_printing = @b false
@@ -63,6 +63,6 @@ schema org.gnome.Desktop.Lockdown:
   key disable_save_to_disk = @b false
 
 schema org.gnome.Desktop.Interface:
-  path /desktop/gnome/interface
+  path /desktop/gnome/interface/
   
   key monospace_font_name = @s 'Monospace 10'
