@@ -34,12 +34,12 @@
 #include "gedit-utils.h"
 #include "gedit-window-private.h"
 
-#define GS_LOCKDOWN_COMMAND_LINE "disable_command_line"
-#define GS_LOCKDOWN_PRINTING "disable_printing"
-#define GS_LOCKDOWN_PRINT_SETUP "disable_print_setup"
-#define GS_LOCKDOWN_SAVE_TO_DISK "disable_save_to_disk"
+#define GS_LOCKDOWN_COMMAND_LINE "disable-command-line"
+#define GS_LOCKDOWN_PRINTING "disable-printing"
+#define GS_LOCKDOWN_PRINT_SETUP "disable-print-setup"
+#define GS_LOCKDOWN_SAVE_TO_DISK "disable-save-to-disk"
 
-#define GS_SYSTEM_FONT "monospace_font_name"
+#define GS_SYSTEM_FONT "monospace-font-name"
 
 #define GEDIT_STATE_DEFAULT_WINDOW_STATE	0
 #define GEDIT_STATE_DEFAULT_WINDOW_WIDTH	650
@@ -1319,7 +1319,7 @@ gedit_settings_get_system_font (GeditSettings *gs)
 
 	g_return_val_if_fail (GEDIT_IS_SETTINGS (gs), NULL);
 	
-	g_settings_get (gs->priv->interface, "monospace_font_name",
+	g_settings_get (gs->priv->interface, "monospace-font-name",
 			"s", &system_font);
 	
 	return system_font;
