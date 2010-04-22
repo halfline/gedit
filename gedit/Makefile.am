@@ -81,7 +81,6 @@ NOINST_H_FILES =			\
 	gedit-plugin-loader.h		\
 	gedit-plugin-manager.h		\
 	gedit-plugins-engine.h		\
-	gedit-prefs-manager-private.h	\
 	gedit-print-job.h		\
 	gedit-print-preview.h		\
 	gedit-session.h			\
@@ -108,8 +107,6 @@ INST_H_FILES =				\
 	gedit-notebook.h		\
 	gedit-panel.h			\
 	gedit-plugin.h			\
-	gedit-prefs-manager-app.h	\
-	gedit-prefs-manager.h		\
 	gedit-progress-message-area.h	\
 	gedit-statusbar.h		\
 	gedit-status-combo-box.h	\

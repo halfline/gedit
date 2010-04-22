@@ -38,12 +38,13 @@
 #include <glib/gstdio.h>
 #include <gio/gio.h>
 
+#include "gedit-app.h"
 #include "gedit-gio-document-loader.h"
 #include "gedit-document-output-stream.h"
 #include "gedit-smart-charset-converter.h"
-#include "gedit-prefs-manager.h"
 #include "gedit-debug.h"
 #include "gedit-utils.h"
+#include "gedit-settings.h"
 
 #ifndef ENABLE_GVFS_METADATA
 #include "gedit-metadata-manager.h"
@@ -79,6 +80,8 @@ static void open_async_read (AsyncData *async);
 
 struct _GeditGioDocumentLoaderPrivate
 {
+	GSettings        *enc_settings;
+
 	goffset           bytes_read;
 
 	/* Handle for remote files */
@@ -157,6 +160,10 @@ gedit_gio_document_loader_init (GeditGioDocumentLoader *gvloader)
 
 	gvloader->priv->converter = NULL;
 	gvloader->priv->error = NULL;
+
+	gvloader->priv->enc_settings = gedit_app_get_settings (gedit_app_get_default (),
+							       "preferences", "encodings",
+							       NULL);
 }
 
 static AsyncData *
@@ -431,9 +438,15 @@ static GSList *
 get_candidate_encodings (GeditGioDocumentLoader *gvloader)
 {
 	const GeditEncoding *metadata;
-	GSList *encodings = NULL;
+	GSList *encodings, *l;
 
-	encodings = gedit_prefs_manager_get_auto_detected_encodings ();
+	l = gedit_utils_get_list_from_settings (gvloader->priv->enc_settings,
+						GS_ENCODING_AUTO_DETECTED);
+
+	encodings = gedit_utils_get_encodings_from_list_str (l);
+
+	g_slist_foreach (l, (GFunc) g_free, NULL);
+	g_slist_free (l);
 
 	metadata = get_metadata_encoding (GEDIT_DOCUMENT_LOADER (gvloader));
 	if (metadata != NULL)

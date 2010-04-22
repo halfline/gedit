@@ -39,7 +39,6 @@
 
 #include "gedit-document-saver.h"
 #include "gedit-debug.h"
-#include "gedit-prefs-manager.h"
 #include "gedit-marshal.h"
 #include "gedit-utils.h"
 #include "gedit-enum-types.h"
