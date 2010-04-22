@@ -592,7 +592,10 @@ main (int argc, char *argv[])
 	/* Setup debugging */
 	gedit_debug_init ();
 	gedit_debug_message (DEBUG_APP, "Startup");
-	
+
+	/* FIXME: Remove when gconf not needed anymore */
+	g_setenv ("GSETTINGS_BACKEND", "gconf", FALSE);
+
 	setlocale (LC_ALL, "");
 
 	dir = gedit_dirs_get_gedit_locale_dir ();
