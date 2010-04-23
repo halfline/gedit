@@ -1183,11 +1183,11 @@ initialize (GeditSettings *gs)
 
 	/* editor changes */
 	g_signal_connect (gs->priv->editor,
-			  "changed::use_default_font",
+			  "changed::use-default-font",
 			  G_CALLBACK (on_use_default_font_changed),
 			  gs);
 	g_signal_connect (gs->priv->editor,
-			  "changed::editor_font",
+			  "changed::editor-font",
 			  G_CALLBACK (on_editor_font_changed),
 			  gs);
 	g_signal_connect (gs->priv->editor,
@@ -1195,75 +1195,75 @@ initialize (GeditSettings *gs)
 			  G_CALLBACK (on_scheme_changed),
 			  gs);
 	g_signal_connect (gs->priv->editor,
-			  "changed::auto_save",
+			  "changed::auto-save",
 			  G_CALLBACK (on_auto_save_changed),
 			  gs);
 	g_signal_connect (gs->priv->editor,
-			  "changed::auto_save_interval",
+			  "changed::auto-save-interval",
 			  G_CALLBACK (on_auto_save_interval_changed),
 			  gs);
 	g_signal_connect (gs->priv->editor,
-			  "changed::undo_actions_limit",
+			  "changed::undo-actions-limit",
 			  G_CALLBACK (on_undo_actions_limit_changed),
 			  gs);
 	g_signal_connect (gs->priv->editor,
-			  "changed::wrap_mode",
+			  "changed::wrap-mode",
 			  G_CALLBACK (on_wrap_mode_changed),
 			  gs);
 	g_signal_connect (gs->priv->editor,
-			  "changed::tabs_size",
+			  "changed::tabs-size",
 			  G_CALLBACK (on_tabs_size_changed),
 			  gs);
 	g_signal_connect (gs->priv->editor,
-			  "changed::insert_spaces",
+			  "changed::insert-spaces",
 			  G_CALLBACK (on_insert_spaces_changed),
 			  gs);
 	g_signal_connect (gs->priv->editor,
-			  "changed::auto_indent",
+			  "changed::auto-indent",
 			  G_CALLBACK (on_auto_indent_changed),
 			  gs);
 	g_signal_connect (gs->priv->editor,
-			  "changed::display_line_numbers",
+			  "changed::display-line-numbers",
 			  G_CALLBACK (on_display_line_numbers_changed),
 			  gs);
 	g_signal_connect (gs->priv->editor,
-			  "changed::highlight_current_line",
+			  "changed::highlight-current-line",
 			  G_CALLBACK (on_hl_current_line_changed),
 			  gs);
 	g_signal_connect (gs->priv->editor,
-			  "changed::bracket_matching",
+			  "changed::bracket-matching",
 			  G_CALLBACK (on_bracket_matching_changed),
 			  gs);
 	g_signal_connect (gs->priv->editor,
-			  "changed::display_right_margin",
+			  "changed::display-right-margin",
 			  G_CALLBACK (on_display_right_margin_changed),
 			  gs);
 	g_signal_connect (gs->priv->editor,
-			  "changed::right_margin_position",
+			  "changed::right-margin-position",
 			  G_CALLBACK (on_right_margin_position_changed),
 			  gs);
 	g_signal_connect (gs->priv->editor,
-			  "changed::smart_home_end",
+			  "changed::smart-home-end",
 			  G_CALLBACK (on_smart_home_end_changed),
 			  gs);
 	g_signal_connect (gs->priv->editor,
-			  "changed::syntax_highlighting",
+			  "changed::syntax-highlighting",
 			  G_CALLBACK (on_syntax_highlighting_changed),
 			  gs);
 	g_signal_connect (gs->priv->editor,
-			  "changed::search_highlighting",
+			  "changed::search-highlighting",
 			  G_CALLBACK (on_search_highlighting_changed),
 			  gs);
 
 	/* ui changes */
 	g_signal_connect (gs->priv->ui,
-			  "changed::max_recents",
+			  "changed::max-recents",
 			  G_CALLBACK (on_max_recents_changed),
 			  gs);
 
 	/* plugins changes */
 	g_signal_connect (gs->priv->plugins,
-			  "changed::active_plugins",
+			  "changed::active-plugins",
 			  G_CALLBACK (on_active_plugins_changed),
 			  gs);
 }
