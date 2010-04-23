@@ -1061,8 +1061,8 @@ gedit_no_backup_saving_error_message_area_new (GFile        *location,
 	editor_settings = gedit_app_get_settings (gedit_app_get_default (),
 						  "preferences", "editor", NULL);
 
-	g_settings_get (editor_settings, GS_CREATE_BACKUP_COPY,
-			"b", &create_backup_copy);
+	create_backup_copy = g_settings_get_boolean (editor_settings,
+						     GS_CREATE_BACKUP_COPY);
 	g_object_unref (editor_settings);
 
 	// FIXME: review this messages

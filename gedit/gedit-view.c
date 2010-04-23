@@ -359,8 +359,8 @@ gedit_view_init (GeditView *view)
 							      NULL);
 
 	/* Get setting values */
-	g_settings_get (view->priv->editor_settings, GS_USE_DEFAULT_FONT,
-			"b", &use_default_font);
+	use_default_font = g_settings_get_boolean (view->priv->editor_settings,
+						   GS_USE_DEFAULT_FONT);
 
 	/*
 	 *  Set tab, fonts, wrap mode, colors, etc. according
@@ -370,8 +370,8 @@ gedit_view_init (GeditView *view)
 	{
 		gchar *editor_font;
 
-		g_settings_get (view->priv->editor_settings, GS_EDITOR_FONT,
-				"s", &editor_font);
+		editor_font = g_settings_get_string (view->priv->editor_settings,
+						     GS_EDITOR_FONT);
 
 		gedit_view_set_font (view, FALSE, editor_font);
 
@@ -382,28 +382,28 @@ gedit_view_init (GeditView *view)
 		gedit_view_set_font (view, TRUE, NULL);
 	}
  
-	g_settings_get (view->priv->editor_settings,GS_DISPLAY_LINE_NUMBERS,
-			"b", &display_line_numbers);
-	g_settings_get (view->priv->editor_settings,GS_AUTO_INDENT,
-			"b", &auto_indent);
+	display_line_numbers = g_settings_get_boolean (view->priv->editor_settings,
+						       GS_DISPLAY_LINE_NUMBERS);
+	auto_indent = g_settings_get_boolean (view->priv->editor_settings,
+					      GS_AUTO_INDENT);
 	g_settings_get (view->priv->editor_settings, GS_TABS_SIZE,
 			"u", &tabs_size);
-	g_settings_get (view->priv->editor_settings, GS_INSERT_SPACES,
-			"b", &insert_spaces);
-	g_settings_get (view->priv->editor_settings, GS_DISPLAY_RIGHT_MARGIN,
-			"b", &display_right_margin);
+	insert_spaces = g_settings_get_boolean (view->priv->editor_settings,
+						GS_INSERT_SPACES);
+	display_right_margin = g_settings_get_boolean (view->priv->editor_settings,
+						       GS_DISPLAY_RIGHT_MARGIN);
 	g_settings_get (view->priv->editor_settings, GS_RIGHT_MARGIN_POSITION,
 			"u", &right_margin_position);
-	g_settings_get (view->priv->editor_settings, GS_HIGHLIGHT_CURRENT_LINE,
-			"b", &hl_current_line);
+	hl_current_line = g_settings_get_boolean (view->priv->editor_settings,
+						  GS_HIGHLIGHT_CURRENT_LINE);
 
-	g_settings_get (view->priv->editor_settings, GS_WRAP_MODE,
-			"s", &wrap_str);
+	wrap_str = g_settings_get_string (view->priv->editor_settings,
+					  GS_WRAP_MODE);
 	wrap_mode = gedit_utils_get_wrap_mode_from_string (wrap_str);
 	g_free (wrap_str);
 	
-	g_settings_get (view->priv->editor_settings, GS_SMART_HOME_END,
-			"s", &smart_home_str);
+	smart_home_str = g_settings_get_string (view->priv->editor_settings,
+						GS_SMART_HOME_END);
 	smart_home_end = gedit_utils_get_smart_home_end_from_string (smart_home_str);
 	g_free (smart_home_str);
 

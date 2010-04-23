@@ -285,12 +285,12 @@ restore_button_clicked (GtkButton     *button,
 {
 	gchar *body, *header, *numbers;
 	
-	g_settings_get (job->priv->print_settings, GS_PRINT_FONT_BODY_PANGO,
-			"s", &body);
-	g_settings_get (job->priv->print_settings, GS_PRINT_FONT_HEADER_PANGO,
-			"s", &header);
-	g_settings_get (job->priv->print_settings, GS_PRINT_FONT_NUMBERS_PANGO,
-			"s", &numbers);
+	body = g_settings_get_string (job->priv->print_settings,
+				      GS_PRINT_FONT_BODY_PANGO);
+	header = g_settings_get_string (job->priv->print_settings,
+					GS_PRINT_FONT_HEADER_PANGO);
+	numbers = g_settings_get_string (job->priv->print_settings,
+					 GS_PRINT_FONT_NUMBERS_PANGO);
 
 	gtk_font_button_set_font_name (
 			GTK_FONT_BUTTON (job->priv->body_fontbutton),
@@ -358,20 +358,20 @@ create_custom_widget_cb (GtkPrintOperation *operation,
 	}
 
 	/* Get all settings values */
-	g_settings_get (job->priv->print_settings, GS_PRINT_SYNTAX_HIGHLIGHTING,
-			"b", &syntax_hl);
-	g_settings_get (job->priv->print_settings, GS_PRINT_HEADER,
-			"b", &print_header);
+	syntax_hl = g_settings_get_boolean (job->priv->print_settings,
+					    GS_PRINT_SYNTAX_HIGHLIGHTING);
+	print_header = g_settings_get_boolean (job->priv->print_settings,
+					       GS_PRINT_HEADER);
 	g_settings_get (job->priv->print_settings, GS_PRINT_LINE_NUMBERS,
 			"u", &line_numbers);
-	g_settings_get (job->priv->print_settings, GS_PRINT_WRAP_MODE,
-			"s", &wrap_str);
-	g_settings_get (job->priv->print_settings, GS_PRINT_FONT_BODY_PANGO,
-			"s", &font_body);
-	g_settings_get (job->priv->print_settings, GS_PRINT_FONT_HEADER_PANGO,
-			"s", &font_header);
-	g_settings_get (job->priv->print_settings, GS_PRINT_FONT_NUMBERS_PANGO,
-			"s", &font_numbers);
+	wrap_str = g_settings_get_string (job->priv->print_settings,
+					  GS_PRINT_WRAP_MODE);
+	font_body = g_settings_get_string (job->priv->print_settings,
+					   GS_PRINT_FONT_BODY_PANGO);
+	font_header = g_settings_get_string (job->priv->print_settings,
+					     GS_PRINT_FONT_HEADER_PANGO);
+	font_numbers = g_settings_get_string (job->priv->print_settings,
+					      GS_PRINT_FONT_NUMBERS_PANGO);
 
 	/* Print syntax */
 	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (job->priv->syntax_checkbutton),
@@ -466,8 +466,8 @@ set_wrap_setting (GeditPrintJob *job,
 	gchar *wrap_str;
 	
 	wrap_str = gedit_utils_get_wrap_str (mode);
-	g_settings_set (job->priv->print_settings, GS_PRINT_WRAP_MODE,
-			"s", wrap_str);
+	g_settings_set_string (job->priv->print_settings, GS_PRINT_WRAP_MODE,
+			       wrap_str);
 	g_free (wrap_str);
 }
 
@@ -485,16 +485,16 @@ custom_widget_apply_cb (GtkPrintOperation *operation,
 	header = gtk_font_button_get_font_name (GTK_FONT_BUTTON (job->priv->headers_fontbutton));
 	numbers = gtk_font_button_get_font_name (GTK_FONT_BUTTON (job->priv->numbers_fontbutton));
 
-	g_settings_set (job->priv->print_settings, GS_PRINT_SYNTAX_HIGHLIGHTING,
-			"b", syntax);
-	g_settings_set (job->priv->print_settings, GS_PRINT_HEADER,
-			"b", page_header);
-	g_settings_set (job->priv->print_settings, GS_PRINT_FONT_BODY_PANGO,
-			"s", body);
-	g_settings_set (job->priv->print_settings, GS_PRINT_FONT_HEADER_PANGO,
-			"s", header);
-	g_settings_set (job->priv->print_settings, GS_PRINT_FONT_NUMBERS_PANGO,
-			"s", numbers);
+	g_settings_set_boolean (job->priv->print_settings,
+				GS_PRINT_SYNTAX_HIGHLIGHTING, syntax);
+	g_settings_set_boolean (job->priv->print_settings, GS_PRINT_HEADER,
+				page_header);
+	g_settings_set_string (job->priv->print_settings, GS_PRINT_FONT_BODY_PANGO,
+			       body);
+	g_settings_set_string (job->priv->print_settings, GS_PRINT_FONT_HEADER_PANGO,
+			       header);
+	g_settings_set_string (job->priv->print_settings, GS_PRINT_FONT_NUMBERS_PANGO,
+			       numbers);
 
 	if (gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (job->priv->line_numbers_checkbutton)))
 	{
@@ -536,20 +536,20 @@ create_compositor (GeditPrintJob *job)
 	gboolean print_header;
 	
 	/* Create and initialize print compositor */
-	g_settings_get (job->priv->print_settings, GS_PRINT_FONT_BODY_PANGO,
-			"s", &print_font_body);
-	g_settings_get (job->priv->print_settings, GS_PRINT_FONT_HEADER_PANGO,
-			"s", &print_font_header);
-	g_settings_get (job->priv->print_settings, GS_PRINT_FONT_NUMBERS_PANGO,
-			"s", &print_font_numbers);
-	g_settings_get (job->priv->print_settings, GS_PRINT_SYNTAX_HIGHLIGHTING,
-			"b", &syntax_hl);
-	g_settings_get (job->priv->print_settings, GS_PRINT_WRAP_MODE,
-			"s", &wrap_str);
+	print_font_body = g_settings_get_string (job->priv->print_settings,
+						 GS_PRINT_FONT_BODY_PANGO);
+	print_font_header = g_settings_get_string (job->priv->print_settings,
+						   GS_PRINT_FONT_HEADER_PANGO);
+	print_font_numbers = g_settings_get_string (job->priv->print_settings,
+						    GS_PRINT_FONT_NUMBERS_PANGO);
+	syntax_hl = g_settings_get_boolean (job->priv->print_settings,
+					    GS_PRINT_SYNTAX_HIGHLIGHTING);
+	wrap_str = g_settings_get_string (job->priv->print_settings,
+					  GS_PRINT_WRAP_MODE);
 	g_settings_get (job->priv->print_settings, GS_PRINT_LINE_NUMBERS,
 			"u", &print_line_numbers);
-	g_settings_get (job->priv->print_settings, GS_PRINT_HEADER,
-			"b", &print_header);
+	print_header = g_settings_get_boolean (job->priv->print_settings,
+					       GS_PRINT_HEADER);
 	
 	wrap_mode = gedit_utils_get_wrap_mode_from_string (wrap_str);
 	g_free (wrap_str);

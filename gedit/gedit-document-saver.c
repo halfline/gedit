@@ -316,8 +316,8 @@ gedit_document_saver_save (GeditDocumentSaver     *saver,
 	if ((saver->flags & GEDIT_DOCUMENT_SAVE_PRESERVE_BACKUP) != 0)
 		saver->keep_backup = FALSE;
 	else
-		g_settings_get (saver->editor_settings, GS_CREATE_BACKUP_COPY,
-				"b", &saver->keep_backup);
+		saver->keep_backup = g_settings_get_boolean (saver->editor_settings,
+							     GS_CREATE_BACKUP_COPY);
 
 	GEDIT_DOCUMENT_SAVER_GET_CLASS (saver)->save (saver, old_mtime);
 }

@@ -601,7 +601,7 @@ on_lockdown_changed (GSettings   *settings,
 	gboolean locked;
 	GeditApp *app;
 	
-	g_settings_get (settings, key, "b", &locked);
+	locked = g_settings_get_boolean (settings, key);
 	app = gedit_app_get_default ();
 	
 	if (strcmp (key, GS_LOCKDOWN_COMMAND_LINE) == 0)
@@ -653,12 +653,12 @@ on_system_font_changed (GSettings     *settings,
 	gboolean use_default_font;
 	gchar *font;
 	
-	g_settings_get (gs->priv->editor, GS_USE_DEFAULT_FONT,
-			"b", &use_default_font);
+	use_default_font = g_settings_get_boolean (gs->priv->editor,
+						   GS_USE_DEFAULT_FONT);
 	if (!use_default_font)
 		return;
 	
-	g_settings_get (settings, key, "s", &font);
+	font = g_settings_get_string (settings, key);
 	
 	set_font (gs, font);
 	
@@ -673,15 +673,15 @@ on_use_default_font_changed (GSettings     *settings,
 	gboolean def;
 	gchar *font;
 
-	g_settings_get (settings, key, "b", &def);
+	def = g_settings_get_boolean (settings, key);
 	
 	if (def)
 	{
-		g_settings_get (gs->priv->interface, GS_SYSTEM_FONT, "s", &font);
+		font = g_settings_get_string (gs->priv->interface, GS_SYSTEM_FONT);
 	}
 	else
 	{
-		g_settings_get (gs->priv->editor, GS_EDITOR_FONT, "s", &font);
+		font = g_settings_get_string (gs->priv->editor, GS_EDITOR_FONT);
 	}
 	
 	set_font (gs, font);
@@ -697,12 +697,12 @@ on_editor_font_changed (GSettings     *settings,
 	gboolean use_default_font;
 	gchar *font;
 	
-	g_settings_get (gs->priv->editor, GS_USE_DEFAULT_FONT,
-			"b", &use_default_font);
+	use_default_font = g_settings_get_boolean (gs->priv->editor,
+						   GS_USE_DEFAULT_FONT);
 	if (use_default_font)
 		return;
 	
-	g_settings_get (settings, key, "s", &font);
+	font = g_settings_get_string (settings, key);
 	
 	set_font (gs, font);
 	
@@ -719,7 +719,7 @@ on_scheme_changed (GSettings     *settings,
 	GList *docs;
 	GList *l;
 
-	g_settings_get (settings, key, "s", &scheme);
+	scheme = g_settings_get_string (settings, key);
 
 	if (gs->priv->old_scheme != NULL && (strcmp (scheme, gs->priv->old_scheme) == 0))
 		return;
@@ -766,7 +766,7 @@ on_auto_save_changed (GSettings     *settings,
 	GList *docs, *l;
 	gboolean auto_save;
 	
-	g_settings_get (settings, key, "b", &auto_save);
+	auto_save = g_settings_get_boolean (settings, key);
 	
 	docs = gedit_app_get_documents (gedit_app_get_default ());
 	
@@ -834,7 +834,7 @@ on_wrap_mode_changed (GSettings     *settings,
 	GList *views, *l;
 	gchar *wrap_str;
 	
-	g_settings_get (settings, key, "s", &wrap_str);
+	wrap_str = g_settings_get_string (settings, key);
 	
 	wrap_mode = gedit_utils_get_wrap_mode_from_string (wrap_str);
 	g_free (wrap_str);
@@ -883,7 +883,7 @@ on_insert_spaces_changed (GSettings     *settings,
 	GList *views, *l;
 	gboolean spaces;
 	
-	g_settings_get (settings, key, "b", &spaces);
+	spaces = g_settings_get_boolean (settings, key);
 	
 	views = gedit_app_get_views (gedit_app_get_default ());
 	
@@ -905,7 +905,7 @@ on_auto_indent_changed (GSettings     *settings,
 	GList *views, *l;
 	gboolean enable;
 	
-	g_settings_get (settings, key, "b", &enable);
+	enable = g_settings_get_boolean (settings, key);
 	
 	views = gedit_app_get_views (gedit_app_get_default ());
 	
@@ -926,7 +926,7 @@ on_display_line_numbers_changed (GSettings     *settings,
 	GList *views, *l;
 	gboolean line_numbers;
 	
-	g_settings_get (settings, key, "b", &line_numbers);
+	line_numbers = g_settings_get_boolean (settings, key);
 	
 	views = gedit_app_get_views (gedit_app_get_default ());
 	
@@ -947,7 +947,7 @@ on_hl_current_line_changed (GSettings     *settings,
 	GList *views, *l;
 	gboolean hl;
 	
-	g_settings_get (settings, key, "b", &hl);
+	hl = g_settings_get_boolean (settings, key);
 	
 	views = gedit_app_get_views (gedit_app_get_default ());
 	
@@ -968,7 +968,7 @@ on_bracket_matching_changed (GSettings     *settings,
 	GList *docs, *l;
 	gboolean enable;
 	
-	g_settings_get (settings, key, "b", &enable);
+	enable = g_settings_get_boolean (settings, key);
 	
 	docs = gedit_app_get_documents (gedit_app_get_default ());
 	
@@ -989,7 +989,7 @@ on_display_right_margin_changed (GSettings     *settings,
 	GList *views, *l;
 	gboolean display;
 	
-	g_settings_get (settings, key, "b", &display);
+	display = g_settings_get_boolean (settings, key);
 	
 	views = gedit_app_get_views (gedit_app_get_default ());
 	
@@ -1034,7 +1034,7 @@ on_smart_home_end_changed (GSettings     *settings,
 	GList *views, *l;
 	gchar *smart_str;
 	
-	g_settings_get (settings, key, "s", &smart_str);
+	smart_str = g_settings_get_string (settings, key);
 	
 	smart_he = gedit_utils_get_smart_home_end_from_string (smart_str);
 	g_free (smart_str);
@@ -1059,7 +1059,7 @@ on_syntax_highlighting_changed (GSettings     *settings,
 	GList *docs, *l;
 	gboolean enable;
 	
-	g_settings_get (settings, key, "b", &enable);
+	enable = g_settings_get_boolean (settings, key);
 	
 	docs = gedit_app_get_documents (gedit_app_get_default ());
 	
@@ -1097,7 +1097,7 @@ on_search_highlighting_changed (GSettings     *settings,
 	GList *docs, *l;
 	gboolean enable;
 	
-	g_settings_get (settings, key, "b", &enable);
+	enable = g_settings_get_boolean (settings, key);
 	
 	docs = gedit_app_get_documents (gedit_app_get_default ());
 	
@@ -1288,14 +1288,14 @@ gedit_settings_get_lockdown (GeditSettings *gs)
 	guint lockdown = 0;
 	gboolean command_line, printing, print_setup, save_to_disk;
 	
-	g_settings_get (gs->priv->lockdown, GS_LOCKDOWN_COMMAND_LINE,
-			"b", &command_line);
-	g_settings_get (gs->priv->lockdown, GS_LOCKDOWN_PRINTING,
-			"b", &printing);
-	g_settings_get (gs->priv->lockdown, GS_LOCKDOWN_PRINT_SETUP,
-			"b", &print_setup);
-	g_settings_get (gs->priv->lockdown, GS_LOCKDOWN_SAVE_TO_DISK,
-			"b", &save_to_disk);
+	command_line = g_settings_get_boolean (gs->priv->lockdown,
+					       GS_LOCKDOWN_COMMAND_LINE);
+	printing = g_settings_get_boolean (gs->priv->lockdown,
+					   GS_LOCKDOWN_PRINTING);
+	print_setup = g_settings_get_boolean (gs->priv->lockdown,
+					      GS_LOCKDOWN_PRINT_SETUP);
+	save_to_disk = g_settings_get_boolean (gs->priv->lockdown,
+					       GS_LOCKDOWN_SAVE_TO_DISK);
 
 	if (command_line)
 		lockdown |= GEDIT_LOCKDOWN_COMMAND_LINE;
@@ -1319,8 +1319,8 @@ gedit_settings_get_system_font (GeditSettings *gs)
 
 	g_return_val_if_fail (GEDIT_IS_SETTINGS (gs), NULL);
 	
-	g_settings_get (gs->priv->interface, "monospace-font-name",
-			"s", &system_font);
+	system_font = g_settings_get_string (gs->priv->interface,
+					     "monospace-font-name");
 	
 	return system_font;
 }
