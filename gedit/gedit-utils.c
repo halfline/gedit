@@ -1678,27 +1678,22 @@ gedit_utils_get_list_from_settings (GSettings   *settings,
 				    const gchar *key)
 {
 	GSList *list = NULL;
-	GVariant *variant;
-	const gchar **values;
-	gsize n_items;
-	gint i = 0;
-	
+	gchar **values;
+	gsize len, i;
+
 	g_return_val_if_fail (G_IS_SETTINGS (settings), NULL);
 	g_return_val_if_fail (key != NULL, NULL);
+
+	values = g_settings_get_strv (settings, key, &len);
+	i = 0;
 	
-	variant = g_settings_get_value (settings, key);
-	g_return_val_if_fail (variant != NULL, NULL);
-	
-	values = g_variant_get_strv (variant, &n_items);
-	
-	while (i < n_items)
+	while (i < len)
 	{
-		list = g_slist_prepend (list, g_strdup (values[i]));
+		list = g_slist_prepend (list, values[i]);
 		i++;
 	}
-	
+
 	g_free (values);
-	g_variant_unref (variant);
 	
 	return g_slist_reverse (list);
 }
@@ -1708,29 +1703,22 @@ gedit_utils_set_list_into_settings (GSettings    *settings,
 				    const gchar  *key,
 				    const GSList *list)
 {
-	GVariant *variant;
 	gchar **values;
-	GSList *l;
-	gint i;
-	gint len;
-	
+	const GSList *l;
+	gint i, len;
+
 	g_return_if_fail (G_IS_SETTINGS (settings));
 	g_return_if_fail (key != NULL);
 	g_return_if_fail (list != NULL);
-	
+
 	len = g_slist_length ((GSList *)list);
-	
 	values = g_new (gchar *, len);
-	
-	for (l = (GSList *)list, i = 0; l != NULL; l = g_slist_next (l), i++);
+
+	for (l = list, i = 0; l != NULL; l = g_slist_next (l), i++)
 	{
 		values[i] = l->data;
 	}
-	
-	variant = g_variant_new_strv ((const gchar * const *)values, len);
-	
-	g_settings_set_value (settings, key, variant);
-	
+
+	g_settings_set_strv (settings, key, (const gchar * const *)values, len);
 	g_free (values);
-	g_variant_unref (variant);
 }
