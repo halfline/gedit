@@ -293,11 +293,6 @@ GEDIT_LIBS="$GEDIT_LIBS $X11_LIBS"
 AC_SUBST(GEDIT_CFLAGS)
 AC_SUBST(GEDIT_LIBS)
 
-AC_SUBST(gsettingsschemadir,
-         `pkg-config --variable gsettingsschemadir gio-2.0`)
-AC_SUBST(gsettingsupdateschemacache,
-         `pkg-config --variable gsettingsupdateschemacache gio-2.0`)
-
 dnl FIXME: Remove this when removing gedit-message-area
 
 if $PKG_CONFIG --atleast-version 2.17.1 gtk+-2.0; then
@@ -333,6 +328,12 @@ fi
 
 AC_SUBST(EGG_SMCLIENT_CFLAGS)
 AC_SUBST(EGG_SMCLIENT_LIBS)
+
+dnl ================================================================
+dnl GSettings stuff
+dnl ================================================================
+
+GLIB_GSETTINGS
 
 dnl ================================================================
 dnl Python

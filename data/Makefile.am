@@ -19,12 +19,13 @@ gedit-@GEDIT_API_VERSION@.pc: gedit.pc
 bugreportdir = $(libexecdir)/gedit-2
 bugreport_SCRIPTS = gedit-bugreport.sh
 
+if GSETTINGS_SCHEMAS_INSTALL
 install-data-hook:
-	$(gsettingsupdateschemacache) $(gsettingsschemadir)
+	$(GLIB_COMPILE_SCHEMAS) $(gsettingsschemadir)
+endif
 
 EXTRA_DIST = 				\
 	$(desktop_in_files)		\
-	gedit.schemas.in.in		\
 	$(man_MANS)			\
 	gedit.pc.in			\
 	gedit-bugreport.sh.in		\
