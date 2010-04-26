@@ -127,32 +127,31 @@ save_panes_state (GeditWindow *window)
 
 	gedit_debug (DEBUG_WINDOW);
 
-	if (gedit_settings_window_size_can_set ())
-		gedit_settings_set_window_size (window->priv->width,
-						window->priv->height);
+	g_settings_set (window->priv->window_settings, GS_WINDOW_SIZE, "(ii)",
+			window->priv->width, window->priv->height);
 
-	if (gedit_settings_window_state_can_set ())
-		gedit_settings_set_window_state (window->priv->window_state);
+	g_settings_set_int (window->priv->window_settings, GS_WINDOW_STATE,
+			    window->priv->window_state);
 
-	if ((window->priv->side_panel_size > 0) &&
-	    gedit_settings_side_panel_size_can_set ())
-		gedit_settings_set_side_panel_size (
-					window->priv->side_panel_size);
+	if (window->priv->side_panel_size > 0)
+		g_settings_set_int (window->priv->side_panel_settings,
+				    GS_SIDE_PANEL_SIZE,
+				    window->priv->side_panel_size);
 
 	pane_page = _gedit_panel_get_active_item_id (GEDIT_PANEL (window->priv->side_panel));
-	if (pane_page != 0 &&
-	    gedit_settings_side_panel_active_page_can_set ())
-		gedit_settings_set_side_panel_active_page (pane_page);
+	if (pane_page != 0)
+		g_settings_set_int (window->priv->side_panel_settings,
+				    GS_SIDE_PANEL_ACTIVE_PAGE, pane_page);
 
-	if ((window->priv->bottom_panel_size > 0) && 
-	    gedit_settings_bottom_panel_size_can_set ())
-		gedit_settings_set_bottom_panel_size (
-					window->priv->bottom_panel_size);
+	if (window->priv->bottom_panel_size > 0)
+		g_settings_set_int (window->priv->bottom_panel_settings,
+				    GS_BOTTOM_PANEL_SIZE,
+				    window->priv->bottom_panel_size);
 
 	pane_page = _gedit_panel_get_active_item_id (GEDIT_PANEL (window->priv->bottom_panel));
-	if (pane_page != 0 &&
-	    gedit_settings_bottom_panel_active_page_can_set ())
-		gedit_settings_set_bottom_panel_active_page (pane_page);
+	if (pane_page != 0)
+		g_settings_set_int (window->priv->bottom_panel_settings,
+				    GS_BOTTOM_PANEL_ACTIVE_PAGE, pane_page);
 }
 
 #ifdef OS_OSX
@@ -215,18 +214,6 @@ gedit_window_dispose (GObject *object)
 	gedit_debug (DEBUG_WINDOW);
 
 	window = GEDIT_WINDOW (object);
-	
-	if (window->priv->editor_settings != NULL)
-	{
-		g_object_unref (window->priv->editor_settings);
-		window->priv->editor_settings = NULL;
-	}
-	
-	if (window->priv->ui_settings != NULL)
-	{
-		g_object_unref (window->priv->ui_settings);
-		window->priv->ui_settings = NULL;
-	}
 
 	/* Stop tracking removal of panes otherwise we always
 	 * end up with thinking we had no pane active, since they
@@ -294,7 +281,38 @@ gedit_window_dispose (GObject *object)
 		g_object_unref (window->priv->window_group);
 		window->priv->window_group = NULL;
 	}
+
+	/* We must free the settings after saving the panels */
+	if (window->priv->editor_settings != NULL)
+	{
+		g_object_unref (window->priv->editor_settings);
+		window->priv->editor_settings = NULL;
+	}
 	
+	if (window->priv->ui_settings != NULL)
+	{
+		g_object_unref (window->priv->ui_settings);
+		window->priv->ui_settings = NULL;
+	}
+
+	if (window->priv->window_settings != NULL)
+	{
+		g_object_unref (window->priv->window_settings);
+		window->priv->window_settings = NULL;
+	}
+	
+	if (window->priv->side_panel_settings != NULL)
+	{
+		g_object_unref (window->priv->side_panel_settings);
+		window->priv->side_panel_settings = NULL;
+	}
+	
+	if (window->priv->bottom_panel_settings != NULL)
+	{
+		g_object_unref (window->priv->bottom_panel_settings);
+		window->priv->bottom_panel_settings = NULL;
+	}
+
 	/* Now that there have broken some reference loops,
 	 * force collection again.
 	 */
@@ -3820,7 +3838,8 @@ init_panels_visibility (GeditWindow *window)
 	gedit_debug (DEBUG_WINDOW);
 
 	/* side pane */
-	active_page = gedit_settings_get_side_panel_active_page ();
+	active_page = g_settings_get_int (window->priv->side_panel_settings,
+					  GS_SIDE_PANEL_ACTIVE_PAGE);
 	_gedit_panel_set_active_item_by_id (GEDIT_PANEL (window->priv->side_panel),
 					    active_page);
 
@@ -3837,7 +3856,8 @@ init_panels_visibility (GeditWindow *window)
 	/* bottom pane, it can be empty */
 	if (gedit_panel_get_n_items (GEDIT_PANEL (window->priv->bottom_panel)) > 0)
 	{
-		active_page = gedit_settings_get_bottom_panel_active_page ();
+		active_page = g_settings_get_int (window->priv->bottom_panel_settings,
+						  GS_BOTTOM_PANEL_ACTIVE_PAGE);
 		_gedit_panel_set_active_item_by_id (GEDIT_PANEL (window->priv->bottom_panel),
 						    active_page);
 
@@ -4018,6 +4038,14 @@ gedit_window_init (GeditWindow *window)
 	window->priv->ui_settings = gedit_app_get_settings (gedit_app_get_default (),
 							    "preferences", "ui",
 							    NULL);
+	window->priv->window_settings = gedit_app_get_settings (gedit_app_get_default (),
+								"window", NULL);
+	window->priv->side_panel_settings = gedit_app_get_settings (gedit_app_get_default (),
+								    "window", "side-panel",
+								    NULL);
+	window->priv->bottom_panel_settings = gedit_app_get_settings (gedit_app_get_default (),
+								      "window", "bottom-panel",
+								      NULL);
 
 	window->priv->message_bus = gedit_message_bus_new ();
 
@@ -4059,8 +4087,10 @@ gedit_window_init (GeditWindow *window)
 
 	/* panes' state must be restored after panels have been mapped,
 	 * since the bottom pane position depends on the size of the vpaned. */
-	window->priv->side_panel_size = gedit_settings_get_side_panel_size ();
-	window->priv->bottom_panel_size = gedit_settings_get_bottom_panel_size ();
+	window->priv->side_panel_size = g_settings_get_int (window->priv->side_panel_settings,
+							    GS_SIDE_PANEL_SIZE);
+	window->priv->bottom_panel_size = g_settings_get_int (window->priv->bottom_panel_settings,
+							      GS_BOTTOM_PANEL_SIZE);
 
 	g_signal_connect_after (window->priv->hpaned,
 				"map",

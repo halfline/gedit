@@ -70,44 +70,7 @@ GeditLockdownMask	 gedit_settings_get_lockdown			(GeditSettings *gs);
 
 gchar			*gedit_settings_get_system_font			(GeditSettings *gs);
 
-/* Window state */
-gint			 gedit_settings_get_window_state		(void);
-void			 gedit_settings_set_window_state		(gint ws);
-gboolean		 gedit_settings_window_state_can_set		(void);
-
-/* Window size */
-void			 gedit_settings_get_window_size			(gint *width,
-									 gint *height);
-void			 gedit_settings_get_default_window_size		(gint *width,
-									 gint *height);
-void 			 gedit_settings_set_window_size			(gint width,
-									 gint height);
-gboolean		 gedit_settings_window_size_can_set		(void);
-
-/* Side panel */
-gint			 gedit_settings_get_side_panel_size		(void);
-gint			 gedit_settings_get_default_side_panel_size	(void);
-void 			 gedit_settings_set_side_panel_size		(gint ps);
-gboolean		 gedit_settings_side_panel_size_can_set		(void);
-gint			 gedit_settings_get_side_panel_active_page 	(void);
-void 			 gedit_settings_set_side_panel_active_page 	(gint id);
-gboolean		 gedit_settings_side_panel_active_page_can_set	(void);
-
-/* Bottom panel */
-gint			 gedit_settings_get_bottom_panel_size		(void);
-gint			 gedit_settings_get_default_bottom_panel_size	(void);
-void 			 gedit_settings_set_bottom_panel_size		(gint ps);
-gboolean		 gedit_settings_bottom_panel_size_can_set	(void);
-gint			 gedit_settings_get_bottom_panel_active_page	(void);
-void 			 gedit_settings_set_bottom_panel_active_page	(gint id);
-gboolean		 gedit_settings_bottom_panel_active_page_can_set (void);
-
-/* File filter */
-gint			 gedit_settings_get_active_file_filter	(void);
-void			 gedit_settings_set_active_file_filter	(gint id);
-gboolean		 gedit_settings_active_file_filter_can_set	(void);
-
-G_END_DECLS
+void			 gedit_settings_get_default_window_size		(gint *width, gint *height);
 
 /* key constants */
 #define GS_USE_DEFAULT_FONT		"use-default-font"
@@ -148,5 +111,16 @@ G_END_DECLS
 #define GS_ENCODING_AUTO_DETECTED	"auto-detected"
 #define GS_ENCODING_SHOW_IN_MENU	"show-in-menu"
 #define GS_ACTIVE_PLUGINS		"active-plugins"
+
+/* window state keys */
+#define GS_WINDOW_STATE			"state"
+#define GS_WINDOW_SIZE			"size"
+#define GS_SIDE_PANEL_SIZE		"size"
+#define GS_SIDE_PANEL_ACTIVE_PAGE	"active-page"
+#define GS_BOTTOM_PANEL_SIZE		"size"
+#define GS_BOTTOM_PANEL_ACTIVE_PAGE	"active-page"
+#define GS_ACTIVE_FILE_FILTER		"filter-id"
+
+G_END_DECLS
 
 #endif /* __GEDIT_SETTINGS_H__ */

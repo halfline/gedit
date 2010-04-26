@@ -47,6 +47,9 @@ struct _GeditWindowPrivate
 {
 	GSettings      *editor_settings;
 	GSettings      *ui_settings;
+	GSettings      *window_settings;
+	GSettings      *side_panel_settings;
+	GSettings      *bottom_panel_settings;
 
 	GtkWidget      *notebook;
 

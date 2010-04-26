@@ -41,25 +41,8 @@
 
 #define GS_SYSTEM_FONT "monospace-font-name"
 
-#define GEDIT_STATE_DEFAULT_WINDOW_STATE	0
-#define GEDIT_STATE_DEFAULT_WINDOW_WIDTH	650
-#define GEDIT_STATE_DEFAULT_WINDOW_HEIGHT	500
-#define GEDIT_STATE_DEFAULT_SIDE_PANEL_SIZE	200
-#define GEDIT_STATE_DEFAULT_BOTTOM_PANEL_SIZE	140
-
-#define GEDIT_STATE_FILE_LOCATION "gedit-2"
-
-#define GEDIT_STATE_WINDOW_GROUP "window"
-#define GEDIT_STATE_WINDOW_STATE "state"
-#define GEDIT_STATE_WINDOW_HEIGHT "height"
-#define GEDIT_STATE_WINDOW_WIDTH "width"
-#define GEDIT_STATE_SIDE_PANEL_SIZE "side_panel_size"
-#define GEDIT_STATE_BOTTOM_PANEL_SIZE "bottom_panel_size"
-#define GEDIT_STATE_SIDE_PANEL_ACTIVE_PAGE "side_panel_active_page"
-#define GEDIT_STATE_BOTTOM_PANEL_ACTIVE_PAGE "bottom_panel_active_page"
-
-#define GEDIT_STATE_FILEFILTER_GROUP "filefilter"
-#define GEDIT_STATE_FILEFILTER_ID "id"
+#define GEDIT_STATE_DEFAULT_WINDOW_WIDTH       650
+#define GEDIT_STATE_DEFAULT_WINDOW_HEIGHT      500
 
 #define GEDIT_SETTINGS_GET_PRIVATE(object)(G_TYPE_INSTANCE_GET_PRIVATE((object), GEDIT_TYPE_SETTINGS, GeditSettingsPrivate))
 
@@ -76,470 +59,12 @@ struct _GeditSettingsPrivate
 
 G_DEFINE_TYPE (GeditSettings, gedit_settings, G_TYPE_SETTINGS)
 
-/* GUI state is serialized to a .desktop file, not in gconf */
-
-/* FIXME: use the class to manage this */
-static gint window_state = -1;
-static gint window_height = -1;
-static gint window_width = -1;
-static gint side_panel_size = -1;
-static gint bottom_panel_size = -1;
-static gint side_panel_active_page = -1;
-static gint bottom_panel_active_page = -1;
-static gint active_file_filter = -1;
-
-
-static gchar *
-get_state_filename (void)
-{
-	gchar *config_dir;
-	gchar *filename = NULL;
-
-	config_dir = gedit_dirs_get_user_config_dir ();
-
-	if (config_dir != NULL)
-	{
-		filename = g_build_filename (config_dir,
-					     GEDIT_STATE_FILE_LOCATION,
-					     NULL);
-		g_free (config_dir);
-	}
-
-	return filename;
-}
-
-static GKeyFile *
-get_gedit_state_file (void)
-{
-	static GKeyFile *state_file = NULL;
-
-	if (state_file == NULL)
-	{
-		gchar *filename;
-		GError *err = NULL;
-
-		state_file = g_key_file_new ();
-
-		filename = get_state_filename ();
-
-		if (!g_key_file_load_from_file (state_file,
-						filename,
-						G_KEY_FILE_NONE,
-						&err))
-		{
-			if (err->domain != G_FILE_ERROR ||
-			    err->code != G_FILE_ERROR_NOENT)
-			{
-				g_warning ("Could not load gedit state file: %s\n",
-					   err->message);
-			}
-
-			g_error_free (err);
-		}
-
-		g_free (filename);
-	}
-
-	return state_file;
-}
-
-static void
-gedit_state_get_int (const gchar *group,
-		     const gchar *key,
-		     gint         defval,
-		     gint        *result)
-{
-	GKeyFile *state_file;
-	gint res;
-	GError *err = NULL;
-
-	state_file = get_gedit_state_file ();
-	res = g_key_file_get_integer (state_file,
-				      group,
-				      key,
-				      &err);
-
-	if (err != NULL)
-	{
-		if ((err->domain != G_KEY_FILE_ERROR) ||
-		    ((err->code != G_KEY_FILE_ERROR_GROUP_NOT_FOUND &&
-		      err->code != G_KEY_FILE_ERROR_KEY_NOT_FOUND)))
-		{
-			g_warning ("Could not get state value %s::%s : %s\n",
-				   group,
-				   key,
-				   err->message);
-		}
-
-		*result = defval;
-		g_error_free (err);
-	}
-	else
-	{
-		*result = res;
-	}
-}
-
-static void
-gedit_state_set_int (const gchar *group,
-		     const gchar *key,
-		     gint         value)
-{
-	GKeyFile *state_file;
-
-	state_file = get_gedit_state_file ();
-	g_key_file_set_integer (state_file,
-				group,
-				key,
-				value);
-}
-
-static gboolean
-gedit_state_file_sync (void)
-{
-	GKeyFile *state_file;
-	gchar *config_dir;
-	gchar *filename = NULL;
-	gchar *content = NULL;
-	gsize length;
-	gint res;
-	GError *err = NULL;
-	gboolean ret = FALSE;
-
-	state_file = get_gedit_state_file ();
-	g_return_val_if_fail (state_file != NULL, FALSE);
-
-	config_dir = gedit_dirs_get_user_config_dir ();
-	if (config_dir == NULL)
-	{
-		g_warning ("Could not get config directory\n");
-		return ret;
-	}
-
-	res = g_mkdir_with_parents (config_dir, 0755);
-	if (res < 0)
-	{
-		g_warning ("Could not create config directory\n");
-		goto out;
-	}
-
-	content = g_key_file_to_data (state_file,
-				      &length,
-				      &err);
-
-	if (err != NULL)
-	{
-		g_warning ("Could not get data from state file: %s\n",
-			   err->message);
-		goto out;
-	}
-
-	if (content != NULL)
-	{
-		filename = get_state_filename ();
-		if (!g_file_set_contents (filename,
-					  content,
-					  length,
-					  &err))
-		{
-			g_warning ("Could not write gedit state file: %s\n",
-				   err->message);
-			goto out;
-		}
-	}
-
-	ret = TRUE;
-
- out:
-	if (err != NULL)
-		g_error_free (err);
-
-	g_free (config_dir);
-	g_free (filename);
-	g_free (content);
-
-	return ret;
-}
-
-/* Window state */
-gint
-gedit_settings_get_window_state (void)
-{
-	if (window_state == -1)
-	{
-		gedit_state_get_int (GEDIT_STATE_WINDOW_GROUP,
-				     GEDIT_STATE_WINDOW_STATE,
-				     GEDIT_STATE_DEFAULT_WINDOW_STATE,
-				     &window_state);
-	}
-
-	return window_state;
-}
-			
-void
-gedit_settings_set_window_state (gint ws)
-{
-	g_return_if_fail (ws > -1);
-	
-	window_state = ws;
-
-	gedit_state_set_int (GEDIT_STATE_WINDOW_GROUP,
-			     GEDIT_STATE_WINDOW_STATE,
-			     ws);
-}
-
-gboolean
-gedit_settings_window_state_can_set (void)
-{
-	return TRUE;
-}
-
-/* Window size */
-void
-gedit_settings_get_window_size (gint *width, gint *height)
-{
-	g_return_if_fail (width != NULL && height != NULL);
-
-	if (window_width == -1)
-	{
-		gedit_state_get_int (GEDIT_STATE_WINDOW_GROUP,
-				     GEDIT_STATE_WINDOW_WIDTH,
-				     GEDIT_STATE_DEFAULT_WINDOW_WIDTH,
-				     &window_width);
-	}
-
-	if (window_height == -1)
-	{
-		gedit_state_get_int (GEDIT_STATE_WINDOW_GROUP,
-				     GEDIT_STATE_WINDOW_HEIGHT,
-				     GEDIT_STATE_DEFAULT_WINDOW_HEIGHT,
-				     &window_height);
-	}
-
-	*width = window_width;
-	*height = window_height;
-}
-
-void
-gedit_settings_get_default_window_size (gint *width, gint *height)
-{
-	g_return_if_fail (width != NULL && height != NULL);
-
-	*width = GEDIT_STATE_DEFAULT_WINDOW_WIDTH;
-	*height = GEDIT_STATE_DEFAULT_WINDOW_HEIGHT;
-}
-
-void
-gedit_settings_set_window_size (gint width, gint height)
-{
-	g_return_if_fail (width > -1 && height > -1);
-
-	window_width = width;
-	window_height = height;
-
-	gedit_state_set_int (GEDIT_STATE_WINDOW_GROUP,
-			     GEDIT_STATE_WINDOW_WIDTH,
-			     width);
-	gedit_state_set_int (GEDIT_STATE_WINDOW_GROUP,
-			     GEDIT_STATE_WINDOW_HEIGHT,
-			     height);
-}
-
-gboolean 
-gedit_settings_window_size_can_set (void)
-{
-	return TRUE;
-}
-
-/* Side panel */
-gint
-gedit_settings_get_side_panel_size (void)
-{
-	if (side_panel_size == -1)
-	{
-		gedit_state_get_int (GEDIT_STATE_WINDOW_GROUP,
-				     GEDIT_STATE_SIDE_PANEL_SIZE,
-				     GEDIT_STATE_DEFAULT_SIDE_PANEL_SIZE,
-				     &side_panel_size);
-	}
-
-	return side_panel_size;
-}
-
-gint 
-gedit_settings_get_default_side_panel_size (void)
-{
-	return GEDIT_STATE_DEFAULT_SIDE_PANEL_SIZE;
-}
-
-void 
-gedit_settings_set_side_panel_size (gint ps)
-{
-	g_return_if_fail (ps > -1);
-	
-	if (side_panel_size == ps)
-		return;
-		
-	side_panel_size = ps;
-	gedit_state_set_int (GEDIT_STATE_WINDOW_GROUP,
-			     GEDIT_STATE_SIDE_PANEL_SIZE,
-			     ps);
-}
-
-gboolean 
-gedit_settings_side_panel_size_can_set (void)
-{
-	return TRUE;
-}
-
-gint
-gedit_settings_get_side_panel_active_page (void)
-{
-	if (side_panel_active_page == -1)
-	{
-		gedit_state_get_int (GEDIT_STATE_WINDOW_GROUP,
-				     GEDIT_STATE_SIDE_PANEL_ACTIVE_PAGE,
-				     0,
-				     &side_panel_active_page);
-	}
-
-	return side_panel_active_page;
-}
-
-void
-gedit_settings_set_side_panel_active_page (gint id)
-{
-	if (side_panel_active_page == id)
-		return;
-
-	side_panel_active_page = id;
-	gedit_state_set_int (GEDIT_STATE_WINDOW_GROUP,
-			     GEDIT_STATE_SIDE_PANEL_ACTIVE_PAGE,
-			     id);
-}
-
-gboolean 
-gedit_settings_side_panel_active_page_can_set (void)
-{
-	return TRUE;
-}
-
-/* Bottom panel */
-gint
-gedit_settings_get_bottom_panel_size (void)
-{
-	if (bottom_panel_size == -1)
-	{
-		gedit_state_get_int (GEDIT_STATE_WINDOW_GROUP,
-				     GEDIT_STATE_BOTTOM_PANEL_SIZE,
-				     GEDIT_STATE_DEFAULT_BOTTOM_PANEL_SIZE,
-				     &bottom_panel_size);
-	}
-
-	return bottom_panel_size;
-}
-
-gint 
-gedit_settings_get_default_bottom_panel_size (void)
-{
-	return GEDIT_STATE_DEFAULT_BOTTOM_PANEL_SIZE;
-}
-
-void 
-gedit_settings_set_bottom_panel_size (gint ps)
-{
-	g_return_if_fail (ps > -1);
-
-	if (bottom_panel_size == ps)
-		return;
-	
-	bottom_panel_size = ps;
-	gedit_state_set_int (GEDIT_STATE_WINDOW_GROUP,
-			     GEDIT_STATE_BOTTOM_PANEL_SIZE,
-			     ps);
-}
-
-gboolean 
-gedit_settings_bottom_panel_size_can_set (void)
-{
-	return TRUE;
-}
-
-gint
-gedit_settings_get_bottom_panel_active_page (void)
-{
-	if (bottom_panel_active_page == -1)
-	{
-		gedit_state_get_int (GEDIT_STATE_WINDOW_GROUP,
-				     GEDIT_STATE_BOTTOM_PANEL_ACTIVE_PAGE,
-				     0,
-				     &bottom_panel_active_page);
-	}
-
-	return bottom_panel_active_page;
-}
-
-void
-gedit_settings_set_bottom_panel_active_page (gint id)
-{
-	if (bottom_panel_active_page == id)
-		return;
-
-	bottom_panel_active_page = id;
-	gedit_state_set_int (GEDIT_STATE_WINDOW_GROUP,
-			     GEDIT_STATE_BOTTOM_PANEL_ACTIVE_PAGE,
-			     id);
-}
-
-gboolean 
-gedit_settings_bottom_panel_active_page_can_set (void)
-{
-	return TRUE;
-}
-
-/* File filter */
-gint
-gedit_settings_get_active_file_filter (void)
-{
-	if (active_file_filter == -1)
-	{
-		gedit_state_get_int (GEDIT_STATE_FILEFILTER_GROUP,
-				     GEDIT_STATE_FILEFILTER_ID,
-				     0,
-				     &active_file_filter);
-	}
-
-	return active_file_filter;
-}
-
-void
-gedit_settings_set_active_file_filter (gint id)
-{
-	g_return_if_fail (id >= 0);
-	
-	if (active_file_filter == id)
-		return;
-
-	active_file_filter = id;
-	gedit_state_set_int (GEDIT_STATE_FILEFILTER_GROUP,
-			     GEDIT_STATE_FILEFILTER_ID,
-			     id);
-}
-
-gboolean 
-gedit_settings_active_file_filter_can_set (void)
-{
-	return TRUE;
-}
-
 static void
 gedit_settings_finalize (GObject *object)
 {
 	GeditSettings *gs = GEDIT_SETTINGS (object);
-	
+
 	g_free (gs->priv->old_scheme);
-	
-	gedit_state_file_sync ();
 
 	G_OBJECT_CLASS (gedit_settings_parent_class)->finalize (object);
 }
@@ -580,17 +105,6 @@ gedit_settings_dispose (GObject *object)
 	}
 
 	G_OBJECT_CLASS (gedit_settings_parent_class)->dispose (object);
-}
-
-static void
-gedit_settings_class_init (GeditSettingsClass *klass)
-{
-	GObjectClass *object_class = G_OBJECT_CLASS (klass);
-	
-	object_class->finalize = gedit_settings_finalize;
-	object_class->dispose = gedit_settings_dispose;
-
-	g_type_class_add_private (object_class, sizeof (GeditSettingsPrivate));
 }
 
 static void
@@ -1268,17 +782,28 @@ initialize (GeditSettings *gs)
 			  gs);
 }
 
+static void
+gedit_settings_class_init (GeditSettingsClass *klass)
+{
+	GObjectClass *object_class = G_OBJECT_CLASS (klass);
+
+	object_class->finalize = gedit_settings_finalize;
+	object_class->dispose = gedit_settings_dispose;
+
+	g_type_class_add_private (object_class, sizeof (GeditSettingsPrivate));
+}
+
 GSettings *
 gedit_settings_new ()
 {
 	GeditSettings *settings;
-	
+
 	settings = g_object_new (GEDIT_TYPE_SETTINGS,
 				 "schema", "org.gnome.gedit",
 				 NULL);
-	
+
 	initialize (settings);
-	
+
 	return G_SETTINGS (settings);
 }
 
@@ -1323,4 +848,13 @@ gedit_settings_get_system_font (GeditSettings *gs)
 					     "monospace-font-name");
 	
 	return system_font;
+}
+
+void
+gedit_settings_get_default_window_size (gint *width, gint *height)
+{
+	g_return_if_fail (width != NULL && height != NULL);
+
+	*width = GEDIT_STATE_DEFAULT_WINDOW_WIDTH;
+	*height = GEDIT_STATE_DEFAULT_WINDOW_HEIGHT;
 }

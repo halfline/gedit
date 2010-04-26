@@ -47,6 +47,21 @@ schema org.gnome.gedit:
       key auto-detected = @as ['UTF-8', 'CURRENT', 'ISO-8859-15', 'UTF-16']
       key shown-in-menu = @as ['ISO-8859-15']
 
+  child window:
+    key state = @i 0
+    key size = @(ii) (650, 500)
+
+    child side-panel:
+      key size = @i 200
+      key active-page = @i 0
+
+    child bottom-panel:
+      key size = @i 140
+      key active-page = @i 0
+
+    child file-filter:
+      key filter-id = @i 0
+
   child plugins:
     key active-plugins = @as [@ACTIVE_PLUGINS@]
 

@@ -73,6 +73,7 @@ struct _GeditAppPrivate
 	GtkPrintSettings  *print_settings;
 	
 	GSettings         *settings;
+	GSettings         *window_settings;
 };
 
 G_DEFINE_TYPE(GeditApp, gedit_app, G_TYPE_OBJECT)
@@ -96,6 +97,12 @@ static void
 gedit_app_dispose (GObject *object)
 {
 	GeditApp *app = GEDIT_APP (object); 
+
+	if (app->priv->window_settings != NULL)
+	{
+		g_object_unref (app->priv->window_settings);
+		app->priv->window_settings = NULL;
+	}
 
 	if (app->priv->settings != NULL)
 	{
@@ -356,6 +363,7 @@ gedit_app_init (GeditApp *app)
 	
 	/* Load settings */
 	app->priv->settings = gedit_settings_new ();
+	app->priv->window_settings = gedit_app_get_settings (app, "window", NULL);
 
 	/* initial lockdown state */
 	app->priv->lockdown = gedit_settings_get_lockdown (GEDIT_SETTINGS (app->priv->settings));
@@ -543,7 +551,8 @@ gedit_app_create_window_real (GeditApp    *app,
 		GdkWindowState state;
 		gint w, h;
 
-		state = gedit_settings_get_window_state ();
+		state = g_settings_get_int (app->priv->window_settings,
+					    GS_WINDOW_STATE);
 
 		if ((state & GDK_WINDOW_STATE_MAXIMIZED) != 0)
 		{
@@ -553,7 +562,8 @@ gedit_app_create_window_real (GeditApp    *app,
 		}
 		else
 		{
-			gedit_settings_get_window_size (&w, &h);
+			g_settings_get (app->priv->window_settings, GS_WINDOW_SIZE,
+					"(ii)", &w, &h);
 			gtk_window_set_default_size (GTK_WINDOW (window), w, h);
 			gtk_window_unmaximize (GTK_WINDOW (window));
 		}
