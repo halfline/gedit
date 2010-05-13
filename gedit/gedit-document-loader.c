@@ -78,7 +78,8 @@ enum
 	PROP_DOCUMENT,
 	PROP_LOCATION,
 	PROP_ENCODING,
-	PROP_NEWLINE_TYPE
+	PROP_NEWLINE_TYPE,
+	PROP_COMPRESSION_TYPE
 };
 
 #define READ_CHUNK_SIZE 8192
@@ -109,6 +110,7 @@ struct _GeditDocumentLoaderPrivate
 	const GeditEncoding	 *encoding;
 	const GeditEncoding	 *auto_detected_encoding;
 	GeditDocumentNewlineType  auto_detected_newline_type;
+	GeditDocumentCompressionType auto_detected_compression_type;
 	
 	goffset                   bytes_read;
 
@@ -120,6 +122,7 @@ struct _GeditDocumentLoaderPrivate
 	gchar                     buffer[READ_CHUNK_SIZE];
 
 	GError                   *error;
+	gboolean                  guess_content_type_from_content;
 };
 
 G_DEFINE_TYPE(GeditDocumentLoader, gedit_document_loader, G_TYPE_OBJECT)
@@ -149,6 +152,9 @@ gedit_document_loader_set_property (GObject      *object,
 		case PROP_NEWLINE_TYPE:
 			loader->priv->auto_detected_newline_type = g_value_get_enum (value);
 			break;
+		case PROP_COMPRESSION_TYPE:
+			loader->priv->auto_detected_compression_type = g_value_get_enum (value);
+			break;
 		default:
 			G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
 			break;
@@ -176,6 +182,9 @@ gedit_document_loader_get_property (GObject    *object,
 			break;
 		case PROP_NEWLINE_TYPE:
 			g_value_set_enum (value, loader->priv->auto_detected_newline_type);
+			break;
+		case PROP_COMPRESSION_TYPE:
+			g_value_set_enum (value, loader->priv->auto_detected_compression_type);
 			break;
 		default:
 			G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -287,6 +296,18 @@ gedit_document_loader_class_init (GeditDocumentLoaderClass *klass)
 	                                                    GEDIT_TYPE_DOCUMENT_NEWLINE_TYPE,
 	                                                    GEDIT_DOCUMENT_NEWLINE_TYPE_LF,
 	                                                    G_PARAM_READWRITE |
+	                                                    G_PARAM_CONSTRUCT |
+	                                                    G_PARAM_STATIC_NAME |
+	                                                    G_PARAM_STATIC_BLURB));
+
+	g_object_class_install_property (object_class, PROP_COMPRESSION_TYPE,
+	                                 g_param_spec_enum ("compression-type",
+	                                                    "Compression type",
+	                                                    "The compression type",
+	                                                    GEDIT_TYPE_DOCUMENT_COMPRESSION_TYPE,
+	                                                    GEDIT_DOCUMENT_COMPRESSION_TYPE_NONE,
+	                                                    G_PARAM_READWRITE |
+	                                                    G_PARAM_CONSTRUCT |
 	                                                    G_PARAM_STATIC_NAME |
 	                                                    G_PARAM_STATIC_BLURB));
 
@@ -310,10 +331,6 @@ gedit_document_loader_init (GeditDocumentLoader *loader)
 {
 	loader->priv = GEDIT_DOCUMENT_LOADER_GET_PRIVATE (loader);
 
-	loader->priv->used = FALSE;
-	loader->priv->auto_detected_newline_type = GEDIT_DOCUMENT_NEWLINE_TYPE_DEFAULT;
-	loader->priv->converter = NULL;
-	loader->priv->error = NULL;
 	loader->priv->enc_settings = g_settings_new ("org.gnome.gedit.preferences.encodings");
 }
 
@@ -502,6 +519,32 @@ write_file_chunk (AsyncData *async)
 }
 
 static void
+guess_content_type (GeditDocumentLoader *loader,
+                    gsize                bytes_read)
+{
+	if (loader->priv->info != NULL && bytes_read > 0)
+	{
+		gchar *content_type;
+
+		content_type = g_content_type_guess (NULL,
+		                                     (const guchar *)loader->priv->buffer,
+		                                     bytes_read,
+		                                     NULL);
+
+		if (content_type != NULL)
+		{
+			g_file_info_set_attribute_string (loader->priv->info,
+			                                  G_FILE_ATTRIBUTE_STANDARD_CONTENT_TYPE,
+			                                  content_type);
+
+			return;
+		}
+	}
+
+	loader->priv->guess_content_type_from_content = FALSE;
+}
+
+static void
 async_read_cb (GInputStream *stream,
 	       GAsyncResult *res,
 	       AsyncData    *async)
@@ -539,6 +582,14 @@ async_read_cb (GInputStream *stream,
 
 		async_failed (async, loader->priv->error);
 		return;
+	}
+
+	/* guess the content type from the data if needed */
+	if (loader->priv->bytes_read == 0 &&
+	    loader->priv->guess_content_type_from_content)
+	{
+		guess_content_type (async->loader,
+		                    async->read);
 	}
 
 	/* Bump the size. */
@@ -663,10 +714,15 @@ finish_query_info (AsyncData *async)
 		                                            G_CONVERTER (decompressor));
 
 		g_object_unref (decompressor);
+
+		loader->priv->auto_detected_compression_type = GEDIT_DOCUMENT_COMPRESSION_TYPE_GZIP;
+		loader->priv->guess_content_type_from_content = TRUE;
 	}
 	else
 	{
 		base_stream = g_object_ref (loader->priv->stream);
+
+		loader->priv->auto_detected_compression_type = GEDIT_DOCUMENT_COMPRESSION_TYPE_NONE;
 	}
 
 	g_object_unref (loader->priv->stream);
@@ -688,6 +744,7 @@ query_info_cb (GFile        *source,
 {
 	GFileInfo *info;
 	GError *error = NULL;
+	GeditDocumentLoaderPrivate *priv;
 
 	gedit_debug (DEBUG_LOADER);
 
@@ -698,8 +755,10 @@ query_info_cb (GFile        *source,
 		return;
 	}	
 
+	priv = async->loader->priv;
+
 	/* finish the info query */
-	info = g_file_query_info_finish (async->loader->priv->location,
+	info = g_file_query_info_finish (priv->location,
 	                                 res,
 	                                 &error);
 
@@ -710,8 +769,8 @@ query_info_cb (GFile        *source,
 		return;
 	}
 
-	async->loader->priv->info = info;
-	
+	priv->info = info;
+
 	finish_query_info (async);
 }
 
@@ -956,6 +1015,15 @@ gedit_document_loader_get_newline_type (GeditDocumentLoader *loader)
 	return loader->priv->auto_detected_newline_type;
 }
 
+GeditDocumentCompressionType
+gedit_document_loader_get_compression_type (GeditDocumentLoader *loader)
+{
+	g_return_val_if_fail (GEDIT_IS_DOCUMENT_LOADER (loader),
+			      GEDIT_DOCUMENT_COMPRESSION_TYPE_NONE);
+
+	return loader->priv->auto_detected_compression_type;
+}
+
 GFileInfo *
 gedit_document_loader_get_info (GeditDocumentLoader *loader)
 {
@@ -963,4 +1031,13 @@ gedit_document_loader_get_info (GeditDocumentLoader *loader)
 
 	return loader->priv->info;
 }
+
+gboolean
+gedit_document_loader_get_content_type_is_guessed (GeditDocumentLoader *loader)
+{
+	g_return_val_if_fail (GEDIT_IS_DOCUMENT_LOADER (loader), FALSE);
+
+	return loader->priv->guess_content_type_from_content;
+}
+
 /* ex:ts=8:noet: */

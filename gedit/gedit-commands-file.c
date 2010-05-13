@@ -553,6 +553,7 @@ save_dialog_response_cb (GeditFileChooserDialog *dialog,
 	gpointer data;
 	GSList *tabs_to_save_as;
 	GeditDocumentNewlineType newline_type;
+	GeditDocumentCompressionType compression_type;
 
 	gedit_debug (DEBUG_COMMANDS);
 
@@ -571,6 +572,8 @@ save_dialog_response_cb (GeditFileChooserDialog *dialog,
 
 	encoding = gedit_file_chooser_dialog_get_encoding (dialog);
 	newline_type = gedit_file_chooser_dialog_get_newline_type (dialog);
+
+	compression_type = gedit_file_chooser_dialog_get_compression_type (dialog);
 
 	gtk_widget_destroy (GTK_WIDGET (dialog));
 
@@ -595,7 +598,7 @@ save_dialog_response_cb (GeditFileChooserDialog *dialog,
 		 * even if the saving fails... */
 		 _gedit_window_set_default_location (window, file);
 
-		_gedit_tab_save_as (tab, file, encoding, newline_type);
+		_gedit_tab_save_as (tab, file, encoding, newline_type, compression_type);
 	}
 
 	g_object_unref (file);
@@ -685,6 +688,7 @@ file_save_as (GeditTab    *tab,
 	gboolean uri_set = FALSE;
 	const GeditEncoding *encoding;
 	GeditDocumentNewlineType newline_type;
+	GeditDocumentCompressionType compression_type;
 
 	g_return_if_fail (GEDIT_IS_TAB (tab));
 	g_return_if_fail (GEDIT_IS_WINDOW (window));
@@ -758,12 +762,16 @@ file_save_as (GeditTab    *tab,
 	g_return_if_fail (encoding != NULL);
 
 	newline_type = gedit_document_get_newline_type (doc);
+	compression_type = gedit_document_get_compression_type (doc);
 
 	gedit_file_chooser_dialog_set_encoding (GEDIT_FILE_CHOOSER_DIALOG (save_dialog),
 						encoding);
 
 	gedit_file_chooser_dialog_set_newline_type (GEDIT_FILE_CHOOSER_DIALOG (save_dialog),
 	                                            newline_type);
+
+	gedit_file_chooser_dialog_set_compression_type (GEDIT_FILE_CHOOSER_DIALOG (save_dialog),
+	                                                compression_type);
 
 	g_object_set_data (G_OBJECT (save_dialog),
 			   GEDIT_TAB_TO_SAVE_AS,

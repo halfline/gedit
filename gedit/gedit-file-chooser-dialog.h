@@ -84,6 +84,12 @@ void		 gedit_file_chooser_dialog_set_newline_type (GeditFileChooserDialog  *dial
 GeditDocumentNewlineType
 		 gedit_file_chooser_dialog_get_newline_type (GeditFileChooserDialog *dialog);
 
+void		 gedit_file_chooser_dialog_set_compression_type (GeditFileChooserDialog  *dialog,
+							         GeditDocumentCompressionType compression_type);
+
+GeditDocumentCompressionType
+		 gedit_file_chooser_dialog_get_compression_type (GeditFileChooserDialog *dialog);
+
 G_END_DECLS
 
 #endif /* __GEDIT_FILE_CHOOSER_DIALOG_H__ */

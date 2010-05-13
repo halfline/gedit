@@ -62,6 +62,10 @@ struct _GeditFileChooserDialogPrivate
 	GtkWidget *newline_label;
 	GtkWidget *newline_combo;
 	GtkListStore *newline_store;
+
+	GtkWidget *compression_label;
+	GtkWidget *compression_combo;
+	GtkListStore *compression_store;
 };
 
 G_DEFINE_TYPE(GeditFileChooserDialog, gedit_file_chooser_dialog, GTK_TYPE_FILE_CHOOSER_DIALOG)
@@ -217,6 +221,94 @@ create_newline_combo (GeditFileChooserDialog *dialog)
 }
 
 static void
+update_compression_visibility (GeditFileChooserDialog *dialog)
+{
+	if (gtk_file_chooser_get_action (GTK_FILE_CHOOSER (dialog)) == GTK_FILE_CHOOSER_ACTION_SAVE)
+	{
+		gtk_widget_show (dialog->priv->compression_label);
+		gtk_widget_show (dialog->priv->compression_combo);
+	}
+	else
+	{
+		gtk_widget_hide (dialog->priv->compression_label);
+		gtk_widget_hide (dialog->priv->compression_combo);
+	}
+}
+
+static void
+compression_combo_append (GtkComboBox                  *combo,
+                          GtkListStore                 *store,
+                          GtkTreeIter                  *iter,
+                          const gchar                  *label,
+                          GeditDocumentCompressionType  compression_type)
+{
+	gtk_list_store_append (store, iter);
+	gtk_list_store_set (store, iter, 0, label, 1, compression_type, -1);
+
+	if (compression_type == GEDIT_DOCUMENT_COMPRESSION_TYPE_NONE)
+	{
+		gtk_combo_box_set_active_iter (combo, iter);
+	}
+}
+
+static void
+create_compression_combo (GeditFileChooserDialog *dialog)
+{
+	GtkWidget *label, *combo;
+	GtkListStore *store;
+	GtkCellRenderer *renderer;
+	GtkTreeIter iter;
+
+	label = gtk_label_new_with_mnemonic (_("_Compression:"));
+	gtk_misc_set_alignment (GTK_MISC (label), 0, 0.5);
+
+	store = gtk_list_store_new (2, G_TYPE_STRING, GEDIT_TYPE_DOCUMENT_COMPRESSION_TYPE);
+	combo = gtk_combo_box_new_with_model (GTK_TREE_MODEL (store));
+	renderer = gtk_cell_renderer_text_new ();
+
+	gtk_cell_layout_pack_start (GTK_CELL_LAYOUT (combo),
+	                            renderer,
+	                            TRUE);
+
+	gtk_cell_layout_add_attribute (GTK_CELL_LAYOUT (combo),
+	                               renderer,
+	                               "text",
+	                               0);
+
+	compression_combo_append (GTK_COMBO_BOX (combo),
+	                          store,
+	                          &iter,
+	                          _("None"),
+	                          GEDIT_DOCUMENT_COMPRESSION_TYPE_NONE);
+
+	compression_combo_append (GTK_COMBO_BOX (combo),
+	                          store,
+	                          &iter,
+	                          _("GZip"),
+	                          GEDIT_DOCUMENT_COMPRESSION_TYPE_GZIP);
+
+	gtk_label_set_mnemonic_widget (GTK_LABEL (label), combo);
+
+	gtk_box_pack_start (GTK_BOX (dialog->priv->extra_widget),
+	                    label,
+	                    FALSE,
+	                    TRUE,
+	                    0);
+
+	gtk_box_pack_start (GTK_BOX (dialog->priv->extra_widget),
+	                    combo,
+	                    TRUE,
+	                    TRUE,
+	                    0);
+
+	dialog->priv->compression_combo = combo;
+	dialog->priv->compression_label = label;
+	dialog->priv->compression_store = store;
+
+	update_compression_visibility (dialog);
+}
+
+static void
 create_extra_widget (GeditFileChooserDialog *dialog)
 {
 	dialog->priv->extra_widget = gtk_hbox_new (FALSE, 6);
@@ -225,6 +317,7 @@ create_extra_widget (GeditFileChooserDialog *dialog)
 
 	create_option_menu (dialog);
 	create_newline_combo (dialog);
+	create_compression_combo (dialog);
 
 	gtk_file_chooser_set_extra_widget (GTK_FILE_CHOOSER (dialog),
 					   dialog->priv->extra_widget);
@@ -259,6 +352,7 @@ action_changed (GeditFileChooserDialog *dialog,
 	}
 
 	update_newline_visibility (dialog);
+	update_compression_visibility (dialog);
 }
 
 static void
@@ -524,17 +618,14 @@ gedit_file_chooser_dialog_get_encoding (GeditFileChooserDialog *dialog)
 				GEDIT_ENCODINGS_COMBO_BOX (dialog->priv->option_menu));
 }
 
-void
-gedit_file_chooser_dialog_set_newline_type (GeditFileChooserDialog  *dialog,
-					    GeditDocumentNewlineType newline_type)
+static void
+set_enum_combo (GtkComboBox *combo,
+                gint         value)
 {
 	GtkTreeIter iter;
 	GtkTreeModel *model;
 
-	g_return_if_fail (GEDIT_IS_FILE_CHOOSER_DIALOG (dialog));
-	g_return_if_fail (gtk_file_chooser_get_action (GTK_FILE_CHOOSER (dialog)) == GTK_FILE_CHOOSER_ACTION_SAVE);
-
-	model = GTK_TREE_MODEL (dialog->priv->newline_store);
+	model = gtk_combo_box_get_model (combo);
 
 	if (!gtk_tree_model_get_iter_first (model, &iter))
 	{
@@ -543,17 +634,27 @@ gedit_file_chooser_dialog_set_newline_type (GeditFileChooserDialog  *dialog,
 
 	do
 	{
-		GeditDocumentNewlineType nt;
+		gint nt;
 
 		gtk_tree_model_get (model, &iter, 1, &nt, -1);
 
-		if (newline_type == nt)
+		if (value == nt)
 		{
-			gtk_combo_box_set_active_iter (GTK_COMBO_BOX (dialog->priv->newline_combo),
-			                               &iter);
+			gtk_combo_box_set_active_iter (combo, &iter);
 			break;
 		}
 	} while (gtk_tree_model_iter_next (model, &iter));
+}
+
+void
+gedit_file_chooser_dialog_set_newline_type (GeditFileChooserDialog  *dialog,
+					    GeditDocumentNewlineType newline_type)
+{
+	g_return_if_fail (GEDIT_IS_FILE_CHOOSER_DIALOG (dialog));
+	g_return_if_fail (gtk_file_chooser_get_action (GTK_FILE_CHOOSER (dialog)) == GTK_FILE_CHOOSER_ACTION_SAVE);
+
+	set_enum_combo (GTK_COMBO_BOX (dialog->priv->newline_combo),
+	                newline_type);
 }
 
 GeditDocumentNewlineType
@@ -577,4 +678,38 @@ gedit_file_chooser_dialog_get_newline_type (GeditFileChooserDialog *dialog)
 
 	return newline_type;
 }
+
+void
+gedit_file_chooser_dialog_set_compression_type (GeditFileChooserDialog       *dialog,
+                                                GeditDocumentCompressionType  compression_type)
+{
+	g_return_if_fail (GEDIT_IS_FILE_CHOOSER_DIALOG (dialog));
+	g_return_if_fail (gtk_file_chooser_get_action (GTK_FILE_CHOOSER (dialog)) == GTK_FILE_CHOOSER_ACTION_SAVE);
+
+	set_enum_combo (GTK_COMBO_BOX (dialog->priv->compression_combo),
+	                compression_type);
+}
+
+GeditDocumentCompressionType
+gedit_file_chooser_dialog_get_compression_type (GeditFileChooserDialog *dialog)
+{
+	GtkTreeIter iter;
+	GeditDocumentCompressionType compression_type;
+
+	g_return_val_if_fail (GEDIT_IS_FILE_CHOOSER_DIALOG (dialog), GEDIT_DOCUMENT_COMPRESSION_TYPE_NONE);
+	g_return_val_if_fail (gtk_file_chooser_get_action (GTK_FILE_CHOOSER (dialog)) == GTK_FILE_CHOOSER_ACTION_SAVE,
+	                      GEDIT_DOCUMENT_COMPRESSION_TYPE_NONE);
+
+	gtk_combo_box_get_active_iter (GTK_COMBO_BOX (dialog->priv->compression_combo),
+	                               &iter);
+
+	gtk_tree_model_get (GTK_TREE_MODEL (dialog->priv->compression_store),
+	                    &iter,
+	                    1,
+	                    &compression_type,
+	                    -1);
+
+	return compression_type;
+}
+
 /* ex:ts=8:noet: */
