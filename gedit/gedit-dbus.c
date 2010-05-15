@@ -147,7 +147,7 @@ async_data_new (GeditDBus *dbus)
 }
 
 static void
-gedit_dbus_finalize (GObject *object)
+gedit_dbus_dispose (GObject *object)
 {
 	GeditDBus *dbus = GEDIT_DBUS (object);
 
@@ -155,24 +155,29 @@ gedit_dbus_finalize (GObject *object)
 	{
 		g_cancellable_cancel (dbus->priv->stdin_cancellable);
 		g_object_unref (dbus->priv->stdin_cancellable);
+
+		dbus->priv->stdin_cancellable = NULL;
 	}
 
 	if (dbus->priv->stdin_fifo)
 	{
 		g_object_unref (dbus->priv->stdin_fifo);
+		dbus->priv->stdin_fifo = NULL;
 	}
 
 	if (dbus->priv->stdin_out_stream)
 	{
 		g_object_unref (dbus->priv->stdin_out_stream);
+		dbus->priv->stdin_out_stream = NULL;
 	}
 
 	if (dbus->priv->stdin_in_stream)
 	{
 		g_object_unref (dbus->priv->stdin_in_stream);
+		dbus->priv->stdin_in_stream = NULL;
 	}
 
-	G_OBJECT_CLASS (gedit_dbus_parent_class)->finalize (object);
+	G_OBJECT_CLASS (gedit_dbus_parent_class)->dispose (object);
 }
 
 static void
@@ -180,7 +185,7 @@ gedit_dbus_class_init (GeditDBusClass *klass)
 {
 	GObjectClass *object_class = G_OBJECT_CLASS (klass);
 
-	object_class->finalize = gedit_dbus_finalize;
+	object_class->dispose = gedit_dbus_dispose;
 
 	g_type_class_add_private (object_class, sizeof(GeditDBusPrivate));
 }
