@@ -404,5 +404,8 @@ GFile *
 gedit_fifo_get_file (GeditFifo *fifo)
 {
 	g_return_val_if_fail (GEDIT_IS_FIFO (fifo), NULL);
+
 	return g_file_dup (fifo->priv->file);
 }
+
+/* ex:ts=8:noet: */

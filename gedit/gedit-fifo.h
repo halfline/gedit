@@ -78,3 +78,5 @@ GInputStream *gedit_fifo_open_read_finish (GeditFifo     *fifo,
 G_END_DECLS
 
 #endif /* __GEDIT_FIFO_H__ */
+
+/* ex:ts=8:noet: */
