@@ -52,16 +52,6 @@ struct _GeditCommandLineClass {
 	GObjectClass parent_class;
 };
 
-struct _GeditCommandLineGeometry {
-	gint width;
-	gint height;
-	gint xoffset;
-	gint yoffset;
-
-	gint xsign;
-	gint ysign;
-};
-
 GType gedit_command_line_get_type (void) G_GNUC_CONST;
 
 GeditCommandLine *gedit_command_line_get_default (void);
