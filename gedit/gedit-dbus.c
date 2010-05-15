@@ -49,11 +49,12 @@ struct _WaitData
 {
 	GeditDBus *dbus;
 	GeditWindow *window;
-	gboolean close_window;
 	guint32 wait_id;
 
 	guint num_handlers;
 	WaitHandlerFunc func;
+
+	guint close_window : 1;
 };
 
 typedef struct _DisplayParameters DisplayParameters;
@@ -86,8 +87,9 @@ typedef struct
 	GeditWindow *window;
 
 	OpenParameters oparams;
-	gboolean jump_to;
 	WaitData *wait_data;
+
+	guint jump_to : 1;
 } AsyncData;
 
 struct _GeditDBusPrivate
