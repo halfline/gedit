@@ -186,10 +186,11 @@ gedit_zeitgeist_plugin_send_event (GeditZeitgeistPlugin *plugin,
 		event = zeitgeist_event_new_full (interpretation,
 		                                  ZEITGEIST_ZG_USER_ACTIVITY,
 		                                  "application://gedit.desktop",
+		                                  NULL,
 		                                  subject,
 		                                  NULL);
 
-		zeitgeist_log_insert_events_no_reply (zg_log, event, NULL);
+		zeitgeist_log_insert_event_no_reply (zg_log, event, NULL);
 
 		g_free (display_name);
 		g_free (mime_type);
@@ -273,7 +274,7 @@ gedit_zeitgeist_plugin_app_activate (GeditAppActivatable *activatable)
 	zg_log = zeitgeist_log_new ();
 
 	event = zeitgeist_event_new_full (NULL, NULL,
-	                                  "application://gedit.desktop", NULL);
+	                                  "application://gedit.desktop", NULL, NULL);
 	ptr_arr = g_ptr_array_new ();
 	g_ptr_array_add (ptr_arr, event);
 
