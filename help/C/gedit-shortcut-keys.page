@@ -31,9 +31,9 @@
 
   <title>Shortcut keys</title>
 
-  <p>Use <gui>shortcut keys</gui> to perform common tasks more quickly than with
-  the mouse and menus. The following tables list all of <app>gedit's</app>
-  shortcut keys.</p>
+  <p>Use <gui>shortcut keys</gui> to perform routine tasks quickly than with
+  mouse and menus. The following tables list <app>gedit</app>
+  shortcut keys arranged according to their usage.</p>
 
 <!--  
 Please skip this list for now. I'm not sure if it is needed.
