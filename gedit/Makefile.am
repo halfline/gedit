@@ -109,7 +109,7 @@ NOINST_H_FILES =			\
 	gedit-multi-notebook.h		\
 	gedit-notebook.h		\
 	gedit-notebook-popup-menu.h	\
-	gedit-open-tool-button.h	\
+	gedit-open-menu-button.h	\
 	gedit-plugins-engine.h		\
 	gedit-preferences-dialog.h	\
 	gedit-print-job.h		\
@@ -119,7 +119,6 @@ NOINST_H_FILES =			\
 	gedit-status-menu-button.h	\
 	gedit-tab-label.h		\
 	gedittextregion.h		\
-	gedit-ui.h			\
 	gedit-view-frame.h		\
 	gedit-window-private.h
 
@@ -193,7 +192,7 @@ libgedit_c_files =			\
 	gedit-multi-notebook.c		\
 	gedit-notebook.c		\
 	gedit-notebook-popup-menu.c	\
-	gedit-open-tool-button.c	\
+	gedit-open-menu-button.c	\
 	gedit-panel.c			\
 	gedit-plugins-engine.c		\
 	gedit-preferences-dialog.c	\
@@ -265,7 +264,8 @@ EXTRA_DIST = 				\
 	gedit-progress-info-bar.ui	\
 	gedit-status-menu-button.ui	\
 	gedit-view-frame.ui		\
-	gedit-highlight-mode-dialog.ui
+	gedit-highlight-mode-dialog.ui	\
+	gedit-window.ui
 
 CLEANFILES = $(BUILT_SOURCES) $(BUILT_SOURCES_PRIVATE)
 

@@ -537,9 +537,11 @@ create_dialog (GeditWindow *window)
 }
 
 void
-_gedit_cmd_search_find (GtkAction   *action,
-			GeditWindow *window)
+_gedit_cmd_search_find (GSimpleAction *action,
+                        GVariant      *parameter,
+                        gpointer       user_data)
 {
+	GeditWindow *window = GEDIT_WINDOW (user_data);
 	GeditTab *active_tab;
 	GeditViewFrame *frame;
 
@@ -554,9 +556,11 @@ _gedit_cmd_search_find (GtkAction   *action,
 }
 
 void
-_gedit_cmd_search_replace (GtkAction   *action,
-			   GeditWindow *window)
+_gedit_cmd_search_replace (GSimpleAction *action,
+                           GVariant      *parameter,
+                           gpointer       user_data)
 {
+	GeditWindow *window = GEDIT_WINDOW (user_data);
 	gpointer data;
 	GtkWidget *replace_dialog;
 	GeditDocument *doc;
@@ -625,27 +629,35 @@ do_find_again (GeditWindow *window,
 }
 
 void
-_gedit_cmd_search_find_next (GtkAction   *action,
-			     GeditWindow *window)
+_gedit_cmd_search_find_next (GSimpleAction *action,
+                             GVariant      *parameter,
+                             gpointer       user_data)
 {
+	GeditWindow *window = GEDIT_WINDOW (user_data);
+
 	gedit_debug (DEBUG_COMMANDS);
 
 	do_find_again (window, FALSE);
 }
 
 void
-_gedit_cmd_search_find_prev (GtkAction   *action,
-			     GeditWindow *window)
+_gedit_cmd_search_find_prev (GSimpleAction *action,
+                             GVariant      *parameter,
+                             gpointer       user_data)
 {
+	GeditWindow *window = GEDIT_WINDOW (user_data);
+
 	gedit_debug (DEBUG_COMMANDS);
 
 	do_find_again (window, TRUE);
 }
 
 void
-_gedit_cmd_search_clear_highlight (GtkAction   *action,
-				   GeditWindow *window)
+_gedit_cmd_search_clear_highlight (GSimpleAction *action,
+                                   GVariant      *parameter,
+                                   gpointer       user_data)
 {
+	GeditWindow *window = GEDIT_WINDOW (user_data);
 	GeditTab *active_tab;
 	GeditViewFrame *frame;
 
@@ -660,9 +672,11 @@ _gedit_cmd_search_clear_highlight (GtkAction   *action,
 }
 
 void
-_gedit_cmd_search_goto_line (GtkAction   *action,
-			     GeditWindow *window)
+_gedit_cmd_search_goto_line (GSimpleAction *action,
+                             GVariant      *parameter,
+                             gpointer       user_data)
 {
+	GeditWindow *window = GEDIT_WINDOW (user_data);
 	GeditTab *active_tab;
 	GeditViewFrame *frame;
 

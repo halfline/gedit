@@ -85,6 +85,7 @@ struct _GeditAppPrivate
 	GtkPrintSettings  *print_settings;
 
 	GObject           *settings;
+	GSettings         *ui_settings;
 	GSettings         *window_settings;
 
 	PeasExtensionSet  *extensions;
@@ -194,6 +195,7 @@ gedit_app_dispose (GObject *object)
 {
 	GeditApp *app = GEDIT_APP (object);
 
+	g_clear_object (&app->priv->ui_settings);
 	g_clear_object (&app->priv->window_settings);
 	g_clear_object (&app->priv->settings);
 
@@ -375,7 +377,7 @@ quit_activated (GSimpleAction *action,
                 GVariant      *parameter,
                 gpointer       user_data)
 {
-	_gedit_cmd_file_quit (NULL, NULL);
+	_gedit_cmd_file_quit (NULL, NULL, NULL);
 }
 
 static GActionEntry app_entries[] = {
@@ -454,6 +456,7 @@ gedit_app_startup (GApplication *application)
 
 	/* Load settings */
 	app->priv->settings = gedit_settings_new ();
+	app->priv->ui_settings = g_settings_new ("org.gnome.gedit.preferences.ui");
 	app->priv->window_settings = g_settings_new ("org.gnome.gedit.state.window");
 
 	/* initial lockdown state */
@@ -463,12 +466,28 @@ gedit_app_startup (GApplication *application)
 	if (_gedit_app_has_app_menu (app))
 	{
 		GtkBuilder *builder;
+		GAction *action;
 		GError *error = NULL;
 
 		g_action_map_add_action_entries (G_ACTION_MAP (app),
-			                         app_entries,
-			                         G_N_ELEMENTS (app_entries),
-			                         app);
+		                                 app_entries,
+		                                 G_N_ELEMENTS (app_entries),
+		                                 app);
+
+		action = g_settings_create_action (app->priv->ui_settings,
+		                                   "statusbar-visible");
+		g_action_map_add_action (G_ACTION_MAP (app), action);
+		g_object_unref (action);
+
+		action = g_settings_create_action (app->priv->ui_settings,
+		                                   "side-panel-visible");
+		g_action_map_add_action (G_ACTION_MAP (app), action);
+		g_object_unref (action);
+
+		action = g_settings_create_action (app->priv->ui_settings,
+		                                   "bottom-panel-visible");
+		g_action_map_add_action (G_ACTION_MAP (app), action);
+		g_object_unref (action);
 
 		builder = gtk_builder_new ();
 		if (!gtk_builder_add_from_resource (builder,
@@ -489,6 +508,48 @@ gedit_app_startup (GApplication *application)
 
 		g_object_unref (builder);
 	}
+
+	/* Accelerators */
+	gtk_application_add_accelerator (GTK_APPLICATION (application),
+	                                 "<Control>O", "win.open", NULL);
+	gtk_application_add_accelerator (GTK_APPLICATION (application),
+	                                 "<Control>S", "win.save", NULL);
+	gtk_application_add_accelerator (GTK_APPLICATION (application),
+	                                 "<Control><Shift>S", "win.save_as", NULL);
+	gtk_application_add_accelerator (GTK_APPLICATION (application),
+	                                 "<Control><Shift>L", "win.save_all", NULL);
+	gtk_application_add_accelerator (GTK_APPLICATION (application),
+	                                 "<Control>T", "win.new_tab", NULL);
+	gtk_application_add_accelerator (GTK_APPLICATION (application),
+	                                 "<Control>W", "win.close", NULL);
+	gtk_application_add_accelerator (GTK_APPLICATION (application),
+	                                 "<Control><Shift>W", "win.close_all", NULL);
+	gtk_application_add_accelerator (GTK_APPLICATION (application),
+	                                 "<Control>F", "win.find", NULL);
+	gtk_application_add_accelerator (GTK_APPLICATION (application),
+	                                 "<Control>H", "win.replace", NULL);
+	gtk_application_add_accelerator (GTK_APPLICATION (application),
+	                                 "<Control><Shift>K", "win.clear_highlight", NULL);
+	gtk_application_add_accelerator (GTK_APPLICATION (application),
+	                                 "<Control>I", "win.goto_line", NULL);
+	gtk_application_add_accelerator (GTK_APPLICATION (application),
+	                                 "<Control>P", "win.print", NULL);
+	gtk_application_add_accelerator (GTK_APPLICATION (application),
+	                                 "F11", "win.fullscreen", NULL);
+	gtk_application_add_accelerator (GTK_APPLICATION (application),
+	                                 "<Control><Alt>N", "win.new_tab_group", NULL);
+	gtk_application_add_accelerator (GTK_APPLICATION (application),
+	                                 "<Control><Shift><Alt>Page_Up",
+	                                 "win.previous_tab_group", NULL);
+	gtk_application_add_accelerator (GTK_APPLICATION (application),
+	                                 "<Control><Shift><Alt>Page_Down",
+	                                 "win.next_tab_group", NULL);
+	gtk_application_add_accelerator (GTK_APPLICATION (application),
+	                                 "<Control><Alt>Page_Up",
+	                                 "win.previous_document", NULL);
+	gtk_application_add_accelerator (GTK_APPLICATION (application),
+	                                 "<Control><Alt>Page_Down",
+	                                 "win.next_document", NULL);
 
 	/*
 	 * We use the default gtksourceview style scheme manager so that plugins
@@ -1122,7 +1183,7 @@ window_delete_event (GeditWindow *window,
 		return TRUE;
 	}
 
-	_gedit_cmd_file_quit (NULL, window);
+	_gedit_cmd_file_quit (NULL, NULL, window);
 
 	/* Do not destroy the window */
 	return TRUE;

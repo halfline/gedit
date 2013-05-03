@@ -64,9 +64,12 @@ static void tab_state_changed_while_saving (GeditTab    *tab,
 					    GeditWindow *window);
 
 void
-_gedit_cmd_file_new (GtkAction   *action,
-		     GeditWindow *window)
+_gedit_cmd_file_new (GSimpleAction *action,
+                     GVariant      *parameter,
+                     gpointer       user_data)
 {
+	GeditWindow *window = GEDIT_WINDOW (user_data);
+
 	gedit_debug (DEBUG_COMMANDS);
 
 	gedit_window_create_tab (window, TRUE);
@@ -417,9 +420,11 @@ open_dialog_response_cb (GeditFileChooserDialog *dialog,
 }
 
 void
-_gedit_cmd_file_open (GtkAction   *action,
-		      GeditWindow *window)
+_gedit_cmd_file_open (GSimpleAction *action,
+                      GVariant      *parameter,
+                      gpointer       user_data)
 {
+	GeditWindow *window = GEDIT_WINDOW (user_data);
 	GtkWidget *open_dialog;
 	gpointer data;
 	GeditDocument *doc;
@@ -961,9 +966,11 @@ _gedit_cmd_file_save_tab (GeditTab    *tab,
 }
 
 void
-_gedit_cmd_file_save (GtkAction   *action,
-                      GeditWindow *window)
+_gedit_cmd_file_save (GSimpleAction *action,
+                      GVariant      *parameter,
+                      gpointer       user_data)
 {
+	GeditWindow *window = GEDIT_WINDOW (user_data);
 	GeditTab *tab;
 
 	gedit_debug (DEBUG_COMMANDS);
@@ -976,9 +983,11 @@ _gedit_cmd_file_save (GtkAction   *action,
 }
 
 void
-_gedit_cmd_file_save_as (GtkAction   *action,
-                         GeditWindow *window)
+_gedit_cmd_file_save_as (GSimpleAction *action,
+                         GVariant      *parameter,
+                         gpointer       user_data)
 {
+	GeditWindow *window = GEDIT_WINDOW (user_data);
 	GeditTab *tab;
 
 	gedit_debug (DEBUG_COMMANDS);
@@ -1129,10 +1138,11 @@ gedit_commands_save_all_documents (GeditWindow *window)
 }
 
 void
-_gedit_cmd_file_save_all (GtkAction   *action,
-			  GeditWindow *window)
+_gedit_cmd_file_save_all (GSimpleAction *action,
+                          GVariant      *parameter,
+                          gpointer       user_data)
 {
-	gedit_commands_save_all_documents (window);
+	gedit_commands_save_all_documents (GEDIT_WINDOW (user_data));
 }
 
 void
@@ -1317,9 +1327,11 @@ revert_dialog (GeditWindow   *window,
 }
 
 void
-_gedit_cmd_file_revert (GtkAction   *action,
-		        GeditWindow *window)
+_gedit_cmd_file_revert (GSimpleAction *action,
+                        GVariant      *parameter,
+                        gpointer       user_data)
 {
+	GeditWindow    *window = GEDIT_WINDOW (user_data);
 	GeditTab       *tab;
 	GeditDocument  *doc;
 	GtkWidget      *dialog;
@@ -1816,9 +1828,11 @@ _gedit_cmd_file_close_tab (GeditTab    *tab,
 }
 
 void
-_gedit_cmd_file_close (GtkAction   *action,
-		       GeditWindow *window)
+_gedit_cmd_file_close (GSimpleAction *action,
+                       GVariant      *parameter,
+                       gpointer       user_data)
 {
+	GeditWindow *window = GEDIT_WINDOW (user_data);
 	GeditTab *active_tab;
 
 	gedit_debug (DEBUG_COMMANDS);
@@ -1906,9 +1920,12 @@ file_close_all (GeditWindow *window,
 }
 
 void
-_gedit_cmd_file_close_all (GtkAction   *action,
-			   GeditWindow *window)
+_gedit_cmd_file_close_all (GSimpleAction *action,
+                           GVariant      *parameter,
+                           gpointer       user_data)
 {
+	GeditWindow *window = GEDIT_WINDOW (user_data);
+
 	gedit_debug (DEBUG_COMMANDS);
 
 	g_return_if_fail (!(gedit_window_get_state (window) &
@@ -1949,9 +1966,12 @@ quit_all (void)
 }
 
 void
-_gedit_cmd_file_quit (GtkAction   *action,
-                      GeditWindow *window)
+_gedit_cmd_file_quit (GSimpleAction *action,
+                      GVariant      *parameter,
+                      gpointer       user_data)
 {
+	GeditWindow *window = GEDIT_WINDOW (user_data);
+
 	gedit_debug (DEBUG_COMMANDS);
 
 	if (window == NULL)
