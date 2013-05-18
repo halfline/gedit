@@ -96,7 +96,7 @@
     </section>
     <section>
       <item>
-        <attribute name="label" translatable="yes">_Highlight Mode</attribute>
+        <attribute name="label" translatable="yes">_Highlight Mode...</attribute>
         <attribute name="action">win.highlight_mode</attribute>
       </item>
     </section>
