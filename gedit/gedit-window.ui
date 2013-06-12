@@ -16,59 +16,9 @@
         <attribute name="accel">&lt;Primary&gt;&lt;Shift&gt;s</attribute>
       </item>
       <item>
-        <attribute name="label" translatable="yes">_Revert</attribute>
+        <attribute name="label" translatable="yes">_Reload</attribute>
         <attribute name="action">win.revert</attribute>
       </item>
-      <submenu>
-        <attribute name="label" translatable="yes">_Documents</attribute>
-        <section>
-          <item>
-            <attribute name="label" translatable="yes">_Save All</attribute>
-            <attribute name="action">win.save_all</attribute>
-            <attribute name="accel">&lt;Primary&gt;&lt;Shift&gt;l</attribute>
-          </item>
-          <item>
-            <attribute name="label" translatable="yes">_Close All</attribute>
-            <attribute name="action">win.close_all</attribute>
-            <attribute name="accel">&lt;Primary&gt;&lt;Shift&gt;w</attribute>
-          </item>
-        </section>
-        <section>
-          <item>
-            <attribute name="label" translatable="yes">_New Tab Group</attribute>
-            <attribute name="action">win.new_tab_group</attribute>
-            <attribute name="accel">&lt;Primary&gt;&lt;Alt&gt;n</attribute>
-          </item>
-          <item>
-            <attribute name="label" translatable="yes">P_revious Tab Group</attribute>
-            <attribute name="action">win.previous_tab_group</attribute>
-            <attribute name="accel">&lt;Primary&gt;&lt;Shift&gt;&lt;Alt&gt;Page_Up</attribute>
-          </item>
-          <item>
-            <attribute name="label" translatable="yes">Nex_t Tab Group</attribute>
-            <attribute name="action">win.next_tab_group</attribute>
-            <attribute name="accel">&lt;Primary&gt;&lt;Shift&gt;&lt;Alt&gt;Page_Down</attribute>
-          </item>
-        </section>
-        <section>
-          <item>
-            <attribute name="label" translatable="yes">_Previous Document</attribute>
-            <attribute name="action">win.previous_document</attribute>
-            <attribute name="accel">&lt;Primary&gt;&lt;Alt&gt;Page_Up</attribute>
-          </item>
-          <item>
-            <attribute name="label" translatable="yes">N_ext Document</attribute>
-            <attribute name="action">win.next_document</attribute>
-            <attribute name="accel">&lt;Primary&gt;&lt;Alt&gt;Page_Down</attribute>
-          </item>
-        </section>
-        <section>
-          <item>
-            <attribute name="label" translatable="yes">_Move to New Window</attribute>
-            <attribute name="action">win.move_to_new_window</attribute>
-          </item>
-        </section>
-      </submenu>
     </section>
     <section>
       <item>
