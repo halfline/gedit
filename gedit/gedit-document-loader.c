@@ -22,14 +22,6 @@
  * Boston, MA 02111-1307, USA.
  */
 
-/*
- * Modified by the gedit Team, 2005-2008. See the AUTHORS file for a
- * list of people on the gedit Team.
- * See the ChangeLog files for a list of changes.
- *
- * $Id$
- */
-
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif

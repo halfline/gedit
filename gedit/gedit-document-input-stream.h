@@ -25,7 +25,6 @@
 
 #include <gio/gio.h>
 #include <gtk/gtk.h>
-
 #include "gedit-document.h"
 
 G_BEGIN_DECLS

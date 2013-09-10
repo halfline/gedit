@@ -22,14 +22,6 @@
  * Boston, MA 02111-1307, USA.
  */
 
-/*
- * Modified by the gedit Team, 2005-2008. See the AUTHORS file for a
- * list of people on the gedit Team.
- * See the ChangeLog files for a list of changes.
- *
- * $Id$
- */
-
 #ifndef __GEDIT_DOCUMENT_LOADER_H__
 #define __GEDIT_DOCUMENT_LOADER_H__
 
@@ -37,9 +29,6 @@
 
 G_BEGIN_DECLS
 
-/*
- * Type checking and casting macros
- */
 #define GEDIT_TYPE_DOCUMENT_LOADER              (gedit_document_loader_get_type())
 #define GEDIT_DOCUMENT_LOADER(obj)              (G_TYPE_CHECK_INSTANCE_CAST((obj), GEDIT_TYPE_DOCUMENT_LOADER, GeditDocumentLoader))
 #define GEDIT_DOCUMENT_LOADER_CLASS(klass)      (G_TYPE_CHECK_CLASS_CAST((klass), GEDIT_TYPE_DOCUMENT_LOADER, GeditDocumentLoaderClass))
@@ -47,26 +36,16 @@ G_BEGIN_DECLS
 #define GEDIT_IS_DOCUMENT_LOADER_CLASS(klass)   (G_TYPE_CHECK_CLASS_TYPE ((klass), GEDIT_TYPE_DOCUMENT_LOADER))
 #define GEDIT_DOCUMENT_LOADER_GET_CLASS(obj)    (G_TYPE_INSTANCE_GET_CLASS((obj), GEDIT_TYPE_DOCUMENT_LOADER, GeditDocumentLoaderClass))
 
-/* Private structure type */
+typedef struct _GeditDocumentLoader        GeditDocumentLoader;
+typedef struct _GeditDocumentLoaderClass   GeditDocumentLoaderClass;
 typedef struct _GeditDocumentLoaderPrivate GeditDocumentLoaderPrivate;
-
-/*
- * Main object structure
- */
-typedef struct _GeditDocumentLoader GeditDocumentLoader;
 
 struct _GeditDocumentLoader
 {
 	GObject object;
 
-	/*< private > */
 	GeditDocumentLoaderPrivate *priv;
 };
-
-/*
- * Class definition
- */
-typedef struct _GeditDocumentLoaderClass GeditDocumentLoaderClass;
 
 struct _GeditDocumentLoaderClass
 {
@@ -78,9 +57,6 @@ struct _GeditDocumentLoaderClass
 			  const GError        *error);
 };
 
-/*
- * Public methods
- */
 GType 		 	 gedit_document_loader_get_type		(void) G_GNUC_CONST;
 
 /* If enconding == NULL, the encoding will be autodetected */

@@ -20,24 +20,10 @@
  * Boston, MA 02111-1307, USA.
  */
 
-/*
- * Modified by the gedit Team, 2002-2005. See the AUTHORS file for a
- * list of people on the gedit Team.
- * See the ChangeLog files for a list of changes.
- *
- * $Id$
- */
-
-#ifdef HAVE_CONFIG_H
-#include <config.h>
-#endif
-
 #include <string.h>
-
 #include <glib/gi18n.h>
 
 #include "gedit-encodings.h"
-
 
 struct _GeditEncoding
 {
@@ -58,7 +44,6 @@ G_DEFINE_BOXED_TYPE (GeditEncoding, gedit_encoding,
 
 typedef enum
 {
-
   GEDIT_ENCODING_ISO_8859_1,
   GEDIT_ENCODING_ISO_8859_2,
   GEDIT_ENCODING_ISO_8859_3,
@@ -436,8 +421,8 @@ gedit_encoding_get_name (const GeditEncoding* enc)
 }
 
 /* These are to make language bindings happy. Since Encodings are
- * const, copy() just returns the same pointer and fres() doesn't
- * do nothing */
+ * const, copy() just returns the same pointer and free() does
+ * nothing */
 
 GeditEncoding *
 gedit_encoding_copy (const GeditEncoding *enc)

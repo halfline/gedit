@@ -20,8 +20,6 @@
  * Boston, MA  02110-1301  USA
  */
 
-#include "config.h"
-
 #include <glib.h>
 #include <gio/gio.h>
 #include <string.h>

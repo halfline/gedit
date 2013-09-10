@@ -22,22 +22,13 @@
  * Boston, MA 02111-1307, USA.
  */
 
-/*
- * Modified by the gedit Team, 2005-2007. See the AUTHORS file for a
- * list of people on the gedit Team.
- * See the ChangeLog files for a list of changes.
- */
-
 #ifndef __GEDIT_DOCUMENT_SAVER_H__
 #define __GEDIT_DOCUMENT_SAVER_H__
 
-#include <gedit/gedit-document.h>
+#include "gedit-document.h"
 
 G_BEGIN_DECLS
 
-/*
- * Type checking and casting macros
- */
 #define GEDIT_TYPE_DOCUMENT_SAVER              (gedit_document_saver_get_type())
 #define GEDIT_DOCUMENT_SAVER(obj)              (G_TYPE_CHECK_INSTANCE_CAST((obj), GEDIT_TYPE_DOCUMENT_SAVER, GeditDocumentSaver))
 #define GEDIT_DOCUMENT_SAVER_CLASS(klass)      (G_TYPE_CHECK_CLASS_CAST((klass), GEDIT_TYPE_DOCUMENT_SAVER, GeditDocumentSaverClass))
@@ -45,26 +36,16 @@ G_BEGIN_DECLS
 #define GEDIT_IS_DOCUMENT_SAVER_CLASS(klass)   (G_TYPE_CHECK_CLASS_TYPE ((klass), GEDIT_TYPE_DOCUMENT_SAVER))
 #define GEDIT_DOCUMENT_SAVER_GET_CLASS(obj)    (G_TYPE_INSTANCE_GET_CLASS((obj), GEDIT_TYPE_DOCUMENT_SAVER, GeditDocumentSaverClass))
 
-/* Private structure type */
+typedef struct _GeditDocumentSaver        GeditDocumentSaver;
+typedef struct _GeditDocumentSaverClass   GeditDocumentSaverClass;
 typedef struct _GeditDocumentSaverPrivate GeditDocumentSaverPrivate;
-
-/*
- * Main object structure
- */
-typedef struct _GeditDocumentSaver GeditDocumentSaver;
 
 struct _GeditDocumentSaver
 {
 	GObject object;
 
-	/*< private >*/
 	GeditDocumentSaverPrivate *priv;
 };
-
-/*
- * Class definition
- */
-typedef struct _GeditDocumentSaverClass GeditDocumentSaverClass;
 
 struct _GeditDocumentSaverClass
 {
@@ -76,9 +57,6 @@ struct _GeditDocumentSaverClass
 			 const GError        *error);
 };
 
-/*
- * Public methods
- */
 GType 		 	 gedit_document_saver_get_type		(void) G_GNUC_CONST;
 
 /* If enconding == NULL, the encoding will be autodetected */
@@ -94,10 +72,6 @@ void			 gedit_document_saver_saving		(GeditDocumentSaver  *saver,
 								 GError              *error);
 void			 gedit_document_saver_save		(GeditDocumentSaver  *saver,
 								 GTimeVal            *old_mtime);
-
-#if 0
-void			 gedit_document_saver_cancel		(GeditDocumentSaver  *saver);
-#endif
 
 GeditDocument		*gedit_document_saver_get_document	(GeditDocumentSaver  *saver);
 

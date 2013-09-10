@@ -20,7 +20,6 @@
  * Boston, MA  02110-1301  USA
  */
 
-
 #ifndef __GEDIT_DOCUMENT_OUTPUT_STREAM_H__
 #define __GEDIT_DOCUMENT_OUTPUT_STREAM_H__
 

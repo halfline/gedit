@@ -20,14 +20,6 @@
  * Boston, MA 02111-1307, USA.
  */
 
-/*
- * Modified by the gedit Team, 2002-2005. See the AUTHORS file for a
- * list of people on the gedit Team.
- * See the ChangeLog files for a list of changes.
- *
- * $Id$
- */
-
 #ifndef __GEDIT_ENCODINGS_H__
 #define __GEDIT_ENCODINGS_H__
 
