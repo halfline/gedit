@@ -76,15 +76,18 @@ expand_content_files=
 # Only needed if you are using gtkdoc-scangobj to dynamically query widget
 # signals and properties.
 GTKDOC_CFLAGS=	\
-	-I$(top_srcdir)/gedit	\
-	-I$(top_builddir)/gedit \
-	-I$(top_srcdir)		\
-	-I$(top_builddir)	\
+	-I$(top_srcdir)			\
+	-I$(top_builddir)		\
+	-I$(top_srcdir)/gedit		\
+	-I$(top_builddir)/gedit 	\
+	-I$(top_srcdir)/libgedit	\
+	-I$(top_builddir)/libgedit	\
 	$(GEDIT_CFLAGS)
 
 GTKDOC_LIBS=	\
 	$(top_builddir)/gedit/libgedit.la		\
 	$(top_builddir)/gedit/libgedit-private.la	\
+	$(top_builddir)/libgedit/libgedit.la		\
 	$(GEDIT_LIBS)
 
 # This includes the standard gtk-doc make rules, copied by gtkdocize.

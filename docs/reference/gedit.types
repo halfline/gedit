@@ -1,7 +1,7 @@
 #include "gedit-app.h"
 #include "gedit-app-activatable.h"
 #include "gedit-document.h"
-#include "gedit-encodings.h"
+#include "gedit/gedit-encodings.h"
 #include "gedit-encodings-combo-box.h"
 #include "gedit-file-chooser-dialog.h"
 #include "gedit-message.h"

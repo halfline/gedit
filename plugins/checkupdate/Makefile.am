@@ -2,6 +2,7 @@ plugindir = $(GEDIT_PLUGINS_LIBS_DIR)
 
 AM_CPPFLAGS = \
 	-I$(top_srcdir) 						\
+	-I$(top_srcdir)/libgedit					\
 	$(GEDIT_CFLAGS) 						\
 	$(LIBSOUP_CFLAGS)						\
 	$(WARN_CFLAGS)							\

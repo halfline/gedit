@@ -39,7 +39,7 @@
 #include <gtk/gtk.h>
 
 #include "gedit-encodings-dialog.h"
-#include "gedit-encodings.h"
+#include "gedit/gedit-encodings.h"
 #include "gedit-utils.h"
 #include "gedit-debug.h"
 #include "gedit-dirs.h"

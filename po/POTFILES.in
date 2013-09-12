@@ -14,7 +14,6 @@ gedit/gedit-debug.c
 gedit/gedit-document.c
 gedit/gedit-document-saver.c
 gedit/gedit-documents-panel.c
-gedit/gedit-encodings.c
 gedit/gedit-encodings-combo-box.c
 gedit/gedit-encodings-dialog.c
 [type: gettext/glade]gedit/gedit-encodings-dialog.ui
@@ -45,6 +44,7 @@ gedit/gedit-utils.c
 gedit/gedit-view.c
 gedit/gedit-view-frame.c
 gedit/gedit-window.c
+libgedit/gedit/gedit-encodings.c
 plugins/changecase/changecase.plugin.desktop.in
 plugins/changecase/gedit-changecase-plugin.c
 plugins/checkupdate/checkupdate.plugin.desktop.in

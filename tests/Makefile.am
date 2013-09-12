@@ -1,6 +1,7 @@
 AM_CPPFLAGS = \
 	-I$(top_srcdir) \
 	-I$(top_srcdir)/gedit \
+	-I$(top_srcdir)/libgedit \
 	$(GEDIT_CFLAGS)
 
 noinst_PROGRAMS	= $(TEST_PROGS) $(TEST_GTK_PROGS)

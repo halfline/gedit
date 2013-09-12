@@ -231,7 +231,8 @@
            for the current locale, so please don't translate the "CURRENT" term.
            Only recognized encodings are used.
            See http://git.gnome.org/browse/gedit/tree/gedit/gedit-encodings.c#n152 for
-           a list of supported encodings -->
+           a list of supported encodings.
+           FIXME link to the libgedit git submodule -->
       <_default l10n="messages">['UTF-8', 'CURRENT', 'ISO-8859-15', 'UTF-16']</_default>
       <_summary>Automatically Detected Encodings</_summary>
       <_description>Sorted list of encodings used by gedit for automatically detecting the encoding of a file. "CURRENT" represents the current locale encoding. Only recognized encodings are used.</_description>

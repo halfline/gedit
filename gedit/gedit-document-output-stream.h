@@ -25,7 +25,7 @@
 
 #include <gio/gio.h>
 #include "gedit-document.h"
-#include "gedit-encodings.h"
+#include "gedit/gedit-encodings.h"
 
 G_BEGIN_DECLS
 
