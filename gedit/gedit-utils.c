@@ -22,33 +22,8 @@
  * Boston, MA 02111-1307, USA.
  */
 
-/*
- * Modified by the gedit Team, 1998-2005. See the AUTHORS file for a
- * list of people on the gedit Team.
- * See the ChangeLog files for a list of changes.
- *
- * $Id$
- */
-
-#ifdef HAVE_CONFIG_H
-#include <config.h>
-#endif
-
-#include <errno.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <sys/time.h>
-#include <fcntl.h>
-#include <string.h>
-
-#include <glib.h>
 #include <glib/gi18n.h>
-#include <gio/gio.h>
-
 #include "gedit-utils.h"
-
-#include "gedit-document.h"
-#include "gedit-debug.h"
 
 /* For the workspace/viewport stuff */
 #ifdef GDK_WINDOWING_X11
