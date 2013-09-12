@@ -1,7 +1,7 @@
 ## Process this file with automake to produce Makefile.in
-ACLOCAL_AMFLAGS = -I m4 -I libgd ${ACLOCAL_FLAGS}
+ACLOCAL_AMFLAGS = -I m4 -I libgd -I libgedit ${ACLOCAL_FLAGS}
 
-SUBDIRS = libgd gedit pixmaps po plugins data docs tests win32 osx
+SUBDIRS = libgd libgedit gedit pixmaps po plugins data docs tests win32 osx
 
 if !OS_OSX
 SUBDIRS += help

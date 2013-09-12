@@ -358,10 +358,11 @@ AC_SUBST(GEDIT_CFLAGS)
 AC_SUBST(GEDIT_LIBS)
 
 dnl ================================================================
-dnl libgd
+dnl submodules
 dnl ================================================================
 
 LIBGD_INIT([tagged-entry static])
+LIBGEDIT_INIT([static])
 
 dnl ================================================================
 dnl GSettings stuff
@@ -446,6 +447,7 @@ docs/reference/Makefile
 gedit/Makefile
 help/Makefile
 libgd/Makefile
+libgedit/Makefile
 pixmaps/Makefile
 plugins/Makefile
 plugins/changecase/Makefile
