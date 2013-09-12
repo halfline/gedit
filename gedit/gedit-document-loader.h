@@ -25,7 +25,7 @@
 #ifndef __GEDIT_DOCUMENT_LOADER_H__
 #define __GEDIT_DOCUMENT_LOADER_H__
 
-#include <gedit/gedit-document.h>
+#include "gedit-document.h"
 
 G_BEGIN_DECLS
 

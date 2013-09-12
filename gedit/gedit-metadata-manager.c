@@ -1,4 +1,3 @@
-/* -*- Mode: C; tab-width: 8; indent-tabs-mode: t; c-basic-offset: 8 -*- */
 /*
  * gedit-metadata-manager.c
  * This file is part of gedit
@@ -21,21 +20,22 @@
  * Boston, MA 02111-1307, USA.
  */
 
-/*
- * Modified by the gedit Team, 2003-2007. See the AUTHORS file for a
- * list of people on the gedit Team.
- * See the ChangeLog files for a list of changes.
- */
-
 #include <time.h>
 #include <stdlib.h>
 #include <libxml/xmlreader.h>
 #include "gedit-metadata-manager.h"
-#include "gedit-debug.h"
 
-/*
-#define GEDIT_METADATA_VERBOSE_DEBUG	1
-*/
+#if 0
+#define DEBUG(x) (x)
+#else
+#define DEBUG(x)
+#endif
+
+#if 0
+#define VERBOSE_DEBUG(x) (x)
+#else
+#define VERBOSE_DEBUG(x)
+#endif
 
 #define MAX_ITEMS	50
 
@@ -74,9 +74,9 @@ item_free (gpointer data)
 
 	g_return_if_fail (data != NULL);
 
-#ifdef GEDIT_METADATA_VERBOSE_DEBUG
-	gedit_debug (DEBUG_METADATA);
-#endif
+	VERBOSE_DEBUG ({
+		g_print ("%s\n", G_STRFUNC);
+	});
 
 	item = (Item *)data;
 
@@ -110,7 +110,9 @@ gedit_metadata_manager_arm_timeout (void)
 void
 gedit_metadata_manager_init (const gchar *metadata_filename)
 {
-	gedit_debug (DEBUG_METADATA);
+	DEBUG ({
+		g_print ("%s\n", G_STRFUNC);
+	});
 
 	if (gedit_metadata_manager != NULL)
 		return;
@@ -139,7 +141,9 @@ gedit_metadata_manager_init (const gchar *metadata_filename)
 void
 gedit_metadata_manager_shutdown (void)
 {
-	gedit_debug (DEBUG_METADATA);
+	DEBUG ({
+		g_print ("%s\n", G_STRFUNC);
+	});
 
 	if (gedit_metadata_manager == NULL)
 		return;
@@ -168,9 +172,9 @@ parseItem (xmlDocPtr doc, xmlNodePtr cur)
 	xmlChar *uri;
 	xmlChar *atime;
 
-#ifdef GEDIT_METADATA_VERBOSE_DEBUG
-	gedit_debug (DEBUG_METADATA);
-#endif
+	VERBOSE_DEBUG ({
+		g_print ("%s\n", G_STRFUNC);
+	});
 
 	if (xmlStrcmp (cur->name, (const xmlChar *)"document") != 0)
 			return;
@@ -237,7 +241,9 @@ load_values (void)
 	xmlDocPtr doc;
 	xmlNodePtr cur;
 
-	gedit_debug (DEBUG_METADATA);
+	DEBUG ({
+		g_print ("%s\n", G_STRFUNC);
+	});
 
 	g_return_val_if_fail (gedit_metadata_manager != NULL, FALSE);
 	g_return_val_if_fail (gedit_metadata_manager->values_loaded == FALSE, FALSE);
@@ -314,7 +320,9 @@ gedit_metadata_manager_get (GFile       *location,
 
 	uri = g_file_get_uri (location);
 
-	gedit_debug_message (DEBUG_METADATA, "URI: %s --- key: %s", uri, key );
+	DEBUG ({
+	       g_print ("URI: %s --- key: %s\n", uri, key);
+	});
 
 	if (!gedit_metadata_manager->values_loaded)
 	{
@@ -371,7 +379,9 @@ gedit_metadata_manager_set (GFile       *location,
 
 	uri = g_file_get_uri (location);
 
-	gedit_debug_message (DEBUG_METADATA, "URI: %s --- key: %s --- value: %s", uri, key, value);
+	DEBUG ({
+	       g_print ("URI: %s --- key: %s --- value: %s\n", uri, key, value);
+	});
 
 	if (!gedit_metadata_manager->values_loaded)
 	{
@@ -427,9 +437,9 @@ save_values (const gchar *key, const gchar *value, xmlNodePtr parent)
 {
 	xmlNodePtr xml_node;
 
-#ifdef GEDIT_METADATA_VERBOSE_DEBUG
-	gedit_debug (DEBUG_METADATA);
-#endif
+	VERBOSE_DEBUG ({
+		g_print ("%s\n", G_STRFUNC);
+	});
 
 	g_return_if_fail (key != NULL);
 
@@ -448,9 +458,9 @@ save_values (const gchar *key, const gchar *value, xmlNodePtr parent)
 		    (const xmlChar *)"value",
 		    (const xmlChar *)value);
 
-#ifdef GEDIT_METADATA_VERBOSE_DEBUG
-	gedit_debug_message (DEBUG_METADATA, "entry: %s = %s", key, value);
-#endif
+	VERBOSE_DEBUG ({
+		g_print ("entry: %s = %s\n", key, value);
+	});
 }
 
 static void
@@ -460,9 +470,9 @@ save_item (const gchar *key, const gpointer *data, xmlNodePtr parent)
 	const Item *item = (const Item *)data;
 	gchar *atime;
 
-#ifdef GEDIT_METADATA_VERBOSE_DEBUG
-	gedit_debug (DEBUG_METADATA);
-#endif
+	VERBOSE_DEBUG ({
+		g_print ("%s\n", G_STRFUNC);
+	});
 
 	g_return_if_fail (key != NULL);
 
@@ -473,16 +483,16 @@ save_item (const gchar *key, const gpointer *data, xmlNodePtr parent)
 
 	xmlSetProp (xml_node, (const xmlChar *)"uri", (const xmlChar *)key);
 
-#ifdef GEDIT_METADATA_VERBOSE_DEBUG
-	gedit_debug_message (DEBUG_METADATA, "uri: %s", key);
-#endif
+	VERBOSE_DEBUG ({
+		g_print ("uri: %s\n", key);
+	});
 
 	atime = g_strdup_printf ("%ld", item->atime);
 	xmlSetProp (xml_node, (const xmlChar *)"atime", (const xmlChar *)atime);
 
-#ifdef GEDIT_METADATA_VERBOSE_DEBUG
-	gedit_debug_message (DEBUG_METADATA, "atime: %s", atime);
-#endif
+	VERBOSE_DEBUG ({
+		g_print ("atime: %s\n", atime);
+	});
 
 	g_free (atime);
 
@@ -539,7 +549,9 @@ gedit_metadata_manager_save (gpointer data)
 	xmlDocPtr  doc;
 	xmlNodePtr root;
 
-	gedit_debug (DEBUG_METADATA);
+	DEBUG ({
+		g_print ("%s\n", G_STRFUNC);
+	});
 
 	gedit_metadata_manager->timeout_id = 0;
 
@@ -580,7 +592,9 @@ gedit_metadata_manager_save (gpointer data)
 
 	xmlFreeDoc (doc);
 
-	gedit_debug_message (DEBUG_METADATA, "DONE");
+	DEBUG ({
+	       g_print ("DONE\n");
+	});
 
 	return FALSE;
 }

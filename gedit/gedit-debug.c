@@ -96,8 +96,6 @@ gedit_debug_init (void)
 		debug = debug | GEDIT_DEBUG_SESSION;
 	if (g_getenv ("GEDIT_DEBUG_UTILS") != NULL)
 		debug = debug | GEDIT_DEBUG_UTILS;
-	if (g_getenv ("GEDIT_DEBUG_METADATA") != NULL)
-		debug = debug | GEDIT_DEBUG_METADATA;
 	if (g_getenv ("GEDIT_DEBUG_WINDOW") != NULL)
 		debug = debug | GEDIT_DEBUG_WINDOW;
 	if (g_getenv ("GEDIT_DEBUG_PANEL") != NULL)
