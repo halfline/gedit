@@ -149,7 +149,7 @@ INST_H_FILES =				\
 	$(top_srcdir)/libgedit/gedit/gedit-encodings.h
 
 if !ENABLE_GVFS_METADATA
-INST_H_FILES += gedit-metadata-manager.h
+INST_H_FILES += $(top_srcdir)/libgedit/gedit/gedit-metadata-manager.h
 endif
 
 headerdir = $(prefix)/include/gedit-$(GEDIT_API_VERSION)/gedit
@@ -223,10 +223,6 @@ libgedit_la_SOURCES = 			\
 	$(libgedit_c_files)		\
 	$(NOINST_H_FILES)		\
 	$(INST_H_FILES)
-
-if !ENABLE_GVFS_METADATA
-libgedit_la_SOURCES += gedit-metadata-manager.c
-endif
 
 ENUM_TYPES = 			\
 	gedit-notebook.h	\

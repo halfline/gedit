@@ -50,7 +50,7 @@
 #include "gedit-enum-types.h"
 
 #ifndef ENABLE_GVFS_METADATA
-#include "gedit-metadata-manager.h"
+#include "gedit/gedit-metadata-manager.h"
 #else
 #define METADATA_QUERY "metadata::*"
 #endif

@@ -59,7 +59,7 @@
 #include "gedit-preferences-dialog.h"
 
 #ifndef ENABLE_GVFS_METADATA
-#include "gedit-metadata-manager.h"
+#include "gedit/gedit-metadata-manager.h"
 #define METADATA_FILE "gedit-metadata.xml"
 #endif
 

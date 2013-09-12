@@ -362,7 +362,14 @@ dnl submodules
 dnl ================================================================
 
 LIBGD_INIT([tagged-entry static])
-LIBGEDIT_INIT([static])
+
+libgedit_options="static"
+
+if test "x$enable_gvfs_metadata" != "xno"; then
+	libgedit_options="$libgedit_options gvfs-metadata"
+fi
+
+LIBGEDIT_INIT([$libgedit_options])
 
 dnl ================================================================
 dnl GSettings stuff
