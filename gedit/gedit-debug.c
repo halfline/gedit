@@ -100,10 +100,6 @@ gedit_debug_init (void)
 		debug = debug | GEDIT_DEBUG_METADATA;
 	if (g_getenv ("GEDIT_DEBUG_WINDOW") != NULL)
 		debug = debug | GEDIT_DEBUG_WINDOW;
-	if (g_getenv ("GEDIT_DEBUG_LOADER") != NULL)
-		debug = debug | GEDIT_DEBUG_LOADER;
-	if (g_getenv ("GEDIT_DEBUG_SAVER") != NULL)
-		debug = debug | GEDIT_DEBUG_SAVER;
 	if (g_getenv ("GEDIT_DEBUG_PANEL") != NULL)
 		debug = debug | GEDIT_DEBUG_PANEL;
 	if (g_getenv ("GEDIT_DEBUG_DBUS") != NULL)

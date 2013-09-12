@@ -26,7 +26,6 @@
 #include <gio/gio.h>
 #include <errno.h>
 #include "gedit-document-output-stream.h"
-#include "gedit-debug.h"
 
 /* NOTE: never use async methods on this stream, the stream is just
  * a wrapper around GtkTextBuffer api so that we can use GIO Stream
@@ -40,6 +39,12 @@
  * all together is because we need specific information from all parts
  * in other to be able to mark characters as invalid if there was some
  * specific problem on the conversion */
+
+#if 0
+#define DEBUG(x) (x)
+#else
+#define DEBUG(x)
+#endif
 
 #define MAX_UNICHAR_LEN 6
 
@@ -387,8 +392,10 @@ guess_encoding (GeditDocumentOutputStream *stream,
 			break;
 		}
 
-		gedit_debug_message (DEBUG_UTILS, "trying charset: %s",
-				     gedit_encoding_get_charset (stream->priv->current_encoding->data));
+		DEBUG ({
+		       g_print ("trying charset: %s\n",
+				gedit_encoding_get_charset (stream->priv->current_encoding->data));
+		});
 
 		if (enc == gedit_encoding_get_utf8 ())
 		{

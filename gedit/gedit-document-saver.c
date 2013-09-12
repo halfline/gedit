@@ -29,13 +29,18 @@
 
 #include "gedit-document-saver.h"
 #include "gedit-document-input-stream.h"
-#include "gedit-debug.h"
 #include "gedit-marshal.h"
 #include "gedit-utils.h"
 #include "gedit-enum-types.h"
 #include "gedit-settings.h"
 
 #define WRITE_CHUNK_SIZE 8192
+
+#if 0
+#define DEBUG(x) (x)
+#else
+#define DEBUG(x)
+#endif
 
 /* Signals */
 
@@ -419,7 +424,9 @@ cancel_output_stream (AsyncData *async)
 {
 	GCancellable *cancellable;
 
-	gedit_debug_message (DEBUG_SAVER, "Cancel output stream");
+	DEBUG ({
+	       g_print ("Cancel output stream\n");
+	});
 
 	cancellable = g_cancellable_new ();
 	g_cancellable_cancel (cancellable);
@@ -437,8 +444,9 @@ static void
 cancel_output_stream_and_fail (AsyncData *async,
                                GError    *error)
 {
-
-	gedit_debug_message (DEBUG_SAVER, "Cancel output stream and fail");
+	DEBUG ({
+	       g_print ("Cancel output stream and fail\n");
+	});
 
 	g_propagate_error (&async->error, error);
 	cancel_output_stream (async);
@@ -457,7 +465,9 @@ remote_get_info_cb (GFile        *source,
 	GFileInfo *info;
 	GError *error = NULL;
 
-	gedit_debug (DEBUG_SAVER);
+	DEBUG ({
+	       g_print ("%s\n", G_STRFUNC);
+	});
 
 	/* check cancelled state manually */
 	if (g_cancellable_is_cancelled (async->cancellable))
@@ -468,7 +478,10 @@ remote_get_info_cb (GFile        *source,
 
 	saver = async->saver;
 
-	gedit_debug_message (DEBUG_SAVER, "Finished query info on file");
+	DEBUG ({
+	       g_print ("Finished query info on file\n");
+	});
+
 	info = g_file_query_info_finish (source, res, &error);
 
 	if (info != NULL)
@@ -480,7 +493,10 @@ remote_get_info_cb (GFile        *source,
 	}
 	else
 	{
-		gedit_debug_message (DEBUG_SAVER, "Query info failed: %s", error->message);
+		DEBUG ({
+		       g_print ("Query info failed: %s\n", error->message);
+		});
+
 		g_propagate_error (&saver->priv->error, error);
 	}
 
@@ -494,7 +510,9 @@ close_async_ready_get_info_cb (GOutputStream *stream,
 {
 	GError *error = NULL;
 
-	gedit_debug (DEBUG_SAVER);
+	DEBUG ({
+	       g_print ("%s\n", G_STRFUNC);
+	});
 
 	/* check cancelled state manually */
 	if (g_cancellable_is_cancelled (async->cancellable))
@@ -503,11 +521,15 @@ close_async_ready_get_info_cb (GOutputStream *stream,
 		return;
 	}
 
-	gedit_debug_message (DEBUG_SAVER, "Finished closing stream");
+	DEBUG ({
+	       g_print ("Finished closing stream\n");
+	});
 
 	if (!g_output_stream_close_finish (stream, res, &error))
 	{
-		gedit_debug_message (DEBUG_SAVER, "Closing stream error: %s", error->message);
+		DEBUG ({
+		       g_print ("Closing stream error: %s\n", error->message);
+		});
 
 		async_failed (async, error);
 		return;
@@ -519,7 +541,10 @@ close_async_ready_get_info_cb (GOutputStream *stream,
 	 * I'm not sure this is actually necessary, can't we just use
 	 * g_content_type_guess (since we have the file name and the data)
 	 */
-	gedit_debug_message (DEBUG_SAVER, "Query info on file");
+	DEBUG ({
+	       g_print ("Query info on file\n");
+	});
+
 	g_file_query_info_async (async->saver->priv->location,
 			         REMOTE_QUERY_ATTRIBUTES,
 			         G_FILE_QUERY_INFO_NONE,
@@ -535,17 +560,26 @@ write_complete (AsyncData *async)
 	GError *error = NULL;
 
 	/* first we close the input stream */
-	gedit_debug_message (DEBUG_SAVER, "Close input stream");
+	DEBUG ({
+	       g_print ("Close input stream\n");
+	});
+
 	if (!g_input_stream_close (async->saver->priv->input,
 				   async->cancellable, &error))
 	{
-		gedit_debug_message (DEBUG_SAVER, "Closing input stream error: %s", error->message);
+		DEBUG ({
+		       g_print ("Closing input stream error: %s\n", error->message);
+		});
+
 		cancel_output_stream_and_fail (async, error);
 		return;
 	}
 
 	/* now we close the output stream */
-	gedit_debug_message (DEBUG_SAVER, "Close output stream");
+	DEBUG ({
+	       g_print ("Close output stream\n");
+	});
+
 	g_output_stream_close_async (async->saver->priv->stream,
 				     G_PRIORITY_HIGH,
 				     async->cancellable,
@@ -566,7 +600,9 @@ async_write_cb (GOutputStream *stream,
 	gssize bytes_written;
 	GError *error = NULL;
 
-	gedit_debug (DEBUG_SAVER);
+	DEBUG ({
+	       g_print ("%s\n", G_STRFUNC);
+	});
 
 	/* Check cancelled state manually */
 	if (g_cancellable_is_cancelled (async->cancellable))
@@ -577,11 +613,16 @@ async_write_cb (GOutputStream *stream,
 
 	bytes_written = g_output_stream_write_finish (stream, res, &error);
 
-	gedit_debug_message (DEBUG_SAVER, "Written: %" G_GSSIZE_FORMAT, bytes_written);
+	DEBUG ({
+	       g_print ("Written: %" G_GSSIZE_FORMAT "\n", bytes_written);
+	});
 
 	if (bytes_written == -1)
 	{
-		gedit_debug_message (DEBUG_SAVER, "Write error: %s", error->message);
+		DEBUG ({
+		       g_print ("Write error: %s\n", error->message);
+		});
+
 		cancel_output_stream_and_fail (async, error);
 		return;
 	}
@@ -611,7 +652,9 @@ write_file_chunk (AsyncData *async)
 {
 	GeditDocumentSaver *saver;
 
-	gedit_debug (DEBUG_SAVER);
+	DEBUG ({
+	       g_print ("%s\n", G_STRFUNC);
+	});
 
 	saver = async->saver;
 
@@ -631,7 +674,9 @@ read_file_chunk (AsyncData *async)
 	GeditDocumentInputStream *dstream;
 	GError *error = NULL;
 
-	gedit_debug (DEBUG_SAVER);
+	DEBUG ({
+	       g_print ("%s\n", G_STRFUNC);
+	});
 
 	saver = async->saver;
 	async->written = 0;
@@ -677,7 +722,9 @@ async_replace_ready_callback (GFile        *source,
 	GError *error = NULL;
 	gboolean ensure_trailing_newline;
 
-	gedit_debug (DEBUG_SAVER);
+	DEBUG ({
+	       g_print ("%s\n", G_STRFUNC);
+	});
 
 	/* Check cancelled state manually */
 	if (g_cancellable_is_cancelled (async->cancellable))
@@ -692,7 +739,10 @@ async_replace_ready_callback (GFile        *source,
 	/* handle any error that might occur */
 	if (!file_stream)
 	{
-		gedit_debug_message (DEBUG_SAVER, "Opening file failed: %s", error->message);
+		DEBUG ({
+		       g_print ("Opening file failed: %s\n", error->message);
+		});
+
 		async_failed (async, error);
 		return;
 	}
@@ -703,7 +753,9 @@ async_replace_ready_callback (GFile        *source,
 	{
 		GZlibCompressor *compressor;
 
-		gedit_debug_message (DEBUG_SAVER, "Use gzip compressor");
+		DEBUG ({
+		       g_print ("Use gzip compressor\n");
+		});
 
 		compressor = g_zlib_compressor_new (G_ZLIB_COMPRESSOR_FORMAT_GZIP,
 		                                    -1);
@@ -722,8 +774,10 @@ async_replace_ready_callback (GFile        *source,
 	g_free (content_type);
 
 	/* FIXME: manage converter error? */
-	gedit_debug_message (DEBUG_SAVER, "Encoding charset: %s",
-			     gedit_encoding_get_charset (saver->priv->encoding));
+	DEBUG ({
+	       g_print ("Encoding charset: %s\n",
+			gedit_encoding_get_charset (saver->priv->encoding));
+	});
 
 	if (saver->priv->encoding != gedit_encoding_get_utf8 ())
 	{
@@ -761,7 +815,9 @@ begin_write (AsyncData *async)
 	GeditDocumentSaver *saver;
 	gboolean backup;
 
-	gedit_debug_message (DEBUG_SAVER, "Start replacing file contents");
+	DEBUG ({
+	       g_print ("Start replacing file contents\n");
+	});
 
 	/* For remote files we simply use g_file_replace_async. There is no
 	 * backup as of yet
@@ -771,9 +827,11 @@ begin_write (AsyncData *async)
 	/* Do not make backups for remote files so they do not clutter remote systems */
 	backup = (saver->priv->keep_backup && gedit_document_is_local (saver->priv->document));
 
-	gedit_debug_message (DEBUG_SAVER, "File contents size: %" G_GINT64_FORMAT, saver->priv->size);
-	gedit_debug_message (DEBUG_SAVER, "Calling replace_async");
-	gedit_debug_message (DEBUG_SAVER, backup ? "Keep backup" : "Discard backup");
+	DEBUG ({
+	       g_print ("File contents size: %" G_GINT64_FORMAT "\n", saver->priv->size);
+	       g_print ("Calling replace_async\n");
+	       g_print (backup ? "Keep backup\n" : "Discard backup\n");
+	});
 
 	g_file_replace_async (saver->priv->location,
 			      NULL,
@@ -793,7 +851,9 @@ mount_ready_callback (GFile        *file,
 	GError *error = NULL;
 	gboolean mounted;
 
-	gedit_debug (DEBUG_SAVER);
+	DEBUG ({
+	       g_print ("%s\n", G_STRFUNC);
+	});
 
 	/* manual check for cancelled state */
 	if (g_cancellable_is_cancelled (async->cancellable))
@@ -821,7 +881,9 @@ recover_not_mounted (AsyncData *async)
 	GeditDocument *doc;
 	GMountOperation *mount_operation;
 
-	gedit_debug (DEBUG_LOADER);
+	DEBUG ({
+	       g_print ("%s\n", G_STRFUNC);
+	});
 
 	doc = gedit_document_saver_get_document (async->saver);
 	mount_operation = _gedit_document_create_mount_operation (doc);
@@ -846,7 +908,9 @@ check_modification_callback (GFile        *source,
 	GError *error = NULL;
 	GFileInfo *info;
 
-	gedit_debug (DEBUG_SAVER);
+	DEBUG ({
+	       g_print ("%s\n", G_STRFUNC);
+	});
 
 	/* manually check cancelled state */
 	if (g_cancellable_is_cancelled (async->cancellable))
@@ -869,7 +933,9 @@ check_modification_callback (GFile        *source,
 		/* it's perfectly fine if the file doesn't exist yet */
 		if (error->code != G_IO_ERROR_NOT_FOUND)
 		{
-			gedit_debug_message (DEBUG_SAVER, "Error getting modification: %s", error->message);
+			DEBUG ({
+			       g_print ("Error getting modification: %s\n", error->message);
+			});
 
 			async_failed (async, error);
 			return;
@@ -890,7 +956,10 @@ check_modification_callback (GFile        *source,
 		    (mtime.tv_sec != old_mtime.tv_sec || mtime.tv_usec != old_mtime.tv_usec) &&
 		    (saver->priv->flags & GEDIT_DOCUMENT_SAVE_IGNORE_MTIME) == 0)
 		{
-			gedit_debug_message (DEBUG_SAVER, "File is externally modified");
+			DEBUG ({
+			       g_print ("File is externally modified\n");
+			});
+
 			g_set_error (&saver->priv->error,
 				     GEDIT_DOCUMENT_ERROR,
 				     GEDIT_DOCUMENT_ERROR_EXTERNALLY_MODIFIED,
@@ -913,7 +982,9 @@ check_modification_callback (GFile        *source,
 static void
 check_modified_async (AsyncData *async)
 {
-	gedit_debug_message (DEBUG_SAVER, "Check externally modified");
+	DEBUG ({
+	       g_print ("Check externally modified\n");
+	});
 
 	g_file_query_info_async (async->saver->priv->location,
 				 G_FILE_ATTRIBUTE_TIME_MODIFIED,
@@ -929,7 +1000,9 @@ save_remote_file_real (GeditDocumentSaver *saver)
 {
 	AsyncData *async;
 
-	gedit_debug_message (DEBUG_SAVER, "Starting  save");
+	DEBUG ({
+	       g_print ("Starting  save\n");
+	});
 
 	/* First find out if the file is modified externally. This requires
 	 * a stat, but I don't think we can do this any other way
@@ -946,7 +1019,9 @@ void
 gedit_document_saver_save (GeditDocumentSaver *saver,
 			   GTimeVal           *old_mtime)
 {
-	gedit_debug (DEBUG_SAVER);
+	DEBUG ({
+	       g_print ("%s\n", G_STRFUNC);
+	});
 
 	g_return_if_fail (GEDIT_IS_DOCUMENT_SAVER (saver));
 	g_return_if_fail (saver->priv->location != NULL);
@@ -999,9 +1074,17 @@ gedit_document_saver_saving (GeditDocumentSaver *saver,
 	if (completed)
 	{
 		if (error == NULL)
-			gedit_debug_message (DEBUG_SAVER, "save completed");
+		{
+			DEBUG ({
+			       g_print ("save completed\n");
+			});
+		}
 		else
-			gedit_debug_message (DEBUG_SAVER, "save failed");
+		{
+			DEBUG ({
+			       g_print ("save failed\n");
+			});
+		}
 
 		g_object_unref (saver);
 	}

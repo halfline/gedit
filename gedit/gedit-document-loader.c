@@ -32,7 +32,6 @@
 
 #include "gedit-document-loader.h"
 #include "gedit-document-output-stream.h"
-#include "gedit-debug.h"
 #include "gedit-utils.h"
 #include "gedit-marshal.h"
 #include "gedit-enum-types.h"
@@ -40,6 +39,12 @@
 
 #ifndef ENABLE_GVFS_METADATA
 #include "gedit-metadata-manager.h"
+#endif
+
+#if 0
+#define DEBUG(x) (x)
+#else
+#define DEBUG(x)
 #endif
 
 typedef struct
@@ -423,7 +428,9 @@ close_input_stream_ready_cb (GInputStream *stream,
 {
 	GError *error = NULL;
 
-	gedit_debug (DEBUG_LOADER);
+	DEBUG ({
+	       g_print ("%s\n", G_STRFUNC);
+	});
 
 	/* check cancelled state manually */
 	if (g_cancellable_is_cancelled (async->cancellable))
@@ -432,17 +439,24 @@ close_input_stream_ready_cb (GInputStream *stream,
 		return;
 	}
 
-	gedit_debug_message (DEBUG_LOADER, "Finished closing input stream");
+	DEBUG ({
+	       g_print ("Finished closing input stream\n");
+	});
 
 	if (!g_input_stream_close_finish (stream, res, &error))
 	{
-		gedit_debug_message (DEBUG_LOADER, "Closing input stream error: %s", error->message);
+		DEBUG ({
+		       g_print ("Closing input stream error: %s\n", error->message);
+		});
 
 		async_failed (async, error);
 		return;
 	}
 
-	gedit_debug_message (DEBUG_LOADER, "Close output stream");
+	DEBUG ({
+	       g_print ("Close output stream\n");
+	});
+
 	if (!g_output_stream_close (async->loader->priv->output,
 				    async->cancellable, &error))
 	{
@@ -498,10 +512,16 @@ write_file_chunk (AsyncData *async)
 					       async->cancellable,
 					       &error);
 
-	gedit_debug_message (DEBUG_LOADER, "Written: %" G_GSSIZE_FORMAT, bytes_written);
+	DEBUG ({
+	       g_print ("Written: %" G_GSSIZE_FORMAT "\n", bytes_written);
+	});
+
 	if (bytes_written == -1)
 	{
-		gedit_debug_message (DEBUG_LOADER, "Write error: %s", error->message);
+		DEBUG ({
+		       g_print ("Write error: %s\n", error->message);
+		});
+
 		async_failed (async, error);
 		return;
 	}
@@ -524,7 +544,9 @@ async_read_cb (GInputStream *stream,
 	GeditDocumentLoader *loader;
 	GError *error = NULL;
 
-	gedit_debug (DEBUG_LOADER);
+	DEBUG ({
+	       g_print ("%s\n", G_STRFUNC);
+	});
 
 	/* manually check cancelled state */
 	if (g_cancellable_is_cancelled (async->cancellable))
@@ -753,7 +775,9 @@ query_info_cb (GFile        *source,
 	GError *error = NULL;
 	GeditDocumentLoaderPrivate *priv;
 
-	gedit_debug (DEBUG_LOADER);
+	DEBUG ({
+	       g_print ("%s\n", G_STRFUNC);
+	});
 
 	/* manually check the cancelled state */
 	if (g_cancellable_is_cancelled (async->cancellable))
@@ -789,7 +813,9 @@ mount_ready_callback (GFile        *file,
 	GError *error = NULL;
 	gboolean mounted;
 
-	gedit_debug (DEBUG_LOADER);
+	DEBUG ({
+	       g_print ("%s\n", G_STRFUNC);
+	});
 
 	/* manual check for cancelled state */
 	if (g_cancellable_is_cancelled (async->cancellable))
@@ -817,7 +843,9 @@ recover_not_mounted (AsyncData *async)
 	GeditDocument *doc;
 	GMountOperation *mount_operation;
 
-	gedit_debug (DEBUG_LOADER);
+	DEBUG ({
+	       g_print ("%s\n", G_STRFUNC);
+	});
 
 	doc = gedit_document_loader_get_document (async->loader);
 	mount_operation = _gedit_document_create_mount_operation (doc);
@@ -841,7 +869,9 @@ async_read_ready_callback (GObject      *source,
 	GError *error = NULL;
 	GeditDocumentLoader *loader;
 
-	gedit_debug (DEBUG_LOADER);
+	DEBUG ({
+	       g_print ("%s\n", G_STRFUNC);
+	});
 
 	/* manual check for cancelled state */
 	if (g_cancellable_is_cancelled (async->cancellable))
@@ -917,9 +947,17 @@ gedit_document_loader_loading (GeditDocumentLoader *loader,
 	if (completed)
 	{
 		if (error == NULL)
-			gedit_debug_message (DEBUG_LOADER, "load completed");
+		{
+			DEBUG ({
+			       g_print ("load completed\n");
+			});
+		}
 		else
-			gedit_debug_message (DEBUG_LOADER, "load failed");
+		{
+			DEBUG ({
+			       g_print ("load failed\n");
+			});
+		}
 
 		g_object_unref (loader);
 	}
@@ -930,7 +968,9 @@ gedit_document_loader_load (GeditDocumentLoader *loader)
 {
 	AsyncData *async;
 
-	gedit_debug (DEBUG_LOADER);
+	DEBUG ({
+	       g_print ("%s\n", G_STRFUNC);
+	});
 
 	g_return_if_fail (GEDIT_IS_DOCUMENT_LOADER (loader));
 
@@ -965,7 +1005,9 @@ gedit_document_loader_load (GeditDocumentLoader *loader)
 gboolean
 gedit_document_loader_cancel (GeditDocumentLoader *loader)
 {
-	gedit_debug (DEBUG_LOADER);
+	DEBUG ({
+	       g_print ("%s\n", G_STRFUNC);
+	});
 
 	g_return_val_if_fail (GEDIT_IS_DOCUMENT_LOADER (loader), FALSE);
 
