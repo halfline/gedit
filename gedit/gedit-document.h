@@ -22,28 +22,16 @@
  * Boston, MA 02111-1307, USA.
  */
 
-/*
- * Modified by the gedit Team, 1998-2005. See the AUTHORS file for a
- * list of people on the gedit Team.
- * See the ChangeLog files for a list of changes.
- *
- * $Id$
- */
-
 #ifndef __GEDIT_DOCUMENT_H__
 #define __GEDIT_DOCUMENT_H__
 
 #include <gio/gio.h>
 #include <gtk/gtk.h>
 #include <gtksourceview/gtksource.h>
-
 #include <gedit/gedit-encodings.h>
 
 G_BEGIN_DECLS
 
-/*
- * Type checking and casting macros
- */
 #define GEDIT_TYPE_DOCUMENT              (gedit_document_get_type())
 #define GEDIT_DOCUMENT(obj)              (G_TYPE_CHECK_INSTANCE_CAST((obj), GEDIT_TYPE_DOCUMENT, GeditDocument))
 #define GEDIT_DOCUMENT_CLASS(klass)      (G_TYPE_CHECK_CLASS_CAST((klass), GEDIT_TYPE_DOCUMENT, GeditDocumentClass))
@@ -120,32 +108,22 @@ typedef enum
 	GEDIT_DOCUMENT_SAVE_IGNORE_INVALID_CHARS= 1 << 3
 } GeditDocumentSaveFlags;
 
-/* Private structure type */
-typedef struct _GeditDocumentPrivate    GeditDocumentPrivate;
-
-/*
- * Main object structure
- */
 typedef struct _GeditDocument           GeditDocument;
+typedef struct _GeditDocumentClass 	GeditDocumentClass;
+typedef struct _GeditDocumentPrivate    GeditDocumentPrivate;
 
 struct _GeditDocument
 {
 	GtkSourceBuffer buffer;
 
-	/*< private > */
 	GeditDocumentPrivate *priv;
 };
-
-/*
- * Class definition
- */
-typedef struct _GeditDocumentClass 	GeditDocumentClass;
 
 struct _GeditDocumentClass
 {
 	GtkSourceBufferClass parent_class;
 
-	/* Signals */ // CHECK: ancora da rivedere
+	/* Signals */
 
 	void (* cursor_moved)		(GeditDocument    *document);
 
@@ -184,7 +162,6 @@ struct _GeditDocumentClass
 					 GtkTextIter      *start,
 					 GtkTextIter      *end);
 };
-
 
 #define GEDIT_DOCUMENT_ERROR gedit_document_error_quark ()
 
@@ -368,13 +345,11 @@ gboolean	_gedit_document_check_externally_modified
 typedef GMountOperation *(*GeditMountOperationFactory)(GeditDocument *doc,
 						       gpointer       userdata);
 
-void		 _gedit_document_set_mount_operation_factory
-						(GeditDocument	            *doc,
-						 GeditMountOperationFactory  callback,
-						 gpointer	             userdata);
-GMountOperation
-		*_gedit_document_create_mount_operation
-						(GeditDocument	     *doc);
+void			 _gedit_document_set_mount_operation_factory	(GeditDocument	            *doc,
+									 GeditMountOperationFactory  callback,
+									 gpointer	             userdata);
+
+GMountOperation		*_gedit_document_create_mount_operation	(GeditDocument	        *doc);
 
 void			 _gedit_document_set_search_context	(GeditDocument          *doc,
 								 GtkSourceSearchContext *search_context);
