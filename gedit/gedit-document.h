@@ -29,6 +29,7 @@
 #include <gtk/gtk.h>
 #include <gtksourceview/gtksource.h>
 #include <gedit/gedit-encodings.h>
+#include <gedit/gedit-document-enums.h>
 
 G_BEGIN_DECLS
 
@@ -49,19 +50,6 @@ G_BEGIN_DECLS
 #define GEDIT_METADATA_ATTRIBUTE_LANGUAGE "metadata::gedit-language"
 #endif
 
-typedef enum
-{
-	GEDIT_DOCUMENT_NEWLINE_TYPE_LF,
-	GEDIT_DOCUMENT_NEWLINE_TYPE_CR,
-	GEDIT_DOCUMENT_NEWLINE_TYPE_CR_LF
-} GeditDocumentNewlineType;
-
-#ifdef G_OS_WIN32
-#define GEDIT_DOCUMENT_NEWLINE_TYPE_DEFAULT GEDIT_DOCUMENT_NEWLINE_TYPE_CR_LF
-#else
-#define GEDIT_DOCUMENT_NEWLINE_TYPE_DEFAULT GEDIT_DOCUMENT_NEWLINE_TYPE_LF
-#endif
-
 /**
  * GeditSearchFlags:
  * @GEDIT_SEARCH_DONT_SET_FLAGS:
@@ -76,37 +64,6 @@ typedef enum
 	GEDIT_SEARCH_ENTIRE_WORD	= 1 << 1,
 	GEDIT_SEARCH_CASE_SENSITIVE	= 1 << 2
 } GeditSearchFlags;
-
-/*
- * NOTE: when adding a new compression type, make sure to update:
- *   1) The document loader to support it
- *   2) gedit_document_compression_type_for_display
- */
-
-/**
- * GeditDocumentCompressionType:
- * @GEDIT_DOCUMENT_COMPRESSION_TYPE_NONE: save file in plain text.
- * @GEDIT_DOCUMENT_COMPRESSION_TYPE_GZIP: save file using gzip compression.
- */
-typedef enum
-{
-	GEDIT_DOCUMENT_COMPRESSION_TYPE_NONE,
-	GEDIT_DOCUMENT_COMPRESSION_TYPE_GZIP
-} GeditDocumentCompressionType;
-
-/**
- * GeditDocumentSaveFlags:
- * @GEDIT_DOCUMENT_SAVE_IGNORE_MTIME: save file despite external modifications.
- * @GEDIT_DOCUMENT_SAVE_IGNORE_BACKUP: write the file directly without attempting to backup.
- * @GEDIT_DOCUMENT_SAVE_PRESERVE_BACKUP: preserve previous backup file, needed to support autosaving.
- */
-typedef enum
-{
-	GEDIT_DOCUMENT_SAVE_IGNORE_MTIME 	= 1 << 0,
-	GEDIT_DOCUMENT_SAVE_IGNORE_BACKUP	= 1 << 1,
-	GEDIT_DOCUMENT_SAVE_PRESERVE_BACKUP	= 1 << 2,
-	GEDIT_DOCUMENT_SAVE_IGNORE_INVALID_CHARS= 1 << 3
-} GeditDocumentSaveFlags;
 
 typedef struct _GeditDocument           GeditDocument;
 typedef struct _GeditDocumentClass 	GeditDocumentClass;
