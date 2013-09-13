@@ -39,7 +39,7 @@
 #include <gedit/gedit-encodings-combo-box.h>
 #include <gedit/gedit-encodings-dialog.h>
 #include "gedit-settings.h"
-#include "gedit-utils.h"
+#include "gedit/gedit-utils.h"
 
 #define ENCODING_KEY "Enconding"
 

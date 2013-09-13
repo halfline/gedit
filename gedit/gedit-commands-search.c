@@ -45,7 +45,7 @@
 #include "gedit-view-frame.h"
 #include "gedit-window.h"
 #include "gedit-window-private.h"
-#include "gedit-utils.h"
+#include "gedit/gedit-utils.h"
 #include "gedit-replace-dialog.h"
 
 #define GEDIT_REPLACE_DIALOG_KEY	"gedit-replace-dialog-key"

@@ -43,7 +43,7 @@
 #include <gio/gio.h>
 
 #include "gedit-settings.h"
-#include "gedit-utils.h"
+#include "gedit/gedit-utils.h"
 #include "gedit-document.h"
 #include "gedit-io-error-info-bar.h"
 #include <gedit/gedit-encodings-combo-box.h>

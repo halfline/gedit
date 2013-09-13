@@ -40,7 +40,7 @@
 
 #include "gedit-encodings-dialog.h"
 #include "gedit/gedit-encodings.h"
-#include "gedit-utils.h"
+#include "gedit/gedit-utils.h"
 #include "gedit-debug.h"
 #include "gedit-dirs.h"
 #include "gedit-settings.h"

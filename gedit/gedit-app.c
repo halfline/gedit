@@ -49,7 +49,7 @@
 #include "gedit-commands.h"
 #include "gedit-notebook.h"
 #include "gedit-debug.h"
-#include "gedit-utils.h"
+#include "gedit/gedit-utils.h"
 #include "gedit-enum-types.h"
 #include "gedit-dirs.h"
 #include "gedit-settings.h"

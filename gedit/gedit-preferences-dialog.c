@@ -43,12 +43,12 @@
 #include <gtksourceview/gtksource.h>
 
 #include "gedit-preferences-dialog.h"
-#include "gedit-utils.h"
+#include "gedit/gedit-utils.h"
 #include "gedit-debug.h"
 #include "gedit-document.h"
 #include "gedit-dirs.h"
 #include "gedit-settings.h"
-#include "gedit-utils.h"
+#include "gedit/gedit-utils.h"
 
 /*
  * gedit-preferences dialog is a singleton since we don't

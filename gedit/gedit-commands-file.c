@@ -45,7 +45,7 @@
 #include "gedit-window-private.h"
 #include "gedit-statusbar.h"
 #include "gedit-debug.h"
-#include "gedit-utils.h"
+#include "gedit/gedit-utils.h"
 #include "gedit-file-chooser-dialog.h"
 #include "gedit-close-confirmation-dialog.h"
 

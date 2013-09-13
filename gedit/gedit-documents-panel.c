@@ -34,7 +34,7 @@
 
 #include "gedit-documents-panel.h"
 #include "gedit-debug.h"
-#include "gedit-utils.h"
+#include "gedit/gedit-utils.h"
 #include "gedit-multi-notebook.h"
 #include "gedit-notebook.h"
 #include "gedit-notebook-popup-menu.h"

@@ -49,7 +49,7 @@
 #include "gedit-notebook-popup-menu.h"
 #include "gedit-multi-notebook.h"
 #include "gedit-statusbar.h"
-#include "gedit-utils.h"
+#include "gedit/gedit-utils.h"
 #include "gedit-commands.h"
 #include "gedit-debug.h"
 #include "gedit-open-tool-button.h"

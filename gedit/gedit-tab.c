@@ -36,7 +36,7 @@
 #include "gedit-app.h"
 #include "gedit-notebook.h"
 #include "gedit-tab.h"
-#include "gedit-utils.h"
+#include "gedit/gedit-utils.h"
 #include "gedit-io-error-info-bar.h"
 #include "gedit-print-job.h"
 #include "gedit-print-preview.h"

@@ -27,7 +27,7 @@
 
 #include "gedit-view-frame.h"
 #include "gedit-debug.h"
-#include "gedit-utils.h"
+#include "gedit/gedit-utils.h"
 #include "libgd/gd.h"
 
 #include <gtksourceview/gtksource.h>

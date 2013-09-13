@@ -141,13 +141,13 @@ INST_H_FILES =				\
 	gedit-progress-info-bar.h	\
 	gedit-statusbar.h		\
 	gedit-tab.h 			\
-	gedit-utils.h 			\
 	gedit-view.h 			\
 	gedit-view-activatable.h	\
 	gedit-window.h			\
 	gedit-window-activatable.h	\
 	$(top_srcdir)/libgedit/gedit/gedit-document-enums.h		\
-	$(top_srcdir)/libgedit/gedit/gedit-encodings.h
+	$(top_srcdir)/libgedit/gedit/gedit-encodings.h			\
+	$(top_srcdir)/libgedit/gedit/gedit-utils.h
 
 if !ENABLE_GVFS_METADATA
 INST_H_FILES += $(top_srcdir)/libgedit/gedit/gedit-metadata-manager.h
@@ -211,7 +211,6 @@ libgedit_c_files =			\
 	gedit-status-menu-button.c	\
 	gedit-tab.c 			\
 	gedit-tab-label.c		\
-	gedit-utils.c 			\
 	gedit-view.c 			\
 	gedit-view-frame.c		\
 	gedit-window.c

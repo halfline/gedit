@@ -43,7 +43,7 @@
 #include "gedit-app.h"
 #include "gedit-dirs.h"
 #include "gedit-settings.h"
-#include "gedit-utils.h"
+#include "gedit/gedit-utils.h"
 
 struct _GeditPluginsEnginePrivate
 {

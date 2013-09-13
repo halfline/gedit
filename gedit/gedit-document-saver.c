@@ -30,7 +30,7 @@
 #include "gedit-document-saver.h"
 #include "gedit-document-input-stream.h"
 #include "gedit-marshal.h"
-#include "gedit-utils.h"
+#include "gedit/gedit-utils.h"
 #include "gedit-enum-types.h"
 #include "gedit-settings.h"
 

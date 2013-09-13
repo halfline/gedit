@@ -32,7 +32,7 @@
 
 #include "gedit-document-loader.h"
 #include "gedit-document-output-stream.h"
-#include "gedit-utils.h"
+#include "gedit/gedit-utils.h"
 #include "gedit-marshal.h"
 #include "gedit-enum-types.h"
 #include "gedit-settings.h"

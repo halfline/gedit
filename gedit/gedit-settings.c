@@ -36,7 +36,7 @@
 #include "gedit-window.h"
 #include "gedit-plugins-engine.h"
 #include "gedit-dirs.h"
-#include "gedit-utils.h"
+#include "gedit/gedit-utils.h"
 #include "gedit-window-private.h"
 
 #define GEDIT_SETTINGS_LOCKDOWN_COMMAND_LINE "disable-command-line"
