@@ -3,6 +3,7 @@
 #define __GEDIT_ENUM_TYPES_H__
 
 #include <glib-object.h>
+#include <gedit/libgedit-enum-types.h>
 
 G_BEGIN_DECLS
 

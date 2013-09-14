@@ -28,7 +28,7 @@
 #include <string.h>
 
 #include "gedit-document-saver.h"
-#include "gedit-document-input-stream.h"
+#include "gedit/gedit-document-input-stream.h"
 #include "gedit-marshal.h"
 #include "gedit/gedit-utils.h"
 #include "gedit-enum-types.h"

@@ -20,8 +20,7 @@
  * Boston, MA  02110-1301  USA
  */
 
-
-#include "gedit-document-input-stream.h"
+#include "gedit/gedit-document-input-stream.h"
 #include <gio/gio.h>
 #include <gtk/gtk.h>
 #include <glib.h>

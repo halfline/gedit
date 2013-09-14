@@ -102,7 +102,6 @@ NOINST_H_FILES =			\
 	gedit-close-button.h		\
 	gedit-close-confirmation-dialog.h \
 	gedit-dirs.h			\
-	gedit-document-input-stream.h	\
 	gedit-document-loader.h		\
 	gedit-document-output-stream.h	\
 	gedit-document-saver.h		\
@@ -144,19 +143,23 @@ INST_H_FILES =				\
 	gedit-view.h 			\
 	gedit-view-activatable.h	\
 	gedit-window.h			\
-	gedit-window-activatable.h	\
+	gedit-window-activatable.h
+
+LIBGEDIT_INST_H_FILES =							\
 	$(top_srcdir)/libgedit/gedit/gedit-document-enums.h		\
 	$(top_srcdir)/libgedit/gedit/gedit-encodings.h			\
-	$(top_srcdir)/libgedit/gedit/gedit-utils.h
+	$(top_srcdir)/libgedit/gedit/gedit-utils.h			\
+	$(top_srcdir)/libgedit/gedit/libgedit-enum-types.h
 
 if !ENABLE_GVFS_METADATA
-INST_H_FILES += $(top_srcdir)/libgedit/gedit/gedit-metadata-manager.h
+LIBGEDIT_INST_H_FILES += $(top_srcdir)/libgedit/gedit/gedit-metadata-manager.h
 endif
 
 headerdir = $(prefix)/include/gedit-$(GEDIT_API_VERSION)/gedit
 
 header_DATA = 				\
-	$(INST_H_FILES)
+	$(INST_H_FILES)			\
+	$(LIBGEDIT_INST_H_FILES)
 
 BUILT_SOURCES_PRIVATE = \
 	gedit-resources.c
@@ -182,7 +185,6 @@ libgedit_c_files =			\
 	gedit-debug.c			\
 	gedit-dirs.c			\
 	gedit-document.c 		\
-	gedit-document-input-stream.c	\
 	gedit-document-loader.c		\
 	gedit-document-output-stream.c	\
 	gedit-document-saver.c		\
@@ -222,7 +224,8 @@ libgedit_la_SOURCES = 			\
 	$(BUILT_SOURCES)		\
 	$(libgedit_c_files)		\
 	$(NOINST_H_FILES)		\
-	$(INST_H_FILES)
+	$(INST_H_FILES)			\
+	$(LIBGEDIT_INST_H_FILES)
 
 ENUM_TYPES = 			\
 	gedit-notebook.h	\
@@ -280,7 +283,7 @@ INTROSPECTION_SCANNER_ARGS = -I$(top_srcdir) -I$(top_srcdir)/libgedit --warn-all
 Gedit_3_0_gir_NAMESPACE = Gedit
 Gedit_3_0_gir_VERSION = 3.0
 Gedit_3_0_gir_PROGRAM = $(builddir)/gedit
-Gedit_3_0_gir_FILES = $(INST_H_FILES) $(libgedit_c_files) $(libgedit_submodule_c_files) $(BUILT_SOURCES)
+Gedit_3_0_gir_FILES = $(INST_H_FILES) $(LIBGEDIT_INST_H_FILES) $(libgedit_c_files) $(libgedit_submodule_c_files) $(BUILT_SOURCES)
 Gedit_3_0_gir_INCLUDES = Gtk-3.0 GtkSource-3.0
 
 girdir = $(datadir)/gedit/gir-1.0
