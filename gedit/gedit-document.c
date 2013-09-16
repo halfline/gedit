@@ -1815,6 +1815,15 @@ gedit_document_save_real (GeditDocument                *doc,
 	}
 	else
 	{
+		/* Do not make backups for remote files so they do not clutter
+		 * remote systems. */
+		if (!gedit_document_is_local (doc) ||
+		    !g_settings_get_boolean (doc->priv->editor_settings,
+					     GEDIT_SETTINGS_CREATE_BACKUP_COPY))
+		{
+			flags |= GEDIT_DOCUMENT_SAVE_IGNORE_BACKUP;
+		}
+
 		/* create a saver, it will be destroyed once saving is complete */
 		doc->priv->saver = gedit_document_saver_new (doc,
 		                                             location,

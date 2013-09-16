@@ -85,7 +85,6 @@ struct _GeditDocumentSaverPrivate
 
 	GFileInfo		 *info;
 	GeditDocument		 *document;
-	gboolean		  used;
 
 	GFile			 *location;
 	const GeditEncoding      *encoding;
@@ -93,8 +92,6 @@ struct _GeditDocumentSaverPrivate
 	GeditDocumentCompressionType compression_type;
 
 	GeditDocumentSaveFlags    flags;
-
-	gboolean		  keep_backup;
 
 	GTimeVal		  old_mtime;
 
@@ -106,6 +103,8 @@ struct _GeditDocumentSaverPrivate
 	GInputStream		 *input;
 
 	GError                   *error;
+
+	guint                     used : 1;
 };
 
 G_DEFINE_TYPE_WITH_PRIVATE (GeditDocumentSaver, gedit_document_saver, G_TYPE_OBJECT)
@@ -718,7 +717,6 @@ async_replace_ready_callback (GFile        *source,
 	GCharsetConverter *converter;
 	GFileOutputStream *file_stream;
 	GOutputStream *base_stream;
-	gchar *content_type;
 	GError *error = NULL;
 	gboolean ensure_trailing_newline;
 
@@ -747,8 +745,6 @@ async_replace_ready_callback (GFile        *source,
 		return;
 	}
 
-	content_type = gedit_document_get_content_type (saver->priv->document);
-
 	if (saver->priv->compression_type == GEDIT_DOCUMENT_COMPRESSION_TYPE_GZIP)
 	{
 		GZlibCompressor *compressor;
@@ -770,8 +766,6 @@ async_replace_ready_callback (GFile        *source,
 	{
 		base_stream = G_OUTPUT_STREAM (file_stream);
 	}
-
-	g_free (content_type);
 
 	/* FIXME: manage converter error? */
 	DEBUG ({
@@ -813,7 +807,7 @@ static void
 begin_write (AsyncData *async)
 {
 	GeditDocumentSaver *saver;
-	gboolean backup;
+	gboolean make_backup;
 
 	DEBUG ({
 	       g_print ("Start replacing file contents\n");
@@ -824,18 +818,17 @@ begin_write (AsyncData *async)
 	 */
 	saver = async->saver;
 
-	/* Do not make backups for remote files so they do not clutter remote systems */
-	backup = (saver->priv->keep_backup && gedit_document_is_local (saver->priv->document));
+	make_backup = (saver->priv->flags & GEDIT_DOCUMENT_SAVE_IGNORE_BACKUP) == 0 &&
+		      (saver->priv->flags & GEDIT_DOCUMENT_SAVE_PRESERVE_BACKUP) == 0;
 
 	DEBUG ({
 	       g_print ("File contents size: %" G_GINT64_FORMAT "\n", saver->priv->size);
-	       g_print ("Calling replace_async\n");
-	       g_print (backup ? "Keep backup\n" : "Discard backup\n");
+	       g_print ("Make backup: %s\n", make_backup ? "yes" : "no");
 	});
 
 	g_file_replace_async (saver->priv->location,
 			      NULL,
-			      backup,
+			      make_backup,
 			      G_FILE_CREATE_NONE,
 			      G_PRIORITY_HIGH,
 			      async->cancellable,
@@ -1032,17 +1025,6 @@ gedit_document_saver_save (GeditDocumentSaver *saver,
 	/* CHECK:
 	 report async (in an idle handler) or sync (bool ret)
 	 async is extra work here, sync is special casing in the caller */
-
-	/* never keep backup of autosaves */
-	if ((saver->priv->flags & GEDIT_DOCUMENT_SAVE_PRESERVE_BACKUP) != 0)
-	{
-		saver->priv->keep_backup = FALSE;
-	}
-	else
-	{
-		saver->priv->keep_backup = g_settings_get_boolean (saver->priv->editor_settings,
-								   GEDIT_SETTINGS_CREATE_BACKUP_COPY);
-	}
 
 	saver->priv->old_mtime = *old_mtime;
 
