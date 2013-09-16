@@ -28,11 +28,10 @@
 #include <string.h>
 
 #include "gedit-document-saver.h"
-#include "gedit-document.h"
 #include "gedit/gedit-document-input-stream.h"
-#include "gedit-marshal.h"
 #include "gedit/gedit-utils.h"
-#include "gedit-enum-types.h"
+#include "gedit/libgedit-enum-types.h"
+#include "gedit-marshal.h"
 
 #define WRITE_CHUNK_SIZE 8192
 
@@ -55,7 +54,7 @@ static guint signals[LAST_SIGNAL] = { 0 };
 
 enum {
 	PROP_0,
-	PROP_DOCUMENT,
+	PROP_BUFFER,
 	PROP_LOCATION,
 	PROP_ENCODING,
 	PROP_NEWLINE_TYPE,
@@ -83,7 +82,7 @@ static void check_modified_async (AsyncData *async);
 struct _GeditDocumentSaverPrivate
 {
 	GFileInfo		 *info;
-	GeditDocument		 *document;
+	GtkTextBuffer            *buffer;
 
 	GFile			 *location;
 	const GeditEncoding      *encoding;
@@ -122,9 +121,9 @@ gedit_document_saver_set_property (GObject      *object,
 
 	switch (prop_id)
 	{
-		case PROP_DOCUMENT:
-			g_return_if_fail (saver->priv->document == NULL);
-			saver->priv->document = g_value_get_object (value);
+		case PROP_BUFFER:
+			g_return_if_fail (saver->priv->buffer == NULL);
+			saver->priv->buffer = g_value_get_object (value);
 			break;
 		case PROP_LOCATION:
 			g_return_if_fail (saver->priv->location == NULL);
@@ -162,8 +161,8 @@ gedit_document_saver_get_property (GObject    *object,
 
 	switch (prop_id)
 	{
-		case PROP_DOCUMENT:
-			g_value_set_object (value, saver->priv->document);
+		case PROP_BUFFER:
+			g_value_set_object (value, saver->priv->buffer);
 			break;
 		case PROP_LOCATION:
 			g_value_set_object (value, saver->priv->location);
@@ -252,11 +251,11 @@ gedit_document_saver_class_init (GeditDocumentSaverClass *klass)
 	object_class->get_property = gedit_document_saver_get_property;
 
 	g_object_class_install_property (object_class,
-					 PROP_DOCUMENT,
-					 g_param_spec_object ("document",
-							      "Document",
-							      "The GeditDocument this GeditDocumentSaver is associated with",
-							      GEDIT_TYPE_DOCUMENT,
+					 PROP_BUFFER,
+					 g_param_spec_object ("buffer",
+							      "Buffer",
+							      "The GtkTextBuffer this GeditDocumentSaver is associated with",
+							      GTK_TYPE_TEXT_BUFFER,
 							      G_PARAM_READWRITE |
 							      G_PARAM_CONSTRUCT_ONLY |
 							      G_PARAM_STATIC_STRINGS));
@@ -350,7 +349,7 @@ gedit_document_saver_init (GeditDocumentSaver *saver)
 }
 
 GeditDocumentSaver *
-gedit_document_saver_new (GeditDocument                *doc,
+gedit_document_saver_new (GtkTextBuffer                *buffer,
 			  GFile                        *location,
 			  const GeditEncoding          *encoding,
 			  GeditDocumentNewlineType      newline_type,
@@ -358,13 +357,13 @@ gedit_document_saver_new (GeditDocument                *doc,
 			  GeditDocumentSaveFlags        flags,
 			  gboolean                      ensure_trailing_newline)
 {
-	g_return_val_if_fail (GEDIT_IS_DOCUMENT (doc), NULL);
+	g_return_val_if_fail (GTK_IS_TEXT_BUFFER (buffer), NULL);
 
 	if (encoding == NULL)
 		encoding = gedit_encoding_get_utf8 ();
 
 	return GEDIT_DOCUMENT_SAVER (g_object_new (GEDIT_TYPE_DOCUMENT_SAVER,
-						   "document", doc,
+						   "buffer", buffer,
 						   "location", location,
 						   "encoding", encoding,
 						   "newline_type", newline_type,
@@ -809,7 +808,7 @@ async_replace_ready_callback (GFile        *source,
 		saver->priv->stream = G_OUTPUT_STREAM (base_stream);
 	}
 
-	saver->priv->input = gedit_document_input_stream_new (GTK_TEXT_BUFFER (saver->priv->document),
+	saver->priv->input = gedit_document_input_stream_new (saver->priv->buffer,
 							      saver->priv->newline_type,
 							      saver->priv->ensure_trailing_newline);
 
@@ -1096,12 +1095,12 @@ gedit_document_saver_saving (GeditDocumentSaver *saver,
 	}
 }
 
-GeditDocument *
-gedit_document_saver_get_document (GeditDocumentSaver *saver)
+GtkTextBuffer *
+gedit_document_saver_get_buffer (GeditDocumentSaver *saver)
 {
 	g_return_val_if_fail (GEDIT_IS_DOCUMENT_SAVER (saver), NULL);
 
-	return saver->priv->document;
+	return saver->priv->buffer;
 }
 
 GFile *

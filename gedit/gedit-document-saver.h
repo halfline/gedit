@@ -25,6 +25,9 @@
 #ifndef __GEDIT_DOCUMENT_SAVER_H__
 #define __GEDIT_DOCUMENT_SAVER_H__
 
+#include <gtk/gtk.h>
+#include "gedit/gedit-document-enums.h"
+#include "gedit/gedit-encodings.h"
 #include "gedit-document.h"
 
 G_BEGIN_DECLS
@@ -60,7 +63,7 @@ struct _GeditDocumentSaverClass
 GType 		 	 gedit_document_saver_get_type		(void) G_GNUC_CONST;
 
 /* If enconding == NULL, the encoding will be autodetected */
-GeditDocumentSaver 	*gedit_document_saver_new 		(GeditDocument                *doc,
+GeditDocumentSaver 	*gedit_document_saver_new 		(GtkTextBuffer                *buffer,
 								 GFile                        *location,
 								 const GeditEncoding          *encoding,
 								 GeditDocumentNewlineType      newline_type,
@@ -71,15 +74,17 @@ GeditDocumentSaver 	*gedit_document_saver_new 		(GeditDocument                *d
 void			 gedit_document_saver_saving		(GeditDocumentSaver  *saver,
 								 gboolean             completed,
 								 GError              *error);
+
 void			 gedit_document_saver_save		(GeditDocumentSaver  *saver,
 								 GTimeVal            *old_mtime);
 
-GeditDocument		*gedit_document_saver_get_document	(GeditDocumentSaver  *saver);
+GtkTextBuffer		*gedit_document_saver_get_buffer	(GeditDocumentSaver  *saver);
 
 GFile			*gedit_document_saver_get_location	(GeditDocumentSaver  *saver);
 
 /* If backup_uri is NULL no backup will be made */
 const gchar		*gedit_document_saver_get_backup_uri	(GeditDocumentSaver  *saver);
+
 void			*gedit_document_saver_set_backup_uri	(GeditDocumentSaver  *saver,
 							 	 const gchar         *backup_uri);
 
@@ -98,4 +103,5 @@ void			 gedit_document_saver_set_mount_operation_factory
 G_END_DECLS
 
 #endif  /* __GEDIT_DOCUMENT_SAVER_H__  */
+
 /* ex:set ts=8 noet: */

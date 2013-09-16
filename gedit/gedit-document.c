@@ -1830,7 +1830,7 @@ gedit_document_save_real (GeditDocument                *doc,
 								  GEDIT_SETTINGS_ENSURE_TRAILING_NEWLINE);
 
 		/* create a saver, it will be destroyed once saving is complete */
-		doc->priv->saver = gedit_document_saver_new (doc,
+		doc->priv->saver = gedit_document_saver_new (GTK_TEXT_BUFFER (doc),
 		                                             location,
 		                                             encoding,
 		                                             newline_type,
