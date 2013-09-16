@@ -65,7 +65,8 @@ GeditDocumentSaver 	*gedit_document_saver_new 		(GeditDocument                *d
 								 const GeditEncoding          *encoding,
 								 GeditDocumentNewlineType      newline_type,
 								 GeditDocumentCompressionType  compression_type,
-								 GeditDocumentSaveFlags        flags);
+								 GeditDocumentSaveFlags        flags,
+								 gboolean                      ensure_trailing_newline);
 
 void			 gedit_document_saver_saving		(GeditDocumentSaver  *saver,
 								 gboolean             completed,

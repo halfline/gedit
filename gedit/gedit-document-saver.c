@@ -32,7 +32,6 @@
 #include "gedit-marshal.h"
 #include "gedit/gedit-utils.h"
 #include "gedit-enum-types.h"
-#include "gedit-settings.h"
 
 #define WRITE_CHUNK_SIZE 8192
 
@@ -60,7 +59,8 @@ enum {
 	PROP_ENCODING,
 	PROP_NEWLINE_TYPE,
 	PROP_COMPRESSION_TYPE,
-	PROP_FLAGS
+	PROP_FLAGS,
+	PROP_ENSURE_TRAILING_NEWLINE
 };
 
 typedef struct
@@ -81,8 +81,6 @@ static void check_modified_async (AsyncData *async);
 
 struct _GeditDocumentSaverPrivate
 {
-	GSettings		 *editor_settings;
-
 	GFileInfo		 *info;
 	GeditDocument		 *document;
 
@@ -105,6 +103,7 @@ struct _GeditDocumentSaverPrivate
 	GError                   *error;
 
 	guint                     used : 1;
+	guint                     ensure_trailing_newline : 1;
 };
 
 G_DEFINE_TYPE_WITH_PRIVATE (GeditDocumentSaver, gedit_document_saver, G_TYPE_OBJECT)
@@ -140,6 +139,9 @@ gedit_document_saver_set_property (GObject      *object,
 		case PROP_FLAGS:
 			saver->priv->flags = g_value_get_flags (value);
 			break;
+		case PROP_ENSURE_TRAILING_NEWLINE:
+			saver->priv->ensure_trailing_newline = g_value_get_boolean (value);
+			break;
 		default:
 			G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
 			break;
@@ -174,6 +176,9 @@ gedit_document_saver_get_property (GObject    *object,
 		case PROP_FLAGS:
 			g_value_set_flags (value, saver->priv->flags);
 			break;
+		case PROP_ENSURE_TRAILING_NEWLINE:
+			g_value_set_boolean (value, saver->priv->ensure_trailing_newline);
+			break;
 		default:
 			G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
 			break;
@@ -198,7 +203,6 @@ gedit_document_saver_dispose (GObject *object)
 	g_clear_object (&priv->input);
 	g_clear_object (&priv->info);
 	g_clear_object (&priv->location);
-	g_clear_object (&priv->editor_settings);
 
 	G_OBJECT_CLASS (gedit_document_saver_parent_class)->dispose (object);
 }
@@ -307,6 +311,17 @@ gedit_document_saver_class_init (GeditDocumentSaverClass *klass)
 							     G_PARAM_READWRITE |
 							     G_PARAM_CONSTRUCT_ONLY));
 
+	g_object_class_install_property (object_class,
+	                                 PROP_ENSURE_TRAILING_NEWLINE,
+	                                 g_param_spec_boolean ("ensure-trailing-newline",
+	                                                       "Ensure Trailing Newline",
+	                                                       "Ensure the document ends with a trailing newline",
+	                                                       TRUE,
+	                                                       G_PARAM_READWRITE |
+	                                                       G_PARAM_STATIC_NAME |
+	                                                       G_PARAM_STATIC_BLURB |
+	                                                       G_PARAM_CONSTRUCT_ONLY));
+
 	signals[SAVING] =
 		g_signal_new ("saving",
 			      G_OBJECT_CLASS_TYPE (object_class),
@@ -328,7 +343,6 @@ gedit_document_saver_init (GeditDocumentSaver *saver)
 	saver->priv->cancellable = g_cancellable_new ();
 	saver->priv->error = NULL;
 	saver->priv->used = FALSE;
-	saver->priv->editor_settings = g_settings_new ("org.gnome.gedit.preferences.editor");
 }
 
 GeditDocumentSaver *
@@ -337,7 +351,8 @@ gedit_document_saver_new (GeditDocument                *doc,
 			  const GeditEncoding          *encoding,
 			  GeditDocumentNewlineType      newline_type,
 			  GeditDocumentCompressionType  compression_type,
-			  GeditDocumentSaveFlags        flags)
+			  GeditDocumentSaveFlags        flags,
+			  gboolean                      ensure_trailing_newline)
 {
 	g_return_val_if_fail (GEDIT_IS_DOCUMENT (doc), NULL);
 
@@ -351,6 +366,7 @@ gedit_document_saver_new (GeditDocument                *doc,
 						   "newline_type", newline_type,
 						   "compression_type", compression_type,
 						   "flags", flags,
+						   "ensure-trailing-newline", ensure_trailing_newline,
 						   NULL));
 }
 
@@ -718,7 +734,6 @@ async_replace_ready_callback (GFile        *source,
 	GFileOutputStream *file_stream;
 	GOutputStream *base_stream;
 	GError *error = NULL;
-	gboolean ensure_trailing_newline;
 
 	DEBUG ({
 	       g_print ("%s\n", G_STRFUNC);
@@ -790,13 +805,9 @@ async_replace_ready_callback (GFile        *source,
 		saver->priv->stream = G_OUTPUT_STREAM (base_stream);
 	}
 
-	ensure_trailing_newline = g_settings_get_boolean (saver->priv->editor_settings,
-	                                                  "ensure-trailing-newline");
-
-
 	saver->priv->input = gedit_document_input_stream_new (GTK_TEXT_BUFFER (saver->priv->document),
-								saver->priv->newline_type,
-								ensure_trailing_newline);
+							      saver->priv->newline_type,
+							      saver->priv->ensure_trailing_newline);
 
 	saver->priv->size = gedit_document_input_stream_get_total_size (GEDIT_DOCUMENT_INPUT_STREAM (saver->priv->input));
 

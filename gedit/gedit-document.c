@@ -1815,6 +1815,8 @@ gedit_document_save_real (GeditDocument                *doc,
 	}
 	else
 	{
+		gboolean ensure_trailing_newline;
+
 		/* Do not make backups for remote files so they do not clutter
 		 * remote systems. */
 		if (!gedit_document_is_local (doc) ||
@@ -1824,13 +1826,17 @@ gedit_document_save_real (GeditDocument                *doc,
 			flags |= GEDIT_DOCUMENT_SAVE_IGNORE_BACKUP;
 		}
 
+		ensure_trailing_newline = g_settings_get_boolean (doc->priv->editor_settings,
+								  GEDIT_SETTINGS_ENSURE_TRAILING_NEWLINE);
+
 		/* create a saver, it will be destroyed once saving is complete */
 		doc->priv->saver = gedit_document_saver_new (doc,
 		                                             location,
 		                                             encoding,
 		                                             newline_type,
 		                                             compression_type,
-		                                             flags);
+		                                             flags,
+							     ensure_trailing_newline);
 
 		g_signal_connect (doc->priv->saver,
 		                  "saving",
