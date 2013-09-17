@@ -146,9 +146,9 @@ INST_H_FILES =				\
 	gedit-window-activatable.h
 
 LIBGEDIT_INST_H_FILES =							\
-	$(top_srcdir)/libgedit/gedit/gedit-document-enums.h		\
 	$(top_srcdir)/libgedit/gedit/gedit-encodings.h			\
 	$(top_srcdir)/libgedit/gedit/gedit-utils.h			\
+	$(top_srcdir)/libgedit/gedit/libgedit-document.h		\
 	$(top_srcdir)/libgedit/gedit/libgedit-enum-types.h
 
 if !ENABLE_GVFS_METADATA

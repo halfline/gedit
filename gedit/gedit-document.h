@@ -29,7 +29,7 @@
 #include <gtk/gtk.h>
 #include <gtksourceview/gtksource.h>
 #include <gedit/gedit-encodings.h>
-#include <gedit/gedit-document-enums.h>
+#include <gedit/libgedit-document.h>
 
 G_BEGIN_DECLS
 
@@ -293,13 +293,6 @@ gboolean	_gedit_document_check_externally_modified
 #define GEDIT_SEARCH_IS_CASE_SENSITIVE(sflags) ((sflags &  GEDIT_SEARCH_CASE_SENSITIVE) != 0)
 #define GEDIT_SEARCH_SET_CASE_SENSITIVE(sflags,state) ((state == TRUE) ? \
 (sflags |= GEDIT_SEARCH_CASE_SENSITIVE) : (sflags &= ~GEDIT_SEARCH_CASE_SENSITIVE))
-
-/**
- * GeditMountOperationFactory: (skip)
- * @doc:
- * @userdata:
- */
-typedef GMountOperation *(*GeditMountOperationFactory)(gpointer userdata);
 
 void			 _gedit_document_set_mount_operation_factory	(GeditDocument	            *doc,
 									 GeditMountOperationFactory  callback,

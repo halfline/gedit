@@ -26,9 +26,8 @@
 #define __GEDIT_DOCUMENT_SAVER_H__
 
 #include <gtk/gtk.h>
-#include "gedit/gedit-document-enums.h"
+#include "gedit/libgedit-document.h"
 #include "gedit/gedit-encodings.h"
-#include "gedit-document.h"
 
 G_BEGIN_DECLS
 
