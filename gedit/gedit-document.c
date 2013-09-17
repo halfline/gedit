@@ -1838,6 +1838,10 @@ gedit_document_save_real (GeditDocument                *doc,
 		                                             flags,
 							     ensure_trailing_newline);
 
+		gedit_document_saver_set_mount_operation_factory (doc->priv->saver,
+								  doc->priv->mount_operation_factory,
+								  doc->priv->mount_operation_userdata);
+
 		g_signal_connect (doc->priv->saver,
 		                  "saving",
 		                  G_CALLBACK (document_saver_saving),
@@ -2823,8 +2827,7 @@ _gedit_document_create_mount_operation (GeditDocument *doc)
 	}
 	else
 	{
-		return doc->priv->mount_operation_factory (doc,
-						           doc->priv->mount_operation_userdata);
+		return doc->priv->mount_operation_factory (doc->priv->mount_operation_userdata);
 	}
 }
 

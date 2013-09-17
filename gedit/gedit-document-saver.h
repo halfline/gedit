@@ -90,6 +90,11 @@ goffset			 gedit_document_saver_get_bytes_written	(GeditDocumentSaver  *saver);
 
 GFileInfo		*gedit_document_saver_get_info		(GeditDocumentSaver  *saver);
 
+void			 gedit_document_saver_set_mount_operation_factory
+								(GeditDocumentSaver         *saver,
+								 GeditMountOperationFactory  callback,
+								 gpointer                    user_data);
+
 G_END_DECLS
 
 #endif  /* __GEDIT_DOCUMENT_SAVER_H__  */

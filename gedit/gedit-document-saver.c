@@ -28,6 +28,7 @@
 #include <string.h>
 
 #include "gedit-document-saver.h"
+#include "gedit-document.h"
 #include "gedit/gedit-document-input-stream.h"
 #include "gedit-marshal.h"
 #include "gedit/gedit-utils.h"
@@ -101,6 +102,9 @@ struct _GeditDocumentSaverPrivate
 	GInputStream		 *input;
 
 	GError                   *error;
+
+	GeditMountOperationFactory mount_operation_factory;
+	gpointer                   mount_operation_userdata;
 
 	guint                     used : 1;
 	guint                     ensure_trailing_newline : 1;
@@ -879,18 +883,27 @@ mount_ready_callback (GFile        *file,
 	}
 }
 
+static GMountOperation *
+create_mount_operation (GeditDocumentSaver *saver)
+{
+	if (saver->priv->mount_operation_factory == NULL)
+	{
+		return g_mount_operation_new ();
+	}
+	else
+	{
+		return saver->priv->mount_operation_factory (saver->priv->mount_operation_userdata);
+	}
+}
+
 static void
 recover_not_mounted (AsyncData *async)
 {
-	GeditDocument *doc;
-	GMountOperation *mount_operation;
+	GMountOperation *mount_operation = create_mount_operation (async->saver);
 
 	DEBUG ({
 	       g_print ("%s\n", G_STRFUNC);
 	});
-
-	doc = gedit_document_saver_get_document (async->saver);
-	mount_operation = _gedit_document_create_mount_operation (doc);
 
 	async->tried_mount = TRUE;
 	g_file_mount_enclosing_volume (async->saver->priv->location,
@@ -1122,6 +1135,17 @@ gedit_document_saver_get_info (GeditDocumentSaver *saver)
 	g_return_val_if_fail (GEDIT_IS_DOCUMENT_SAVER (saver), NULL);
 
 	return saver->priv->info;
+}
+
+void
+gedit_document_saver_set_mount_operation_factory (GeditDocumentSaver         *saver,
+						  GeditMountOperationFactory  callback,
+						  gpointer                    user_data)
+{
+	g_return_if_fail (GEDIT_IS_DOCUMENT_SAVER (saver));
+
+	saver->priv->mount_operation_factory = callback;
+	saver->priv->mount_operation_userdata = user_data;
 }
 
 /* ex:set ts=8 noet: */

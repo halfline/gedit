@@ -299,8 +299,7 @@ gboolean	_gedit_document_check_externally_modified
  * @doc:
  * @userdata:
  */
-typedef GMountOperation *(*GeditMountOperationFactory)(GeditDocument *doc,
-						       gpointer       userdata);
+typedef GMountOperation *(*GeditMountOperationFactory)(gpointer userdata);
 
 void			 _gedit_document_set_mount_operation_factory	(GeditDocument	            *doc,
 									 GeditMountOperationFactory  callback,
