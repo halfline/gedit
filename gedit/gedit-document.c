@@ -178,17 +178,6 @@ static guint document_signals[LAST_SIGNAL] = { 0 };
 
 G_DEFINE_TYPE_WITH_PRIVATE (GeditDocument, gedit_document, GTK_SOURCE_TYPE_BUFFER)
 
-GQuark
-gedit_document_error_quark (void)
-{
-	static GQuark quark = 0;
-
-	if (G_UNLIKELY (quark == 0))
-		quark = g_quark_from_static_string ("gedit_io_load_error");
-
-	return quark;
-}
-
 static GHashTable *allocated_untitled_numbers = NULL;
 
 static gint

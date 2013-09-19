@@ -120,20 +120,6 @@ struct _GeditDocumentClass
 					 GtkTextIter      *end);
 };
 
-#define GEDIT_DOCUMENT_ERROR gedit_document_error_quark ()
-
-enum
-{
-	GEDIT_DOCUMENT_ERROR_EXTERNALLY_MODIFIED,
-	GEDIT_DOCUMENT_ERROR_CANT_CREATE_BACKUP,
-	GEDIT_DOCUMENT_ERROR_TOO_BIG,
-	GEDIT_DOCUMENT_ERROR_ENCODING_AUTO_DETECTION_FAILED,
-	GEDIT_DOCUMENT_ERROR_CONVERSION_FALLBACK,
-	GEDIT_DOCUMENT_NUM_ERRORS
-};
-
-GQuark		 gedit_document_error_quark	(void);
-
 GType		 gedit_document_get_type      	(void) G_GNUC_CONST;
 
 GeditDocument   *gedit_document_new 		(void);

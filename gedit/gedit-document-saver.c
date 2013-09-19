@@ -32,7 +32,6 @@
 #include "gedit/gedit-utils.h"
 #include "gedit/libgedit-enum-types.h"
 #include "gedit-marshal.h"
-#include "gedit-document.h"
 
 #define WRITE_CHUNK_SIZE 8192
 
