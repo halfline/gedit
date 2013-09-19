@@ -21,7 +21,7 @@
  */
 
 #include "gedit-multi-notebook.h"
-#include "gedit-marshal.h"
+#include "gedit/gedit-marshal.h"
 
 struct _GeditMultiNotebookPrivate
 {

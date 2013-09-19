@@ -93,9 +93,7 @@ endif
 
 BUILT_SOURCES = 			\
 	gedit-enum-types.c		\
-	gedit-enum-types.h		\
-	gedit-marshal.c			\
-	gedit-marshal.h
+	gedit-enum-types.h
 
 NOINST_H_FILES =			\
 	gedit-cell-renderer-button.h	\
@@ -104,7 +102,6 @@ NOINST_H_FILES =			\
 	gedit-dirs.h			\
 	gedit-document-loader.h		\
 	gedit-document-output-stream.h	\
-	gedit-document-saver.h		\
 	gedit-documents-panel.h		\
 	gedit-encodings-dialog.h	\
 	gedit-file-chooser-dialog.h	\
@@ -187,7 +184,6 @@ libgedit_c_files =			\
 	gedit-document.c 		\
 	gedit-document-loader.c		\
 	gedit-document-output-stream.c	\
-	gedit-document-saver.c		\
 	gedit-documents-panel.c		\
 	gedit-encodings-combo-box.c	\
 	gedit-encodings-dialog.c	\
@@ -237,13 +233,6 @@ gedit-enum-types.h: gedit-enum-types.h.template $(ENUM_TYPES) $(GLIB_MKENUMS)
 gedit-enum-types.c: gedit-enum-types.c.template $(ENUM_TYPES) $(GLIB_MKENUMS)
 	$(AM_V_GEN) (cd $(srcdir) && $(GLIB_MKENUMS) --template gedit-enum-types.c.template $(ENUM_TYPES)) > $@
 
-gedit-marshal.h: gedit-marshal.list $(GLIB_GENMARSHAL)
-	$(AM_V_GEN) $(GLIB_GENMARSHAL) $< --header --prefix=gedit_marshal > $@
-
-gedit-marshal.c: gedit-marshal.list $(GLIB_GENMARSHAL)
-	$(AM_V_GEN) echo "#include \"gedit-marshal.h\"" > $@ && \
-	$(GLIB_GENMARSHAL) $< --body --prefix=gedit_marshal >> $@
-
 gedit-resources.c: gedit.gresource.xml $(shell $(GLIB_COMPILE_RESOURCES) --sourcedir=$(srcdir) --generate-dependencies $(srcdir)/gedit.gresource.xml)
 	$(AM_V_GEN) $(GLIB_COMPILE_RESOURCES) --target=$@ --sourcedir=$(srcdir) --generate-source $(srcdir)/gedit.gresource.xml
 
@@ -256,7 +245,6 @@ endif
 EXTRA_DIST = 				\
 	gedit-enum-types.h.template	\
 	gedit-enum-types.c.template	\
-	gedit-marshal.list		\
 	gedit.rc			\
 	gedit.gresource.xml		\
 	gedit-ui.xml			\

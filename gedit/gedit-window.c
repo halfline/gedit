@@ -61,7 +61,7 @@
 #include "gedit-dirs.h"
 #include "gedit-status-menu-button.h"
 #include "gedit-settings.h"
-#include "gedit-marshal.h"
+#include "gedit/gedit-marshal.h"
 #include "gedit-document.h"
 
 #define LANGUAGE_NONE (const gchar *)"LangNone"

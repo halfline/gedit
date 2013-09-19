@@ -39,7 +39,7 @@
 #include "gedit-print-job.h"
 #include "gedit-debug.h"
 #include "gedit-print-preview.h"
-#include "gedit-marshal.h"
+#include "gedit/gedit-marshal.h"
 #include "gedit/gedit-utils.h"
 #include "gedit-dirs.h"
 #include "gedit-settings.h"

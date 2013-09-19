@@ -46,7 +46,7 @@
 #include "gedit-view-activatable.h"
 #include "gedit-plugins-engine.h"
 #include "gedit-debug.h"
-#include "gedit-marshal.h"
+#include "gedit/gedit-marshal.h"
 #include "gedit/gedit-utils.h"
 #include "gedit-settings.h"
 #include "gedit-app.h"

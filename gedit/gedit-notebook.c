@@ -49,7 +49,7 @@
 #include "gedit-window.h"
 #include "gedit-enum-types.h"
 #include "gedit-settings.h"
-#include "gedit-marshal.h"
+#include "gedit/gedit-marshal.h"
 
 #define GEDIT_NOTEBOOK_GROUP_NAME "GeditNotebookGroup"
 

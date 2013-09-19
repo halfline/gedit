@@ -12,7 +12,6 @@ gedit/gedit-commands-help.c
 gedit/gedit-commands-search.c
 gedit/gedit-debug.c
 gedit/gedit-document.c
-gedit/gedit-document-saver.c
 gedit/gedit-documents-panel.c
 gedit/gedit-encodings-combo-box.c
 gedit/gedit-encodings-dialog.c
@@ -43,6 +42,7 @@ gedit/gedit-ui.xml
 gedit/gedit-view.c
 gedit/gedit-view-frame.c
 gedit/gedit-window.c
+libgedit/gedit/gedit-document-saver.c
 libgedit/gedit/gedit-encodings.c
 libgedit/gedit/gedit-utils.c
 plugins/changecase/changecase.plugin.desktop.in

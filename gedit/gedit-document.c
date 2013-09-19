@@ -45,8 +45,8 @@
 #include "gedit-debug.h"
 #include "gedit/gedit-utils.h"
 #include "gedit-document-loader.h"
-#include "gedit-document-saver.h"
-#include "gedit-marshal.h"
+#include "gedit/gedit-document-saver.h"
+#include "gedit/gedit-marshal.h"
 #include "gedit-enum-types.h"
 
 #ifndef ENABLE_GVFS_METADATA

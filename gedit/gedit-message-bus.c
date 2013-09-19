@@ -21,7 +21,7 @@
  */
 
 #include "gedit-message-bus.h"
-#include "gedit-marshal.h"
+#include "gedit/gedit-marshal.h"
 
 #include <string.h>
 #include <stdarg.h>
