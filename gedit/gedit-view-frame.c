@@ -1412,8 +1412,7 @@ gedit_view_frame_class_init (GeditViewFrameClass *klass)
 }
 
 static GMountOperation *
-view_frame_mount_operation_factory (GeditDocument *doc,
-				    gpointer       user_data)
+view_frame_mount_operation_factory (gpointer user_data)
 {
 	GtkWidget *frame = user_data;
 	GtkWidget *window = gtk_widget_get_toplevel (frame);

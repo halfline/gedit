@@ -99,10 +99,8 @@ NOINST_H_FILES =			\
 	gedit-cell-renderer-button.h	\
 	gedit-close-confirmation-dialog.h \
 	gedit-dirs.h			\
-	gedit-document-input-stream.h	\
 	gedit-document-loader.h		\
 	gedit-document-output-stream.h	\
-	gedit-document-saver.h		\
 	gedit-documents-panel.h		\
 	gedit-encodings-dialog.h	\
 	gedit-file-chooser-dialog.h	\
@@ -179,10 +177,8 @@ libgedit_c_files =			\
 	gedit-debug.c			\
 	gedit-dirs.c			\
 	gedit-document.c 		\
-	gedit-document-input-stream.c	\
 	gedit-document-loader.c		\
 	gedit-document-output-stream.c	\
-	gedit-document-saver.c		\
 	gedit-documents-panel.c		\
 	gedit-encodings.c		\
 	gedit-encodings-combo-box.c	\

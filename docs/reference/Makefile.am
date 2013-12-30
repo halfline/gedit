@@ -42,7 +42,6 @@ CFILE_GLOB=$(top_srcdir)/gedit/*.c
 IGNORE_HFILES=		\
 	gedit-commands.h			\
 	gedit-document-loader.h			\
-	gedit-document-saver.h			\
 	gedit-documents-panel.h			\
 	gedit-io-error-info-bar.h		\
 	gedit-languages-manager.h		\

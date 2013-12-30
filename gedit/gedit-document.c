@@ -5,6 +5,7 @@
  * Copyright (C) 1998, 1999 Alex Roberts, Evan Lawrence
  * Copyright (C) 2000, 2001 Chema Celorio, Paolo Maggi
  * Copyright (C) 2002-2005 Paolo Maggi
+ * Copyright (C) 2014 Sébastien Wilmet
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,14 +23,6 @@
  * Boston, MA 02111-1307, USA.
  */
 
-/*
- * Modified by the gedit Team, 1998-2005. See the AUTHORS file for a
- * list of people on the gedit Team.
- * See the ChangeLog files for a list of changes.
- *
- * $Id$
- */
-
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
@@ -45,7 +38,6 @@
 #include "gedit-debug.h"
 #include "gedit-utils.h"
 #include "gedit-document-loader.h"
-#include "gedit-document-saver.h"
 #include "gedit-marshal.h"
 #include "gedit-enum-types.h"
 
@@ -79,6 +71,7 @@ static void	gedit_document_load_real	(GeditDocument                *doc,
 						 gint                          line_pos,
 						 gint                          column_pos,
 						 gboolean                      create);
+
 static void	gedit_document_save_real	(GeditDocument                *doc,
 						 GFile                        *location,
 						 const GeditEncoding          *encoding,
@@ -121,13 +114,13 @@ struct _GeditDocumentPrivate
 	gint                 requested_column_pos;
 
 	/* Saving stuff */
-	GeditDocumentSaver *saver;
+	GtkSourceFile *source_file;
 
 	GtkTextTag *error_tag;
 
 	/* Mount operation factory */
-	GeditMountOperationFactory  mount_operation_factory;
-	gpointer		    mount_operation_userdata;
+	GtkSourceMountOperationFactory mount_operation_factory;
+	gpointer		       mount_operation_userdata;
 
 	guint readonly : 1;
 	guint externally_modified : 1;
@@ -1354,8 +1347,8 @@ document_loader_loaded (GeditDocumentLoader *loader,
 
 		g_get_current_time (&doc->priv->time_of_last_save_or_load);
 
-		doc->priv->externally_modified = FALSE;
-		doc->priv->deleted = FALSE;
+               doc->priv->externally_modified = FALSE;
+               doc->priv->deleted = FALSE;
 
 		set_encoding (doc,
 			      gedit_document_loader_get_encoding (loader),
@@ -1627,83 +1620,147 @@ has_invalid_chars (GeditDocument *doc)
 	return FALSE;
 }
 
-static void
-document_saver_saving (GeditDocumentSaver *saver,
-		       gboolean            completed,
-		       const GError       *error,
-		       GeditDocument      *doc)
+static GtkSourceNewlineType
+convert_newline_type (GeditDocumentNewlineType gedit_newline_type)
 {
-	gedit_debug (DEBUG_DOCUMENT);
-
-	if (completed)
+	switch (gedit_newline_type)
 	{
-		/* save was successful */
-		if (error == NULL)
+		case GEDIT_DOCUMENT_NEWLINE_TYPE_LF:
+			return GTK_SOURCE_NEWLINE_TYPE_LF;
+
+		case GEDIT_DOCUMENT_NEWLINE_TYPE_CR:
+			return GTK_SOURCE_NEWLINE_TYPE_CR;
+
+		case GEDIT_DOCUMENT_NEWLINE_TYPE_CR_LF:
+			return GTK_SOURCE_NEWLINE_TYPE_CR_LF;
+	}
+
+	g_return_val_if_reached (GTK_SOURCE_NEWLINE_TYPE_LF);
+}
+
+static GtkSourceCompressionType
+convert_compression_type (GeditDocumentCompressionType gedit_compression_type)
+{
+	switch (gedit_compression_type)
+	{
+		case GEDIT_DOCUMENT_COMPRESSION_TYPE_NONE:
+			return GTK_SOURCE_COMPRESSION_TYPE_NONE;
+
+		case GEDIT_DOCUMENT_COMPRESSION_TYPE_GZIP:
+			return GTK_SOURCE_COMPRESSION_TYPE_GZIP;
+	}
+
+	g_return_val_if_reached (GTK_SOURCE_COMPRESSION_TYPE_NONE);
+}
+
+static GtkSourceFileSaveFlags
+convert_save_flags (GeditDocumentSaveFlags gedit_flags)
+{
+	GtkSourceFileSaveFlags source_flags = 0;
+
+	if (gedit_flags & GEDIT_DOCUMENT_SAVE_IGNORE_MTIME)
+	{
+		source_flags |= GTK_SOURCE_FILE_SAVE_IGNORE_MTIME;
+	}
+
+	if (gedit_flags & GEDIT_DOCUMENT_SAVE_IGNORE_INVALID_CHARS)
+	{
+		source_flags |= GTK_SOURCE_FILE_SAVE_IGNORE_INVALID_CHARS;
+	}
+
+	if ((gedit_flags & GEDIT_DOCUMENT_SAVE_PRESERVE_BACKUP) == 0 &&
+	    (gedit_flags & GEDIT_DOCUMENT_SAVE_IGNORE_BACKUP) == 0)
+	{
+		source_flags |= GTK_SOURCE_FILE_SAVE_CREATE_BACKUP;
+	}
+
+	return source_flags;
+}
+
+static void
+save_progress_cb (goffset        current_position,
+		  goffset        total_size,
+		  GeditDocument *doc)
+{
+	g_signal_emit (doc,
+		       document_signals[SAVING],
+		       0,
+		       current_position,
+		       total_size);
+}
+
+static void
+saved_cb (GtkSourceFile *source_file,
+	  GAsyncResult  *result,
+	  GeditDocument *doc)
+{
+	GError *error = NULL;
+
+	gtk_source_file_save_finish (source_file, result, &error);
+
+	/* save was successful */
+	if (error == NULL)
+	{
+		GFile *location;
+		const gchar *content_type = NULL;
+		GTimeVal mtime = {0, 0};
+		GFileInfo *info;
+
+		location = gtk_source_file_get_location (source_file);
+		set_location (doc, location);
+
+		/* Use sync function as a temporary solution. Ideally this code
+		 * should be placed in GtkSourceView (and use async version).
+		 */
+		info = g_file_query_info (location,
+					  G_FILE_ATTRIBUTE_STANDARD_CONTENT_TYPE ","
+					  G_FILE_ATTRIBUTE_TIME_MODIFIED,
+					  G_FILE_QUERY_INFO_NONE,
+					  NULL,
+					  NULL);
+
+		if (info != NULL)
 		{
-			GFile *location;
-			const gchar *content_type = NULL;
-			GTimeVal mtime = {0, 0};
-			GFileInfo *info;
-
-			location = gedit_document_saver_get_location (saver);
-			set_location (doc, location);
-			g_object_unref (location);
-
-			info = gedit_document_saver_get_info (saver);
-
-			if (info != NULL)
+			if (g_file_info_has_attribute (info, G_FILE_ATTRIBUTE_STANDARD_CONTENT_TYPE))
 			{
-				if (g_file_info_has_attribute (info, G_FILE_ATTRIBUTE_STANDARD_CONTENT_TYPE))
-					content_type = g_file_info_get_attribute_string (info,
-											 G_FILE_ATTRIBUTE_STANDARD_CONTENT_TYPE);
-
-				if (g_file_info_has_attribute (info, G_FILE_ATTRIBUTE_TIME_MODIFIED))
-					g_file_info_get_modification_time (info, &mtime);
+				content_type = g_file_info_get_attribute_string (info, G_FILE_ATTRIBUTE_STANDARD_CONTENT_TYPE);
 			}
 
-			set_content_type (doc, content_type);
-			doc->priv->mtime = mtime;
+			if (g_file_info_has_attribute (info, G_FILE_ATTRIBUTE_TIME_MODIFIED))
+			{
+				g_file_info_get_modification_time (info, &mtime);
+			}
 
-			g_get_current_time (&doc->priv->time_of_last_save_or_load);
-
-			doc->priv->externally_modified = FALSE;
-			doc->priv->deleted = FALSE;
-
-			_gedit_document_set_readonly (doc, FALSE);
-
-			gtk_text_buffer_set_modified (GTK_TEXT_BUFFER (doc),
-						      FALSE);
-
-			set_encoding (doc,
-				      doc->priv->requested_encoding,
-				      TRUE);
+			g_object_unref (info);
 		}
 
-		g_signal_emit (doc,
-			       document_signals[SAVED],
-			       0,
-			       error);
+		set_content_type (doc, content_type);
+		doc->priv->mtime = mtime;
 
-		/* the saver has been used, throw it away */
-		g_object_unref (doc->priv->saver);
-		doc->priv->saver = NULL;
+		g_get_current_time (&doc->priv->time_of_last_save_or_load);
+
+		doc->priv->externally_modified = FALSE;
+		doc->priv->deleted = FALSE;
+
+		_gedit_document_set_readonly (doc, FALSE);
+
+		gtk_text_buffer_set_modified (GTK_TEXT_BUFFER (doc), FALSE);
+
+		set_encoding (doc,
+			      gtk_source_file_get_encoding (source_file),
+			      TRUE);
+
+		g_object_unref (location);
 	}
-	else
-	{
-		goffset size = 0;
-		goffset written = 0;
 
-		size = gedit_document_saver_get_file_size (saver);
-		written = gedit_document_saver_get_bytes_written (saver);
+	/* TODO convert error */
+	g_signal_emit (doc,
+		       document_signals[SAVED],
+		       0,
+		       error);
 
-		gedit_debug_message (DEBUG_DOCUMENT, "save progress: %" G_GINT64_FORMAT " of %" G_GINT64_FORMAT, written, size);
-
-		g_signal_emit (doc,
-			       document_signals[SAVING],
-			       0,
-			       written,
-			       size);
-	}
+	/* the saver has been used, throw it away */
+	g_clear_object (&doc->priv->source_file);
 }
 
 static void
@@ -1714,7 +1771,9 @@ gedit_document_save_real (GeditDocument                *doc,
 			  GeditDocumentCompressionType  compression_type,
 			  GeditDocumentSaveFlags        flags)
 {
-	g_return_if_fail (doc->priv->saver == NULL);
+	gboolean ensure_trailing_newline;
+
+	g_return_if_fail (doc->priv->source_file == NULL);
 
 	if (!(flags & GEDIT_DOCUMENT_SAVE_IGNORE_INVALID_CHARS) && has_invalid_chars (doc))
 	{
@@ -1731,29 +1790,50 @@ gedit_document_save_real (GeditDocument                *doc,
 		               error);
 
 		g_error_free (error);
+		return;
 	}
-	else
+
+	/* Do not make backups for remote files so they do not clutter
+	 * remote systems. */
+	if (!gedit_document_is_local (doc) ||
+	    !g_settings_get_boolean (doc->priv->editor_settings,
+				     GEDIT_SETTINGS_CREATE_BACKUP_COPY))
 	{
-		/* create a saver, it will be destroyed once saving is complete */
-		doc->priv->saver = gedit_document_saver_new (doc,
-		                                             location,
-		                                             encoding,
-		                                             newline_type,
-		                                             compression_type,
-		                                             flags);
-
-		g_signal_connect (doc->priv->saver,
-		                  "saving",
-		                  G_CALLBACK (document_saver_saving),
-		                  doc);
-
-		doc->priv->requested_encoding = encoding;
-		doc->priv->newline_type = newline_type;
-		doc->priv->compression_type = compression_type;
-
-		gedit_document_saver_save (doc->priv->saver,
-		                           &doc->priv->mtime);
+		flags |= GEDIT_DOCUMENT_SAVE_IGNORE_BACKUP;
 	}
+
+	doc->priv->newline_type = newline_type;
+	doc->priv->compression_type = compression_type;
+
+	/* Create source file, it will be destroyed when the saving is finished. */
+	doc->priv->source_file = gtk_source_file_new (location, GTK_SOURCE_BUFFER (doc));
+
+	gtk_source_file_set_encoding (doc->priv->source_file,
+				      (const GtkSourceEncoding *)encoding);
+
+	gtk_source_file_set_newline_type (doc->priv->source_file,
+					  convert_newline_type (newline_type));
+
+	gtk_source_file_set_compression_type (doc->priv->source_file,
+					      convert_compression_type (compression_type));
+
+	ensure_trailing_newline = g_settings_get_boolean (doc->priv->editor_settings,
+							  GEDIT_SETTINGS_ENSURE_TRAILING_NEWLINE);
+
+	gtk_source_file_set_ensure_trailing_newline (doc->priv->source_file, ensure_trailing_newline);
+
+	gtk_source_file_set_mount_operation_factory (doc->priv->source_file,
+						     doc->priv->mount_operation_factory,
+						     doc->priv->mount_operation_userdata);
+
+	gtk_source_file_save_async (doc->priv->source_file,
+				    convert_save_flags (flags),
+				    G_PRIORITY_HIGH,
+				    NULL,
+				    (GFileProgressCallback) save_progress_cb,
+				    doc,
+				    (GAsyncReadyCallback) saved_cb,
+				    doc);
 }
 
 /**
@@ -1800,19 +1880,9 @@ gedit_document_save_as (GeditDocument                *doc,
 			GeditDocumentCompressionType  compression_type,
 			GeditDocumentSaveFlags        flags)
 {
-	GError *error = NULL;
-
 	g_return_if_fail (GEDIT_IS_DOCUMENT (doc));
 	g_return_if_fail (G_IS_FILE (location));
 	g_return_if_fail (encoding != NULL);
-
-	if (has_invalid_chars (doc))
-	{
-		g_set_error_literal (&error,
-		                     GEDIT_DOCUMENT_ERROR,
-		                     GEDIT_DOCUMENT_ERROR_CONVERSION_FALLBACK,
-		                     "The document contains invalid chars");
-	}
 
 	/* priv->mtime refers to the the old location (if any). Thus, it should be
 	 * ignored when saving as. */
@@ -1823,13 +1893,7 @@ gedit_document_save_as (GeditDocument                *doc,
 		       encoding,
 		       newline_type,
 		       compression_type,
-		       flags | GEDIT_DOCUMENT_SAVE_IGNORE_MTIME,
-		       error);
-
-	if (error != NULL)
-	{
-		g_error_free (error);
-	}
+		       flags | GEDIT_DOCUMENT_SAVE_IGNORE_MTIME);
 }
 
 gboolean
@@ -2268,9 +2332,9 @@ gedit_document_get_compression_type (GeditDocument *doc)
 }
 
 void
-_gedit_document_set_mount_operation_factory (GeditDocument 	       *doc,
-					    GeditMountOperationFactory	callback,
-					    gpointer	                userdata)
+_gedit_document_set_mount_operation_factory (GeditDocument                  *doc,
+					     GtkSourceMountOperationFactory  callback,
+					     gpointer                        userdata)
 {
 	g_return_if_fail (GEDIT_IS_DOCUMENT (doc));
 
@@ -2289,8 +2353,7 @@ _gedit_document_create_mount_operation (GeditDocument *doc)
 	}
 	else
 	{
-		return doc->priv->mount_operation_factory (doc,
-						           doc->priv->mount_operation_userdata);
+		return doc->priv->mount_operation_factory (doc->priv->mount_operation_userdata);
 	}
 }
 

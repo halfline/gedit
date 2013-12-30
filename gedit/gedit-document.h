@@ -288,18 +288,10 @@ gboolean	_gedit_document_check_externally_modified
 
 gboolean	 _gedit_document_needs_saving	(GeditDocument       *doc);
 
-/**
- * GeditMountOperationFactory: (skip)
- * @doc:
- * @userdata:
- */
-typedef GMountOperation *(*GeditMountOperationFactory)(GeditDocument *doc,
-						       gpointer       userdata);
-
 void		 _gedit_document_set_mount_operation_factory
-						(GeditDocument	            *doc,
-						 GeditMountOperationFactory  callback,
-						 gpointer	             userdata);
+						(GeditDocument	                *doc,
+						 GtkSourceMountOperationFactory  callback,
+						 gpointer	                 userdata);
 GMountOperation
 		*_gedit_document_create_mount_operation
 						(GeditDocument	     *doc);
