@@ -31,12 +31,11 @@
 #ifndef __GEDIT_ENCODINGS_H__
 #define __GEDIT_ENCODINGS_H__
 
-#include <glib.h>
-#include <glib-object.h>
+#include <gtksourceview/gtksource.h>
 
 G_BEGIN_DECLS
 
-typedef struct _GeditEncoding GeditEncoding;
+typedef GtkSourceEncoding GeditEncoding;
 
 #define GEDIT_TYPE_ENCODING     (gedit_encoding_get_type ())
 
