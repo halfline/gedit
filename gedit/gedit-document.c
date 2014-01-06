@@ -1677,6 +1677,49 @@ convert_save_flags (GeditDocumentSaveFlags gedit_flags)
 	return source_flags;
 }
 
+static GError *
+convert_error (GError *error)
+{
+	GError *new_error = NULL;
+
+	if (error == NULL)
+	{
+		return NULL;
+	}
+
+	new_error = g_error_copy (error);
+
+	if (error->domain == GTK_SOURCE_FILE_ERROR)
+	{
+		switch (error->code)
+		{
+			case GTK_SOURCE_FILE_ERROR_EXTERNALLY_MODIFIED:
+				new_error->code = GEDIT_DOCUMENT_ERROR_EXTERNALLY_MODIFIED;
+				break;
+
+			case GTK_SOURCE_FILE_ERROR_TOO_BIG:
+				new_error->code = GEDIT_DOCUMENT_ERROR_TOO_BIG;
+				break;
+
+			case GTK_SOURCE_FILE_ERROR_ENCODING_AUTO_DETECTION_FAILED:
+				new_error->code = GEDIT_DOCUMENT_ERROR_ENCODING_AUTO_DETECTION_FAILED;
+				break;
+
+			case GTK_SOURCE_FILE_ERROR_CONVERSION_FALLBACK:
+				new_error->code = GEDIT_DOCUMENT_ERROR_CONVERSION_FALLBACK;
+				break;
+
+			default:
+				g_return_val_if_reached (new_error);
+				break;
+		}
+
+		new_error->domain = GEDIT_DOCUMENT_ERROR;
+	}
+
+	return new_error;
+}
+
 static void
 save_progress_cb (goffset        current_position,
 		  goffset        total_size,
@@ -1695,6 +1738,7 @@ saved_cb (GtkSourceFile *source_file,
 	  GeditDocument *doc)
 {
 	GError *error = NULL;
+	GError *converted_error = NULL;
 
 	gtk_source_file_save_finish (source_file, result, &error);
 
@@ -1753,11 +1797,17 @@ saved_cb (GtkSourceFile *source_file,
 		g_object_unref (location);
 	}
 
-	/* TODO convert error */
+	converted_error = convert_error (error);
+
+	if (error != NULL)
+	{
+		g_error_free (error);
+	}
+
 	g_signal_emit (doc,
 		       document_signals[SAVED],
 		       0,
-		       error);
+		       converted_error);
 
 	/* the saver has been used, throw it away */
 	g_clear_object (&doc->priv->source_file);
