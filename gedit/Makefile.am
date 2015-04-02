@@ -110,6 +110,7 @@ gedit_NOINST_H_FILES =					\
 	gedit/gedit-open-document-selector-store.h	\
 	gedit/gedit-file-chooser-dialog.h		\
 	gedit/gedit-file-chooser-dialog-gtk.h		\
+	gedit/gedit-file-loader.h			\
 	gedit/gedit-highlight-mode-dialog.h		\
 	gedit/gedit-highlight-mode-selector.h		\
 	gedit/gedit-history-entry.h			\
@@ -186,6 +187,7 @@ gedit_libgedit_c_files =				\
 	gedit/gedit-open-document-selector-store.c	\
 	gedit/gedit-file-chooser-dialog.c		\
 	gedit/gedit-file-chooser-dialog-gtk.c		\
+	gedit/gedit-file-loader.c			\
 	gedit/gedit-highlight-mode-dialog.c		\
 	gedit/gedit-highlight-mode-selector.c		\
 	gedit/gedit-history-entry.c			\
