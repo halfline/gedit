@@ -37,6 +37,7 @@ gedit_libgedit_la_LDFLAGS = -avoid-version -export-dynamic -no-undefined -export
 # GEDIT_LIBS must be the last to ensure correct order on some platforms
 gedit_libgedit_la_LIBADD = 			\
 	$(top_builddir)/libgd/libgd.la		\
+	$(top_builddir)/gcode/libgcode.la	\
 	$(GEDIT_LIBS)				\
 	$(GTK_MAC_LIBS)
 
