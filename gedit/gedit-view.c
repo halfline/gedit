@@ -32,11 +32,11 @@
 #include <libpeas/peas-extension-set.h>
 #include <glib/gi18n.h>
 
+#include "gcode/gcode.h"
 #include "gedit-view-activatable.h"
 #include "gedit-plugins-engine.h"
 #include "gedit-debug.h"
 #include "gedit-marshal.h"
-#include "gedit-utils.h"
 #include "gedit-settings.h"
 #include "gedit-app.h"
 #include "gedit-notebook.h"
@@ -364,7 +364,7 @@ gedit_view_drag_data_received (GtkWidget        *widget,
 		{
 			gchar **uri_list;
 
-			uri_list = gedit_utils_drop_get_uris (selection_data);
+			uri_list = gcode_utils_drop_get_uris (selection_data);
 
 			if (uri_list != NULL)
 			{
@@ -481,7 +481,7 @@ gedit_view_drag_drop (GtkWidget      *widget,
 		if (info == TARGET_XDNDDIRECTSAVE)
 		{
 			gchar *uri;
-			uri = gedit_utils_set_direct_save_filename (context);
+			uri = gcode_utils_set_direct_save_filename (context);
 
 			if (uri != NULL)
 			{

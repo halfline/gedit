@@ -34,12 +34,12 @@
 #include <gtksourceview/gtksource.h>
 #include <libpeas-gtk/peas-gtk.h>
 
+#include "gcode/gcode.h"
 #include "gedit-utils.h"
 #include "gedit-debug.h"
 #include "gedit-document.h"
 #include "gedit-dirs.h"
 #include "gedit-settings.h"
-#include "gedit-utils.h"
 #include "gedit-file-chooser-dialog.h"
 
 /*
@@ -445,10 +445,10 @@ setup_font_colors_page_font_section (GeditPreferencesDialog *dlg)
 	gtk_widget_set_tooltip_text (dlg->font_button,
 			 _("Click on this button to select the font to be used by the editor"));
 
-	gedit_utils_set_atk_relation (dlg->font_button,
+	gcode_utils_set_atk_relation (dlg->font_button,
 				      dlg->default_font_checkbutton,
 				      ATK_RELATION_CONTROLLED_BY);
-	gedit_utils_set_atk_relation (dlg->default_font_checkbutton,
+	gcode_utils_set_atk_relation (dlg->default_font_checkbutton,
 				      dlg->font_button,
 				      ATK_RELATION_CONTROLLER_FOR);
 

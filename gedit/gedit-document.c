@@ -31,9 +31,9 @@
 #include <string.h>
 #include <glib/gi18n.h>
 
+#include "gcode/gcode.h"
 #include "gedit-settings.h"
 #include "gedit-debug.h"
-#include "gedit-utils.h"
 #include "gedit-metadata-manager.h"
 
 #define METADATA_QUERY "metadata::*"
@@ -918,7 +918,7 @@ set_content_type_no_guess (GeditDocument *doc,
 	g_free (priv->content_type);
 
 	/* For compression types, we try to just guess from the content */
-	if (gedit_utils_get_compression_type_from_content_type (content_type) !=
+	if (gcode_utils_get_compression_type_from_content_type (content_type) !=
 	    GTK_SOURCE_COMPRESSION_TYPE_NONE)
 	{
 		dupped_content_type = get_content_type_from_content (doc);
@@ -1090,7 +1090,7 @@ gedit_document_get_short_name_for_display (GeditDocument *doc)
 	}
 	else
 	{
-		return gedit_utils_basename_for_display (location);
+		return gcode_utils_basename_for_display (location);
 	}
 }
 

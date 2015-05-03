@@ -32,6 +32,7 @@
 #include <glib/gi18n.h>
 #include <gdk/gdkkeysyms.h>
 
+#include "gcode/gcode.h"
 #include "gedit-debug.h"
 #include "gedit-statusbar.h"
 #include "gedit-tab.h"
@@ -39,7 +40,6 @@
 #include "gedit-view-frame.h"
 #include "gedit-window.h"
 #include "gedit-window-private.h"
-#include "gedit-utils.h"
 #include "gedit-replace-dialog.h"
 
 #define GEDIT_REPLACE_DIALOG_KEY	"gedit-replace-dialog-key"
@@ -133,7 +133,7 @@ text_not_found (GeditWindow        *window,
 	gchar *truncated_text;
 
 	search_text = gedit_replace_dialog_get_search_text (replace_dialog);
-	truncated_text = gedit_utils_str_end_truncate (search_text, MAX_MSG_LENGTH);
+	truncated_text = gcode_utils_str_end_truncate (search_text, MAX_MSG_LENGTH);
 
 	gedit_statusbar_flash_message (GEDIT_STATUSBAR (window->priv->statusbar),
 				       window->priv->generic_message_cid,

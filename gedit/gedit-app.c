@@ -37,10 +37,10 @@
 #include <girepository.h>
 #endif
 
+#include "gcode/gcode.h"
 #include "gedit-commands-private.h"
 #include "gedit-notebook.h"
 #include "gedit-debug.h"
-#include "gedit-utils.h"
 #include "gedit-enum-types.h"
 #include "gedit-dirs.h"
 #include "gedit-settings.h"
@@ -338,8 +338,8 @@ is_in_viewport (GtkWindow    *window,
 	}
 
 	/* Check for workspace match */
-	ws = gedit_utils_get_window_workspace (window);
-	if (ws != workspace && ws != GEDIT_ALL_WORKSPACES)
+	ws = gcode_utils_get_window_workspace (window);
+	if (ws != workspace && ws != GCODE_ALL_WORKSPACES)
 	{
 		return FALSE;
 	}
@@ -349,7 +349,7 @@ is_in_viewport (GtkWindow    *window,
 	gdk_window_get_position (gdkwindow, &x, &y);
 	width = gdk_window_get_width (gdkwindow);
 	height = gdk_window_get_height (gdkwindow);
-	gedit_utils_get_current_viewport (screen, &vp_x, &vp_y);
+	gcode_utils_get_current_viewport (screen, &vp_x, &vp_y);
 	x += vp_x;
 	y += vp_y;
 
@@ -372,8 +372,8 @@ get_active_window (GtkApplication *app)
 
 	screen = gdk_screen_get_default ();
 
-	workspace = gedit_utils_get_current_workspace (screen);
-	gedit_utils_get_current_viewport (screen, &viewport_x, &viewport_y);
+	workspace = gcode_utils_get_current_workspace (screen);
+	gcode_utils_get_current_viewport (screen, &viewport_x, &viewport_y);
 
 	/* Gtk documentation says the window list is always in MRU order */
 	windows = gtk_application_get_windows (app);

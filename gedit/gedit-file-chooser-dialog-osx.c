@@ -28,9 +28,9 @@
 #include <gdk/gdkquartz.h>
 #include <glib/gi18n.h>
 
+#include "gcode/gcode.h"
 #include "gedit-encoding-items.h"
 #include "gedit-encodings-dialog.h"
-#include "gedit-utils.h"
 
 struct _GeditFileChooserDialogOSX
 {
@@ -77,7 +77,7 @@ G_DEFINE_TYPE_EXTENDED (GeditFileChooserDialogOSX,
 {
 	NSString *title;
 
-	title = [NSString stringWithUTF8String:gedit_utils_newline_type_to_string (type)];
+	title = [NSString stringWithUTF8String:gcode_utils_newline_type_to_string (type)];
 
 	self = [super initWithTitle:title action:nil keyEquivalent:@""];
 

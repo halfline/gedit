@@ -26,6 +26,7 @@
 
 #include <glib/gi18n.h>
 
+#include "gcode/gcode.h"
 #include "gedit-debug.h"
 #include "gedit-document.h"
 #include "gedit-multi-notebook.h"
@@ -34,7 +35,6 @@
 #include "gedit-small-button.h"
 #include "gedit-tab.h"
 #include "gedit-tab-private.h"
-#include "gedit-utils.h"
 #include "gedit-commands-private.h"
 
 typedef struct _GeditDocumentsGenericRow GeditDocumentsGenericRow;
@@ -481,7 +481,7 @@ doc_get_name (GeditDocument *doc)
 	name = gedit_document_get_short_name_for_display (doc);
 
 	/* Truncate the name so it doesn't get insanely wide. */
-	docname = gedit_utils_str_middle_truncate (name, MAX_DOC_NAME_LENGTH);
+	docname = gcode_utils_str_middle_truncate (name, MAX_DOC_NAME_LENGTH);
 
 	g_free (name);
 

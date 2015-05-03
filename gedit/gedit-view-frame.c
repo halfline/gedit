@@ -32,11 +32,11 @@
 #include <glib/gi18n.h>
 #include <stdlib.h>
 
+#include "gcode/gcode.h"
+#include "libgd/gd.h"
 #include "gedit-window.h"
 #include "gedit-view-holder.h"
 #include "gedit-debug.h"
-#include "gedit-utils.h"
-#include "libgd/gd.h"
 
 #define FLUSH_TIMEOUT_DURATION 30 /* in seconds */
 
@@ -946,7 +946,7 @@ search_entry_icon_release (GtkEntry             *entry,
 
 	gtk_menu_popup (GTK_MENU (menu),
 	                NULL, NULL,
-	                gedit_utils_menu_position_under_widget, entry,
+	                gcode_utils_menu_position_under_widget, entry,
 	                event->button, event->time);
 }
 

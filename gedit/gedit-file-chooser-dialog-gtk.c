@@ -32,11 +32,11 @@
 
 #include <glib/gi18n.h>
 
+#include "gcode/gcode.h"
 #include "gedit-encodings-combo-box.h"
 #include "gedit-debug.h"
 #include "gedit-enum-types.h"
 #include "gedit-settings.h"
-#include "gedit-utils.h"
 
 #define ALL_FILES		_("All Files")
 #define ALL_TEXT_FILES		_("All Text Files")
@@ -382,19 +382,19 @@ create_newline_combo (GeditFileChooserDialogGtk *dialog)
 	newline_combo_append (GTK_COMBO_BOX (combo),
 	                      store,
 	                      &iter,
-	                      gedit_utils_newline_type_to_string (GTK_SOURCE_NEWLINE_TYPE_LF),
+	                      gcode_utils_newline_type_to_string (GTK_SOURCE_NEWLINE_TYPE_LF),
 	                      GTK_SOURCE_NEWLINE_TYPE_LF);
 
 	newline_combo_append (GTK_COMBO_BOX (combo),
 	                      store,
 	                      &iter,
-	                      gedit_utils_newline_type_to_string (GTK_SOURCE_NEWLINE_TYPE_CR),
+	                      gcode_utils_newline_type_to_string (GTK_SOURCE_NEWLINE_TYPE_CR),
 	                      GTK_SOURCE_NEWLINE_TYPE_CR);
 
 	newline_combo_append (GTK_COMBO_BOX (combo),
 	                      store,
 	                      &iter,
-	                      gedit_utils_newline_type_to_string (GTK_SOURCE_NEWLINE_TYPE_CR_LF),
+	                      gcode_utils_newline_type_to_string (GTK_SOURCE_NEWLINE_TYPE_CR_LF),
 	                      GTK_SOURCE_NEWLINE_TYPE_CR_LF);
 
 	gtk_label_set_mnemonic_widget (GTK_LABEL (label), combo);

@@ -32,6 +32,7 @@
 #include <gio/gio.h>
 #include <gtk/gtk.h>
 
+#include "gcode/gcode.h"
 #include "gedit-debug.h"
 #include "gedit-document.h"
 #include "gedit-document-private.h"
@@ -41,7 +42,6 @@
 #include "gedit-window-private.h"
 #include "gedit-notebook.h"
 #include "gedit-statusbar.h"
-#include "gedit-utils.h"
 #include "gedit-file-chooser-dialog.h"
 #include "gedit-close-confirmation-dialog.h"
 
@@ -301,7 +301,7 @@ gedit_commands_load_location (GeditWindow             *window,
 
 	g_return_if_fail (GEDIT_IS_WINDOW (window));
 	g_return_if_fail (G_IS_FILE (location));
-	g_return_if_fail (gedit_utils_is_valid_location (location));
+	g_return_if_fail (gcode_utils_is_valid_location (location));
 
 	uri = g_file_get_uri (location);
 	gedit_debug_message (DEBUG_COMMANDS, "Loading URI '%s'", uri);
@@ -577,7 +577,7 @@ replace_read_only_file (GtkWindow *parent,
 	 * though the dialog uses wrapped text, if the name doesn't contain
 	 * white space then the text-wrapping code is too stupid to wrap it.
 	 */
-	name_for_display = gedit_utils_str_middle_truncate (parse_name, 50);
+	name_for_display = gcode_utils_str_middle_truncate (parse_name, 50);
 	g_free (parse_name);
 
 	dialog = gtk_message_dialog_new (parent,
@@ -629,7 +629,7 @@ change_compression (GtkWindow *parent,
 	 * though the dialog uses wrapped text, if the name doesn't contain
 	 * white space then the text-wrapping code is too stupid to wrap it.
 	 */
-	name_for_display = gedit_utils_str_middle_truncate (parse_name, 50);
+	name_for_display = gcode_utils_str_middle_truncate (parse_name, 50);
 	g_free (parse_name);
 
 	if (compressed)
@@ -695,7 +695,7 @@ get_compression_type_from_file (GFile *file)
 	name = g_file_get_basename (file);
 	content_type = g_content_type_guess (name, NULL, 0, NULL);
 
-	type = gedit_utils_get_compression_type_from_content_type (content_type);
+	type = gcode_utils_get_compression_type_from_content_type (content_type);
 
 	g_free (name);
 	g_free (content_type);

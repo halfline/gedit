@@ -29,9 +29,9 @@
 #include <stdlib.h>
 #include <glib/gi18n.h>
 
+#include "gcode/gcode.h"
 #include "gedit-app.h"
 #include "gedit-recent.h"
-#include "gedit-utils.h"
 #include "gedit-io-error-info-bar.h"
 #include "gedit-print-job.h"
 #include "gedit-print-preview.h"
@@ -757,7 +757,7 @@ show_loading_info_bar (GeditTab *tab)
 	{
 		gchar *str;
 
-		str = gedit_utils_str_middle_truncate (name, MAX_MSG_LENGTH);
+		str = gcode_utils_str_middle_truncate (name, MAX_MSG_LENGTH);
 		g_free (name);
 		name = str;
 	}
@@ -768,7 +768,7 @@ show_loading_info_bar (GeditTab *tab)
 
 		if (location != NULL)
 		{
-			gchar *str = gedit_utils_location_get_dirname_for_display (location);
+			gchar *str = gcode_utils_location_get_dirname_for_display (location);
 
 			/* use the remaining space for the dir, but use a min of 20 chars
 			 * so that we do not end up with a dirname like "(a...b)".
@@ -776,7 +776,7 @@ show_loading_info_bar (GeditTab *tab)
 			 * we have a title long 99 + 20, but I think it's a rare enough
 			 * case to be acceptable. It's justa darn title afterall :)
 			 */
-			dirname = gedit_utils_str_middle_truncate (str,
+			dirname = gcode_utils_str_middle_truncate (str,
 								   MAX (20, MAX_MSG_LENGTH - len));
 			g_free (str);
 		}
@@ -871,7 +871,7 @@ show_saving_info_bar (GeditTab *tab)
 	 */
 	if (len > MAX_MSG_LENGTH)
 	{
-		from = gedit_utils_str_middle_truncate (short_name, MAX_MSG_LENGTH);
+		from = gcode_utils_str_middle_truncate (short_name, MAX_MSG_LENGTH);
 		g_free (short_name);
 	}
 	else
@@ -885,7 +885,7 @@ show_saving_info_bar (GeditTab *tab)
 
 		from = short_name;
 		to = g_file_get_parse_name (location);
-		str = gedit_utils_str_middle_truncate (to, MAX (20, MAX_MSG_LENGTH - len));
+		str = gcode_utils_str_middle_truncate (to, MAX (20, MAX_MSG_LENGTH - len));
 		g_free (to);
 
 		to = str;
@@ -1504,7 +1504,7 @@ _gedit_tab_get_name (GeditTab *tab)
 	name = gedit_document_get_short_name_for_display (doc);
 
 	/* Truncate the name so it doesn't get insanely wide. */
-	docname = gedit_utils_str_middle_truncate (name, MAX_DOC_NAME_LENGTH);
+	docname = gcode_utils_str_middle_truncate (name, MAX_DOC_NAME_LENGTH);
 
 	if (gtk_text_buffer_get_modified (GTK_TEXT_BUFFER (doc)))
 	{
@@ -1548,7 +1548,7 @@ _gedit_tab_get_tooltip (GeditTab *tab)
 	uri = gedit_document_get_uri_for_display (doc);
 	g_return_val_if_fail (uri != NULL, NULL);
 
-	ruri = 	gedit_utils_replace_home_dir_with_tilde (uri);
+	ruri = 	gcode_utils_replace_home_dir_with_tilde (uri);
 	g_free (uri);
 
 	ruri_markup = g_markup_printf_escaped ("<i>%s</i>", ruri);

@@ -31,6 +31,7 @@
 #include <glib/gi18n.h>
 #include <libpeas/peas-extension-set.h>
 
+#include "gcode/gcode.h"
 #include "gedit-window-private.h"
 #include "gedit-app.h"
 #include "gedit-recent.h"
@@ -40,7 +41,6 @@
 #include "gedit-statusbar.h"
 #include "gedit-tab.h"
 #include "gedit-tab-private.h"
-#include "gedit-utils.h"
 #include "gedit-commands.h"
 #include "gedit-commands-private.h"
 #include "gedit-debug.h"
@@ -1095,7 +1095,7 @@ set_title (GeditWindow *window)
 	{
 		gchar *tmp;
 
-		tmp = gedit_utils_str_middle_truncate (name,
+		tmp = gcode_utils_str_middle_truncate (name,
 						       MAX_TITLE_LENGTH);
 		g_free (name);
 		name = tmp;
@@ -1107,7 +1107,7 @@ set_title (GeditWindow *window)
 
 		if (location != NULL)
 		{
-			gchar *str = gedit_utils_location_get_dirname_for_display (location);
+			gchar *str = gcode_utils_location_get_dirname_for_display (location);
 
 			/* use the remaining space for the dir, but use a min of 20 chars
 			 * so that we do not end up with a dirname like "(a...b)".
@@ -1115,7 +1115,7 @@ set_title (GeditWindow *window)
 			 * we have a title long 99 + 20, but I think it's a rare enough
 			 * case to be acceptable. It's justa darn title afterall :)
 			 */
-			dirname = gedit_utils_str_middle_truncate (str,
+			dirname = gcode_utils_str_middle_truncate (str,
 								   MAX (20, MAX_TITLE_LENGTH - len));
 			g_free (str);
 		}
@@ -1673,7 +1673,7 @@ drag_data_received_cb (GtkWidget        *widget,
 	switch (info)
 	{
 		case TARGET_URI_LIST:
-			uri_list = gedit_utils_drop_get_uris(selection_data);
+			uri_list = gcode_utils_drop_get_uris(selection_data);
 			load_uris_from_drop (window, uri_list);
 			g_strfreev (uri_list);
 
@@ -1744,7 +1744,7 @@ drag_drop_cb (GtkWidget      *widget,
 		if (info == TARGET_XDNDDIRECTSAVE)
 		{
 			gchar *uri;
-			uri = gedit_utils_set_direct_save_filename (context);
+			uri = gcode_utils_set_direct_save_filename (context);
 
 			if (uri != NULL)
 			{
@@ -2419,7 +2419,7 @@ setup_side_panel (GeditWindow *window)
 	gtk_button_set_relief (GTK_BUTTON (priv->side_stack_switcher), GTK_RELIEF_NONE);
 	g_object_ref_sink (priv->side_stack_switcher);
 
-	gedit_utils_set_atk_name_description (priv->side_stack_switcher, _("Change side panel page"),  NULL);
+	gcode_utils_set_atk_name_description (priv->side_stack_switcher, _("Change side panel page"),  NULL);
 
 	gedit_menu_stack_switcher_set_stack (GEDIT_MENU_STACK_SWITCHER (priv->side_stack_switcher),
 	                                     GTK_STACK (priv->side_panel));

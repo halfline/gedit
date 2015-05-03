@@ -34,9 +34,9 @@
 #include <glib/gi18n.h>
 #include <gio/gio.h>
 
-#include <gedit/gedit-encodings-combo-box.h>
+#include "gcode/gcode.h"
+#include "gedit-encodings-combo-box.h"
 #include "gedit-settings.h"
-#include "gedit-utils.h"
 #include "gedit-document.h"
 
 #define MAX_URI_IN_DIALOG_LENGTH 50
@@ -233,14 +233,14 @@ parse_gio_error (gint          code,
 					uri = g_file_get_uri (location);
 				}
 
-				if (uri && gedit_utils_decode_uri (uri, NULL, NULL, &hn, NULL, NULL))
+				if (uri && gcode_utils_decode_uri (uri, NULL, NULL, &hn, NULL, NULL))
 				{
 					if (hn != NULL)
 					{
 						gchar *host_markup;
 						gchar *host_name;
 
-						host_name = gedit_utils_make_valid_utf8 (hn);
+						host_name = gcode_utils_make_valid_utf8 (hn);
 						g_free (hn);
 
 						host_markup = g_markup_escape_text (host_name, -1);
@@ -336,7 +336,7 @@ gedit_unrecoverable_reverting_error_info_bar_new (GFile        *location,
 	 * though the dialog uses wrapped text, if the URI doesn't contain
 	 * white space then the text-wrapping code is too stupid to wrap it.
 	 */
-	temp_uri_for_display = gedit_utils_str_middle_truncate (full_formatted_uri,
+	temp_uri_for_display = gcode_utils_str_middle_truncate (full_formatted_uri,
 								MAX_URI_IN_DIALOG_LENGTH);
 	g_free (full_formatted_uri);
 
@@ -428,7 +428,7 @@ gedit_network_unavailable_info_bar_new (GFile *location)
 
 	full_formatted_uri = g_file_get_parse_name (location);
 
-	temp_uri_for_display = gedit_utils_str_middle_truncate (full_formatted_uri,
+	temp_uri_for_display = gcode_utils_str_middle_truncate (full_formatted_uri,
 							        MAX_URI_IN_DIALOG_LENGTH);
 	g_free (full_formatted_uri);
 	uri_for_display = g_markup_printf_escaped ("<i>%s</i>", temp_uri_for_display);
@@ -584,7 +584,7 @@ gedit_io_loading_error_info_bar_new (GFile                   *location,
 	 * though the dialog uses wrapped text, if the URI doesn't contain
 	 * white space then the text-wrapping code is too stupid to wrap it.
 	 */
-	temp_uri_for_display = gedit_utils_str_middle_truncate (full_formatted_uri,
+	temp_uri_for_display = gcode_utils_str_middle_truncate (full_formatted_uri,
 								MAX_URI_IN_DIALOG_LENGTH);
 	g_free (full_formatted_uri);
 
@@ -690,7 +690,7 @@ gedit_conversion_error_while_saving_info_bar_new (GFile                   *locat
 	 * though the dialog uses wrapped text, if the URI doesn't contain
 	 * white space then the text-wrapping code is too stupid to wrap it.
 	 */
-	temp_uri_for_display = gedit_utils_str_middle_truncate (full_formatted_uri,
+	temp_uri_for_display = gcode_utils_str_middle_truncate (full_formatted_uri,
 								MAX_URI_IN_DIALOG_LENGTH);
 	g_free (full_formatted_uri);
 
@@ -759,7 +759,7 @@ gedit_file_already_open_warning_info_bar_new (GFile *location)
 	 * though the dialog uses wrapped text, if the URI doesn't contain
 	 * white space then the text-wrapping code is too stupid to wrap it.
 	 */
-	temp_uri_for_display = gedit_utils_str_middle_truncate (full_formatted_uri,
+	temp_uri_for_display = gcode_utils_str_middle_truncate (full_formatted_uri,
 								MAX_URI_IN_DIALOG_LENGTH);
 	g_free (full_formatted_uri);
 
@@ -845,7 +845,7 @@ gedit_externally_modified_saving_error_info_bar_new (GFile        *location,
 	 * though the dialog uses wrapped text, if the URI doesn't contain
 	 * white space then the text-wrapping code is too stupid to wrap it.
 	 */
-	temp_uri_for_display = gedit_utils_str_middle_truncate (full_formatted_uri,
+	temp_uri_for_display = gcode_utils_str_middle_truncate (full_formatted_uri,
 								MAX_URI_IN_DIALOG_LENGTH);
 	g_free (full_formatted_uri);
 
@@ -935,7 +935,7 @@ gedit_no_backup_saving_error_info_bar_new (GFile        *location,
 	 * though the dialog uses wrapped text, if the URI doesn't contain
 	 * white space then the text-wrapping code is too stupid to wrap it.
 	 */
-	temp_uri_for_display = gedit_utils_str_middle_truncate (full_formatted_uri,
+	temp_uri_for_display = gcode_utils_str_middle_truncate (full_formatted_uri,
 								MAX_URI_IN_DIALOG_LENGTH);
 	g_free (full_formatted_uri);
 
@@ -1033,7 +1033,7 @@ gedit_unrecoverable_saving_error_info_bar_new (GFile        *location,
 	 * though the dialog uses wrapped text, if the URI doesn't contain
 	 * white space then the text-wrapping code is too stupid to wrap it.
 	 */
-	temp_uri_for_display = gedit_utils_str_middle_truncate (full_formatted_uri,
+	temp_uri_for_display = gcode_utils_str_middle_truncate (full_formatted_uri,
 								MAX_URI_IN_DIALOG_LENGTH);
 	g_free (full_formatted_uri);
 
@@ -1156,7 +1156,7 @@ gedit_externally_modified_info_bar_new (GFile    *location,
 	 * though the dialog uses wrapped text, if the URI doesn't contain
 	 * white space then the text-wrapping code is too stupid to wrap it.
 	 */
-	temp_uri_for_display = gedit_utils_str_middle_truncate (full_formatted_uri,
+	temp_uri_for_display = gcode_utils_str_middle_truncate (full_formatted_uri,
 								MAX_URI_IN_DIALOG_LENGTH);
 	g_free (full_formatted_uri);
 
@@ -1227,7 +1227,7 @@ gedit_invalid_character_info_bar_new (GFile *location)
 	 * though the dialog uses wrapped text, if the URI doesn't contain
 	 * white space then the text-wrapping code is too stupid to wrap it.
 	 */
-	temp_uri_for_display = gedit_utils_str_middle_truncate (full_formatted_uri,
+	temp_uri_for_display = gcode_utils_str_middle_truncate (full_formatted_uri,
 								MAX_URI_IN_DIALOG_LENGTH);
 	g_free (full_formatted_uri);
 

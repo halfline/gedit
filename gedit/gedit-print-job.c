@@ -29,10 +29,10 @@
 #include <glib/gi18n.h>
 #include <gtksourceview/gtksource.h>
 
+#include "gcode/gcode.h"
 #include "gedit-debug.h"
 #include "gedit-print-preview.h"
 #include "gedit-marshal.h"
-#include "gedit-utils.h"
 #include "gedit-dirs.h"
 #include "gedit-settings.h"
 
@@ -541,7 +541,7 @@ create_compositor (GeditPrintJob *job)
 		gchar *left;
 
 		doc_name = gedit_document_get_uri_for_display (GEDIT_DOCUMENT (buf));
-		name_to_display = gedit_utils_str_middle_truncate (doc_name, 60);
+		name_to_display = gcode_utils_str_middle_truncate (doc_name, 60);
 
 		left = g_strdup_printf (_("File: %s"), name_to_display);
 
