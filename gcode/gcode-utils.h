@@ -1,10 +1,10 @@
 /*
- * gcode-utils.h
- * This file is part of gcode
+ * This file is part of gcode.
  *
- * Copyright (C) 1998, 1999 Alex Roberts, Evan Lawrence
- * Copyright (C) 2000, 2001 Chema Celorio, Paolo Maggi
- * Copyright (C) 2002 - 2005 Paolo Maggi
+ * Copyright 1998, 1999 - Alex Roberts, Evan Lawrence
+ * Copyright 2000, 2001 - Chema Celorio
+ * Copyright 2000-2005 - Paolo Maggi
+ * Copyright 2015 - Sébastien Wilmet <swilmet@gnome.org>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
