@@ -128,15 +128,7 @@ gcode_utils_menu_position_under_tree_view (GtkMenu  *menu,
 	}
 }
 
-/**
- * gcode_utils_set_atk_name_description:
- * @widget: The Gtk widget for which name/description to be set
- * @name: Atk name string
- * @description: Atk description string
- *
- * This function sets up name and description
- * for a specified gtk widget.
- */
+/* See gedit_utils_set_atk_name_description(). */
 void
 gcode_utils_set_atk_name_description (GtkWidget   *widget,
 				      const gchar *name,
@@ -156,15 +148,7 @@ gcode_utils_set_atk_name_description (GtkWidget   *widget,
 		atk_object_set_description (aobj, description);
 }
 
-/**
- * gcode_set_atk_relation:
- * @obj1: specified widget.
- * @obj2: specified widget.
- * @rel_type: the type of relation to set up.
- *
- * This function establishes atk relation
- * between 2 specified widgets.
- */
+/* See gedit_utils_set_atk_relation(). */
 void
 gcode_utils_set_atk_relation (GtkWidget       *obj1,
 			      GtkWidget       *obj2,
@@ -190,9 +174,7 @@ gcode_utils_set_atk_relation (GtkWidget       *obj1,
 	g_object_unref (G_OBJECT (relation));
 }
 
-/*
- * Doubles underscore to avoid spurious menu accels.
- */
+/* See gedit_utils_escape_underscores(). */
 gchar *
 gcode_utils_escape_underscores (const gchar *text,
 				gssize       length)
@@ -351,14 +333,7 @@ gcode_utils_make_valid_utf8 (const char *name)
 	return g_string_free (string, FALSE);
 }
 
-/**
- * gcode_utils_uri_get_dirname:
- * @uri: the URI.
- *
- * Note: this function replace home dir with ~
- *
- * Returns: the directory name.
- */
+/* See gedit_utils_uri_get_dirname(). */
 gchar *
 gcode_utils_uri_get_dirname (const gchar *uri)
 {
@@ -385,17 +360,7 @@ gcode_utils_uri_get_dirname (const gchar *uri)
 	return res;
 }
 
-/**
- * gcode_utils_location_get_dirname_for_display:
- * @location: the location
- *
- * Returns a string suitable to be displayed in the UI indicating
- * the name of the directory where the file is located.
- * For remote files it may also contain the hostname etc.
- * For local files it tries to replace the home dir with ~.
- *
- * Returns: (transfer full): a string to display the dirname
- */
+/* See gedit_utils_location_get_dirname_for_display(). */
 gchar *
 gcode_utils_location_get_dirname_for_display (GFile *location)
 {
@@ -506,15 +471,7 @@ gcode_utils_replace_home_dir_with_tilde (const gchar *uri)
 
 /* the following two functions are courtesy of galeon */
 
-/**
- * gcode_utils_get_current_workspace:
- * @screen: a #GdkScreen
- *
- * Get the currently visible workspace for the #GdkScreen.
- *
- * If the X11 window property isn't found, 0 (the first workspace)
- * is returned.
- */
+/* See gedit_utils_get_current_workspace(). */
 guint
 gcode_utils_get_current_workspace (GdkScreen *screen)
 {
@@ -561,18 +518,7 @@ gcode_utils_get_current_workspace (GdkScreen *screen)
 #endif
 }
 
-/**
- * gcode_utils_get_window_workspace:
- * @gtkwindow: a #GtkWindow.
- *
- * Get the workspace the window is on.
- *
- * This function gets the workspace that the #GtkWindow is visible on,
- * it returns GCODE_ALL_WORKSPACES if the window is sticky, or if
- * the window manager doesn't support this function.
- *
- * Returns: the workspace the window is on.
- */
+/* See gedit_utils_get_window_workspace(). */
 guint
 gcode_utils_get_window_workspace (GtkWindow *gtkwindow)
 {
@@ -619,16 +565,7 @@ gcode_utils_get_window_workspace (GtkWindow *gtkwindow)
 #endif
 }
 
-/**
- * gcode_utils_get_current_viewport:
- * @screen: a #GdkScreen
- * @x: (out): x-axis point.
- * @y: (out): y-axis point.
- *
- * Get the currently visible viewport origin for the #GdkScreen.
- *
- * If the X11 window property isn't found, (0, 0) is returned.
- */
+/* See gedit_utils_get_current_viewport(). */
 void
 gcode_utils_get_current_viewport (GdkScreen    *screen,
 				  gint         *x,
@@ -802,12 +739,7 @@ gcode_utils_make_canonical_uri_from_shell_arg (const gchar *str)
 	return NULL;
 }
 
-/**
- * gcode_utils_basename_for_display:
- * @location: location for which the basename should be displayed
- *
- * Returns: (transfer full): the basename of a file suitable for display to users.
- */
+/* See gedit_utils_basename_for_display(). */
 gchar *
 gcode_utils_basename_for_display (GFile *location)
 {
@@ -890,16 +822,7 @@ gcode_utils_basename_for_display (GFile *location)
 	return name;
 }
 
-/**
- * gcode_utils_drop_get_uris:
- * @selection_data: the #GtkSelectionData from drag_data_received
- *
- * Create a list of valid uri's from a uri-list drop.
- *
- * Returns: (transfer full): a string array which will hold the uris or
- *           %NULL if there were no valid uris. g_strfreev should be used when
- *           the string array is no longer used
- */
+/* See gedit_utils_drop_get_uris(). */
 gchar **
 gcode_utils_drop_get_uris (GtkSelectionData *selection_data)
 {
@@ -940,23 +863,7 @@ null_ptr (gchar **ptr)
 		*ptr = NULL;
 }
 
-/**
- * gcode_utils_decode_uri:
- * @uri: the uri to decode
- * @scheme: (out) (allow-none): return value pointer for the uri's
- * scheme (e.g. http, sftp, ...), or %NULL
- * @user: (out) (allow-none): return value pointer for the uri user info, or %NULL
- * @port: (out) (allow-none): return value pointer for the uri port, or %NULL
- * @host: (out) (allow-none): return value pointer for the uri host, or %NULL
- * @path: (out) (allow-none): return value pointer for the uri path, or %NULL
- *
- * Parse and break an uri apart in its individual components like the uri
- * scheme, user info, port, host and path. The return value pointer can be
- * %NULL to ignore certain parts of the uri. If the function returns %TRUE, then
- * all return value pointers should be freed using g_free
- *
- * Return value: %TRUE if the uri could be properly decoded, %FALSE otherwise.
- */
+/* See gedit_utils_decode_uri(). */
 gboolean
 gcode_utils_decode_uri (const gchar  *uri,
 			gchar       **scheme,

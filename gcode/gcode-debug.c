@@ -34,22 +34,7 @@ static GcodeDebugSection enabled_sections = GCODE_NO_DEBUG;
 
 #define DEBUG_IS_ENABLED(section) (enabled_sections & (section))
 
-/**
- * gcode_debug_init:
- *
- * Initializes the debugging subsystem of gcode.
- *
- * The function checks for the existence of certain environment variables to
- * determine whether to enable output for a debug section. To enable output
- * for a specific debug section, set an environment variable of the same name;
- * e.g. to enable output for the %GCODE_DEBUG_PLUGINS section, set a
- * <code>GCODE_DEBUG_PLUGINS</code> environment variable. To enable output
- * for all debug sections, set the <code>GCODE_DEBUG</code> environment
- * variable.
- *
- * This function must be called before any of the other debug functions are
- * called. It must only be called once.
- */
+/* See gedit_debug_init(). */
 void
 gcode_debug_init (void)
 {
@@ -75,16 +60,7 @@ out:
 #endif
 }
 
-/**
- * gcode_debug:
- * @section: debug section.
- * @file: file name.
- * @line: line number.
- * @function: name of the function that is calling gcode_debug().
- *
- * If @section is enabled, then logs the trace information @file, @line, and
- * @function.
- */
+/* See gedit_debug(). */
 void
 gcode_debug (GcodeDebugSection  section,
 	     const gchar       *file,
@@ -94,19 +70,7 @@ gcode_debug (GcodeDebugSection  section,
 	gcode_debug_message (section, file, line, function, "%s", "");
 }
 
-/**
- * gcode_debug_message:
- * @section: debug section.
- * @file: file name.
- * @line: line number.
- * @function: name of the function that is calling gcode_debug_message().
- * @format: A g_vprintf() format string.
- * @...: The format string arguments.
- *
- * If @section is enabled, then logs the trace information @file, @line, and
- * @function along with the message obtained by formatting @format with the
- * given format string arguments.
- */
+/* See gedit_debug_message(). */
 void
 gcode_debug_message (GcodeDebugSection  section,
 		     const gchar       *file,

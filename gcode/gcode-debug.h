@@ -28,13 +28,7 @@
 /**
  * GcodeDebugSection:
  *
- * Enumeration of debug sections.
- *
- * Debugging output for a section is enabled by setting an environment variable
- * of the same name. For example, setting the <code>GCODE_DEBUG_PLUGINS</code>
- * environment variable enables all debugging output for the %GCODE_DEBUG_PLUGINS
- * section. Setting the special environment variable <code>GCODE_DEBUG</code>
- * enables output for all sections.
+ * See GeditDebugSection. Replace "GEDIT" by "GCODE".
  */
 typedef enum {
 	GCODE_NO_DEBUG       = 0,
@@ -57,4 +51,5 @@ void gcode_debug_message (GcodeDebugSection  section,
 			  const gchar       *format, ...) G_GNUC_PRINTF(5, 6);
 
 #endif /* __GCODE_DEBUG_H__ */
+
 /* ex:set ts=8 noet: */

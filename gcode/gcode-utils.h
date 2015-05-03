@@ -67,7 +67,6 @@ void		 gcode_utils_set_atk_relation		(GtkWidget        *obj1,
 
 gchar		*gcode_utils_make_valid_utf8		(const char       *name);
 
-/* Note that this function replace home dir with ~ */
 gchar		*gcode_utils_uri_get_dirname		(const char       *uri);
 
 gchar		*gcode_utils_location_get_dirname_for_display
@@ -85,7 +84,6 @@ void		 gcode_utils_get_current_viewport	(GdkScreen        *screen,
 
 gboolean	 gcode_utils_is_valid_location		(GFile            *location);
 
-/* Return NULL if str is not a valid URI and/or filename */
 gchar		*gcode_utils_make_canonical_uri_from_shell_arg
 							(const gchar      *str);
 
@@ -97,8 +95,6 @@ gboolean	 gcode_utils_decode_uri 		(const gchar      *uri,
 							 gchar           **host,
 							 gchar           **path);
 
-
-/* Turns data from a drop into a list of well formatted uris */
 gchar		**gcode_utils_drop_get_uris		(GtkSelectionData *selection_data);
 
 GtkSourceCompressionType
