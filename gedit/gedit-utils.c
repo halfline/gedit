@@ -23,7 +23,7 @@
 
 #include "gedit-utils.h"
 #include <glib/gi18n.h>
-#include "gcode/gcode-utils.h"
+#include "gcode/gcode.h"
 
 void
 gedit_utils_menu_position_under_widget (GtkMenu  *menu,

@@ -19,6 +19,7 @@ gcode_libgcode_la_LIBADD =		\
 gcode_libgcode_la_LDFLAGS = -no-undefined
 
 gcode_libgcode_la_SOURCES =			\
+	gcode/gcode.h				\
 	gcode/gcode-debug.c			\
 	gcode/gcode-debug.h			\
 	gcode/gcode-utils.c			\
