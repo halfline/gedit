@@ -95,7 +95,7 @@ include win32/Makefile.am
 include osx/bundle/data/Makefile.am
 include tests/Makefile.am
 include plugins/Makefile.am
-include gcode/Makefile.am
+include gedit/gcode/Makefile.am
 include gedit/Makefile.am
 
 @GSETTINGS_RULES@
