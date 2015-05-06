@@ -20,7 +20,6 @@
 #ifndef __GCODE_H__
 #define __GCODE_H__
 
-#include "gcode/gcode-debug.h"
 #include "gcode/gcode-metadata-manager.h"
 #include "gcode/gcode-utils.h"
 

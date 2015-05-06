@@ -53,6 +53,10 @@ gcode_debug_init (void)
 	{
 		enabled_sections |= GCODE_DEBUG_METADATA;
 	}
+	if (g_getenv ("GCODE_DEBUG_DOCUMENT") != NULL)
+	{
+		enabled_sections |= GCODE_DEBUG_DOCUMENT;
+	}
 
 out:
 
