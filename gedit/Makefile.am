@@ -28,11 +28,11 @@ gedit_gedit_LDADD =			\
 
 gedit_gedit_SOURCES = gedit/gedit.c
 
-gedit_gedit_LDFLAGS = -export-dynamic -no-undefined -export-symbols-regex "^[[^_]].*"
+gedit_gedit_LDFLAGS = -export-dynamic -no-undefined -export-symbols-regex "^gedit_.*"
 
 gedit_libgedit_la_CPPFLAGS = $(gedit_common_cppflags)
 gedit_libgedit_la_CFLAGS = $(gedit_common_cflags)
-gedit_libgedit_la_LDFLAGS = -avoid-version -export-dynamic -no-undefined -export-symbols-regex "^[^_].*"
+gedit_libgedit_la_LDFLAGS = -avoid-version -export-dynamic -no-undefined -export-symbols-regex "^gedit_.*"
 
 # GEDIT_LIBS must be the last to ensure correct order on some platforms
 gedit_libgedit_la_LIBADD = 			\
