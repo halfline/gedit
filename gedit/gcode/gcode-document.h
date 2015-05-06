@@ -24,12 +24,9 @@
 #define __GCODE_DOCUMENT_H__
 
 #include <gtksourceview/gtksource.h>
+#include "gcode-gedit.h"
 
 G_BEGIN_DECLS
-
-#define GCODE_TYPE_DOCUMENT (gcode_document_get_type())
-
-G_DECLARE_DERIVABLE_TYPE (GcodeDocument, gcode_document, GCODE, DOCUMENT, GtkSourceBuffer)
 
 #ifdef G_OS_WIN32
 #define GCODE_METADATA_ATTRIBUTE_POSITION "position"
@@ -40,22 +37,6 @@ G_DECLARE_DERIVABLE_TYPE (GcodeDocument, gcode_document, GCODE, DOCUMENT, GtkSou
 #define GCODE_METADATA_ATTRIBUTE_ENCODING "metadata::gcode-encoding"
 #define GCODE_METADATA_ATTRIBUTE_LANGUAGE "metadata::gcode-language"
 #endif
-
-struct _GcodeDocumentClass
-{
-	GtkSourceBufferClass parent_class;
-
-	/* Signals */
-	void (* cursor_moved)		(GcodeDocument *document);
-
-	void (* load)			(GcodeDocument *document);
-
-	void (* loaded)			(GcodeDocument *document);
-
-	void (* save)			(GcodeDocument *document);
-
-	void (* saved)  		(GcodeDocument *document);
-};
 
 GcodeDocument   *gcode_document_new				(void);
 

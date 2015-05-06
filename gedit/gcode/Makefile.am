@@ -18,6 +18,9 @@ gedit_gcode_libgcode_la_LIBADD =	\
 
 gedit_gcode_libgcode_la_LDFLAGS = -no-undefined
 
+gcode_INST_H_FILES =					\
+	gedit/gcode/gcode-gedit.h
+
 gedit_gcode_libgcode_la_SOURCES =			\
 	gedit/gcode/gcode.h				\
 	gedit/gcode/gcode-debug.c			\
@@ -27,4 +30,8 @@ gedit_gcode_libgcode_la_SOURCES =			\
 	gedit/gcode/gcode-metadata-manager.c		\
 	gedit/gcode/gcode-metadata-manager.h		\
 	gedit/gcode/gcode-utils.c			\
-	gedit/gcode/gcode-utils.h
+	gedit/gcode/gcode-utils.h			\
+	$(gcode_INST_H_FILES)
+
+gcode_headerdir = $(prefix)/include/gedit-$(GEDIT_API_VERSION)/gedit/gcode
+gcode_header_HEADERS = $(gcode_INST_H_FILES)
