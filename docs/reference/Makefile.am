@@ -27,6 +27,11 @@ CFILE_GLOB = $(top_srcdir)/gedit/*.c
 
 # Header files to ignore when scanning (These are internal to gedit).
 IGNORE_HFILES =					\
+	gcode.h					\
+	gcode-debug.h				\
+	gcode-document.h			\
+	gcode-metadata-manager.h		\
+	gcode-utils.h				\
 	gedit-app-osx.h				\
 	gedit-app-win32.h			\
 	gedit-app-x11.h				\
@@ -74,15 +79,18 @@ content_files =
 # CFLAGS and LDFLAGS for compiling gtkdoc-scangobj with your library.
 # Only needed if you are using gtkdoc-scangobj to dynamically query widget
 # signals and properties.
-GTKDOC_CFLAGS =			\
-	-I$(top_srcdir)/gedit	\
-	-I$(top_builddir)/gedit \
-	-I$(top_srcdir)		\
-	-I$(top_builddir)	\
+GTKDOC_CFLAGS =				\
+	-I$(top_srcdir)/gedit		\
+	-I$(top_builddir)/gedit		\
+	-I$(top_srcdir)/gedit/gcode	\
+	-I$(top_builddir)/gedit/gcode	\
+	-I$(top_srcdir)			\
+	-I$(top_builddir)		\
 	$(GEDIT_CFLAGS)
 
 GTKDOC_LIBS =						\
 	$(top_builddir)/gedit/libgedit.la		\
+	$(top_builddir)/gedit/gcode/libgcode.la		\
 	$(GEDIT_LIBS)
 
 MAINTAINERCLEANFILES = gedit.types
