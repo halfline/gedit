@@ -334,7 +334,6 @@ DEBUG_TAB
 DEBUG_DOCUMENT
 DEBUG_COMMANDS
 DEBUG_APP
-DEBUG_METADATA
 gedit_debug_init
 gedit_debug
 gedit_debug_message

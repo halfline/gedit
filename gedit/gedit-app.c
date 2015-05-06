@@ -51,10 +51,6 @@
 #include "gedit-tab.h"
 #include "gedit-tab-private.h"
 
-#ifndef ENABLE_GVFS_METADATA
-#include "gedit-metadata-manager.h"
-#endif
-
 #define GEDIT_PAGE_SETUP_FILE		"gedit-page-setup"
 #define GEDIT_PRINT_SETTINGS_FILE	"gedit-print-settings"
 
@@ -762,7 +758,7 @@ gedit_app_startup (GApplication *application)
 #ifndef ENABLE_GVFS_METADATA
 	cache_dir = gedit_dirs_get_user_cache_dir ();
 	metadata_filename = g_build_filename (cache_dir, "gedit-metadata.xml", NULL);
-	gedit_metadata_manager_init (metadata_filename);
+	gcode_metadata_manager_init (metadata_filename);
 	g_free (metadata_filename);
 #endif
 
@@ -1244,7 +1240,7 @@ gedit_app_shutdown (GApplication *app)
 	G_APPLICATION_CLASS (gedit_app_parent_class)->shutdown (app);
 
 #ifndef ENABLE_GVFS_METADATA
-	gedit_metadata_manager_shutdown ();
+	gcode_metadata_manager_shutdown ();
 #endif
 
 	gedit_dirs_shutdown ();

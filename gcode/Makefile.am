@@ -22,5 +22,7 @@ gcode_libgcode_la_SOURCES =			\
 	gcode/gcode.h				\
 	gcode/gcode-debug.c			\
 	gcode/gcode-debug.h			\
+	gcode/gcode-metadata-manager.c		\
+	gcode/gcode-metadata-manager.h		\
 	gcode/gcode-utils.c			\
 	gcode/gcode-utils.h

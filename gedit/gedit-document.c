@@ -34,7 +34,6 @@
 #include "gcode/gcode.h"
 #include "gedit-settings.h"
 #include "gedit-debug.h"
-#include "gedit-metadata-manager.h"
 
 #define METADATA_QUERY "metadata::*"
 
@@ -1727,7 +1726,7 @@ get_metadata_from_metadata_manager (GeditDocument *doc,
 
 	if (location != NULL)
 	{
-		return gedit_metadata_manager_get (location, key);
+		return gcode_metadata_manager_get (location, key);
 	}
 
 	return NULL;
@@ -1864,7 +1863,7 @@ gedit_document_set_metadata (GeditDocument *doc,
 		}
 		else
 		{
-			gedit_metadata_manager_set (location, key, value);
+			gcode_metadata_manager_set (location, key, value);
 		}
 	}
 

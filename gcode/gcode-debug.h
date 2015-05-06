@@ -33,9 +33,11 @@
 typedef enum {
 	GCODE_NO_DEBUG       = 0,
 	GCODE_DEBUG_UTILS    = 1 << 0,
+	GCODE_DEBUG_METADATA = 1 << 1,
 } GcodeDebugSection;
 
 #define	DEBUG_UTILS	GCODE_DEBUG_UTILS,   __FILE__, __LINE__, G_STRFUNC
+#define	DEBUG_METADATA	GCODE_DEBUG_METADATA,__FILE__, __LINE__, G_STRFUNC
 
 void gcode_debug_init (void);
 

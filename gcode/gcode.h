@@ -21,6 +21,7 @@
 #define __GCODE_H__
 
 #include "gcode/gcode-debug.h"
+#include "gcode/gcode-metadata-manager.h"
 #include "gcode/gcode-utils.h"
 
 #endif /* __GCODE_H__ */

@@ -1,9 +1,7 @@
-/* -*- Mode: C; tab-width: 8; indent-tabs-mode: t; c-basic-offset: 8 -*- */
 /*
- * gedit-metadata-manager.c
- * This file is part of gedit
+ * This file is part of gcode.
  *
- * Copyright (C) 2003-2007  Paolo Maggi
+ * Copyright 2003-2007 - Paolo Maggi
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,17 +17,17 @@
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "gedit-metadata-manager.h"
+#include "gcode-metadata-manager.h"
 #include <libxml/xmlreader.h>
-#include "gedit-debug.h"
+#include "gcode-debug.h"
 
 /*
-#define GEDIT_METADATA_VERBOSE_DEBUG	1
+#define GCODE_METADATA_VERBOSE_DEBUG	1
 */
 
 #define MAX_ITEMS 50
 
-typedef struct _GeditMetadataManager GeditMetadataManager;
+typedef struct _GcodeMetadataManager GcodeMetadataManager;
 
 typedef struct _Item Item;
 
@@ -41,7 +39,7 @@ struct _Item
 	GHashTable	*values;
 };
 
-struct _GeditMetadataManager
+struct _GcodeMetadataManager
 {
 	/* It is true if the file has been read. */
 	gboolean	 values_loaded;
@@ -53,9 +51,9 @@ struct _GeditMetadataManager
 	gchar		*metadata_filename;
 };
 
-static gboolean gedit_metadata_manager_save (gpointer data);
+static gboolean gcode_metadata_manager_save (gpointer data);
 
-static GeditMetadataManager *gedit_metadata_manager = NULL;
+static GcodeMetadataManager *gcode_metadata_manager = NULL;
 
 static void
 item_free (gpointer data)
@@ -64,8 +62,8 @@ item_free (gpointer data)
 
 	g_return_if_fail (data != NULL);
 
-#ifdef GEDIT_METADATA_VERBOSE_DEBUG
-	gedit_debug (DEBUG_METADATA);
+#ifdef GCODE_METADATA_VERBOSE_DEBUG
+	gcode_debug (DEBUG_METADATA);
 #endif
 
 	item = (Item *)data;
@@ -77,77 +75,77 @@ item_free (gpointer data)
 }
 
 static void
-gedit_metadata_manager_arm_timeout (void)
+gcode_metadata_manager_arm_timeout (void)
 {
-	if (gedit_metadata_manager->timeout_id == 0)
+	if (gcode_metadata_manager->timeout_id == 0)
 	{
-		gedit_metadata_manager->timeout_id =
+		gcode_metadata_manager->timeout_id =
 			g_timeout_add_seconds_full (G_PRIORITY_DEFAULT_IDLE,
 						    2,
-						    (GSourceFunc)gedit_metadata_manager_save,
+						    (GSourceFunc)gcode_metadata_manager_save,
 						    NULL,
 						    NULL);
 	}
 }
 
 /**
- * gedit_metadata_manager_init:
+ * gcode_metadata_manager_init:
  * @metadata_filename: the filename where the metadata is stored.
  *
  * This function initializes the metadata manager.
- * See also gedit_metadata_manager_shutdown().
+ * See also gcode_metadata_manager_shutdown().
  */
 void
-gedit_metadata_manager_init (const gchar *metadata_filename)
+gcode_metadata_manager_init (const gchar *metadata_filename)
 {
-	gedit_debug (DEBUG_METADATA);
+	gcode_debug (DEBUG_METADATA);
 
-	if (gedit_metadata_manager != NULL)
+	if (gcode_metadata_manager != NULL)
 	{
 		return;
 	}
 
-	gedit_metadata_manager = g_new0 (GeditMetadataManager, 1);
+	gcode_metadata_manager = g_new0 (GcodeMetadataManager, 1);
 
-	gedit_metadata_manager->values_loaded = FALSE;
+	gcode_metadata_manager->values_loaded = FALSE;
 
-	gedit_metadata_manager->items =
+	gcode_metadata_manager->items =
 		g_hash_table_new_full (g_str_hash,
 				       g_str_equal,
 				       g_free,
 				       item_free);
 
-	gedit_metadata_manager->metadata_filename = g_strdup (metadata_filename);
+	gcode_metadata_manager->metadata_filename = g_strdup (metadata_filename);
 }
 
 /**
- * gedit_metadata_manager_shutdown:
+ * gcode_metadata_manager_shutdown:
  *
  * This function frees the internal data of the metadata manager.
- * See also gedit_metadata_manager_init().
+ * See also gcode_metadata_manager_init().
  */
 void
-gedit_metadata_manager_shutdown (void)
+gcode_metadata_manager_shutdown (void)
 {
-	gedit_debug (DEBUG_METADATA);
+	gcode_debug (DEBUG_METADATA);
 
-	if (gedit_metadata_manager == NULL)
+	if (gcode_metadata_manager == NULL)
 		return;
 
-	if (gedit_metadata_manager->timeout_id)
+	if (gcode_metadata_manager->timeout_id)
 	{
-		g_source_remove (gedit_metadata_manager->timeout_id);
-		gedit_metadata_manager->timeout_id = 0;
-		gedit_metadata_manager_save (NULL);
+		g_source_remove (gcode_metadata_manager->timeout_id);
+		gcode_metadata_manager->timeout_id = 0;
+		gcode_metadata_manager_save (NULL);
 	}
 
-	if (gedit_metadata_manager->items != NULL)
-		g_hash_table_destroy (gedit_metadata_manager->items);
+	if (gcode_metadata_manager->items != NULL)
+		g_hash_table_destroy (gcode_metadata_manager->items);
 
-	g_free (gedit_metadata_manager->metadata_filename);
+	g_free (gcode_metadata_manager->metadata_filename);
 
-	g_free (gedit_metadata_manager);
-	gedit_metadata_manager = NULL;
+	g_free (gcode_metadata_manager);
+	gcode_metadata_manager = NULL;
 }
 
 static void
@@ -158,8 +156,8 @@ parseItem (xmlDocPtr doc, xmlNodePtr cur)
 	xmlChar *uri;
 	xmlChar *atime;
 
-#ifdef GEDIT_METADATA_VERBOSE_DEBUG
-	gedit_debug (DEBUG_METADATA);
+#ifdef GCODE_METADATA_VERBOSE_DEBUG
+	gcode_debug (DEBUG_METADATA);
 #endif
 
 	if (xmlStrcmp (cur->name, (const xmlChar *)"document") != 0)
@@ -213,7 +211,7 @@ parseItem (xmlDocPtr doc, xmlNodePtr cur)
 		cur = cur->next;
 	}
 
-	g_hash_table_insert (gedit_metadata_manager->items,
+	g_hash_table_insert (gcode_metadata_manager->items,
 			     g_strdup ((gchar *)uri),
 			     item);
 
@@ -227,23 +225,23 @@ load_values (void)
 	xmlDocPtr doc;
 	xmlNodePtr cur;
 
-	gedit_debug (DEBUG_METADATA);
+	gcode_debug (DEBUG_METADATA);
 
-	g_return_val_if_fail (gedit_metadata_manager != NULL, FALSE);
-	g_return_val_if_fail (gedit_metadata_manager->values_loaded == FALSE, FALSE);
+	g_return_val_if_fail (gcode_metadata_manager != NULL, FALSE);
+	g_return_val_if_fail (gcode_metadata_manager->values_loaded == FALSE, FALSE);
 
-	gedit_metadata_manager->values_loaded = TRUE;
+	gcode_metadata_manager->values_loaded = TRUE;
 
 	xmlKeepBlanksDefault (0);
 
 	/* FIXME: file locking - Paolo */
-	if ((gedit_metadata_manager->metadata_filename == NULL) ||
-	    (!g_file_test (gedit_metadata_manager->metadata_filename, G_FILE_TEST_EXISTS)))
+	if ((gcode_metadata_manager->metadata_filename == NULL) ||
+	    (!g_file_test (gcode_metadata_manager->metadata_filename, G_FILE_TEST_EXISTS)))
 	{
 		return FALSE;
 	}
 
-	doc = xmlParseFile (gedit_metadata_manager->metadata_filename);
+	doc = xmlParseFile (gcode_metadata_manager->metadata_filename);
 
 	if (doc == NULL)
 	{
@@ -254,7 +252,7 @@ load_values (void)
 	if (cur == NULL)
 	{
 		g_message ("The metadata file '%s' is empty",
-		           g_path_get_basename (gedit_metadata_manager->metadata_filename));
+		           g_path_get_basename (gcode_metadata_manager->metadata_filename));
 		xmlFreeDoc (doc);
 
 		return FALSE;
@@ -263,7 +261,7 @@ load_values (void)
 	if (xmlStrcmp (cur->name, (const xmlChar *) "metadata"))
 	{
 		g_message ("File '%s' is of the wrong type",
-		           g_path_get_basename (gedit_metadata_manager->metadata_filename));
+		           g_path_get_basename (gcode_metadata_manager->metadata_filename));
 		xmlFreeDoc (doc);
 
 		return FALSE;
@@ -285,14 +283,14 @@ load_values (void)
 }
 
 /**
- * gedit_metadata_manager_get:
+ * gcode_metadata_manager_get:
  * @location: a #GFile.
  * @key: a key.
  *
  * Gets the value associated with the specified @key for the file @location.
  */
 gchar *
-gedit_metadata_manager_get (GFile       *location,
+gcode_metadata_manager_get (GFile       *location,
 			    const gchar *key)
 {
 	Item *item;
@@ -304,9 +302,9 @@ gedit_metadata_manager_get (GFile       *location,
 
 	uri = g_file_get_uri (location);
 
-	gedit_debug_message (DEBUG_METADATA, "URI: %s --- key: %s", uri, key );
+	gcode_debug_message (DEBUG_METADATA, "URI: %s --- key: %s", uri, key );
 
-	if (!gedit_metadata_manager->values_loaded)
+	if (!gcode_metadata_manager->values_loaded)
 	{
 		gboolean res;
 
@@ -319,7 +317,7 @@ gedit_metadata_manager_get (GFile       *location,
 		}
 	}
 
-	item = (Item *)g_hash_table_lookup (gedit_metadata_manager->items,
+	item = (Item *)g_hash_table_lookup (gcode_metadata_manager->items,
 					    uri);
 
 	g_free (uri);
@@ -341,7 +339,7 @@ gedit_metadata_manager_get (GFile       *location,
 }
 
 /**
- * gedit_metadata_manager_set:
+ * gcode_metadata_manager_set:
  * @location: a #GFile.
  * @key: a key.
  * @value: the value associated with the @key.
@@ -349,7 +347,7 @@ gedit_metadata_manager_get (GFile       *location,
  * Sets the @key to contain the given @value for the file @location.
  */
 void
-gedit_metadata_manager_set (GFile       *location,
+gcode_metadata_manager_set (GFile       *location,
 			    const gchar *key,
 			    const gchar *value)
 {
@@ -361,9 +359,9 @@ gedit_metadata_manager_set (GFile       *location,
 
 	uri = g_file_get_uri (location);
 
-	gedit_debug_message (DEBUG_METADATA, "URI: %s --- key: %s --- value: %s", uri, key, value);
+	gcode_debug_message (DEBUG_METADATA, "URI: %s --- key: %s --- value: %s", uri, key, value);
 
-	if (!gedit_metadata_manager->values_loaded)
+	if (!gcode_metadata_manager->values_loaded)
 	{
 		gboolean res;
 
@@ -373,14 +371,14 @@ gedit_metadata_manager_set (GFile       *location,
 			return;
 	}
 
-	item = (Item *)g_hash_table_lookup (gedit_metadata_manager->items,
+	item = (Item *)g_hash_table_lookup (gcode_metadata_manager->items,
 					    uri);
 
 	if (item == NULL)
 	{
 		item = g_new0 (Item, 1);
 
-		g_hash_table_insert (gedit_metadata_manager->items,
+		g_hash_table_insert (gcode_metadata_manager->items,
 				     g_strdup (uri),
 				     item);
 	}
@@ -409,7 +407,7 @@ gedit_metadata_manager_set (GFile       *location,
 
 	g_free (uri);
 
-	gedit_metadata_manager_arm_timeout ();
+	gcode_metadata_manager_arm_timeout ();
 }
 
 static void
@@ -417,8 +415,8 @@ save_values (const gchar *key, const gchar *value, xmlNodePtr parent)
 {
 	xmlNodePtr xml_node;
 
-#ifdef GEDIT_METADATA_VERBOSE_DEBUG
-	gedit_debug (DEBUG_METADATA);
+#ifdef GCODE_METADATA_VERBOSE_DEBUG
+	gcode_debug (DEBUG_METADATA);
 #endif
 
 	g_return_if_fail (key != NULL);
@@ -438,8 +436,8 @@ save_values (const gchar *key, const gchar *value, xmlNodePtr parent)
 		    (const xmlChar *)"value",
 		    (const xmlChar *)value);
 
-#ifdef GEDIT_METADATA_VERBOSE_DEBUG
-	gedit_debug_message (DEBUG_METADATA, "entry: %s = %s", key, value);
+#ifdef GCODE_METADATA_VERBOSE_DEBUG
+	gcode_debug_message (DEBUG_METADATA, "entry: %s = %s", key, value);
 #endif
 }
 
@@ -450,8 +448,8 @@ save_item (const gchar *key, const gpointer *data, xmlNodePtr parent)
 	const Item *item = (const Item *)data;
 	gchar *atime;
 
-#ifdef GEDIT_METADATA_VERBOSE_DEBUG
-	gedit_debug (DEBUG_METADATA);
+#ifdef GCODE_METADATA_VERBOSE_DEBUG
+	gcode_debug (DEBUG_METADATA);
 #endif
 
 	g_return_if_fail (key != NULL);
@@ -463,15 +461,15 @@ save_item (const gchar *key, const gpointer *data, xmlNodePtr parent)
 
 	xmlSetProp (xml_node, (const xmlChar *)"uri", (const xmlChar *)key);
 
-#ifdef GEDIT_METADATA_VERBOSE_DEBUG
-	gedit_debug_message (DEBUG_METADATA, "uri: %s", key);
+#ifdef GCODE_METADATA_VERBOSE_DEBUG
+	gcode_debug_message (DEBUG_METADATA, "uri: %s", key);
 #endif
 
 	atime = g_strdup_printf ("%" G_GINT64_FORMAT, item->atime);
 	xmlSetProp (xml_node, (const xmlChar *)"atime", (const xmlChar *)atime);
 
-#ifdef GEDIT_METADATA_VERBOSE_DEBUG
-	gedit_debug_message (DEBUG_METADATA, "atime: %s", atime);
+#ifdef GCODE_METADATA_VERBOSE_DEBUG
+	gcode_debug_message (DEBUG_METADATA, "atime: %s", atime);
 #endif
 
 	g_free (atime);
@@ -493,7 +491,7 @@ get_oldest (const gchar *key, const gpointer value, const gchar ** key_to_remove
 	else
 	{
 		const Item *item_to_remove =
-			g_hash_table_lookup (gedit_metadata_manager->items,
+			g_hash_table_lookup (gcode_metadata_manager->items,
 					     *key_to_remove);
 
 		g_return_if_fail (item_to_remove != NULL);
@@ -508,30 +506,30 @@ get_oldest (const gchar *key, const gpointer value, const gchar ** key_to_remove
 static void
 resize_items (void)
 {
-	while (g_hash_table_size (gedit_metadata_manager->items) > MAX_ITEMS)
+	while (g_hash_table_size (gcode_metadata_manager->items) > MAX_ITEMS)
 	{
 		gpointer key_to_remove = NULL;
 
-		g_hash_table_foreach (gedit_metadata_manager->items,
+		g_hash_table_foreach (gcode_metadata_manager->items,
 				      (GHFunc)get_oldest,
 				      &key_to_remove);
 
 		g_return_if_fail (key_to_remove != NULL);
 
-		g_hash_table_remove (gedit_metadata_manager->items,
+		g_hash_table_remove (gcode_metadata_manager->items,
 				     key_to_remove);
 	}
 }
 
 static gboolean
-gedit_metadata_manager_save (gpointer data)
+gcode_metadata_manager_save (gpointer data)
 {
 	xmlDocPtr  doc;
 	xmlNodePtr root;
 
-	gedit_debug (DEBUG_METADATA);
+	gcode_debug (DEBUG_METADATA);
 
-	gedit_metadata_manager->timeout_id = 0;
+	gcode_metadata_manager->timeout_id = 0;
 
 	resize_items ();
 
@@ -545,22 +543,22 @@ gedit_metadata_manager_save (gpointer data)
 	root = xmlNewDocNode (doc, NULL, (const xmlChar *)"metadata", NULL);
 	xmlDocSetRootElement (doc, root);
 
-    	g_hash_table_foreach (gedit_metadata_manager->items,
+    	g_hash_table_foreach (gcode_metadata_manager->items,
 			      (GHFunc)save_item,
 			      root);
 
 	/* FIXME: lock file - Paolo */
-	if (gedit_metadata_manager->metadata_filename != NULL)
+	if (gcode_metadata_manager->metadata_filename != NULL)
 	{
 		gchar *cache_dir;
 		int res;
 
 		/* make sure the cache dir exists */
-		cache_dir = g_path_get_dirname (gedit_metadata_manager->metadata_filename);
+		cache_dir = g_path_get_dirname (gcode_metadata_manager->metadata_filename);
 		res = g_mkdir_with_parents (cache_dir, 0755);
 		if (res != -1)
 		{
-			xmlSaveFormatFile (gedit_metadata_manager->metadata_filename,
+			xmlSaveFormatFile (gcode_metadata_manager->metadata_filename,
 			                   doc,
 			                   1);
 		}
@@ -570,7 +568,7 @@ gedit_metadata_manager_save (gpointer data)
 
 	xmlFreeDoc (doc);
 
-	gedit_debug_message (DEBUG_METADATA, "DONE");
+	gcode_debug_message (DEBUG_METADATA, "DONE");
 
 	return FALSE;
 }

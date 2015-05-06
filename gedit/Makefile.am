@@ -117,7 +117,6 @@ gedit_NOINST_H_FILES =					\
 	gedit/gedit-history-entry.h			\
 	gedit/gedit-io-error-info-bar.h			\
 	gedit/gedit-menu-stack-switcher.h		\
-	gedit/gedit-metadata-manager.h			\
 	gedit/gedit-multi-notebook.h			\
 	gedit/gedit-notebook.h				\
 	gedit/gedit-notebook-popup-menu.h		\
@@ -193,7 +192,6 @@ gedit_libgedit_c_files =				\
 	gedit/gedit-menu-stack-switcher.c		\
 	gedit/gedit-message-bus.c			\
 	gedit/gedit-message.c				\
-	gedit/gedit-metadata-manager.c			\
 	gedit/gedit-multi-notebook.c			\
 	gedit/gedit-notebook.c				\
 	gedit/gedit-notebook-popup-menu.c		\
