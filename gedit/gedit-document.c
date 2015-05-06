@@ -110,7 +110,7 @@ static guint document_signals[LAST_SIGNAL] = { 0 };
 
 static GHashTable *allocated_untitled_numbers = NULL;
 
-G_DEFINE_TYPE_WITH_PRIVATE (GeditDocument, gedit_document, GTK_SOURCE_TYPE_BUFFER)
+G_DEFINE_TYPE_WITH_PRIVATE (GeditDocument, gedit_document, GCODE_TYPE_DOCUMENT)
 
 static gint
 get_untitled_number (void)

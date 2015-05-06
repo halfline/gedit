@@ -25,12 +25,13 @@
 #define __GEDIT_DOCUMENT_H__
 
 #include <gtksourceview/gtksource.h>
+#include <gedit/gcode/gcode-gedit.h>
 
 G_BEGIN_DECLS
 
 #define GEDIT_TYPE_DOCUMENT (gedit_document_get_type())
 
-G_DECLARE_DERIVABLE_TYPE (GeditDocument, gedit_document, GEDIT, DOCUMENT, GtkSourceBuffer)
+G_DECLARE_DERIVABLE_TYPE (GeditDocument, gedit_document, GEDIT, DOCUMENT, GcodeDocument)
 
 #ifdef G_OS_WIN32
 #define GEDIT_METADATA_ATTRIBUTE_POSITION "position"
@@ -44,7 +45,7 @@ G_DECLARE_DERIVABLE_TYPE (GeditDocument, gedit_document, GEDIT, DOCUMENT, GtkSou
 
 struct _GeditDocumentClass
 {
-	GtkSourceBufferClass parent_class;
+	GcodeDocumentClass parent_class;
 
 	/* Signals */
 	void (* cursor_moved)		(GeditDocument *document);
