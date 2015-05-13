@@ -225,10 +225,10 @@ gedit_debug_message (GeditDebugSection  section,
  * Since: 3.4
  */
 void
-gedit_debug_plugin_message (const gchar       *file,
-			    gint               line,
-			    const gchar       *function,
-			    const gchar       *message)
+gedit_debug_plugin_message (const gchar *file,
+			    gint         line,
+			    const gchar *function,
+			    const gchar *message)
 {
 	gedit_debug_message (GEDIT_DEBUG_PLUGINS, file, line, function, "%s", message);
 }
