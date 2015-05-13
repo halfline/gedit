@@ -12,6 +12,7 @@ gedit/gedit-commands-file.c
 gedit/gedit-commands-help.c
 gedit/gedit-commands-search.c
 gedit/gedit-debug.c
+gedit/gedit-debug-utility.c
 gedit/gedit-document.c
 gedit/gedit-documents-panel.c
 gedit/gedit-encodings-combo-box.c

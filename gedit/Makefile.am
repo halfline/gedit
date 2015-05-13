@@ -101,6 +101,7 @@ gedit_built_sources =			\
 gedit_NOINST_H_FILES =					\
 	gedit/gedit-close-confirmation-dialog.h		\
 	gedit/gedit-commands-private.h			\
+	gedit/gedit-debug-utility.h			\
 	gedit/gedit-dirs.h				\
 	gedit/gedit-document-private.h			\
 	gedit/gedit-documents-panel.h			\
@@ -170,6 +171,7 @@ gedit_libgedit_c_files =				\
 	gedit/gedit-commands-search.c			\
 	gedit/gedit-commands-view.c			\
 	gedit/gedit-debug.c				\
+	gedit/gedit-debug-utility.c			\
 	gedit/gedit-dirs.c				\
 	gedit/gedit-document.c 				\
 	gedit/gedit-documents-panel.c			\
