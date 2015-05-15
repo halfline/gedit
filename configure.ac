@@ -303,7 +303,7 @@ if test "x$enable_python" = "xauto"; then
 fi
 
 if test "x$enable_python" = "xyes"; then
-	AM_PATH_PYTHON(3.2.3)
+	AM_PATH_PYTHON
 	PKG_CHECK_MODULES(PYTHON, [pygobject-3.0 >= $PYGOBJECT_REQUIRED])
 
 	pyoverridesdir="\$(pyexecdir)/gi/overrides"

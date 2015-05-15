@@ -1,5 +1,5 @@
 [Plugin]
-Loader=python3
+Loader=python
 Module=snippets
 IAge=3
 _Name=Snippets
